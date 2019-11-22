@@ -1,4 +1,15 @@
+    const path = require('path');
+
     module.exports = {
+      resolve: {
+                    alias: {
+                      globalize$: path.resolve( __dirname, "node_modules/globalize/dist/globalize.js" ),
+                      globalize: path.resolve(__dirname, "node_modules/globalize/dist/globalize"),
+                      cldr$: path.resolve(__dirname, "node_modules/cldrjs/dist/cldr.js"),
+                      cldr: path.resolve(__dirname, "node_modules/cldrjs/dist/cldr")
+                    },
+               },
+
       module: {
         rules: [
           {
@@ -10,6 +21,28 @@
                   presets: ['@babel/preset-env']
                 }
             }
+          },
+
+          {
+            test: /\.jsx$/,
+            exclude: /node_modules/,
+            use: {
+                loader: 'babel-loader',
+                options: {
+                  presets: ['@babel/preset-env']
+                }
+            }
+          },
+
+          {
+            test: /\.css$/,
+            use: [
+              { loader: "style-loader" },
+              { loader: "css-loader" }]
+          },
+          {
+            test: /\.(eot|svg|ttf|woff|woff2)$/,
+            use: "url-loader?name=[name].[ext]"
           }
         ]
       }
