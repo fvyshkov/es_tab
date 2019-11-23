@@ -118,8 +118,7 @@ class SheetToolbar extends Component {
     refreshButtonOptions = {
         icon: 'refresh',
         onClick: (e) => {
-                        this.handleRefresh(e);
-                        notify('test');
+                        this.props.onRefreshCallback();
                         }
     }
 

@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import SheetToolbar from "./SheetToolbar.jsx";
 import FilterPanel from "./FilterPanel.jsx";
 import GridExample from './GridExample.jsx';
+import notify from 'devextreme/ui/notify';
 
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-balham.css';
@@ -26,6 +27,7 @@ class SheetView extends Component {
         this.loadNewSheet = this.loadNewSheet.bind(this);
         this.onFilterPanelChange = this.onFilterPanelChange.bind(this);
         this.onToolbarRefreshClick = this.onToolbarRefreshClick.bind(this);
+        this.getFilterSkey = this.getFilterSkey.bind(this);
 
 
 
@@ -53,7 +55,6 @@ class SheetView extends Component {
 
     onFilterPanelChange(selectedNodes, filterID){
         this.selectedFilterNodes[filterID] = selectedNodes;
-        console.log('onFilterPanelChange; SKEY=', this.getFilterSkey());
     }
 
     getFilterSkey(){
@@ -66,7 +67,6 @@ class SheetView extends Component {
                 skey = skey+'FLT_ID_'+filterID+'=>'+ selectedNodesForOneFilter[0].id +',';
             }
         };
-
         return skey;
     }
 
