@@ -100,7 +100,10 @@ class SheetToolbar extends Component {
     );
   }
 
-  treeView_itemSelectionChanged(e) {
+    treeView_itemSelectionChanged(e) {
+        this.props.onSelectNewSheet(e.component.getSelectedNodesKeys(),e.itemData.sheet_type);
+    }
+        /*
    this.setState({
       treeBoxValue: e.component.getSelectedNodesKeys(),
        sheet_id:e.component.getSelectedNodesKeys(),
@@ -109,7 +112,8 @@ class SheetToolbar extends Component {
 
     this.loadSheet();
     this.handleNewList();
-  }
+    */
+
 
     refreshButtonOptions = {
         icon: 'refresh',
@@ -122,6 +126,7 @@ class SheetToolbar extends Component {
     saveButtonOptions = {
         icon: 'save',
         onClick: () => {
+            this.props.onSaveCallback();
             notify('Save button has been clicked!');
         }
     }

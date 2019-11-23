@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import ReactDOM from "react-dom";
-import SheetToolbar from "./SheetToolbar.jsx";
+import SheetView from "./SheetView.jsx";
 
 
 const App = () => (
-  <SheetToolbar />
+    <SheetView />
 );
 
 const wrapper = document.getElementById("app");

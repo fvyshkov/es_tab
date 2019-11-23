@@ -1,0 +1,70 @@
+.FilterPanel{
+         border: solid;
+          left:20px;
+        border-width : thin;
+        width:300px;
+        max-width:300px;
+        color-background:aqua;
+
+}
+
+.treeRef{
+         border: solid;
+        border-width : thin;
+        width:500px;
+        height:200px;
+        /*max-width:300px*/;
+
+}
+
+.FilterItem{
+         border: solid;
+          left:20px;
+          position: absolute;
+        border-width : thin;
+        width:300px;
+        max-width:300px;
+
+}
+
+.Wrapper{
+         /*border:solid;*/
+          position: absolute;
+        border-width : thic;
+        width:100%;
+        height:100%;
+        border-color:aqua;
+}
+
+.Panel{
+/*border:solid;*/
+border-width:4px;
+border-color:red;
+float:left;
+}
+
+
+.Grid{
+/*border:solid;*/
+border-width:4px;
+border-color:blue;
+overflow:hidden;
+height: 700px;
+position: relative;
+
+}
+
+
+.Toolbar{
+/*border:solid;*/
+border-width:4px;
+border-color:red;
+overflow:hidden;
+height: 50px;
+position: relative;
+
+}
+
+.SheetTree{
+width:500px
+}
