@@ -205,13 +205,11 @@ def get_sheet_nodes(request):
     if p_sht_id=='':
         return JsonResponse([], safe=False)
 
-    print('NODES p_sht_id=', p_sht_id)
     sql_result = get_sql_result("select c_pkgessheet.fGetMainFlt(%s) main_flt_id from dual", [p_sht_id])
     main_flt_id = sql_result[0].get('main_flt_id')
     p_flt_root_id = Skey(p_key+','+p_cell_key).get_flt_value(main_flt_id)
 
 
-    print('p_sht_id=', p_sht_id)
     sheet_type = get_sheet_type(p_sht_id)
 
     if sheet_type=='TREE':
@@ -255,12 +253,9 @@ def get_tree_node_list(request):
                                "order by x.npp", [p_sht_id, p_key, p_flt_id, p_flt_item_id, p_flt_root_id, p_cell_key])
 
     for node in node_list:
-        # print('p=', node['flt_id'])
-
         p_tmp_cell_key = p_key + ',' + p_cell_key + ',' + 'FLT_ID_' + node['flt_id'] + '=>' + node['flt_item_id']
         p_cell_key += 'FLT_ID_' + node['flt_id'] + '=>' + node['flt_item_id']
         p_tmp_cell_key = Skey(p_tmp_cell_key).process()
-        # print('cell_key=',p_tmp_cell_key)
         cell_list = get_sql_result('''select x.*  from table(C_PKGESSHEET.fGetDataCells(%s, %s)) x''',
                                    [p_sht_id, p_tmp_cell_key])
 
@@ -369,7 +364,6 @@ def get_anl_table_rows(sht_id, skey):
     ref_cursor =[]
 
     columns = get_sheet_columns_list('TABLE', sht_id, skey)
-    print(columns)
     for row in refCursor:
         row_dict = {}
         column_data = []
@@ -386,7 +380,6 @@ def get_anl_table_rows(sht_id, skey):
                     ent_id = None
                     atr_type = None
                     editfl = 0
-                #print('col', column_name, column)
                 column_data.append({
                                         'key':column_name.upper(),
                                         'sql_value': row[column_idx],
@@ -410,7 +403,6 @@ def get_sql_result(sql, params):
 
 def dict_fetch_all(cursor):
     columns = [col[0] for col in cursor.description]
-    print(cursor)
     for i in range(len(columns)):
         columns[i] = columns[i].lower()
     return [
@@ -463,7 +455,6 @@ def get_refer_value(request):
         col_id = param_dict['col_id'][0]
         item_id = param_dict['item_id'][0]
         ind_id = col_id[1:]
-        print ('item_id', item_id)
         nodes= get_sql_result( 'select t.name '
                                'from c_es_ver_sheet_ind i, table(C_PKGESent.fGetColComboMain(i.id, i.IND_MAIN_ID)) t '
                                'where i.id = %s '
