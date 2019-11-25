@@ -7,6 +7,7 @@ import GridCellRenderer from "./GridCellRenderer.jsx";
 import TreeReferEditor from "./TreeReferEditor.jsx";
 import NumericEditor from "./NumericEditor.jsx";
 import { sendGetRequest } from './App.js';
+import FilterPanelInToolPanel from "./FilterPanelInToolPanel.jsx";
 
 const enableCellColor = 'palegreen';
 const disableCellColor = 'lightsalmon';
@@ -33,20 +34,29 @@ class GridExample extends React.Component {
       frameworkComponents: {
         treeReferEditor: TreeReferEditor,
         gridCellRenderer:GridCellRenderer,
-        numericEditor: NumericEditor
+        numericEditor: NumericEditor,
+        filterPanelInToolPanel: FilterPanelInToolPanel
       },
       sideBar:  {
-    toolPanels: [
-        {
-            id: 'columns',
-            labelDefault: 'Столбцы',
-            labelKey: 'columns',
-            iconKey: 'columns',
-            toolPanel: 'agColumnsToolPanel',
-        }
-    ],
-    defaultToolPanel: []
-},
+                toolPanels: [
+                        {
+                            id: 'columns',
+                            labelDefault: 'Столбцы',
+                            labelKey: 'columns',
+                            iconKey: 'columns',
+                            toolPanel: 'agColumnsToolPanel',
+                        },
+                        {
+                            id: "sheetFilters",
+                            labelDefault: "Аналитики",
+                            labelKey: "sheetFilters",
+                            iconKey: "sheetFilters",
+                            toolPanel: "filterPanelInToolPanel"
+                          }
+                    ],
+                    defaultToolPanel: ["sheetFilters"],
+                    position: 'left'
+                },
       defaultColDef: {
         width: 240,
         resizable: true,
@@ -59,26 +69,8 @@ class GridExample extends React.Component {
       },
       getServerSideGroupKey: function(dataItem) {
         return dataItem.node_key;
-      },
-
-      processChartOptions: function(params) {
-        var opts = params.options;
-        opts.title = { text: "Medals by Age" };
-        opts.legend.position = "bottom";
-        opts.seriesDefaults.tooltip.renderer = function(params) {
-          var titleStyle = params.color ? ' style="color: white; background-color:' + params.color + '"' : "";
-          var title = params.title ? '<div class="title"' + titleStyle + ">" + params.title + "</div>" : "";
-          var value = params.datum[params.yKey].toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
-          return title + '<div class="content" style="text-align: center">' + value + "</div>";
-        };
-        if (opts.xAxis) {
-          opts.xAxis.label.rotation = 0;
-        }
-        if (opts.yAxis) {
-          opts.yAxis.label.rotation = 0;
-        }
-        return opts;
       }
+
     };
     this.refreshGrid = this.refreshGrid.bind(this);
     this.render = this.render.bind(this);
@@ -128,7 +120,7 @@ class GridExample extends React.Component {
             }
             return null;
         }
-        //ве эти преобразования лучше перенести в средний слой
+        //все эти преобразования лучше перенести в средний слой
         var columns = columnList.map(function prs(currentValue){
 
             var columnCellEditor = null;
@@ -273,6 +265,10 @@ class GridExample extends React.Component {
                     onRowDataUpdated={this.onRowDataUpdated}
                     processChartOptions={this.state.processChartOptions}
                     onFirstDataRendered={this.onFirstDataRendered.bind(this)}
+                    enableRangeSelection={true}
+                    enableCharts={true}
+                    sheet_id={this.props.sheet_id}
+                    onFilterPanelChange={this.props.onFilterPanelChange}
                   />
                   </React.Fragment>
 
@@ -300,6 +296,8 @@ class GridExample extends React.Component {
                     onRowDataUpdated={this.onRowDataUpdated}
                     enableRangeSelection={true}
                     enableCharts={true}
+                    sheet_id={this.props.sheet_id}
+                    onFilterPanelChange={this.props.onFilterPanelChange}
 
                     />
                   </React.Fragment>

@@ -103,6 +103,7 @@ class SheetView extends Component {
                                 sheet_id = {this.state.sheet_id}
                                 sheet_type = {this.state.sheet_type}
                                 treeData = {this.state.sheet_type==='tree'? true:false}
+                                onFilterPanelChange={this.onFilterPanelChange}
                                 />
                         </div>
                     </div>
