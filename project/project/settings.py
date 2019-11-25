@@ -77,6 +77,8 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
+    #
+    #ANLDWDEMO4=1.1.1.84, DWAPPDEV=1.1.1.32, DWRL3MGR = 1.1.1.84
     'default': {
         'ENGINE': 'django.db.backends.oracle',
         'NAME': 'ANLDWDEMO4',
@@ -86,6 +88,8 @@ DATABASES = {
         'PORT': '1521',
     }
 }
+
+
 
 
 # Password validation

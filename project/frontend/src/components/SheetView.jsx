@@ -71,12 +71,13 @@ class SheetView extends Component {
     }
 
     onToolbarRefreshClick(){
-        notify('refresh');
+        //notify('refresh');
         this.sendRefreshGrid();
 
     }
 
     render(){
+        console.log('render TOP level');
         return (
             <React.Fragment>
                 <div className = {'ag-theme-balham'}>

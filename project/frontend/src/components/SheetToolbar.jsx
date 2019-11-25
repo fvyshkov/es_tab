@@ -8,8 +8,6 @@ import notify from 'devextreme/ui/notify';
 import { sendGetRequest } from './App.js';
 import { DropDownBox, TreeView } from 'devextreme-react';
 
-const labelRender = () => <div className={'toolbar-label'}><b>Tom&apos;s Club</b> Products</div>;
-
 
 class SheetToolbar extends Component {
 
@@ -22,6 +20,9 @@ class SheetToolbar extends Component {
                     sheetList:[]
                    };
 
+
+        this.dropDownBoxRef = React.createRef();
+
         this.sheetSelectRender = this.sheetSelectRender.bind(this);
         this.componentDidMount = this.componentDidMount.bind(this);
         this.treeViewRender = this.treeViewRender.bind(this);
@@ -29,15 +30,26 @@ class SheetToolbar extends Component {
         this.sheetSelectRender = this.sheetSelectRender.bind(this);
         this.loadSheetList = this.loadSheetList.bind(this);
         this.onLoadSheetSuccess = this.onLoadSheetSuccess.bind(this);
+        this.onOpened = this.onOpened.bind(this);
+
+
 
 
 
 
     }
 
+
+
+
+    onOpened(component){
+        console.log('onOpened');
+        this.dropDownBox = component;
+    }
     sheetSelectRender(){
         return (
             <DropDownBox
+                ref={this.dropDownBoxRef}
                 dataSource={this.state.sheetList}
                 value={this.state.treeBoxValue}
                 valueExpr={'id'}
@@ -48,8 +60,8 @@ class SheetToolbar extends Component {
                 dataStructure={'plain'}
                 parentIdExpr ={'parent_id'}
                 placeholder={'Выбор листа для отображения'}
-                onValueChanged={this.syncTreeViewSelection}
                 contentRender={this.treeViewRender}
+                onOpened={this.onOpened}
                 width={500}
 
             />
@@ -70,49 +82,38 @@ class SheetToolbar extends Component {
     }
 
    treeViewRender() {
-    return (
-    <div className="SheetTree">
-      <TreeView
-        dataSource={this.state.sheetList}
-        ref={(ref) => this.treeView = ref}
-        keyExpr={'id'}
-        selectionMode={'single'}
-              virtualModeEnabled={false}
-              dataStructure={'plain'}
-              parentIdExpr ={'parent_id'}
-
-              valueExpr={'id'}
-              rootValue={'0'}
-              displayExpr={'label'}
-
-
-
-
-        itemsExpr={'children'}
-        selectByClick={true}
-        onContentReady={this.treeView_onContentReady}
-        onItemSelectionChanged={this.treeView_itemSelectionChanged}
-        searchEnabled={true}
-        searchExpr = {["label"]}
-        width={400}
-      />
-      </div>
-    );
+        return (
+            <div className="SheetTree">
+                <TreeView
+                    dataSource={this.state.sheetList}
+                    keyExpr={'id'}
+                    selectionMode={'single'}
+                    virtualModeEnabled={false}
+                    dataStructure={'plain'}
+                    parentIdExpr ={'parent_id'}
+                    valueExpr={'id'}
+                    rootValue={'0'}
+                    displayExpr={'label'}
+                    itemsExpr={'children'}
+                    selectByClick={true}
+                    onItemSelectionChanged={this.treeView_itemSelectionChanged}
+                    searchEnabled={true}
+                    searchExpr = {["label"]}
+                    width={400}
+                />
+            </div>
+        );
   }
 
     treeView_itemSelectionChanged(e) {
-        this.props.onSelectNewSheet(e.component.getSelectedNodesKeys(),e.itemData.sheet_type);
-    }
-        /*
-   this.setState({
-      treeBoxValue: e.component.getSelectedNodesKeys(),
-       sheet_id:e.component.getSelectedNodesKeys(),
-       sheet_type:e.itemData.sheet_type
-    });
 
-    this.loadSheet();
-    this.handleNewList();
-    */
+        this.setState({
+            treeBoxValue: e.component.getSelectedNodesKeys()
+            });
+        this.dropDownBoxRef.current.instance.close();
+        this.props.onSelectNewSheet(e.component.getSelectedNodesKeys(),e.itemData.sheet_type);
+
+    }
 
 
     refreshButtonOptions = {
@@ -140,9 +141,6 @@ class SheetToolbar extends Component {
             <Item location={'after'}
             widget={'dxButton'}
             options={this.saveButtonOptions} />
-            <Item location={'center'}
-            locateInMenu={'never'}
-            render={labelRender} />
             <Item location={'after'}
             widget={'dxButton'}
             options={this.refreshButtonOptions} />
