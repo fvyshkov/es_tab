@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from "react-dom";
 import SheetToolbar from "./SheetToolbar.jsx";
-import FilterPanel from "./FilterPanel.jsx";
 import GridExample from './GridExample.jsx';
 import notify from 'devextreme/ui/notify';
 
@@ -87,14 +86,6 @@ class SheetView extends Component {
                             onRefreshCallback={this.onToolbarRefreshClick}
                             onSelectNewSheet={this.loadNewSheet}
                             />
-
-                        <div class="Panel">
-                            <FilterPanel
-                                sheet_id={this.state.sheet_id}
-                                sendRefreshPanel={click => this.loadNewSheetToFilterPanel = click}
-                                onFilterPanelChange={this.onFilterPanelChange}
-                            />
-                        </div>
 
                         <div  class="Grid">
                             <GridExample
