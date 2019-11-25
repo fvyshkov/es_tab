@@ -82,40 +82,19 @@ class GridExample extends React.Component {
     };
     this.refreshGrid = this.refreshGrid.bind(this);
     this.render = this.render.bind(this);
-
+    this.processColumnsData = this.processColumnsData.bind(this);
 
 
   }
 
-
-currencyFormatter(params) {
-  return "\xA3" + this.formatNumber(params.value);
-}
- formatNumber(number) {
-  return Math.floor(number)
-    .toString()
-    .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
-}
-
-
-  refreshRows(){
-    this.gridApi.resetRowHeights();
-    this.gridApi.doLayout()
-  }
-
-  componentDidMount() {
-   if (this.props.sheet_type==='tree') {
+    componentDidMount() {
+        if (this.props.sheet_type==='tree') {
             this.setState({autoGroupColumnDef: treeAutoGroupColumnDef, treeData:true});
-       }else{
+        }else{
             this.setState({autoGroupColumnDef: {}, treeData:false});
-
-       }
-
-
-    this.props.sendRefreshGrid(this.refreshGrid);
-
-
-  }
+        }
+        this.props.sendRefreshGrid(this.refreshGrid);
+    }
 
   refreshGrid(e){
 
@@ -131,107 +110,84 @@ currencyFormatter(params) {
        this.loadColumns();
   }
 
-  onModelUpdated = params => {
-  }
-
-  onRowDataChanged = params => {
-  }
-
-  onRowDataUpdated = params => {
-  }
 
 
 
-  loadColumns(){
-    const httpRequest = new XMLHttpRequest();
-    var respObj
-
-    var httpStr = "http://127.0.0.1:8000/sht_columns/?";
-
-    if (this.props.sheet_id){
-        httpStr +='sht_id='+this.props.sheet_id;
-    }
-
-    var skey = this.props.skey();
-    if  (skey){
-        httpStr += '&skey='+skey;
-    }
-
-    httpRequest.open("GET",httpStr,true);
-
-    httpRequest.onreadystatechange = () => {
-      if (httpRequest.readyState === 4 && httpRequest.status === 200) {
-          respObj = JSON.parse(httpRequest.responseText);
-
-          for (var i=0; i < respObj.length; i++){
-            if (respObj[i].refer_data){
-                referStore.setData(respObj[i].key, JSON.stringify(respObj[i].refer_data));
+    processColumnsData(columnList){
+        for (var i=0; i < columnList.length; i++){
+            if (columnList[i].refer_data){
+                referStore.setData(columnList[i].key, JSON.stringify(columnList[i].refer_data));
             }
-          }
+        }
 
-          var columns = respObj.map(function prs(currentValue){
+        function getColumnData(params){
+            for(var i=0; i< params.data.column_data.length; i++){
+                if (params.data.column_data[i].key===params.colDef.field){
+                    return params.data.column_data[i];
+                }
+            }
+            return null;
+        }
+        //ве эти преобразования лучше перенести в средний слой
+        var columns = columnList.map(function prs(currentValue){
 
-                var columnCellEditor = null;
-                if (currentValue.ent_id)
-                    columnCellEditor = "treeReferEditor";
+            var columnCellEditor = null;
+            if (currentValue.ent_id)
+                columnCellEditor = "treeReferEditor";
+
+            var cellChartDataType = "category";
+            if (currentValue.atr_type==="N")
+                cellChartDataType = "series";
 
 
 
-                 var cellChartDataType = "category";
-                if (currentValue.atr_type==="N")
-                    cellChartDataType = "series";
-
-                            return {
-                                field:currentValue.key,
-                                headerName:currentValue.name,
-                                ent_id:currentValue.ent_id,
-                                ind_id:currentValue.ind_id,
-                                ind_id_hi: currentValue.ind_id_hi,
-                                atr_type:currentValue.atr_type,
-                                chartDataType : cellChartDataType,
-                                filter:false,
-                                cellEditor: columnCellEditor,
-                                cellRenderer: gridCellRenderer,
-
-                                editable:function(params) {
-                                                   for(var i=0; i< params.data.column_data.length; i++){
-                                                                    if (params.data.column_data[i].key===params.colDef.field){
-                                                                        console.log('key',params.data.column_data[i].key,'edit',params.data.column_data[i].editfl);
-                                                                        if (params.data.column_data[i].editfl===1 ){
-                                                                            return true;
-                                                                        }else{
-                                                                            return false;
-                                                                        }
-
-                                                                    }
-                                                                }
-                                                },
-
-                                cellStyle:  (params) => {
-                                                            if (! params.data.column_data){
-                                                                return;
-                                                             }
-                                                            for(var i=0; i< params.data.column_data.length; i++){
-                                                                if (params.data.column_data[i].key===params.colDef.field){
-                                                                    if (params.data.column_data[i].editfl===0 || params.data.groupfl==='1'){
-                                                                        return {color: 'black', backgroundColor: disableCellColor};
-                                                                    }else{
-                                                                        return {color: 'black', backgroundColor: enableCellColor};
-                                                                    }
-
-                                                                }
-                                                            }
+            return {
+                            field:currentValue.key,
+                            headerName:currentValue.name,
+                            ent_id:currentValue.ent_id,
+                            ind_id:currentValue.ind_id,
+                            ind_id_hi: currentValue.ind_id_hi,
+                            atr_type:currentValue.atr_type,
+                            chartDataType : cellChartDataType,
+                            filter:false,
+                            cellEditor: columnCellEditor,
+                            cellRenderer: gridCellRenderer,
+                            editable:function(params) {
+                                                        var columnData = getColumnData(params);
+                                                        return  (columnData && columnData.editfl===1);
+                                                     },
+                            cellStyle:  (params) => {
+                                                        if (! params.data.column_data){
+                                                            return;
                                                         }
-                                }
-                             }
-                            );
-            columns = groupColumns(columns);
-          this.setState({columnDefs:columns});
-      }
-    };
-    httpRequest.send();
+                                                        var columnData = getColumnData(params);
+                                                        if (!columnData || columnData.editfl===0 || params.data.groupfl==='1'){
+                                                            return {color: 'black', backgroundColor: disableCellColor};
+                                                        }else{
+                                                            return {color: 'black', backgroundColor: enableCellColor};
+                                                        }
+                                                    }
+                            }
+            }
+        );
 
-  }
+        columns = groupColumns(columns);
+        this.setState({columnDefs:columns});
+    }
+
+
+
+    loadColumns(){
+        var httpStr = "sht_columns/?";
+        if (this.props.sheet_id){
+            httpStr +='sht_id='+this.props.sheet_id;
+        }
+        var skey = this.props.skey();
+        if  (skey){
+            httpStr += '&skey='+skey;
+        }
+        sendGetRequest(httpStr, this.processColumnsData);
+    }
 
   serverSideDatasource = (gridComponent) => {
 
