@@ -54,7 +54,7 @@ class GridExample extends React.Component {
                             toolPanel: "filterPanelInToolPanel"
                           }
                     ],
-                    defaultToolPanel: ["sheetFilters"],
+                    defaultToolPanel: "sheetFilters",
                     position: 'left'
                 },
       defaultColDef: {

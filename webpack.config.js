@@ -1,6 +1,17 @@
     const path = require('path');
-
+    const join = require("path").join;
+    //console.log(';',__dirname);
     module.exports = {
+       entry: './project/frontend/src/index.js',
+       output:{
+        path: __dirname + '/project/frontend/static/frontend/',
+        publicPath: '/',
+        filename: 'main.js'
+        },
+        devServer: {
+         contentBase: './project/frontend/templates/frontend',
+         writeToDisk: true
+        },
       resolve: {
                     alias: {
                       globalize$: path.resolve( __dirname, "node_modules/globalize/dist/globalize.js" ),
