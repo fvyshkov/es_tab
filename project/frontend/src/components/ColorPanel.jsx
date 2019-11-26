@@ -1,12 +1,20 @@
 import React from 'react';
 import ColorBox from 'devextreme-react/color-box';
 import { Popup } from 'devextreme-react/popup';
-import { sendGetRequest } from './App.js';
+import { sendRequest } from './App.js';
 
-var delphiColorToHex = function (delphiColor) {
+function delphiColorToHex(delphiColor) {
   var hex = Number(delphiColor).toString(16);
   return '#'+hex.substr(4,2)+hex.substr(2,2)+hex.substr(0,2);
 };
+
+function hexToDelphiColor(hex) {
+    var str = hex.substr(1);
+    str = str.substr(4,2)+str.substr(2,2)+str.substr(0,2);
+    str = parseInt(str,16);
+    return str;
+};
+
 
 class ColorPanel extends React.Component {
   constructor(props) {
@@ -20,6 +28,9 @@ class ColorPanel extends React.Component {
     this.processColors = this.processColors.bind(this);
     this.loadColors = this.loadColors.bind(this);
     this.onSaveClick = this.onSaveClick.bind(this);
+    this.saveColors = this.saveColors.bind(this);
+
+
 
      this.toolbarItems =   [
                                 {
@@ -27,7 +38,7 @@ class ColorPanel extends React.Component {
                                     location: "after",
                                     options: {
                                         icon: "save",
-                                        onClick: this.onSaveClick
+                                        onClick: this.saveColors
                                     }
                                 }
                             ];
@@ -93,7 +104,21 @@ class ColorPanel extends React.Component {
     }
 
     loadColors(){
-        sendGetRequest('sht_info/?sht_id='+this.props.sheet_id,this.processColors);
+        sendRequest('sht_info/?sht_id='+this.props.sheet_id,this.processColors);
+    }
+
+
+    saveColors(){
+        var httpStr = 'sht_info_update/?sht_id='+this.props.sheet_id+'&';
+        httpStr += 'colorArest='+hexToDelphiColor(this.state.colorArest)+'&';
+        httpStr += 'colorHand='+ hexToDelphiColor(this.state.colorHand)+'&';
+        httpStr += 'colorCons='+ hexToDelphiColor(this.state.colorCons)+'&';
+        httpStr += 'colorConf='+ hexToDelphiColor(this.state.colorConf)+'&';
+        httpStr += 'colorConfPart='+ hexToDelphiColor(this.state.colorConfPart)+'&';
+        httpStr += 'colorTotal='+ hexToDelphiColor(this.state.colorTotal)+'&';
+        httpStr += 'colorFilter='+ hexToDelphiColor(this.state.colorFilter);
+
+        sendRequest(httpStr,()=>{},'POST');
     }
 
   render() {
@@ -108,7 +133,7 @@ class ColorPanel extends React.Component {
           title="Цветовая схема"
           width={600}
           height={500}
-          toolbarItems={this.toolbarItems }
+          toolbarItems={this.toolbarItems}
          >
         <div className="form">
           <div className="dx-fieldset">

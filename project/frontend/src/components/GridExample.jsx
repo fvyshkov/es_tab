@@ -6,7 +6,7 @@ import { AllModules } from "@ag-grid-enterprise/all-modules";
 import GridCellRenderer from "./GridCellRenderer.jsx";
 import TreeReferEditor from "./TreeReferEditor.jsx";
 import NumericEditor from "./NumericEditor.jsx";
-import { sendGetRequest } from './App.js';
+import { sendRequest } from './App.js';
 import FilterPanelInToolPanel from "./FilterPanelInToolPanel.jsx";
 
 const enableCellColor = 'palegreen';
@@ -178,7 +178,7 @@ class GridExample extends React.Component {
         if  (skey){
             httpStr += '&skey='+skey;
         }
-        sendGetRequest(httpStr, this.processColumnsData);
+        sendRequest(httpStr, this.processColumnsData);
     }
 
   serverSideDatasource = (gridComponent) => {
@@ -199,7 +199,7 @@ class GridExample extends React.Component {
                     httpStr = httpStr.concat( '&group_keys=',params.request.groupKeys);
                 }
 
-                sendGetRequest(httpStr, (rowData) =>{
+                sendRequest(httpStr, (rowData) =>{
                                                         if (rowData.length >0) {
                                                             let lastRow = () => {
                                                                 return rowData.length;

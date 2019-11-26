@@ -5,7 +5,7 @@ import 'devextreme/dist/css/dx.light.css';
 import 'devextreme/dist/css/dx.common.css';
 import 'devextreme/dist/css/dx.light.css';
 import notify from 'devextreme/ui/notify';
-import { sendGetRequest } from './App.js';
+import { sendRequest } from './App.js';
 import { DropDownBox, TreeView } from 'devextreme-react';
 import ColorPanel from './ColorPanel.jsx';
 
@@ -80,7 +80,7 @@ class SheetToolbar extends Component {
     }
 
     loadSheetList(){
-        sendGetRequest('sheet_list/', this.onLoadSheetSuccess);
+        sendRequest('sheet_list/', this.onLoadSheetSuccess);
     }
 
    treeViewRender() {

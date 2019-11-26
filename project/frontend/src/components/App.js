@@ -9,12 +9,12 @@ const App = () => (
 
 const wrapper = document.getElementById("app");
 wrapper ? ReactDOM.render(<App />, wrapper) : null;
+module.hot.accept();
 
-
-export function sendGetRequest(request_string, successCallback){
+export function sendRequest(request_string, successCallback, method='GET'){
     const httpRequest = new XMLHttpRequest();
     var httpStr = 'http://127.0.0.1:8000/'+request_string;
-    httpRequest.open("GET",httpStr,true);
+    httpRequest.open(method,httpStr,true);
     httpRequest.onreadystatechange = () => {
         if (httpRequest.readyState === 4 && httpRequest.status === 200) {
             var respObj = JSON.parse(httpRequest.responseText);

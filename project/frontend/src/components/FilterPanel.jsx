@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import DropdownHOC from "./DropdownHOC.jsx";
-import { sendGetRequest } from './App.js';
+import { sendRequest } from './App.js';
 
 
 export default class HOC extends Component {
@@ -20,7 +20,7 @@ export default class HOC extends Component {
     }
 
     refreshPanel() {
-        sendGetRequest('sht_filters/?sht_id='+this.props.sheet_id, this.onLoadFilterNodes)
+        sendRequest('sht_filters/?sht_id='+this.props.sheet_id, this.onLoadFilterNodes)
     }
 
     onLoadFilterNodes(data){

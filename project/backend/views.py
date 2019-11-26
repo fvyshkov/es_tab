@@ -2,6 +2,41 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.db import connection
 
+def get_sheet_info_update(request):
+    param_dict = dict(request.GET)
+    print('get_sheet_info_update', param_dict)
+    sht_id = param_dict['sht_id'][0]
+    colorArest = param_dict['colorArest'][0]
+    colorHand = param_dict['colorHand'][0]
+    colorCons = param_dict['colorCons'][0]
+    colorConf = param_dict['colorConf'][0]
+    colorConfPart = param_dict['colorConfPart'][0]
+    colorFilter = param_dict['colorFilter'][0]
+    colorTotal = param_dict['colorTotal'][0]
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("UPDATE c_es_ver_sheet s "
+                       "SET s.COLOR_RESTRICT= %s, "
+                       "s.COLOR_HAND_INPUT = %s, "
+                       "s.COLOR_TOTALS= %s, "
+                       "s.COLOR_CONS= %s, "
+                       "s.COLOR_CONFIRM= %s, "
+                       "s.COLOR_PART_CONFIRM= %s,  "
+                       "s.COLOR_FLT= %s "
+                       "WHERE id = %s",
+                       [colorArest,
+                        colorHand,
+                        colorTotal,
+                        colorCons,
+                        colorConf,
+                        colorConfPart,
+                        colorFilter,
+                        sht_id])
+
+
+    return JsonResponse([], safe=False)
+
 
 def get_sheet_type(sht_id):
     sql_res = get_sql_result(

@@ -1,6 +1,7 @@
     const path = require('path');
     const join = require("path").join;
-    //console.log(';',__dirname);
+    const webpack = require('webpack');
+
     module.exports = {
        entry: './project/frontend/src/index.js',
        output:{
@@ -10,8 +11,12 @@
         },
         devServer: {
          contentBase: './project/frontend/templates/frontend',
-         writeToDisk: true
+         writeToDisk: true,
+         hot: true
         },
+        plugins: [
+            new webpack.HotModuleReplacementPlugin()
+        ],
       resolve: {
                     alias: {
                       globalize$: path.resolve( __dirname, "node_modules/globalize/dist/globalize.js" ),
