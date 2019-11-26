@@ -11,6 +11,18 @@ def get_sheet_type(sht_id):
     else:
         return 'TREE'
 
+
+
+def get_sheet_info(request):
+    param_dict = dict(request.GET)
+    if 'sht_id' not in param_dict:
+        return JsonResponse([], safe = False)
+
+    p_sht_id = param_dict['sht_id'][0]
+
+    sheet_info = get_sql_result("select * from c_es_ver_sheet where id=%s ", [p_sht_id])
+    return JsonResponse(sheet_info, safe=False)
+
 def get_sheet_list_plane(request):
 
     sheet_list = get_sql_result("select b.code||' '|| b.longname book_name, "

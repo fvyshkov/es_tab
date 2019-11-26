@@ -7,6 +7,7 @@ import 'devextreme/dist/css/dx.light.css';
 import notify from 'devextreme/ui/notify';
 import { sendGetRequest } from './App.js';
 import { DropDownBox, TreeView } from 'devextreme-react';
+import ColorPanel from './ColorPanel.jsx';
 
 
 class SheetToolbar extends Component {
@@ -17,7 +18,8 @@ class SheetToolbar extends Component {
         super(props);
 
         this.state={
-                    sheetList:[]
+                    sheetList:[],
+                    colorPanelVisible:false
                    };
 
 
@@ -128,25 +130,26 @@ class SheetToolbar extends Component {
         onClick: () => {
             this.props.onSaveCallback();
             notify('Save button has been clicked!');
+            this.setState({colorPanelVisible:true});
         }
     }
 
     render(){
         return (
-
-       <Toolbar>
-            <Item location={'before'}
-            locateInMenu={'never'}
-            render={this.sheetSelectRender} />
-            <Item location={'after'}
-            widget={'dxButton'}
-            options={this.saveButtonOptions} />
-            <Item location={'after'}
-            widget={'dxButton'}
-            options={this.refreshButtonOptions} />
-        </Toolbar>
-
-         );
+            <React.Fragment>
+                <Toolbar>
+                    <Item location={'before'}
+                    locateInMenu={'never'}
+                    render={this.sheetSelectRender} />
+                    <Item location={'after'}
+                    widget={'dxButton'}
+                    options={this.saveButtonOptions} />
+                    <Item location={'after'}
+                    widget={'dxButton'}
+                    options={this.refreshButtonOptions} />
+                </Toolbar>
+            </React.Fragment>
+        );
     }
 
 }

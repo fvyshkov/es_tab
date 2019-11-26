@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import SheetToolbar from "./SheetToolbar.jsx";
 import GridExample from './GridExample.jsx';
 import notify from 'devextreme/ui/notify';
+import ColorPanel from './ColorPanel.jsx';
 
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-balham.css';
@@ -20,7 +21,7 @@ import "./index.css";
 class SheetView extends Component {
     constructor(props) {
         super(props);
-        this.state={};
+        this.state={colorPanelVisible: false};
         this.selectedFilterNodes = [];
         this.onToolbarSaveClick = this.onToolbarSaveClick.bind(this);
         this.loadNewSheet = this.loadNewSheet.bind(this);
@@ -42,6 +43,9 @@ class SheetView extends Component {
     }
 
     onToolbarSaveClick(){
+        notify('onToolbarSaveClick');
+        console.log('==onToolbarSaveClick');
+        this.setState({colorPanelVisible:true});
         this.loadNewSheetToFilterPanel();
     }
 
@@ -70,15 +74,25 @@ class SheetView extends Component {
     }
 
     onToolbarRefreshClick(){
-        //notify('refresh');
         this.sendRefreshGrid();
+    }
 
+    onColorPanelClose(){
+        this.setState({colorPanelVisible:false});
     }
 
     render(){
-        console.log('render TOP level');
+        console.log('render TOP level, this.state.colorPanelVisible=', this.state.colorPanelVisible);
         return (
             <React.Fragment>
+
+                {this.state.colorPanelVisible &&
+                    <ColorPanel
+                        popupVisible={true}
+                        onClose={this.onColorPanelClose.bind(this)}
+                        sheet_id={this.state.sheet_id}
+                    />
+                }
                 <div className = {'ag-theme-balham'}>
                     <div class='Wrapper'>
                         <SheetToolbar

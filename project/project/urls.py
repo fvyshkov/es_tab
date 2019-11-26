@@ -26,6 +26,7 @@ urlpatterns = [
     path('sheet_list/', views.get_sheet_list_plane),
     path('refer/', views.get_refer),
     path('refer_value/', views.get_refer_value),
+    path('sht_info/', views.get_sheet_info),
     path('', include('frontend.urls')),
 ]
 
