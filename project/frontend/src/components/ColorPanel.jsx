@@ -3,12 +3,9 @@ import ColorBox from 'devextreme-react/color-box';
 import { Popup } from 'devextreme-react/popup';
 import { sendGetRequest } from './App.js';
 
-var rgbToHex = function (rgb) {
-  var hex = Number(rgb).toString(16);
-  if (hex.length < 2) {
-       hex = "0" + hex;
-  }
-  return hex;
+var delphiColorToHex = function (delphiColor) {
+  var hex = Number(delphiColor).toString(16);
+  return '#'+hex.substr(4,2)+hex.substr(2,2)+hex.substr(0,2);
 };
 
 class ColorPanel extends React.Component {
@@ -84,13 +81,13 @@ class ColorPanel extends React.Component {
 
 
         this.setState({
-                        colorArest: '#'+rgbToHex( sht_info[0]['color_restrict']),
-                        colorHand: '#'+rgbToHex(sht_info[0]['color_hand_input']),
-                        colorTotal: '#'+rgbToHex(sht_info[0]['color_totals']),
-                        colorCons: '#'+rgbToHex(sht_info[0]['color_cons']),
-                        colorConf: '#'+rgbToHex(sht_info[0]['color_confirm']),
-                        colorConfPart: '#'+rgbToHex(sht_info[0]['color_part_confirm']),
-                        colorFilter: '#'+rgbToHex(sht_info[0]['color_flt'])
+                        colorArest: delphiColorToHex( sht_info[0]['color_restrict']),
+                        colorHand: delphiColorToHex(sht_info[0]['color_hand_input']),
+                        colorTotal: delphiColorToHex(sht_info[0]['color_totals']),
+                        colorCons: delphiColorToHex(sht_info[0]['color_cons']),
+                        colorConf: delphiColorToHex(sht_info[0]['color_confirm']),
+                        colorConfPart: delphiColorToHex(sht_info[0]['color_part_confirm']),
+                        colorFilter: delphiColorToHex(sht_info[0]['color_flt'])
                        });
 
     }
@@ -139,7 +136,7 @@ class ColorPanel extends React.Component {
             </div>
 
             <div className="dx-field">
-              <div className="dx-field-label">Итоги {this.state.colorTotal}</div>
+              <div className="dx-field-label">Итоги</div>
               <div className="dx-field-value">
                 <ColorBox
                   id={'colorTotal'}
