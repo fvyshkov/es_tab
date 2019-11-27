@@ -56,6 +56,16 @@ def get_sheet_info(request):
     p_sht_id = param_dict['sht_id'][0]
 
     sheet_info = get_sql_result("select * from c_es_ver_sheet where id=%s ", [p_sht_id])
+
+    sheet_info[0]['color_restrict_hex'] = delphi_color_to_hex(sheet_info[0].get('color_restrict'))
+    sheet_info[0]['color_hand_hex'] = delphi_color_to_hex(sheet_info[0].get('color_hand_input'))
+    sheet_info[0]['color_total_hex'] = delphi_color_to_hex(sheet_info[0].get('color_totals'))
+    sheet_info[0]['color_filter_hex'] = delphi_color_to_hex(sheet_info[0].get('color_flt'))
+    sheet_info[0]['color_cons_hex'] = delphi_color_to_hex(sheet_info[0].get('color_cons'))
+    sheet_info[0]['color_conf_hex'] = delphi_color_to_hex(sheet_info[0].get('color_confirm'))
+    sheet_info[0]['color_conf_part_hex'] = delphi_color_to_hex(sheet_info[0].get('color_part_confirm'))
+
+
     return JsonResponse(sheet_info, safe=False)
 
 def get_sheet_list_plane(request):
@@ -289,6 +299,10 @@ def get_tree_node_list(request):
         p_key = param_dict['skey'][0]
 
     sheet_info = get_sql_result("select * from c_es_ver_sheet where id=%s ", [p_sht_id])
+    color_restrict = delphi_color_to_hex(sheet_info[0].get('color_restrict'))
+    print('CR=',color_restrict)
+    color_hand = delphi_color_to_hex(sheet_info[0].get('color_hand_input'))
+    color_filter = delphi_color_to_hex(sheet_info[0].get('color_flt'))
 
     node_list = get_sql_result("select 'FLT_ID_'||x.flt_id||'=>'||x.flt_item_id as node_key, "
                                "x.*, dt.atr_type, dt.round_size, i.ENT_ID "
@@ -306,17 +320,16 @@ def get_tree_node_list(request):
         cell_list = get_sql_result('''select x.*  from table(C_PKGESSHEET.fGetDataCells(%s, %s)) x''',
                                    [p_sht_id, p_tmp_cell_key])
 
-        print('R/H', sheet_info[0].get('color_restrict'), sheet_info[0].get('color_hand_input'))
+        #print('R/H', sheet_info[0].get('color_restrict'), sheet_info[0].get('color_hand_input'))
 
         if node.get('groupfl')=='1':
-            cell_list = [dict(item, color=sheet_info[0].get('color_restrict')) for item in cell_list]
+            cell_list = [dict(item, color=color_restrict) for item in cell_list]
         else:
             for item in cell_list:
                 if item.get('editfl') == '0':
-                    #print('cell_restrict', item)
-                    item['color'] = sheet_info[0].get('color_restrict')
+                    item['color'] = color_restrict
                 else:
-                    item['color'] = sheet_info[0].get('color_hand_input')
+                    item['color'] = color_hand
                     #print('cell_hand', item, sheet_info[0].get('color_hand_input'))
 
         node['column_data'] = cell_list
@@ -522,7 +535,9 @@ def get_refer_value(request):
         return JsonResponse(nodes, safe=False);
 
 
-def delphi_colot_to_hex(delphi_color):
-    pass
-    #hex(;
-    #return '#' + hex.substr(4, 2) + hex.substr(2, 2) + hex.substr(0, 2);
+def delphi_color_to_hex(delphi_color):
+    if delphi_color:
+        hexStr = hex(delphi_color)
+        return ('#'+hexStr[6:8] + hexStr[4:6] + hexStr[2:4])
+    else:
+        return '#0'

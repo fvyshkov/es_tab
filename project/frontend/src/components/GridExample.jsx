@@ -28,6 +28,7 @@ class GridExample extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+    colorRestrict: 0,
     modules: AllModules,
       columnDefs: [],
       treeData: this.props.treeData,
@@ -75,15 +76,48 @@ class GridExample extends React.Component {
     this.refreshGrid = this.refreshGrid.bind(this);
     this.render = this.render.bind(this);
     this.processColumnsData = this.processColumnsData.bind(this);
+    this.loadSheetInfo = this.loadSheetInfo.bind(this);
+
+    this.getAutoGroupColumnDef = this.getAutoGroupColumnDef.bind(this);
+    this.processSheetInfo = this.processSheetInfo.bind(this);
+
+
+
 
 
   }
 
+    getAutoGroupColumnDef(){
+        console.log('this.state.colorRestrict, GET E1E2=');
+        console.log('this.state.colorRestrict, GET AUTO=', this.state.colorRestrict);
+        if (true || this.state.treeData){
+            return (
+                {
+                    headerName:"Показатель " + Math.random().toString(36).substr(2, 9),
+                    cellRendererParams: {
+                        innerRenderer: function(params) {
+                            return params.data.name;
+                        }
+                    },
+                    pinned: 'left',
+                    cellStyle: {color: 'black', backgroundColor: this.state.colorRestrict}
+                }
+
+                );
+        }else{
+            return {};
+        }
+
+
+
+
+    }
+
     componentDidMount() {
         if (this.props.sheet_type==='tree') {
-            this.setState({autoGroupColumnDef: treeAutoGroupColumnDef, treeData:true});
+            this.setState({treeData:true});
         }else{
-            this.setState({autoGroupColumnDef: {}, treeData:false});
+            this.setState({treeData:false});
         }
         this.props.sendRefreshGrid(this.refreshGrid);
     }
@@ -96,16 +130,18 @@ class GridExample extends React.Component {
 
 
        if (this.props.sheet_type==='tree') {
-            this.setState({autoGroupColumnDef: treeAutoGroupColumnDef, treeData:true});
+            this.setState({ treeData:true});
        }else{
-            this.setState({autoGroupColumnDef: null, treeData:false});
+            this.setState({ treeData:false});
 
        }
 
        this.gridApi.purgeServerSideCache([]);
        this.loadColumns();
+       this.loadSheetInfo();
 
        this.gridApi.refreshHeader();
+
   }
 
 
@@ -159,12 +195,7 @@ class GridExample extends React.Component {
                                                             return;
                                                         }
                                                         var columnData = getColumnData(params);
-
-                                                        if (!columnData || columnData.editfl===0 || params.data.groupfl==='1'){
-                                                            return {color: 'black', backgroundColor: disableCellColor};
-                                                        }else{
-                                                            return {color: 'black', backgroundColor: enableCellColor};
-                                                        }
+                                                        return {color: 'black', backgroundColor: columnData.color};
                                                     }
                             }
             }
@@ -174,6 +205,28 @@ class GridExample extends React.Component {
         this.setState({columnDefs:columns});
     }
 
+    loadSheetInfo(){
+        sendRequest('sht_info/?sht_id='+this.props.sheet_id, this.processSheetInfo);
+    }
+
+    processSheetInfo(infoList){
+        console.log('processSheetINFO infoList.color_restrict_hex', infoList[0]);
+        if (infoList.length>0)
+            this.setState({
+                            colorRestrict:infoList[0].color_restrict_hex,
+                            colorHand:infoList[0].color_hand_hex,
+                            colorTotal:infoList[0].color_total_hex,
+                            colorFilter:infoList[0].color_filter_hex,
+                            colorCons:infoList[0].color_cons_hex,
+                            colorConf:infoList[0].color_conf_hex,
+                            colorConfPart:infoList[0].color_conf_part_hex,
+                             });
+
+            this.setState({autoGroupColumnDef:this.getAutoGroupColumnDef()});
+
+
+            //this.setState({ state: this.state });
+    }
 
 
     loadColumns(){
@@ -234,9 +287,9 @@ class GridExample extends React.Component {
     this.gridColumnApi = params.columnApi;
 
        if (this.props.sheet_type==='tree') {
-            this.setState({autoGroupColumnDef: treeAutoGroupColumnDef, treeData:true});
+            this.setState({treeData:true});
        }else{
-            this.setState({autoGroupColumnDef: null, treeData:false});
+            this.setState({ treeData:false});
 
        }
 
@@ -256,6 +309,7 @@ class GridExample extends React.Component {
         if (this.state.treeData){
             return (
                 <React.Fragment>
+
                 <AgGridReact
                     modules={AllModules}
                     columnDefs={this.state.columnDefs}
