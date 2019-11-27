@@ -28,7 +28,7 @@ class SheetView extends Component {
         this.onFilterPanelChange = this.onFilterPanelChange.bind(this);
         this.onToolbarRefreshClick = this.onToolbarRefreshClick.bind(this);
         this.getFilterSkey = this.getFilterSkey.bind(this);
-
+        this.onColorPanelClose = this.onColorPanelClose.bind(this);
 
 
 
@@ -43,13 +43,11 @@ class SheetView extends Component {
     }
 
     onToolbarSaveClick(){
-        notify('onToolbarSaveClick');
-        console.log('==onToolbarSaveClick');
         this.setState({colorPanelVisible:true});
-        this.loadNewSheetToFilterPanel();
     }
 
     loadNewSheet(sheet_id, sheet_type){
+        console.log('sheet_ID=', sheet_id);
         this.setState({sheet_id:sheet_id, sheet_type:sheet_type});
         this.loadNewSheetToFilterPanel();
         this.sendRefreshGrid();
@@ -81,27 +79,34 @@ class SheetView extends Component {
         this.setState({colorPanelVisible:false});
     }
 
-    render(){
-        console.log('render TOP level, this.state.colorPanelVisible=', this.state.colorPanelVisible);
-        return (
-            <React.Fragment>
-
+/*
                 {this.state.colorPanelVisible &&
                     <ColorPanel
                         popupVisible={true}
-                        onClose={this.onColorPanelClose.bind(this)}
+                        sendColorPanelClose={this.onColorPanelClose}
                         sheet_id={this.state.sheet_id}
                     />
                 }
+*/
+
+    render(){
+        return (
+            <React.Fragment>
+
+                <ColorPanel
+                    popupVisible={this.state.colorPanelVisible}
+                    sendColorPanelClose={this.onColorPanelClose}
+                    sheet_id={this.state.sheet_id}
+                />
                 <div className = {'ag-theme-balham'}>
-                    <div class='Wrapper'>
+                    <div className='Wrapper'>
                         <SheetToolbar
                             onSaveCallback={this.onToolbarSaveClick}
                             onRefreshCallback={this.onToolbarRefreshClick}
                             onSelectNewSheet={this.loadNewSheet}
                             />
 
-                        <div  class="Grid">
+                        <div  className="Grid">
                             <GridExample
                                 sendRefreshGrid={click => this.sendRefreshGrid = click}
                                 skey={this.getFilterSkey}

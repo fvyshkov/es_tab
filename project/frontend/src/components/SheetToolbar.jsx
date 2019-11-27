@@ -41,13 +41,10 @@ class SheetToolbar extends Component {
 
     }
 
-
-
-
     onOpened(component){
-        console.log('onOpened');
         this.dropDownBox = component;
     }
+
     sheetSelectRender(){
         return (
             <DropDownBox
@@ -110,10 +107,10 @@ class SheetToolbar extends Component {
     treeView_itemSelectionChanged(e) {
 
         this.setState({
-            treeBoxValue: e.component.getSelectedNodesKeys()
+            treeBoxValue: e.itemData.id
             });
         this.dropDownBoxRef.current.instance.close();
-        this.props.onSelectNewSheet(e.component.getSelectedNodesKeys(),e.itemData.sheet_type);
+        this.props.onSelectNewSheet(e.itemData.id, e.itemData.sheet_type);
 
     }
 

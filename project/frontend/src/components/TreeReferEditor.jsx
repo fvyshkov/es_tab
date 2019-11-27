@@ -13,6 +13,7 @@ export default class TreeReferEditor extends Component {
         this.state = {
                         selectedItemData:{},
                         refData: JSON.parse( referStore.getData(this.props.colDef.field)),
+                        rootValue:'0'
                         };
     }
 
@@ -77,7 +78,7 @@ export default class TreeReferEditor extends Component {
                         virtualModeEnabled={false}
                         dataStructure={'plain'}
                         valueExpr={'id'}
-                        rootValue={'0'}
+                        rootValue={this.rootValue}
                         displayExpr={'name'}
                         parentIdExpr ={'id_hi'}
                         selectByClick={true}

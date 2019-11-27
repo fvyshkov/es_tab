@@ -189,7 +189,7 @@ class GridExample extends React.Component {
 
                 let httpStr = 'sht_nodes/?dummy=1';
                 if (gridComponent.props.sheet_id){
-                    httpStr = httpStr.concat('&sht_id=', gridComponent.props.sheet_id[0]);
+                    httpStr = httpStr.concat('&sht_id=', gridComponent.props.sheet_id);
                 }
                 httpStr = httpStr.concat( '&skey=',gridComponent.props.skey());
                 if (params.parentNode.data){

@@ -15,8 +15,6 @@ export default class HOC extends Component {
                       filterID: props.filterID
 
                  };
-
-    this.setState({data:preparedData});
   }
 
 

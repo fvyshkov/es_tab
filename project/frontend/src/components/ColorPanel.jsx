@@ -29,6 +29,7 @@ class ColorPanel extends React.Component {
     this.loadColors = this.loadColors.bind(this);
     this.onSaveClick = this.onSaveClick.bind(this);
     this.saveColors = this.saveColors.bind(this);
+    this.onShowing = this.onShowing.bind(this);
 
 
 
@@ -48,8 +49,16 @@ class ColorPanel extends React.Component {
        // this.loadColors();
   }
 
+    onShowing(){
+        this.loadColors();
+    }
+
+
+
     hidePopup(){
-        this.props.onClose();
+        console.log('hedePopup');
+        this.props.sendColorPanelClose();
+        console.log('hedePopup 2');
     }
 
     //не понял как получить ID компонента, чтобы решить все одной функцией
@@ -89,8 +98,6 @@ class ColorPanel extends React.Component {
         if (sht_info.length===0){
             return;
         }
-
-
         this.setState({
                         colorArest: delphiColorToHex( sht_info[0]['color_restrict']),
                         colorHand: delphiColorToHex(sht_info[0]['color_hand_input']),
@@ -104,7 +111,7 @@ class ColorPanel extends React.Component {
     }
 
     loadColors(){
-        sendRequest('sht_info/?sht_id='+this.props.sheet_id,this.processColors);
+        sendRequest('sht_info/?sht_id='+this.props.sheet_id, this.processColors);
     }
 
 
@@ -125,7 +132,7 @@ class ColorPanel extends React.Component {
     return (
       <React.Fragment>
       <Popup
-          visible={this.state.popupVisible}
+          visible={this.props.popupVisible}
           onHiding={this.hidePopup.bind(this)}
           dragEnabled={true}
           closeOnOutsideClick={true}
@@ -134,6 +141,7 @@ class ColorPanel extends React.Component {
           width={600}
           height={500}
           toolbarItems={this.toolbarItems}
+          onShowing={this.onShowing}
          >
         <div className="form">
           <div className="dx-fieldset">

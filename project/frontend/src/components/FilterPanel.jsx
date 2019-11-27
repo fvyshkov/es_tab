@@ -20,7 +20,8 @@ export default class HOC extends Component {
     }
 
     refreshPanel() {
-        sendRequest('sht_filters/?sht_id='+this.props.sheet_id, this.onLoadFilterNodes)
+        if (this.props.sheet_id)
+            sendRequest('sht_filters/?sht_id='+this.props.sheet_id, this.onLoadFilterNodes)
     }
 
     onLoadFilterNodes(data){

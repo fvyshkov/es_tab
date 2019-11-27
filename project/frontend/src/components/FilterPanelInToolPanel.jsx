@@ -24,10 +24,15 @@ export default class FilterPanelInToolPanel extends Component {
     }
 
     updatePanel() {
-        if (this.props.agGridReact.props.sheet_id && this.props.agGridReact.props.sheet_id.length>0){
-            this.setState({sheet_id: this.props.agGridReact.props.sheet_id[0]});
+
+        if (this.props.agGridReact.props.sheet_id){
+            this.setState({sheet_id: this.props.agGridReact.props.sheet_id});
+
         }
         this.loadNewSheetToFilterPanel();
+
+        //this.setState({sheet_id: this.props.agGridReact.props.sheet_id});
+
     }
 
 }
