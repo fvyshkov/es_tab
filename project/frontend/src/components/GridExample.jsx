@@ -90,6 +90,10 @@ class GridExample extends React.Component {
 
   refreshGrid(e){
 
+       console.log('GridExample.refreshGrid(e)', this, Math.random().toString(36).substr(2, 9));
+
+       this.setState({'tmpKey':Math.random().toString(36).substr(2, 9)});
+
 
        if (this.props.sheet_type==='tree') {
             this.setState({autoGroupColumnDef: treeAutoGroupColumnDef, treeData:true});
@@ -100,6 +104,8 @@ class GridExample extends React.Component {
 
        this.gridApi.purgeServerSideCache([]);
        this.loadColumns();
+
+       this.gridApi.refreshHeader();
   }
 
 
@@ -153,6 +159,7 @@ class GridExample extends React.Component {
                                                             return;
                                                         }
                                                         var columnData = getColumnData(params);
+
                                                         if (!columnData || columnData.editfl===0 || params.data.groupfl==='1'){
                                                             return {color: 'black', backgroundColor: disableCellColor};
                                                         }else{
@@ -242,6 +249,9 @@ class GridExample extends React.Component {
   }
 
   render() {
+       console.log('this.state.treeData', this.state.treeData);
+       console.log('this.state.autoGroupColumnDef', this.state.autoGroupColumnDef);
+
 
         if (this.state.treeData){
             return (

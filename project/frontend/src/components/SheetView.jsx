@@ -46,9 +46,10 @@ class SheetView extends Component {
         this.setState({colorPanelVisible:true});
     }
 
-    loadNewSheet(sheet_id, sheet_type){
-        console.log('sheet_ID=', sheet_id);
-        this.setState({sheet_id:sheet_id, sheet_type:sheet_type});
+    loadNewSheet(prm_sheet_id, prm_sheet_type){
+        this.setState({sheet_id: 0, sheet_type: ''});
+        console.log('SheetView.loadNewSheet, sheet_ID=', prm_sheet_id);
+        this.setState({sheet_id: prm_sheet_id, sheet_type: prm_sheet_type});
         this.loadNewSheetToFilterPanel();
         this.sendRefreshGrid();
     }
@@ -78,16 +79,6 @@ class SheetView extends Component {
     onColorPanelClose(){
         this.setState({colorPanelVisible:false});
     }
-
-/*
-                {this.state.colorPanelVisible &&
-                    <ColorPanel
-                        popupVisible={true}
-                        sendColorPanelClose={this.onColorPanelClose}
-                        sheet_id={this.state.sheet_id}
-                    />
-                }
-*/
 
     render(){
         return (

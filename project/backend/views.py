@@ -274,9 +274,7 @@ def get_tree_node_list(request):
     p_flt_id = ''
     p_flt_item_id = ''
     p_key = ''
-
-
-    p_flt_root_id = ''#'50241'
+    p_flt_root_id = ''
     p_cell_key = ''
 
     if 'sht_id' in param_dict:
@@ -289,6 +287,8 @@ def get_tree_node_list(request):
         p_cell_key = Skey(param_dict['group_keys'][0]).process()
     if 'skey' in param_dict:
         p_key = param_dict['skey'][0]
+
+    sheet_info = get_sql_result("select * from c_es_ver_sheet where id=%s ", [p_sht_id])
 
     node_list = get_sql_result("select 'FLT_ID_'||x.flt_id||'=>'||x.flt_item_id as node_key, "
                                "x.*, dt.atr_type, dt.round_size, i.ENT_ID "
@@ -305,6 +305,19 @@ def get_tree_node_list(request):
         p_tmp_cell_key = Skey(p_tmp_cell_key).process()
         cell_list = get_sql_result('''select x.*  from table(C_PKGESSHEET.fGetDataCells(%s, %s)) x''',
                                    [p_sht_id, p_tmp_cell_key])
+
+        print('R/H', sheet_info[0].get('color_restrict'), sheet_info[0].get('color_hand_input'))
+
+        if node.get('groupfl')=='1':
+            cell_list = [dict(item, color=sheet_info[0].get('color_restrict')) for item in cell_list]
+        else:
+            for item in cell_list:
+                if item.get('editfl') == '0':
+                    #print('cell_restrict', item)
+                    item['color'] = sheet_info[0].get('color_restrict')
+                else:
+                    item['color'] = sheet_info[0].get('color_hand_input')
+                    #print('cell_hand', item, sheet_info[0].get('color_hand_input'))
 
         node['column_data'] = cell_list
 
@@ -507,3 +520,9 @@ def get_refer_value(request):
                                'where i.id = %s '
                                'and t.id= %s ', [ind_id, item_id])
         return JsonResponse(nodes, safe=False);
+
+
+def delphi_colot_to_hex(delphi_color):
+    pass
+    #hex(;
+    #return '#' + hex.substr(4, 2) + hex.substr(2, 2) + hex.substr(0, 2);
