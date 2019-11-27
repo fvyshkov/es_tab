@@ -47,15 +47,18 @@ def get_sheet_type(sht_id):
         return 'TREE'
 
 
-
 def get_sheet_info(request):
     param_dict = dict(request.GET)
     if 'sht_id' not in param_dict:
         return JsonResponse([], safe = False)
+    else:
+        sht_id = param_dict['sht_id'][0]
+        sheet_info = get_sheet_info_list(sht_id)
+        return JsonResponse(sheet_info, safe = False)
 
-    p_sht_id = param_dict['sht_id'][0]
+def get_sheet_info_list(sht_id):
 
-    sheet_info = get_sql_result("select * from c_es_ver_sheet where id=%s ", [p_sht_id])
+    sheet_info = get_sql_result("select * from c_es_ver_sheet where id=%s ", [sht_id])
 
     sheet_info[0]['color_restrict_hex'] = delphi_color_to_hex(sheet_info[0].get('color_restrict'))
     sheet_info[0]['color_hand_hex'] = delphi_color_to_hex(sheet_info[0].get('color_hand_input'))
@@ -66,7 +69,10 @@ def get_sheet_info(request):
     sheet_info[0]['color_conf_part_hex'] = delphi_color_to_hex(sheet_info[0].get('color_part_confirm'))
 
 
-    return JsonResponse(sheet_info, safe=False)
+    return sheet_info
+
+
+
 
 def get_sheet_list_plane(request):
 
@@ -289,6 +295,9 @@ def get_tree_node_list(request):
 
     if 'sht_id' in param_dict:
         p_sht_id = param_dict['sht_id'][0]
+    else:
+        return []
+
     if 'flt_id' in param_dict:
         p_flt_id = param_dict['flt_id'][0]
     if 'flt_item_id' in param_dict:
@@ -298,11 +307,9 @@ def get_tree_node_list(request):
     if 'skey' in param_dict:
         p_key = param_dict['skey'][0]
 
-    sheet_info = get_sql_result("select * from c_es_ver_sheet where id=%s ", [p_sht_id])
-    color_restrict = delphi_color_to_hex(sheet_info[0].get('color_restrict'))
-    print('CR=',color_restrict)
-    color_hand = delphi_color_to_hex(sheet_info[0].get('color_hand_input'))
-    color_filter = delphi_color_to_hex(sheet_info[0].get('color_flt'))
+    sheet_info = get_sheet_info_list(p_sht_id)
+    color_restrict = sheet_info[0].get('color_restrict_hex')
+    color_hand = sheet_info[0].get('color_hand_input_hex')
 
     node_list = get_sql_result("select 'FLT_ID_'||x.flt_id||'=>'||x.flt_item_id as node_key, "
                                "x.*, dt.atr_type, dt.round_size, i.ENT_ID "
@@ -320,8 +327,6 @@ def get_tree_node_list(request):
         cell_list = get_sql_result('''select x.*  from table(C_PKGESSHEET.fGetDataCells(%s, %s)) x''',
                                    [p_sht_id, p_tmp_cell_key])
 
-        #print('R/H', sheet_info[0].get('color_restrict'), sheet_info[0].get('color_hand_input'))
-
         if node.get('groupfl')=='1':
             cell_list = [dict(item, color=color_restrict) for item in cell_list]
         else:
@@ -330,7 +335,6 @@ def get_tree_node_list(request):
                     item['color'] = color_restrict
                 else:
                     item['color'] = color_hand
-                    #print('cell_hand', item, sheet_info[0].get('color_hand_input'))
 
         node['column_data'] = cell_list
 
@@ -365,7 +369,6 @@ def get_sheet_columns(request):
 def get_sheet_columns_list(sheet_type, sht_id, skey):
     if sheet_type=='TREE':
         columns = get_sql_result('select * from table(C_PKGESsheet.fGetColumns(%s, %s))', [sht_id, skey])
-        #columns.insert(0,{'id': 100, 'name': "Показатель", 'rowGroup': True})
         return columns
     else:
         return get_sql_result('select c.idx, c.code key, c.longname name, c.editfl, c.ent_id, atr_type,'
@@ -386,7 +389,6 @@ def get_sht_filters(request):
         for filter in filter_list:
             filter['filter_node_list'] = get_filter_node_list(filter.get('flt_id'))
 
-        #return JsonResponse({"data": filter_list})
         return JsonResponse( filter_list, safe=False)
 
 def get_filter_node_list(filter_id):
@@ -436,6 +438,12 @@ def get_anl_table_rows(sht_id, skey):
                     end;""", [refCursor, sht_id, skey])
     ref_cursor =[]
 
+    sheet_info = get_sheet_info_list(sht_id)
+    print('SI[0]',sheet_info)
+    color_restrict = sheet_info[0].get('color_restrict_hex')
+    color_hand = sheet_info[0].get('color_hand_hex')
+    color_filter = sheet_info[0].get('color_filter_hex')
+
     columns = get_sheet_columns_list('TABLE', sht_id, skey)
     for row in refCursor:
         row_dict = {}
@@ -449,16 +457,27 @@ def get_anl_table_rows(sht_id, skey):
                     ent_id = column_list[0].get('ent_id')
                     atr_type = column_list[0].get('atr_type')
                     editfl = column_list[0].get('editfl')
+                    if column_name.upper().startswith('FLT'):
+                        color = color_filter
+                    elif editfl==0:
+                        color = color_restrict
+                    else:
+                        color = color_hand
+
                 else:
                     ent_id = None
                     atr_type = None
                     editfl = 0
+                    color = color_restric
+
                 column_data.append({
                                         'key':column_name.upper(),
                                         'sql_value': row[column_idx],
                                         'editfl':editfl,
                                         'ent_id':ent_id,
-                                        'atr_type':atr_type
+                                        'atr_type':atr_type,
+                                        'color':color
+
                 })
 
 

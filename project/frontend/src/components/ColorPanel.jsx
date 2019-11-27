@@ -83,10 +83,12 @@ class ColorPanel extends React.Component {
     }
 
     onColorChange_ConfPart(e){
+        console.log('confPart change', e.value);
        this.setState({colorConfPart:e.value});
     }
 
     onColorChange_Filter(e){
+        console.log('filter change', e.value);
        this.setState({colorFilter:e.value});
     }
 
@@ -116,6 +118,7 @@ class ColorPanel extends React.Component {
 
 
     saveColors(){
+        console.log('this.state', this.state);
         var httpStr = 'sht_info_update/?sht_id='+this.props.sheet_id+'&';
         httpStr += 'colorArest='+hexToDelphiColor(this.state.colorArest)+'&';
         httpStr += 'colorHand='+ hexToDelphiColor(this.state.colorHand)+'&';
@@ -163,7 +166,7 @@ class ColorPanel extends React.Component {
                 <ColorBox
                   name={'colorHand'}
                   value={this.state.colorHand}
-                  onClosed={this.onColorChange_Hand.bind(this)}
+                  onValueChanged={this.onColorChange_Hand.bind(this)}
                 />
               </div>
             </div>
@@ -172,9 +175,9 @@ class ColorPanel extends React.Component {
               <div className="dx-field-label">Итоги</div>
               <div className="dx-field-value">
                 <ColorBox
-                  id={'colorTotal'}
+                  name={'colorTotal'}
                   value={this.state.colorTotal}
-                  onClosed={this.onColorChange_Total.bind(this)}
+                  onValueChanged={this.onColorChange_Total.bind(this)}
                 />
               </div>
             </div>
@@ -183,29 +186,9 @@ class ColorPanel extends React.Component {
               <div className="dx-field-label">Консолидация</div>
               <div className="dx-field-value">
                 <ColorBox
-                  id={'colorArest'}
+                  name={'colorCons'}
                   value={this.state.colorCons}
-                  onClosed={this.onColorChange_Cons.bind(this)}
-                />
-              </div>
-            </div>
-
-            <div className="dx-field">
-              <div className="dx-field-label">Утверждение</div>
-              <div className="dx-field-value">
-                <ColorBox
-                  value={this.state.colorConf}
-                  onClosed={this.onColorChange_Conf.bind(this)}
-                />
-              </div>
-            </div>
-
-            <div className="dx-field">
-              <div className="dx-field-label">Неполное утверждение</div>
-              <div className="dx-field-value">
-                <ColorBox
-                  value={this.state.colorConfPart}
-                  onClosed={this.onColorChange_ConfPart.bind(this)}
+                  onValueChanged={this.onColorChange_Cons.bind(this)}
                 />
               </div>
             </div>
@@ -214,11 +197,36 @@ class ColorPanel extends React.Component {
               <div className="dx-field-label">Аналитики</div>
               <div className="dx-field-value">
                 <ColorBox
+                    name={'colorFilter'}
                   value={this.state.colorFilter}
-                  onClosed={this.onColorChange_Filter.bind(this)}
+                  onValueChanged={this.onColorChange_Filter.bind(this)}
                 />
               </div>
             </div>
+
+            <div className="dx-field">
+              <div className="dx-field-label">Утверждение</div>
+              <div className="dx-field-value">
+                <ColorBox
+                    name={'colorConf'}
+                  value={this.state.colorConf}
+                  onValueChanged={this.onColorChange_Conf.bind(this)}
+                />
+              </div>
+            </div>
+
+            <div className="dx-field">
+              <div className="dx-field-label">Неполное утверждение</div>
+              <div className="dx-field-value">
+                <ColorBox
+                    name={'colorConfPart'}
+                  value={this.state.colorConfPart}
+                  onValueChanged={this.onColorChange_ConfPart.bind(this)}
+                />
+              </div>
+            </div>
+
+
 
           </div>
 
