@@ -26,7 +26,7 @@ class SheetView extends Component {
                         selectedFilterNodes: {}
                       };
 
-        this.onToolbarSaveClick = this.onToolbarSaveClick.bind(this);
+        this.onToolbarPreferencesClick = this.onToolbarPreferencesClick.bind(this);
         this.loadNewSheet = this.loadNewSheet.bind(this);
         this.onFilterPanelChange = this.onFilterPanelChange.bind(this);
         this.onToolbarRefreshClick = this.onToolbarRefreshClick.bind(this);
@@ -45,7 +45,7 @@ class SheetView extends Component {
 
     }
 
-    onToolbarSaveClick(){
+    onToolbarPreferencesClick(){
         this.setState({colorPanelVisible:true});
     }
 
@@ -99,7 +99,7 @@ class SheetView extends Component {
                 <div className = {'ag-theme-balham'}>
                     <div className='Wrapper'>
                         <SheetToolbar
-                            onSaveCallback={this.onToolbarSaveClick}
+                            onPreferencesCallback={this.onToolbarPreferencesClick}
                             onRefreshCallback={this.onToolbarRefreshClick}
                             onSelectNewSheet={this.loadNewSheet}
                             />

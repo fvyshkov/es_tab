@@ -128,9 +128,17 @@ class SheetToolbar extends Component {
         onClick: () => {
             this.props.onSaveCallback();
             notify('Save button has been clicked!');
-            this.setState({colorPanelVisible:true});
         }
     }
+
+    colorButtonOptions = {
+        icon: 'preferences',
+        onClick: () => {
+            this.props.onPreferencesCallback();
+        }
+    }
+
+
 
     render(){
         return (
@@ -141,7 +149,7 @@ class SheetToolbar extends Component {
                     render={this.sheetSelectRender} />
                     <Item location={'after'}
                     widget={'dxButton'}
-                    options={this.saveButtonOptions} />
+                    options={this.colorButtonOptions} />
                     <Item location={'after'}
                     widget={'dxButton'}
                     options={this.refreshButtonOptions} />
