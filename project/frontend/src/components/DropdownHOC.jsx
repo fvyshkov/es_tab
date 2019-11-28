@@ -4,7 +4,7 @@ import 'react-dropdown-tree-select/dist/styles.css';
 
 
 
-export default class HOC extends Component {
+export default class DropdownHOC extends Component {
   constructor(props) {
     super(props);
 

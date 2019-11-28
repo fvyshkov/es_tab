@@ -21,8 +21,11 @@ import "./index.css";
 class SheetView extends Component {
     constructor(props) {
         super(props);
-        this.state={colorPanelVisible: false};
-        this.selectedFilterNodes = [];
+        this.state={
+                        colorPanelVisible: false,
+                        selectedFilterNodes: {}
+                      };
+
         this.onToolbarSaveClick = this.onToolbarSaveClick.bind(this);
         this.loadNewSheet = this.loadNewSheet.bind(this);
         this.onFilterPanelChange = this.onFilterPanelChange.bind(this);
@@ -56,19 +59,23 @@ class SheetView extends Component {
 
 
     onFilterPanelChange(selectedNodes, filterID){
-        this.selectedFilterNodes[filterID] = selectedNodes;
+        this.state.selectedFilterNodes[filterID] = selectedNodes;
+        this.setState({selectedFilterNodes : this.state.selectedFilterNodes});
+        console.log('SheetView.onFilterPanelChange', this.state.selectedFilterNodes);
     }
 
     getFilterSkey(){
         var skey = '';
-        for (var filterID in this.selectedFilterNodes) {
-            var selectedNodesForOneFilter = this.selectedFilterNodes[filterID];
-            if (selectedNodesForOneFilter.length===0){
-                skey = skey+'FLT_ID_'+filterID+'=>0,';
-            }else{
-                skey = skey+'FLT_ID_'+filterID+'=>'+ selectedNodesForOneFilter[0].id +',';
+        for (var filterID in this.state.selectedFilterNodes) {
+            if (Object.prototype.hasOwnProperty.call(this.state.selectedFilterNodes, filterID)) {
+                var selectedNodesForOneFilter = this.state.selectedFilterNodes[filterID];
+                if (selectedNodesForOneFilter.length===0){
+                    skey = skey+'FLT_ID_'+filterID+'=>0,';
+                }else{
+                    skey = skey+'FLT_ID_'+filterID+'=>'+ selectedNodesForOneFilter[0].id +',';
+                }
             }
-        };
+        }
         return skey;
     }
 
@@ -105,6 +112,7 @@ class SheetView extends Component {
                                 sheet_type = {this.state.sheet_type}
                                 treeData = {this.state.sheet_type==='tree'? true:false}
                                 onFilterPanelChange={this.onFilterPanelChange}
+                                selectedFilterNodes={this.state.selectedFilterNodes}
                                 />
                         </div>
                     </div>

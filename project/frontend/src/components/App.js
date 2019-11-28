@@ -9,7 +9,10 @@ const App = () => (
 
 const wrapper = document.getElementById("app");
 wrapper ? ReactDOM.render(<App />, wrapper) : null;
-module.hot.accept();
+//module.hot.accept();
+
+
+
 
 export function sendRequest(request_string, successCallback, method='GET'){
     const httpRequest = new XMLHttpRequest();

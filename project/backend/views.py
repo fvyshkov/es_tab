@@ -309,7 +309,8 @@ def get_tree_node_list(request):
 
     sheet_info = get_sheet_info_list(p_sht_id)
     color_restrict = sheet_info[0].get('color_restrict_hex')
-    color_hand = sheet_info[0].get('color_hand_input_hex')
+    color_hand = sheet_info[0].get('color_hand_hex')
+
 
     node_list = get_sql_result("select 'FLT_ID_'||x.flt_id||'=>'||x.flt_item_id as node_key, "
                                "x.*, dt.atr_type, dt.round_size, i.ENT_ID "

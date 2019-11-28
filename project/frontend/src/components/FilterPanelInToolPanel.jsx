@@ -14,11 +14,13 @@ export default class FilterPanelInToolPanel extends Component {
     }
 
     render() {
+        console.log('this.props.agGridReact.props.selectedFilterNodes=', this.props.agGridReact.props.selectedFilterNodes);
         return (
             <FilterPanel
                 sheet_id={this.state.sheet_id}
                 sendRefreshPanel={click => this.loadNewSheetToFilterPanel = click}
                 onFilterPanelChange={this.onFilterPanelChange}
+                selectedFilterNodes={this.props.agGridReact.props.selectedFilterNodes}
             />
         );
     }
@@ -27,12 +29,8 @@ export default class FilterPanelInToolPanel extends Component {
 
         if (this.props.agGridReact.props.sheet_id){
             this.setState({sheet_id: this.props.agGridReact.props.sheet_id});
-
         }
         this.loadNewSheetToFilterPanel();
-
-        //this.setState({sheet_id: this.props.agGridReact.props.sheet_id});
-
     }
 
 }

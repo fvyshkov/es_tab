@@ -19,7 +19,8 @@ class SheetToolbar extends Component {
 
         this.state={
                     sheetList:[],
-                    colorPanelVisible:false
+                    colorPanelVisible:false,
+                    rootValue: '0'
                    };
 
 
@@ -53,7 +54,7 @@ class SheetToolbar extends Component {
                 value={this.state.treeBoxValue}
                 valueExpr={'id'}
                 keyExpr={'id'}
-                rootValue={0}
+                rootValue={this.state.rootValue}
                 displayExpr={'label'}
                 virtualModeEnabled={true}
                 dataStructure={'plain'}
@@ -91,7 +92,7 @@ class SheetToolbar extends Component {
                     dataStructure={'plain'}
                     parentIdExpr ={'parent_id'}
                     valueExpr={'id'}
-                    rootValue={'0'}
+                    rootValue={this.state.rootValue}
                     displayExpr={'label'}
                     itemsExpr={'children'}
                     selectByClick={true}

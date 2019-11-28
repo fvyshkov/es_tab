@@ -3,14 +3,13 @@ import DropdownHOC from "./DropdownHOC.jsx";
 import { sendRequest } from './App.js';
 
 
-export default class HOC extends Component {
+export default class FilterPanel extends Component {
     constructor(props) {
         super(props);
-        this.filterList = [];
         this.sheet_id = this.props.sheet_id;
         this.state = {
                           data: props.data,
-                          filterList: this.filterList,
+                          filterList: [],
                           selectedNodeList:[]
                      };
         this.handleChangeTest = this.handleChangeTest.bind(this);
@@ -20,14 +19,30 @@ export default class HOC extends Component {
     }
 
     refreshPanel() {
+        console.log('refreshPanel');
         if (this.props.sheet_id)
             sendRequest('sht_filters/?sht_id='+this.props.sheet_id, this.onLoadFilterNodes)
     }
 
     onLoadFilterNodes(data){
-        this.filterList = data;
-        this.setState({filterList : data});
+        var filterList = data;
+        if (this.props.selectedFilterNodes){
+            for (var i=0; i < filterList.length; i++){
+                if (this.props.selectedFilterNodes[filterList[i].flt_id]){
+                    var selectedNodes =  this.props.selectedFilterNodes[filterList[i].flt_id];
+                    if (selectedNodes.length>0){
+                        for (var j=0; j < filterList[i].filter_node_list.length; j++){
+                            filterList[i].filter_node_list[j]['checked'] = (selectedNodes[0].id === filterList[i].filter_node_list[j].id);
+                        }
+                    }
+                }
+            }
+        }
+
+        this.setState({filterList : filterList});
     }
+
+
 
     componentDidMount() {
         if (this.props.sendRefreshPanel)
@@ -43,14 +58,18 @@ export default class HOC extends Component {
     render() {
         this.filterRenderItems = this.state.filterList.map(
             (fltItem, key) =>
-                <DropdownHOC
-                  key={fltItem.flt_id}
-                  data={fltItem.filter_node_list}
-                  treeName={fltItem.name}
-                  onChangeSelection={this.handleChangeTest}
-                  filterID={fltItem.flt_id}
-                  mode={'radioSelect'}
-                />
+                <div>
+                    <DropdownHOC
+                      key={fltItem.flt_id}
+                      data={fltItem.filter_node_list}
+                      treeName={fltItem.name}
+                      onChangeSelection={this.handleChangeTest}
+                      filterID={fltItem.flt_id}
+                      mode={'radioSelect'}
+                    />
+                </div>
+
+
         );
 
 

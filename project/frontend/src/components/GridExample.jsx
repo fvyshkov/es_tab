@@ -8,21 +8,9 @@ import TreeReferEditor from "./TreeReferEditor.jsx";
 import NumericEditor from "./NumericEditor.jsx";
 import { sendRequest } from './App.js';
 import FilterPanelInToolPanel from "./FilterPanelInToolPanel.jsx";
+import {LicenseManager} from "@ag-grid-enterprise/core";
 
-const enableCellColor = 'palegreen';
-const disableCellColor = 'lightsalmon';
-
-const treeAutoGroupColumnDef = {
-    headerName:"Показатель",
-    cellRendererParams: {
-        innerRenderer: function(params) {
-            return params.data.name;
-        }
-    },
-    pinned: 'left',
-    cellStyle: {color: 'black', backgroundColor: disableCellColor}
-}
-
+LicenseManager.setLicenseKey("Evaluation_License_Not_For_Production_29_December_2019__MTU3NzU3NzYwMDAwMA==a3a7a7e770dea1c09a39018caf2c839c");
 
 class GridExample extends React.Component {
   constructor(props) {
@@ -63,7 +51,7 @@ class GridExample extends React.Component {
         resizable: true,
         filter: false
       },
-      autoGroupColumnDef: treeAutoGroupColumnDef,
+      autoGroupColumnDef: {},
       rowModelType: "serverSide",
       isServerSideGroup: function(dataItem) {
         return dataItem.groupfl==='1';
@@ -88,61 +76,27 @@ class GridExample extends React.Component {
   }
 
     getAutoGroupColumnDef(){
-        console.log('this.state.colorRestrict, GET E1E2=');
-        console.log('this.state.colorRestrict, GET AUTO=', this.state.colorRestrict);
-        if (true || this.state.treeData){
-            return (
-                {
-                    headerName:"Показатель " + Math.random().toString(36).substr(2, 9),
-                    cellRendererParams: {
-                        innerRenderer: function(params) {
-                            return params.data.name;
-                        }
-                    },
-                    pinned: 'left',
-                    cellStyle: {color: 'black', backgroundColor: this.state.colorRestrict}
-                }
-
-                );
-        }else{
-            return {};
-        }
-
-
-
-
+        return (
+            {
+                headerName:"Показатель",
+                cellRendererParams: {
+                    innerRenderer: function(params) {
+                        return params.data.name;
+                    }
+                },
+                pinned: 'left',
+                cellStyle: {color: 'black', backgroundColor: this.state.colorRestrict}
+            });
     }
 
     componentDidMount() {
-        if (this.props.sheet_type==='tree') {
-            this.setState({treeData:true});
-        }else{
-            this.setState({treeData:false});
-        }
         this.props.sendRefreshGrid(this.refreshGrid);
     }
 
-  refreshGrid(e){
-
-       console.log('GridExample.refreshGrid(e)', this, Math.random().toString(36).substr(2, 9));
-
-       this.setState({'tmpKey':Math.random().toString(36).substr(2, 9)});
-
-
-       if (this.props.sheet_type==='tree') {
-            this.setState({ treeData:true});
-       }else{
-            this.setState({ treeData:false});
-
-       }
-
-       this.gridApi.purgeServerSideCache([]);
-       this.loadColumns();
-       this.loadSheetInfo();
-
-       this.gridApi.refreshHeader();
-
-  }
+    refreshGrid(e){
+        this.gridApi.purgeServerSideCache([]);
+        this.loadColumns();
+    }
 
 
 
@@ -202,7 +156,9 @@ class GridExample extends React.Component {
         );
 
         columns = groupColumns(columns);
-        this.setState({columnDefs:columns});
+        this.setState({columnDefs: columns});
+        console.log('processColumnsData END');
+        this.loadSheetInfo();
     }
 
     loadSheetInfo(){
@@ -210,9 +166,13 @@ class GridExample extends React.Component {
     }
 
     processSheetInfo(infoList){
-        console.log('processSheetINFO infoList.color_restrict_hex', infoList[0]);
-        if (infoList.length>0)
-            this.setState({
+
+        //необходимо сбросить ключ, чтобы после установки autoGroupColumnDef снова выставить
+        //и тем самым принудительно перерендерить грид (иначе autoGroupColumnDef не обновляется)
+        //this.setState({gridKey:0});
+        //if (infoList.length>0)
+        this.state.colorRestrict = infoList[0].color_restrict_hex;
+        this.setState({
                             colorRestrict:infoList[0].color_restrict_hex,
                             colorHand:infoList[0].color_hand_hex,
                             colorTotal:infoList[0].color_total_hex,
@@ -220,12 +180,11 @@ class GridExample extends React.Component {
                             colorCons:infoList[0].color_cons_hex,
                             colorConf:infoList[0].color_conf_hex,
                             colorConfPart:infoList[0].color_conf_part_hex,
+                            autoGroupColumnDef:this.getAutoGroupColumnDef(),
+                            treeData: this.props.sheet_type==='tree' ? true: false
                              });
-
-            this.setState({autoGroupColumnDef:this.getAutoGroupColumnDef()});
-
-
-            //this.setState({ state: this.state });
+        console.log('processSheetInfo END');
+        this.setState({gridKey: this.props.sheet_id});
     }
 
 
@@ -286,15 +245,6 @@ class GridExample extends React.Component {
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
 
-       if (this.props.sheet_type==='tree') {
-            this.setState({treeData:true});
-       }else{
-            this.setState({ treeData:false});
-
-       }
-
-    this.loadColumns();
-
     var datasource = this.serverSideDatasource(this);
     params.api.setServerSideDatasource(datasource);
 
@@ -302,72 +252,42 @@ class GridExample extends React.Component {
   }
 
   render() {
-       console.log('this.state.treeData', this.state.treeData);
-       console.log('this.state.autoGroupColumnDef', this.state.autoGroupColumnDef);
-
-
-        if (this.state.treeData){
+       console.log('RENDER', this.state.treeData);
             return (
                 <React.Fragment>
+                <p>{this.props.skey}</p>
+                    <div className="Grid" key={this.state.gridKey}>
+                        <AgGridReact
+                            modules={AllModules}
+                            columnDefs={this.state.columnDefs}
+                            defaultColDef={this.state.defaultColDef}
+                            autoGroupColumnDef={this.state.autoGroupColumnDef}
+                            rowModelType={this.state.rowModelType}
+                            treeData={this.state.treeData}
+                            animateRows={true}
+                            isServerSideGroup={this.state.isServerSideGroup}
+                            getServerSideGroupKey={this.state.getServerSideGroupKey}
+                            onGridReady={this.onGridReady}
+                            floatingFilter={false}
+                            sideBar={this.state.sideBar}
+                            frameworkComponents={this.state.frameworkComponents}
+                            onModelUpdated={this.onModelUpdated}
+                            onRowDataChanged={this.onRowDataChanged}
+                            onRowDataUpdated={this.onRowDataUpdated}
+                            processChartOptions={this.state.processChartOptions}
+                            onFirstDataRendered={this.onFirstDataRendered.bind(this)}
+                            enableRangeSelection={true}
+                            enableCharts={true}
+                            sheet_id={this.props.sheet_id}
+                            onFilterPanelChange={this.props.onFilterPanelChange}
+                            selectedFilterNodes={this.props.selectedFilterNodes}
+                          />
 
-                <AgGridReact
-                    modules={AllModules}
-                    columnDefs={this.state.columnDefs}
-                    defaultColDef={this.state.defaultColDef}
-                    autoGroupColumnDef={this.state.autoGroupColumnDef}
-                    rowModelType={this.state.rowModelType}
-                    treeData={this.state.treeData}
-                    animateRows={true}
-                    isServerSideGroup={this.state.isServerSideGroup}
-                    getServerSideGroupKey={this.state.getServerSideGroupKey}
-                    onGridReady={this.onGridReady}
-                    floatingFilter={false}
-                    sideBar={this.state.sideBar}
-                    frameworkComponents={this.state.frameworkComponents}
-                    onModelUpdated={this.onModelUpdated}
-                    onRowDataChanged={this.onRowDataChanged}
-                    onRowDataUpdated={this.onRowDataUpdated}
-                    processChartOptions={this.state.processChartOptions}
-                    onFirstDataRendered={this.onFirstDataRendered.bind(this)}
-                    enableRangeSelection={true}
-                    enableCharts={true}
-                    sheet_id={this.props.sheet_id}
-                    onFilterPanelChange={this.props.onFilterPanelChange}
-                  />
+                      </div>
+
                   </React.Fragment>
 
             );
-        }else{
-
-        return (
-                <React.Fragment>
-                    <p hidden>This paragraph should be hidden.</p>
-                    <AgGridReact
-                    modules={AllModules}
-                    columnDefs={this.state.columnDefs}
-                    defaultColDef={this.state.defaultColDef}
-                    rowModelType={this.state.rowModelType}
-                    treeData={this.state.treeData}
-                    animateRows={true}
-                    isServerSideGroup={this.state.isServerSideGroup}
-                    getServerSideGroupKey={this.state.getServerSideGroupKey}
-                    onGridReady={this.onGridReady}
-                    floatingFilter={false}
-                    sideBar={this.state.sideBar}
-                    frameworkComponents={this.state.frameworkComponents}
-                    onModelUpdated={this.onModelUpdated}
-                    onRowDataChanged={this.onRowDataChanged}
-                    onRowDataUpdated={this.onRowDataUpdated}
-                    enableRangeSelection={true}
-                    enableCharts={true}
-                    sheet_id={this.props.sheet_id}
-                    onFilterPanelChange={this.props.onFilterPanelChange}
-
-                    />
-                  </React.Fragment>
-
-            );
-         }
   }
 
 
