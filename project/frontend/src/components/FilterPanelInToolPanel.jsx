@@ -14,13 +14,13 @@ export default class FilterPanelInToolPanel extends Component {
     }
 
     render() {
-        console.log('this.props.agGridReact.props.selectedFilterNodes=', this.props.agGridReact.props.selectedFilterNodes);
         return (
             <FilterPanel
                 sheet_id={this.state.sheet_id}
                 sendRefreshPanel={click => this.loadNewSheetToFilterPanel = click}
                 onFilterPanelChange={this.onFilterPanelChange}
                 selectedFilterNodes={this.props.agGridReact.props.selectedFilterNodes}
+                filterNodes={this.props.agGridReact.props.filterNodes}
             />
         );
     }

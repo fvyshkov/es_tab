@@ -157,7 +157,7 @@ class GridExample extends React.Component {
 
         columns = groupColumns(columns);
         this.setState({columnDefs: columns});
-        console.log('processColumnsData END');
+
         this.loadSheetInfo();
     }
 
@@ -169,7 +169,7 @@ class GridExample extends React.Component {
 
         //необходимо сбросить ключ, чтобы после установки autoGroupColumnDef снова выставить
         //и тем самым принудительно перерендерить грид (иначе autoGroupColumnDef не обновляется)
-        //this.setState({gridKey:0});
+        this.setState({gridKey:0});
         //if (infoList.length>0)
         this.state.colorRestrict = infoList[0].color_restrict_hex;
         this.setState({
@@ -183,7 +183,7 @@ class GridExample extends React.Component {
                             autoGroupColumnDef:this.getAutoGroupColumnDef(),
                             treeData: this.props.sheet_type==='tree' ? true: false
                              });
-        console.log('processSheetInfo END');
+
         this.setState({gridKey: this.props.sheet_id});
     }
 
@@ -252,7 +252,7 @@ class GridExample extends React.Component {
   }
 
   render() {
-       console.log('RENDER', this.state.treeData);
+
             return (
                 <React.Fragment>
                 <p>{this.props.skey}</p>
@@ -281,6 +281,7 @@ class GridExample extends React.Component {
                             sheet_id={this.props.sheet_id}
                             onFilterPanelChange={this.props.onFilterPanelChange}
                             selectedFilterNodes={this.props.selectedFilterNodes}
+                            filterNodes={this.props.filterNodes}
                           />
 
                       </div>

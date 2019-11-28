@@ -311,7 +311,8 @@ def get_tree_node_list(request):
     color_restrict = sheet_info[0].get('color_restrict_hex')
     color_hand = sheet_info[0].get('color_hand_hex')
 
-
+    print('p_sht_id, p_key, p_flt_id, p_flt_item_id, p_flt_root_id, p_cell_key')
+    print('!!!!!',p_sht_id, p_key, p_flt_id, p_flt_item_id, p_flt_root_id, p_cell_key)
     node_list = get_sql_result("select 'FLT_ID_'||x.flt_id||'=>'||x.flt_item_id as node_key, "
                                "x.*, dt.atr_type, dt.round_size, i.ENT_ID "
                                "from table(C_PKGESsheet.fGetNodes(%s,%s,%s,%s,%s,%s)) x, "
@@ -320,14 +321,16 @@ def get_tree_node_list(request):
                                "where dt.id(+) = x.dtype_id "
                                "and i.id(+) = x.IND_ID "
                                "order by x.npp", [p_sht_id, p_key, p_flt_id, p_flt_item_id, p_flt_root_id, p_cell_key])
-
+    print('success')
     for node in node_list:
         p_tmp_cell_key = p_key + ',' + p_cell_key + ',' + 'FLT_ID_' + node['flt_id'] + '=>' + node['flt_item_id']
         p_cell_key += 'FLT_ID_' + node['flt_id'] + '=>' + node['flt_item_id']
         p_tmp_cell_key = Skey(p_tmp_cell_key).process()
+        print('p_tmp_cell_key', p_tmp_cell_key)
         cell_list = get_sql_result('''select x.*  from table(C_PKGESSHEET.fGetDataCells(%s, %s)) x''',
                                    [p_sht_id, p_tmp_cell_key])
 
+        print('222 p_tmp_cell_key', p_tmp_cell_key)
         if node.get('groupfl')=='1':
             cell_list = [dict(item, color=color_restrict) for item in cell_list]
         else:

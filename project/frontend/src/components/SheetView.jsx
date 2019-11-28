@@ -4,6 +4,7 @@ import SheetToolbar from "./SheetToolbar.jsx";
 import GridExample from './GridExample.jsx';
 import notify from 'devextreme/ui/notify';
 import ColorPanel from './ColorPanel.jsx';
+import { sendRequest } from './App.js';
 
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-balham.css';
@@ -23,7 +24,8 @@ class SheetView extends Component {
         super(props);
         this.state={
                         colorPanelVisible: false,
-                        selectedFilterNodes: {}
+                        selectedFilterNodes: {},
+                        filterNodes: {}
                       };
 
         this.onToolbarPreferencesClick = this.onToolbarPreferencesClick.bind(this);
@@ -32,6 +34,8 @@ class SheetView extends Component {
         this.onToolbarRefreshClick = this.onToolbarRefreshClick.bind(this);
         this.getFilterSkey = this.getFilterSkey.bind(this);
         this.onColorPanelClose = this.onColorPanelClose.bind(this);
+        this.onLoadFilterNodes = this.onLoadFilterNodes.bind(this);
+
 
 
 
@@ -50,33 +54,62 @@ class SheetView extends Component {
     }
 
     loadNewSheet(prm_sheet_id, prm_sheet_type){
-        this.setState({sheet_id: 0, sheet_type: ''});
-        console.log('SheetView.loadNewSheet, sheet_ID=', prm_sheet_id);
         this.setState({sheet_id: prm_sheet_id, sheet_type: prm_sheet_type});
-        this.loadNewSheetToFilterPanel();
+        if (!this.state.filterNodes[prm_sheet_id]){
+            sendRequest('sht_filters/?sht_id='+prm_sheet_id, this.onLoadFilterNodes);
+        }else{
+            this.sendRefreshGrid();
+        }
+    }
+
+    onLoadFilterNodes(filterNodesList){
+        var newFilterNodes = this.state.filterNodes;
+        var sheet_id = this.state.sheet_id;
+        newFilterNodes[sheet_id] = {};
+
+        filterNodesList.forEach(function(filter){
+            newFilterNodes[sheet_id][filter.flt_id] = filter;
+        });
+
+        this.setState({filterNodes: newFilterNodes});
+
         this.sendRefreshGrid();
     }
 
 
-    onFilterPanelChange(selectedNodes, filterID){
-        this.state.selectedFilterNodes[filterID] = selectedNodes;
-        this.setState({selectedFilterNodes : this.state.selectedFilterNodes});
-        console.log('SheetView.onFilterPanelChange', this.state.selectedFilterNodes);
+    onFilterPanelChange(selectedNodes, allNodes, filterID){
+        //this.state.selectedFilterNodes[filterID] = selectedNodes;
+        this.state.filterNodes[this.state.sheet_id][filterID].filter_node_list = allNodes;
+        this.setState({filterNodes : this.state.filterNodes});
     }
 
     getFilterSkey(){
         var skey = '';
-        for (var filterID in this.state.selectedFilterNodes) {
-            if (Object.prototype.hasOwnProperty.call(this.state.selectedFilterNodes, filterID)) {
-                var selectedNodesForOneFilter = this.state.selectedFilterNodes[filterID];
-                if (selectedNodesForOneFilter.length===0){
-                    skey = skey+'FLT_ID_'+filterID+'=>0,';
-                }else{
-                    skey = skey+'FLT_ID_'+filterID+'=>'+ selectedNodesForOneFilter[0].id +',';
+        for (var filterID in this.state.filterNodes[this.state.sheet_id]){
+            if (Object.prototype.hasOwnProperty.call(this.state.filterNodes[this.state.sheet_id], filterID)) {
+                var filterNodeList = this.state.filterNodes[this.state.sheet_id][filterID].filter_node_list;
+                var itemID = this.getCheckedFilterNodeId(filterNodeList);
+                if (itemID !='0'){
+                    skey = skey+ 'FLT_ID_'+filterID+'=>'+itemID+',';
                 }
             }
         }
         return skey;
+    }
+
+    getCheckedFilterNodeId(nodeList){
+        for (var i=0; i<nodeList.length; i++){
+            if (nodeList[i]['checked']){
+                return nodeList[i]['id'];
+            }
+            if (nodeList[i]['children']){
+                var nestedResult = this.getCheckedFilterNodeId(nodeList[i]['children']);
+                if (nestedResult != '0'){
+                   return nestedResult;
+                }
+            }
+        }
+        return '0';
     }
 
     onToolbarRefreshClick(){
@@ -113,6 +146,7 @@ class SheetView extends Component {
                                 treeData = {this.state.sheet_type==='tree'? true:false}
                                 onFilterPanelChange={this.onFilterPanelChange}
                                 selectedFilterNodes={this.state.selectedFilterNodes}
+                                filterNodes={this.state.filterNodes[this.state.sheet_id]}
                                 />
                         </div>
                     </div>

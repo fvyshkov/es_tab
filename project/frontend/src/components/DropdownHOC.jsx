@@ -7,44 +7,14 @@ import 'react-dropdown-tree-select/dist/styles.css';
 export default class DropdownHOC extends Component {
   constructor(props) {
     super(props);
-
-    var preparedData = this.prepareData(props.data);
     this.state = {
-                      data:  preparedData,
+                      data:  props.data,
                       treeName: props.treeName,
                       filterID: props.filterID
 
                  };
   }
 
-
-  prepareData = data => {
-    if (!data)
-        return data;
-    var cloned = data.slice(0);
-
-    // insert special select all node
-    cloned.splice(0, 0, {
-      label: "Все значения",
-      value: "0",
-      className: "select-all",
-      filterID: this.props.filterID
-    });
-
-    return cloned;
-  };
-
-  toggleAll = checked => {
-    return;
-/*
-потом
-    const { data } = this.state.data;
-    for (var i = 1; i < data.length; i++) {
-      data[i].checked = checked;
-    }
-    this.setState({ data });
-*/
-  };
 
 
   setCheckedForId(treeData, id, checked){
@@ -59,24 +29,15 @@ export default class DropdownHOC extends Component {
   }
 
 
-  handleChange = (currentNode,selectedNodes) => {
-    if (currentNode.value === "0") this.toggleAll(currentNode.checked);
-
-    //console.log('child before onChangeSelection');
-
-    var newData=this.state.data;
-    this.setCheckedForId( newData, currentNode.id, currentNode.checked);
-
-    this.props.onChangeSelection(selectedNodes, this.state.filterID);
-
-
-  };
+    handleChange = (currentNode,selectedNodes) => {
+        var newData=this.state.data;
+        this.setCheckedForId( newData, currentNode.id, currentNode.checked);
+        this.props.onChangeSelection(selectedNodes, this.state.data,  this.state.filterID);
+    };
 
 
 
   render() {
-//    console.log('this.props.treeName', this.props.treeName);
-  //  console.log('this.state.treeName', this.state.treeName);
     return (
     <div>
      <div>{this.state.treeName}</div>

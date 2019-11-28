@@ -19,9 +19,12 @@ export default class FilterPanel extends Component {
     }
 
     refreshPanel() {
+        return;
+        /*
         console.log('refreshPanel');
         if (this.props.sheet_id)
             sendRequest('sht_filters/?sht_id='+this.props.sheet_id, this.onLoadFilterNodes)
+        */
     }
 
     onLoadFilterNodes(data){
@@ -50,12 +53,39 @@ export default class FilterPanel extends Component {
     }
 
 
-    handleChangeTest (selectedNodesPrm, filterID)  {
-        this.props.onFilterPanelChange(selectedNodesPrm, filterID);
-        this.setState( {selectedNodeList:selectedNodesPrm});
+    handleChangeTest (selectedNodes, allNodes, filterID)  {
+        this.props.onFilterPanelChange(selectedNodes, allNodes, filterID);
+        this.setState( {selectedNodeList:selectedNodes});
     }
 
     render() {
+        //this.filterRenderItems = this.state.filterList.map(
+        if (!this.props.filterNodes || this.props.filterNodes.length===0){
+            return (<div></div>);
+        }
+        //console.log('this.props.filterNodes', this.props.filterNodes);
+
+        var filterRenderItems = [];
+
+        for (var filterID in this.props.filterNodes){
+            if (Object.prototype.hasOwnProperty.call(this.props.filterNodes, filterID)){
+                var fltItem = this.props.filterNodes[filterID];
+                //console.log('fltItem', fltItem);
+                filterRenderItems.push(
+                    <div key={fltItem.flt_id}>
+                        <DropdownHOC
+                          key={fltItem.flt_id}
+                          data={fltItem.filter_node_list}
+                          treeName={fltItem.name}
+                          onChangeSelection={this.handleChangeTest}
+                          filterID={fltItem.flt_id}
+                          mode={'radioSelect'}
+                        />
+                    </div>
+                );
+            }
+        }
+        /*
         this.filterRenderItems = this.state.filterList.map(
             (fltItem, key) =>
                 <div>
@@ -70,12 +100,12 @@ export default class FilterPanel extends Component {
                 </div>
 
 
-        );
+        );*/
 
 
         return (
             <div>
-                {this.filterRenderItems}
+                {filterRenderItems}
             </div>
         );
   }
