@@ -1,17 +1,22 @@
 import React, { Component } from 'react';
 import ReactDOM from "react-dom";
 import SheetView from "./SheetView.jsx";
-
+import LayoutPanel from "./LayoutPanel.jsx";
+import AddRemoveLayout from "./AddRemoveLayout.jsx";
 
 const App = () => (
-    <SheetView />
+    <AddRemoveLayout
+
+        />
 );
 
 const wrapper = document.getElementById("app");
 wrapper ? ReactDOM.render(<App />, wrapper) : null;
 //module.hot.accept();
 
+function onLayoutChange(e){
 
+}
 
 
 export function sendRequest(request_string, successCallback, method='GET'){

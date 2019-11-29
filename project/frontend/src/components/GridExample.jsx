@@ -271,7 +271,7 @@ class GridExample extends React.Component {
 
             return (
                 <React.Fragment>
-                <p>{this.props.skey}</p>
+
                     <div className="Grid" key={this.state.gridKey}>
                         <AgGridReact
                             modules={AllModules}
