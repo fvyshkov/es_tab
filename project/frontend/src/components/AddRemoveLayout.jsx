@@ -48,18 +48,7 @@ export default class AddRemoveLayout extends React.PureComponent {
     const i = el.i;
     return (
       <div key={i} data-grid={el} className="TestLayoutItem">
-        {(
-          <span className="text">{i}</span>
-
-        )}
         {el.renderItem}
-        <span
-          className="remove"
-          style={removeStyle}
-          onClick={this.onRemoveItem.bind(this, i)}
-        >
-          x
-        </span>
       </div>
     );
   }

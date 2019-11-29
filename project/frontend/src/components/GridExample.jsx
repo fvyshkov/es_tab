@@ -106,7 +106,9 @@ class GridExample extends React.Component {
     }
 
     componentDidMount() {
-        this.props.sendRefreshGrid(this.refreshGrid);
+        if (this.props.sendRefreshGrid){
+            this.props.sendRefreshGrid(this.refreshGrid);
+        }
     }
 
     refreshGrid(e){
@@ -272,7 +274,7 @@ class GridExample extends React.Component {
             return (
                 <React.Fragment>
 
-                    <div className="Grid" key={this.state.gridKey}>
+                    <div className ="ag-theme-balham" style={ {height: 'calc(100% - 36px)', width: '100%', position: 'absolute'} } key={this.state.gridKey}>
                         <AgGridReact
                             modules={AllModules}
                             columnDefs={this.state.columnDefs}

@@ -1,3 +1,5 @@
+html, body { height: 100%; }
+
 .treeRef{
 border: solid;
 border-width : thin;
@@ -15,7 +17,7 @@ max-width:300px;
 }
 
 .Wrapper{
-position: absolute;
+box-position:border-box;
 border1: solid;
 border-width : thic;
 width:100%;
@@ -33,16 +35,25 @@ border-color:aqua;
 }
 
 .TestLayoutItem{
-border: solid;
+border1: solid;
 border-width : thic;
 border-color:red;
 }
 
-.Grid{
+
+.TestBorder{
+border1: solid;
+border-width : thic;
+border-color:blue;
+height:100%;
+}
+
+
+.Grid1{
 border-width:4px;
 border-color:blue;
 overflow:hidden;
-height: 700px;
+height: 100%;
 position: relative;
 }
 

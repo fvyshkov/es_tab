@@ -8,6 +8,8 @@ import notify from 'devextreme/ui/notify';
 import { sendRequest } from './App.js';
 import AddRemoveLayout from './AddRemoveLayout.jsx';
 import SheetView from './SheetView.jsx';
+import GridExample from './GridExample.jsx';
+import { AgGridReact } from "@ag-grid-community/react";
 
 export default class LayoutWithToolbar extends Component {
 
@@ -55,7 +57,15 @@ export default class LayoutWithToolbar extends Component {
                 y: Infinity, // puts it at the bottom
                 w: 6,
                 h: 2,
-                renderItem: <SheetView />
+                renderItem:
+
+
+                        <div className="TestBorder">
+
+                            <SheetView />
+
+                        </div>
+
               })
         });
     }

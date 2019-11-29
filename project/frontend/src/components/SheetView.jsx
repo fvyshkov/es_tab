@@ -129,16 +129,17 @@ class SheetView extends Component {
                     sendColorPanelClose={this.onColorPanelClose}
                     sheet_id={this.state.sheet_id}
                 />
-                <div className = {'ag-theme-balham'}>
-                    <div className='Wrapper'>
+
+
                         <SheetToolbar
                             onPreferencesCallback={this.onToolbarPreferencesClick}
                             onRefreshCallback={this.onToolbarRefreshClick}
                             onSelectNewSheet={this.loadNewSheet}
                             />
 
-                        <div  className="Grid">
+
                             <GridExample
+
                                 sendRefreshGrid={click => this.sendRefreshGrid = click}
                                 skey={this.getFilterSkey}
                                 sheet_id = {this.state.sheet_id}
@@ -148,9 +149,10 @@ class SheetView extends Component {
                                 selectedFilterNodes={this.state.selectedFilterNodes}
                                 filterNodes={this.state.filterNodes[this.state.sheet_id]}
                                 />
-                        </div>
-                    </div>
-                </div>
+
+
+
+
             </React.Fragment>
         );
 
