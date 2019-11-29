@@ -44,20 +44,15 @@ export default class AddRemoveLayout extends React.PureComponent {
       top: 0,
       cursor: "pointer"
     };
-    const i = el.add ? "+" : el.i;
+    //const i = el.add ? "+" : el.i;
+    const i = el.i;
     return (
       <div key={i} data-grid={el} className="TestLayoutItem">
-        {el.add ? (
-          <span
-            className="add text"
-            onClick={this.onAddItem}
-            title="You can add an item by clicking here, too."
-          >
-            Add +
-          </span>
-        ) : (
+        {(
           <span className="text">{i}</span>
+
         )}
+        {el.renderItem}
         <span
           className="remove"
           style={removeStyle}
@@ -68,6 +63,16 @@ export default class AddRemoveLayout extends React.PureComponent {
       </div>
     );
   }
+
+    componentDidMount() {
+        //this.props.addNewLayoutItem(this.onGetAddItem.bind(this));
+    }
+
+    onGetAddItem(){
+        //var newItem = this.props.getNewLayoutItem();
+        //console.log('newItem=', newItem);
+        //this.onAddItem();
+    }
 
   onAddItem() {
     /*eslint no-console: 0*/
@@ -107,14 +112,13 @@ export default class AddRemoveLayout extends React.PureComponent {
   render() {
     return (
       <div class="TestWrapper">
-        <button onClick={this.onAddItem}>Add Item</button>
-        <button onClick={this.onAddItem}>Add Item 2</button>
+
         <ResponsiveReactGridLayout
           onLayoutChange={this.onLayoutChange.bind(this)}
           onBreakpointChange={this.onBreakpointChange.bind(this)}
           {...this.props}
         >
-          {_.map(this.state.items, el => this.createElement(el))}
+          {_.map(this.props.items, el => this.createElement(el))}
         </ResponsiveReactGridLayout>
       </div>
     );

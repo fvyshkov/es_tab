@@ -16,7 +16,7 @@ max-width:300px;
 
 .Wrapper{
 position: absolute;
-border: solid;
+border1: solid;
 border-width : thic;
 width:100%;
 height:100%;
@@ -24,8 +24,8 @@ border-color:aqua;
 }
 
 .TestWrapper{
-position: absolute;
-border:solid;
+position1: absolute;
+border1:solid;
 border-width : thic;
 width:100%;
 height:100%;/*500px;*/
