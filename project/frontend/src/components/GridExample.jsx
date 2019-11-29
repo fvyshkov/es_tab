@@ -46,6 +46,22 @@ class GridExample extends React.Component {
                     defaultToolPanel: "sheetFilters",
                     position: 'left'
                 },
+
+         statusBar: {
+                statusPanels: [
+                  {
+                    statusPanel: "agTotalAndFilteredRowCountComponent",
+                    align: "left"
+                  },
+                  {
+                    statusPanel: "agTotalRowCountComponent",
+                    align: "center"
+                  },
+                  { statusPanel: "agFilteredRowCountComponent" },
+                  { statusPanel: "agSelectedRowCountComponent" },
+                  { statusPanel: "agAggregationComponent" }
+                ]
+              },
       defaultColDef: {
         width: 240,
         resizable: true,
@@ -282,6 +298,7 @@ class GridExample extends React.Component {
                             onFilterPanelChange={this.props.onFilterPanelChange}
                             selectedFilterNodes={this.props.selectedFilterNodes}
                             filterNodes={this.props.filterNodes}
+                            statusBar={this.state.statusBar}
                           />
 
                       </div>
