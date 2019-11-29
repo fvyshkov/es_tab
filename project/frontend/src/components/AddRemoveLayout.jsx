@@ -3,6 +3,9 @@ import { WidthProvider, Responsive } from "react-grid-layout";
 import _ from "lodash";
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
+import "react-grid-layout/css/styles.css";
+import "react-resizable/css/styles.css";
+
 /**
  * This layout demonstrates how to use a grid with a dynamic number of elements.
  */
