@@ -9,6 +9,7 @@ import NumericEditor from "./NumericEditor.jsx";
 import { sendRequest } from './App.js';
 import FilterPanelInToolPanel from "./FilterPanelInToolPanel.jsx";
 import {LicenseManager} from "@ag-grid-enterprise/core";
+import SheetDetailView from './SheetDetailView.jsx';
 
 LicenseManager.setLicenseKey("Evaluation_License_Not_For_Production_29_December_2019__MTU3NzU3NzYwMDAwMA==a3a7a7e770dea1c09a39018caf2c839c");
 
@@ -84,6 +85,9 @@ class GridExample extends React.Component {
 
     this.getAutoGroupColumnDef = this.getAutoGroupColumnDef.bind(this);
     this.processSheetInfo = this.processSheetInfo.bind(this);
+    this.componentDidMount = this.componentDidMount.bind(this);
+
+    this.onGridReady = this.onGridReady.bind(this);
 
 
 
@@ -109,9 +113,10 @@ class GridExample extends React.Component {
         if (this.props.sendRefreshGrid){
             this.props.sendRefreshGrid(this.refreshGrid);
         }
+
     }
 
-    refreshGrid(e){
+    refreshGrid(){
         this.gridApi.purgeServerSideCache([]);
         this.loadColumns();
     }
@@ -167,7 +172,12 @@ class GridExample extends React.Component {
                                                             return;
                                                         }
                                                         var columnData = getColumnData(params);
-                                                        return {color: 'black', backgroundColor: columnData.color};
+                                                        if (columnData){
+                                                            return {color: 'black', backgroundColor: columnData.color};
+                                                        }else{
+                                                            return {color: 'black', backgroundColor: 'white'};
+                                                        }
+
                                                     }
                             }
             }
@@ -215,9 +225,23 @@ class GridExample extends React.Component {
         if  (skey){
             httpStr += '&skey='+skey;
         }
+
+        httpStr = this.addAdditionalSheetParams(httpStr);
         sendRequest(httpStr, this.processColumnsData);
     }
 
+    addAdditionalSheetParams(str){
+        var httpStr = str;
+        if (this.props.additionalSheetParams){
+            for (var paramName in this.props.additionalSheetParams){
+                if (Object.prototype.hasOwnProperty.call(this.props.additionalSheetParams, paramName)){
+                    httpStr += '&'+paramName+'='+this.props.additionalSheetParams[paramName];
+                }
+            }
+
+        }
+        return httpStr;
+    }
   serverSideDatasource = (gridComponent) => {
 
         return {
@@ -235,6 +259,8 @@ class GridExample extends React.Component {
                 if (params.request.groupKeys){
                     httpStr = httpStr.concat( '&group_keys=',params.request.groupKeys);
                 }
+
+                httpStr = gridComponent.addAdditionalSheetParams(httpStr);
 
                 sendRequest(httpStr, (rowData) =>{
                                                         if (rowData.length >0) {
@@ -260,17 +286,26 @@ class GridExample extends React.Component {
    }
 
   onGridReady = params => {
+    console.log('onGridReady', this);
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
 
     var datasource = this.serverSideDatasource(this);
     params.api.setServerSideDatasource(datasource);
 
+     if (this.props.additionalSheetParams){
+            //this.refreshGrid();
+            console.log('111 this.gridApi', this.gridApi);
+         //   this.gridApi.purgeServerSideCache([]);
+         //setTimeout(this.loadColumns.bind(this), 3000);
+         //
+        }
+
 
   }
 
   render() {
-
+                ///ниже вычитаем высоту тулбара - от этого необходимо избавиться! перенеся и используя эту константу в CSS
             return (
                 <React.Fragment>
 
@@ -321,7 +356,7 @@ class GridExample extends React.Component {
             "expandAll",
             "copyWithHeadersCopy",
             "export",
-           "chartRange"
+            "chartRange"
 
         ];
         return result;
@@ -331,7 +366,14 @@ class GridExample extends React.Component {
     showDetailForCell(params){
         console.log('showDetailForCell', params);
         if (this.props.addElementToLayout){
-            this.props.addElementToLayout(<h1>New element!!! </h1>);
+            var detailRender =  <SheetDetailView
+                                sheet_id = {this.props.sheet_id}
+                                sheet_type = {this.props.sheet_type}
+                                additionalSheetParams={{parent_id:params.node.data.id, ind_id:params.column.colDef.ind_id}}
+                                onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
+                                />;
+
+            this.props.addElementToLayout(detailRender);
         }
     }
 

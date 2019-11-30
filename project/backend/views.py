@@ -272,11 +272,15 @@ def get_sheet_nodes(request):
     main_flt_id = sql_result[0].get('main_flt_id')
     p_flt_root_id = Skey(p_key+','+p_cell_key).get_flt_value(main_flt_id)
 
+    p_ind_id = param_dict.get('ind_id', [''])[0]
+    p_parent_id = param_dict.get('parent_id', [''])[0]
 
     sheet_type = get_sheet_type(p_sht_id)
 
     if sheet_type=='TREE':
         node_list = get_tree_node_list(request)
+    elif p_ind_id:
+        node_list = get_anl_detail_table_rows(p_sht_id, p_key, p_ind_id, p_parent_id)
     else:
         node_list = get_anl_table_rows(p_sht_id,p_key)
 
@@ -354,21 +358,37 @@ def get_sheet_columns(request):
     if 'skey' in param_dict:
         p_skey = param_dict['skey'][0]
 
+    #if 'ind_id' in param_dict:
+    #    p_ind_id = param_dict['ind_id'][0]
+
+    p_ind_id = param_dict.get('ind_id', [''])[0]
+
 
     if p_sht_id=='':
         return JsonResponse([], safe=False)
 
-    sheet_type = get_sheet_type(p_sht_id)
-    columns = get_sheet_columns_list(sheet_type, p_sht_id, p_skey)
+    print('i_id', p_ind_id)
+    if len(p_ind_id)>0:
+        p_parent_id = param_dict.get('parent_id',[''])[0]
+
+        columns = get_sheet_details_columns_list(p_sht_id, p_skey, p_ind_id)
+    else:
+        sheet_type = get_sheet_type(p_sht_id)
+        columns = get_sheet_columns_list(sheet_type, p_sht_id, p_skey)
 
 
     for column in columns:
         if 'ent_id' in column and column['ent_id']:
-            ind_id = column['key'][1:]
+            ind_id = column['ind_id']
             column['refer_data'] = get_refer_list(ind_id)
 
     return JsonResponse(columns, safe=False)
 
+def get_sheet_details_columns_list(p_sht_id, p_skey, p_ind_id):
+    columns = get_sql_result('select c.idx, c.code key, c.longname name, c.editfl, c.ent_id, atr_type,'
+                              ' c.ind_id,  null ind_id_hi '
+                             ' from table(C_PKGESREQ.fGetDetColumns(%s, %s, %s)) c', [p_sht_id, p_ind_id, p_skey])
+    return columns
 
 def get_sheet_columns_list(sheet_type, sht_id, skey):
     if sheet_type=='TREE':
@@ -429,6 +449,7 @@ def get_filter_nodes(request):
 
 
 def get_anl_table_rows(sht_id, skey):
+    print('sht_id=',sht_id, 'sk', skey)
     import cx_Oracle
     from django.conf import settings
     db_settings =  settings.DATABASES.get('default')
@@ -443,12 +464,78 @@ def get_anl_table_rows(sht_id, skey):
     ref_cursor =[]
 
     sheet_info = get_sheet_info_list(sht_id)
-    print('SI[0]',sheet_info)
+   # print('SI[0]',sheet_info)
     color_restrict = sheet_info[0].get('color_restrict_hex')
     color_hand = sheet_info[0].get('color_hand_hex')
     color_filter = sheet_info[0].get('color_filter_hex')
 
     columns = get_sheet_columns_list('TABLE', sht_id, skey)
+    for row in refCursor:
+        row_dict = {}
+        column_data = []
+        for column_idx in range(len(refCursor.description)):
+            column_name = refCursor.description[column_idx][0].lower()
+            row_dict[column_name] = row[column_idx]
+            if any([True for column in columns if column['key'] == column_name.upper()]):
+                column_list = [column for column in columns if column['key'] == column_name.upper()]
+                if len(column_list)>0:
+                    ent_id = column_list[0].get('ent_id')
+                    atr_type = column_list[0].get('atr_type')
+                    editfl = column_list[0].get('editfl')
+                    if column_name.upper().startswith('FLT'):
+                        color = color_filter
+                    elif editfl==0:
+                        color = color_restrict
+                    else:
+                        color = color_hand
+
+                else:
+                    ent_id = None
+                    atr_type = None
+                    editfl = 0
+                    color = color_restric
+
+                column_data.append({
+                                        'key':column_name.upper(),
+                                        'sql_value': row[column_idx],
+                                        'editfl':editfl,
+                                        'ent_id':ent_id,
+                                        'atr_type':atr_type,
+                                        'color':color
+
+                })
+
+
+        row_dict['node_key'] = row_dict['id']
+        row_dict['column_data'] = column_data
+        ref_cursor.append(row_dict)
+
+    return ref_cursor;
+
+
+def get_anl_detail_table_rows(sht_id, skey, ind_id, parent_id):
+    print('sht_id=',sht_id, 'sk', skey)
+    import cx_Oracle
+    from django.conf import settings
+    db_settings =  settings.DATABASES.get('default')
+    db_connection_prams = db_settings['USER']+'/'+db_settings['PASSWORD']+'@'+db_settings['HOST']+'/'+db_settings['NAME']
+    connection = cx_Oracle.connect(db_connection_prams)
+    cursor = connection.cursor()
+    refCursor =  connection.cursor()
+
+    cursor.execute("""begin c_pkgconnect.popen();
+                        :1 := c_pkgesreq.fGetDetailsCursor( :2, :3, :4, :5); 
+                    end;""", [refCursor, sht_id, ind_id, skey, parent_id])
+    ref_cursor =[]
+
+    sheet_info = get_sheet_info_list(sht_id)
+   # print('SI[0]',sheet_info)
+    color_restrict = sheet_info[0].get('color_restrict_hex')
+    color_hand = sheet_info[0].get('color_hand_hex')
+    color_filter = sheet_info[0].get('color_filter_hex')
+
+    #columns = get_sheet_columns_list('TABLE', sht_id, skey)
+    columns = get_sheet_details_columns_list(sht_id, skey, ind_id)
     for row in refCursor:
         row_dict = {}
         column_data = []

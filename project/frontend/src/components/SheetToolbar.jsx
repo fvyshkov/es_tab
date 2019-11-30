@@ -47,6 +47,9 @@ class SheetToolbar extends Component {
     }
 
     sheetSelectRender(){
+        if (!this.props.sheetSelection){
+            return <div />;
+        }
         return (
             <DropDownBox
                 ref={this.dropDownBoxRef}

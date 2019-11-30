@@ -19,7 +19,7 @@ import "./index.css";
 
 
 
-class SheetView extends Component {
+export default class SheetDetailView extends Component {
     constructor(props) {
         super(props);
         this.state={
@@ -144,22 +144,18 @@ class SheetView extends Component {
                             onRefreshCallback={this.onToolbarRefreshClick}
                             onCloseCallback={this.onToolbarCloseClick.bind(this)}
                             onSelectNewSheet={this.loadNewSheet}
-                            sheetSelection={true}
+                            sheetSelection={false}
                             />
 
-
-                            <GridExample
-
+                           <GridExample
                                 sendRefreshGrid={click => this.sendRefreshGrid = click}
-                                skey={this.getFilterSkey}
-                                sheet_id = {this.state.sheet_id}
-                                sheet_type = {this.state.sheet_type}
-                                treeData = {this.state.sheet_type==='tree'? true:false}
+                                skey={()=>{return '';}}
+                                sheet_id = {this.props.sheet_id}
+                                sheet_type = {this.props.sheet_type}
+                                treeData = {false}
                                 onFilterPanelChange={this.onFilterPanelChange}
                                 selectedFilterNodes={this.state.selectedFilterNodes}
-                                filterNodes={this.state.filterNodes[this.state.sheet_id]}
-                                addElementToLayout={this.props.addElementToLayout}
-                                onToolbarCloseClick={this.props.onToolbarCloseClick}
+                                additionalSheetParams={this.props.additionalSheetParams}
                                 />
 
 
@@ -173,4 +169,3 @@ class SheetView extends Component {
 }
 
 
-export default SheetView;

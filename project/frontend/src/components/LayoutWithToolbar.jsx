@@ -21,16 +21,22 @@ export default class LayoutWithToolbar extends Component {
         this.state={
                     items:[]
                     };
-        this.getNewLayoutItem = this.getNewLayoutItem.bind(this);
         this.addNewLayoutItem = this.addNewLayoutItem.bind(this);
+        this.addElementToLayout = this.addElementToLayout.bind(this);
+
     }
 
 
     addItemButtonOptions = {
         icon: 'plus',
         onClick: () => {
-                            //console.log('e', e);
-                            this.addNewLayoutItem();
+                            this.addElementToLayout(
+                                                        <SheetView
+                                                            layoutItemID={"n" + this.state.items.length}
+                                                            onToolbarCloseClick={this.onToolbarCloseClick.bind(this)}
+                                                            addElementToLayout={this.addElementToLayout.bind(this)}
+                                                         />
+                                                    );
                         }
     }
 
@@ -44,9 +50,11 @@ export default class LayoutWithToolbar extends Component {
     closeButtonOptions = {
         icon: 'close',
         onClick: () => {
-            notify('close');
+            this.setState({items:[]});
         }
     }
+
+
 
     onToolbarCloseClick(itemID){
         console.log('layout onToolbarRefreshClick', itemID);
@@ -60,8 +68,8 @@ export default class LayoutWithToolbar extends Component {
                 i: "n" + this.state.items.length,
                 x: 0,
                 y: Infinity, // puts it at the bottom
-                w: 6,
-                h: 2,
+                w: 10,
+                h: 3,
                 renderItem:
 
 
@@ -86,17 +94,13 @@ export default class LayoutWithToolbar extends Component {
                 i: "n" + this.state.items.length,
                 x: 0,
                 y: Infinity, // puts it at the bottom
-                w: 6,
-                h: 2,
+                w: 10,
+                h: 3,
                 renderItem:elementRenderer
               })
         });
     }
 
-    getNewLayoutItem(){
-        console.log('onGetNewLayoutItem');
-        return {name:'test', value:100};
-    }
 
     render(){
         return (
@@ -115,14 +119,11 @@ export default class LayoutWithToolbar extends Component {
                 </Toolbar>
                 <AddRemoveLayout
                     items={this.state.items}
-
-                    getNewLayoutItem={this.getNewLayoutItem}
                  />
             </div>
             </React.Fragment>
         );
     }
-//addNewLayoutItem={click => this.addNewLayoutItem = click}
 }
 
 
