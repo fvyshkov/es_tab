@@ -116,6 +116,14 @@ class SheetView extends Component {
         this.sendRefreshGrid();
     }
 
+
+    onToolbarCloseClick(){
+        if (this.props.onToolbarCloseClick){
+            console.log('SheetView this.props.layoutItemID', this.props.layoutItemID);
+            this.props.onToolbarCloseClick(this.props.layoutItemID);
+        }
+    }
+
     onColorPanelClose(){
         this.setState({colorPanelVisible:false});
     }
@@ -134,6 +142,7 @@ class SheetView extends Component {
                         <SheetToolbar
                             onPreferencesCallback={this.onToolbarPreferencesClick}
                             onRefreshCallback={this.onToolbarRefreshClick}
+                            onCloseCallback={this.onToolbarCloseClick.bind(this)}
                             onSelectNewSheet={this.loadNewSheet}
                             />
 

@@ -48,6 +48,11 @@ export default class LayoutWithToolbar extends Component {
         }
     }
 
+    onToolbarCloseClick(itemID){
+        console.log('layout onToolbarRefreshClick', itemID);
+        this.setState({ items: _.reject(this.state.items, { i: itemID }) });
+    }
+
     addNewLayoutItem(){
         this.setState({
           // Add a new item. It must have a unique key!
@@ -62,7 +67,10 @@ export default class LayoutWithToolbar extends Component {
 
                         <div className="TestBorder">
 
-                            <SheetView />
+                            <SheetView
+                                layoutItemID={"n" + this.state.items.length}
+                                onToolbarCloseClick={this.onToolbarCloseClick.bind(this)}
+                             />
 
                         </div>
 

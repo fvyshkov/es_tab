@@ -123,6 +123,14 @@ class SheetToolbar extends Component {
                         }
     }
 
+
+    closeButtonOptions = {
+        icon: 'close',
+        onClick: (e) => {
+                        this.props.onCloseCallback();
+                        }
+    }
+
     saveButtonOptions = {
         icon: 'save',
         onClick: () => {
@@ -153,6 +161,10 @@ class SheetToolbar extends Component {
                     <Item location={'after'}
                     widget={'dxButton'}
                     options={this.refreshButtonOptions} />
+
+                    <Item location={'after'}
+                    widget={'dxButton'}
+                    options={this.closeButtonOptions} />
                 </Toolbar>
             </React.Fragment>
         );
