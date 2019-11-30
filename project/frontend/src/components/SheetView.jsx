@@ -157,6 +157,7 @@ class SheetView extends Component {
                                 onFilterPanelChange={this.onFilterPanelChange}
                                 selectedFilterNodes={this.state.selectedFilterNodes}
                                 filterNodes={this.state.filterNodes[this.state.sheet_id]}
+                                addElementToLayout={this.props.addElementToLayout}
                                 />
 
 

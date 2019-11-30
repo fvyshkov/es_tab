@@ -70,10 +70,25 @@ export default class LayoutWithToolbar extends Component {
                             <SheetView
                                 layoutItemID={"n" + this.state.items.length}
                                 onToolbarCloseClick={this.onToolbarCloseClick.bind(this)}
+                                addElementToLayout={this.addElementToLayout.bind(this)}
                              />
 
                         </div>
 
+              })
+        });
+    }
+
+    addElementToLayout(elementRenderer){
+        this.setState({
+          // Add a new item. It must have a unique key!
+              items: this.state.items.concat({
+                i: "n" + this.state.items.length,
+                x: 0,
+                y: Infinity, // puts it at the bottom
+                w: 6,
+                h: 2,
+                renderItem:elementRenderer
               })
         });
     }

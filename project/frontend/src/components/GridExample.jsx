@@ -301,6 +301,7 @@ class GridExample extends React.Component {
                             selectedFilterNodes={this.props.selectedFilterNodes}
                             filterNodes={this.props.filterNodes}
                             statusBar={this.state.statusBar}
+                            getContextMenuItems={this.getContextMenuItems.bind(this)}
                           />
 
                       </div>
@@ -310,6 +311,29 @@ class GridExample extends React.Component {
             );
   }
 
+    getContextMenuItems(params) {
+        var result = [
+          {
+            name: 'Детализация (' + params.column.colDef.headerName+')',
+            action: this.showDetailForCell.bind(this, params)
+          },
+            "separator",
+            "expandAll",
+            "copyWithHeadersCopy",
+            "export",
+           "chartRange"
+
+        ];
+        return result;
+      }
+
+
+    showDetailForCell(params){
+        console.log('showDetailForCell', params);
+        if (this.props.addElementToLayout){
+            this.props.addElementToLayout(<h1>New element!!! </h1>);
+        }
+    }
 
   onFirstDataRendered(params) {
 
