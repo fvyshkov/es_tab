@@ -369,11 +369,14 @@ class GridExample extends React.Component {
     showDetailForCell(params){
         console.log('showDetailForCell', params);
         if (this.props.addElementToLayout){
+            var newLayoutItemID = this.props.getNewLayoutItemID();
+            console.log('newLayoutItemID=', newLayoutItemID);
             var detailRender =  <SheetDetailView
                                 sheet_id = {this.props.sheet_id}
                                 sheet_type = {this.props.sheet_type}
                                 additionalSheetParams={{parent_id:params.node.data.id, ind_id:params.column.colDef.ind_id}}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
+                                layoutItemID={newLayoutItemID}
                                 />;
 
             this.props.addElementToLayout(detailRender);

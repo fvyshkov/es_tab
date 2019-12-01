@@ -24,6 +24,8 @@ export default class LayoutWithToolbar extends Component {
         this.addNewLayoutItem = this.addNewLayoutItem.bind(this);
         this.addElementToLayout = this.addElementToLayout.bind(this);
 
+        this.getNewLayoutItemID = this.getNewLayoutItemID.bind(this);
+
     }
 
 
@@ -35,6 +37,7 @@ export default class LayoutWithToolbar extends Component {
                                                             layoutItemID={"n" + this.state.items.length}
                                                             onToolbarCloseClick={this.onToolbarCloseClick.bind(this)}
                                                             addElementToLayout={this.addElementToLayout.bind(this)}
+                                                            getNewLayoutItemID={this.getNewLayoutItemID}
                                                          />
                                                     );
                         }
@@ -79,12 +82,17 @@ export default class LayoutWithToolbar extends Component {
                                 layoutItemID={"n" + this.state.items.length}
                                 onToolbarCloseClick={this.onToolbarCloseClick.bind(this)}
                                 addElementToLayout={this.addElementToLayout.bind(this)}
+                                getNewLayoutItemID={this.getNewLayoutItemID.bind(this)}
                              />
 
                         </div>
 
               })
         });
+    }
+
+    getNewLayoutItemID(){
+        return 'n' + this.state.items.length;
     }
 
     addElementToLayout(elementRenderer){

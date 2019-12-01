@@ -175,6 +175,11 @@ class SheetToolbar extends Component {
                     <Item location={'before'}
                     widget={'dxButton'}
                     options={this.deleteButtonOptions} />
+
+                    <Item location={'before'}
+                    widget={'dxButton'}
+                    options={this.saveButtonOptions} />
+
                     <Item location={'before'}
                     widget={'dxButton'}
                     options={this.refreshButtonOptions} />

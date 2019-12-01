@@ -160,6 +160,7 @@ class SheetView extends Component {
                                 filterNodes={this.state.filterNodes[this.state.sheet_id]}
                                 addElementToLayout={this.props.addElementToLayout}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick}
+                                getNewLayoutItemID={this.props.getNewLayoutItemID}
                                 />
 
 

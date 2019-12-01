@@ -119,7 +119,7 @@ export default class SheetDetailView extends Component {
 
     onToolbarCloseClick(){
         if (this.props.onToolbarCloseClick){
-            console.log('SheetView this.props.layoutItemID', this.props.layoutItemID);
+            console.log('SheetView this.props.layoutItemID', this.props.getNewLayoutItemID);
             this.props.onToolbarCloseClick(this.props.layoutItemID);
         }
     }
