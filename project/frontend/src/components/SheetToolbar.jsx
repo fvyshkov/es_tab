@@ -8,6 +8,7 @@ import notify from 'devextreme/ui/notify';
 import { sendRequest } from './App.js';
 import { DropDownBox, TreeView } from 'devextreme-react';
 import ColorPanel from './ColorPanel.jsx';
+import './index.css';
 
 
 class SheetToolbar extends Component {
@@ -65,7 +66,7 @@ class SheetToolbar extends Component {
                 placeholder={'Выбор листа для отображения'}
                 contentRender={this.treeViewRender}
                 onOpened={this.onOpened}
-                width={500}
+                width={"100%"}
 
             />
 
@@ -187,11 +188,13 @@ class SheetToolbar extends Component {
                     widget={'dxButton'}
                     options={this.colorButtonOptions} />
 
-                    <Item location={'after'}
-                    locateInMenu={'never'}
+                    <Item location={'before'}
+
+                    cssClass={"SheetTreeDropDown"}
+                    options={{width:"100%"}}
                     render={this.sheetSelectRender} />
 
-                    <Item location={'after'}
+                    <Item location={'before'}
                     widget={'dxButton'}
                     options={this.closeButtonOptions} />
                 </Toolbar>

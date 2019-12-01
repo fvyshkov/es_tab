@@ -57,6 +57,9 @@ height: 100%;
 position: relative;
 }
 
+.SheetTreeDropDown{
+width:100%;
+}
 
 .Toolbar{
 border-width:4px;
