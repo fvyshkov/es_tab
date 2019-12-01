@@ -35,9 +35,9 @@ border-color:aqua;
 }
 
 .TestLayoutItem{
-border1: solid;
-border-width : thic;
-border-color:red;
+border: solid;
+border-width : thin;
+border-color:black;
 }
 
 

@@ -44,7 +44,7 @@ class GridExample extends React.Component {
                             toolPanel: "filterPanelInToolPanel"
                           }
                     ],
-                    defaultToolPanel: "sheetFilters",
+                    //defaultToolPanel: "sheetFilters",
                     position: 'left'
                 },
 
@@ -349,7 +349,7 @@ class GridExample extends React.Component {
     getContextMenuItems(params) {
         var result = [
           {
-            name: 'Детализация (' + params.column.colDef.headerName+')',
+            name: 'Детализация <b>' + params.column.colDef.headerName+'</b>',
             action: this.showDetailForCell.bind(this, params)
           },
             "separator",

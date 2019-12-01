@@ -126,6 +126,20 @@ class SheetToolbar extends Component {
                         }
     }
 
+    insertButtonOptions = {
+        icon: 'plus',
+        onClick: (e) => {
+
+                        }
+    }
+
+    deleteButtonOptions = {
+        icon: 'minus',
+        onClick: (e) => {
+
+                        }
+    }
+
 
     closeButtonOptions = {
         icon: 'close',
@@ -143,7 +157,7 @@ class SheetToolbar extends Component {
     }
 
     colorButtonOptions = {
-        icon: 'preferences',
+        icon: 'palette',
         onClick: () => {
             this.props.onPreferencesCallback();
         }
@@ -156,14 +170,21 @@ class SheetToolbar extends Component {
             <React.Fragment>
                 <Toolbar>
                     <Item location={'before'}
-                    locateInMenu={'never'}
-                    render={this.sheetSelectRender} />
-                    <Item location={'after'}
                     widget={'dxButton'}
-                    options={this.colorButtonOptions} />
-                    <Item location={'after'}
+                    options={this.insertButtonOptions} />
+                    <Item location={'before'}
+                    widget={'dxButton'}
+                    options={this.deleteButtonOptions} />
+                    <Item location={'before'}
                     widget={'dxButton'}
                     options={this.refreshButtonOptions} />
+                    <Item location={'before'}
+                    widget={'dxButton'}
+                    options={this.colorButtonOptions} />
+
+                    <Item location={'after'}
+                    locateInMenu={'never'}
+                    render={this.sheetSelectRender} />
 
                     <Item location={'after'}
                     widget={'dxButton'}
