@@ -89,6 +89,7 @@ class GridExample extends React.Component {
 
     this.onGridReady = this.onGridReady.bind(this);
 
+    this.columnsLoaded = false;
 
 
 
@@ -187,6 +188,7 @@ class GridExample extends React.Component {
         this.setState({columnDefs: columns});
 
         this.loadSheetInfo();
+        this.columnsLoaded = true;
     }
 
     loadSheetInfo(){
@@ -289,14 +291,15 @@ class GridExample extends React.Component {
     console.log('onGridReady', this);
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
-
+    //return;
     var datasource = this.serverSideDatasource(this);
     params.api.setServerSideDatasource(datasource);
 
-     if (this.props.additionalSheetParams){
+     if (this.props.additionalSheetParams && !this.columnsLoaded){
             //this.refreshGrid();
             console.log('111 this.gridApi', this.gridApi);
          //   this.gridApi.purgeServerSideCache([]);
+         this.loadColumns();
          //setTimeout(this.loadColumns.bind(this), 3000);
          //
         }
@@ -349,7 +352,7 @@ class GridExample extends React.Component {
     getContextMenuItems(params) {
         var result = [
           {
-            name: 'Детализация <b>' + params.column.colDef.headerName+'</b>',
+            name: 'Детализация <b>[' + params.column.colDef.headerName+']</b>',
             action: this.showDetailForCell.bind(this, params)
           },
             "separator",
