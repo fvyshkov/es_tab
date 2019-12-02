@@ -17,8 +17,10 @@ class GridExample extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+    gridKey:0,
     colorRestrict: 0,
     modules: AllModules,
+
       columnDefs: [],
       treeData: this.props.treeData,
       frameworkComponents: {
@@ -115,10 +117,17 @@ class GridExample extends React.Component {
             this.props.sendRefreshGrid(this.refreshGrid);
         }
 
+
+        console.log('componentDidMount', this.gridApi);
+
     }
 
     refreshGrid(){
+
+
+
         this.gridApi.purgeServerSideCache([]);
+        console.log('GridExample.refreshGrid');
         this.loadColumns();
     }
 
@@ -196,10 +205,17 @@ class GridExample extends React.Component {
     }
 
     processSheetInfo(infoList){
-
+        console.log('processSheetInfo');
         //необходимо сбросить ключ, чтобы после установки autoGroupColumnDef снова выставить
         //и тем самым принудительно перерендерить грид (иначе autoGroupColumnDef не обновляется)
-        this.setState({gridKey:0});
+        console.log('processSheetInfo', this.props.forceGridReload);
+        if (this.props.forceGridReload){
+            this.setState({gridKey:0});
+        }
+
+        if (this.props.resetForceGridReload){
+            this.props.resetForceGridReload();
+        }
         //if (infoList.length>0)
         this.state.colorRestrict = infoList[0].color_restrict_hex;
         this.setState({
@@ -213,6 +229,7 @@ class GridExample extends React.Component {
                             autoGroupColumnDef:this.getAutoGroupColumnDef(),
                             treeData: this.props.sheet_type==='tree' ? true: false
                              });
+
 
         this.setState({gridKey: this.props.sheet_id});
     }
@@ -244,6 +261,12 @@ class GridExample extends React.Component {
         }
         return httpStr;
     }
+
+
+    getSheetID(){
+        return this.props.sheet_id;
+    }
+
   serverSideDatasource = (gridComponent) => {
 
         return {
@@ -288,27 +311,24 @@ class GridExample extends React.Component {
    }
 
   onGridReady = params => {
-    console.log('onGridReady', this);
+    console.log('onGridReady');
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
-    //return;
+
     var datasource = this.serverSideDatasource(this);
-    params.api.setServerSideDatasource(datasource);
+    this.gridApi.setServerSideDatasource(datasource);
+
+    //params.api.setServerSideDatasource(datasource);
 
      if (this.props.additionalSheetParams && !this.columnsLoaded){
-            //this.refreshGrid();
-            console.log('111 this.gridApi', this.gridApi);
-         //   this.gridApi.purgeServerSideCache([]);
          this.loadColumns();
-         //setTimeout(this.loadColumns.bind(this), 3000);
-         //
-        }
+     }
 
 
   }
 
   render() {
-                ///ниже вычитаем высоту тулбара - от этого необходимо избавиться! перенеся и используя эту константу в CSS
+                ///ниже вычитаем высоту тулбара - от этого необходимо избавиться! перенеся и используя эту константу в CSS --calc(100% - 36px)
             return (
                 <React.Fragment>
 

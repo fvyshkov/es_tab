@@ -25,7 +25,8 @@ class SheetView extends Component {
         this.state={
                         colorPanelVisible: false,
                         selectedFilterNodes: {},
-                        filterNodes: {}
+                        filterNodes: {},
+                        forceGridReload: false
                       };
 
         this.onToolbarPreferencesClick = this.onToolbarPreferencesClick.bind(this);
@@ -50,7 +51,7 @@ class SheetView extends Component {
     }
 
     onToolbarPreferencesClick(){
-        this.setState({colorPanelVisible:true});
+        this.setState({colorPanelVisible:true, forceGridReload: true});
     }
 
     loadNewSheet(prm_sheet_id, prm_sheet_type){
@@ -128,6 +129,10 @@ class SheetView extends Component {
         this.setState({colorPanelVisible:false});
     }
 
+    resetForceGridReload(){
+        this.setState({forceGridReload:false});
+    }
+
     render(){
         return (
             <React.Fragment>
@@ -161,6 +166,8 @@ class SheetView extends Component {
                                 addElementToLayout={this.props.addElementToLayout}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick}
                                 getNewLayoutItemID={this.props.getNewLayoutItemID}
+                                forceGridReload={this.state.forceGridReload}
+                                resetForceGridReload={this.resetForceGridReload.bind(this)}
                                 />
 
 

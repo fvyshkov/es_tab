@@ -28,7 +28,7 @@ export default class FilterPanelInToolPanel extends Component {
     updatePanel() {
 
         if (this.props.agGridReact.props.sheet_id){
-            this.setState({sheet_id: this.props.agGridReact.props.sheet_id});
+            this.state.sheet_id = this.props.agGridReact.props.sheet_id;
         }
         this.loadNewSheetToFilterPanel();
     }
