@@ -51,7 +51,12 @@ class SheetView extends Component {
     }
 
     onToolbarPreferencesClick(){
-        this.setState({colorPanelVisible:true, forceGridReload: true});
+
+        this.setState({colorPanelVisible:true});
+
+        if (this.state.sheet_type==='tree'){
+            this.setState({forceGridReload: true});
+        }
     }
 
     loadNewSheet(prm_sheet_id, prm_sheet_type){
