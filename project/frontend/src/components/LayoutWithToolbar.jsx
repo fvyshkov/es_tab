@@ -27,6 +27,7 @@ export default class LayoutWithToolbar extends Component {
 
 
     addItemButtonOptions = {
+        elementAttr: {"id": "add_layout_sheet_item"},
         icon: 'plus',
         onClick: () => {
                             this.addElementToLayout(
@@ -77,7 +78,8 @@ export default class LayoutWithToolbar extends Component {
             <React.Fragment>
             <div className='Wrapper'>
                 <Toolbar>
-                    <Item location={'before'}
+                    <Item
+                    location={'before'}
                     widget={'dxButton'}
                     options={this.addItemButtonOptions} />
                     <Item location={'before'}

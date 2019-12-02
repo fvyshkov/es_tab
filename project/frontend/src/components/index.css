@@ -73,3 +73,8 @@ position: relative;
 .SheetTree{
 width:500px
 }
+
+.react-dropdown-tree-select .dropdown .dropdown-trigger.arrow .tag{
+background-color: #d9ff96;
+}
+

@@ -78,7 +78,6 @@ export default class SheetDetailView extends Component {
 
 
     onFilterPanelChange(selectedNodes, allNodes, filterID){
-        //this.state.selectedFilterNodes[filterID] = selectedNodes;
         this.state.filterNodes[this.state.sheet_id][filterID].filter_node_list = allNodes;
         this.setState({filterNodes : this.state.filterNodes});
     }

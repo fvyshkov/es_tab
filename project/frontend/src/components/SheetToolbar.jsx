@@ -54,6 +54,7 @@ class SheetToolbar extends Component {
         return (
             <DropDownBox
                 ref={this.dropDownBoxRef}
+                elementAttr={{"id": "sheet_select_dropdown"}}
                 dataSource={this.state.sheetList}
                 value={this.state.treeBoxValue}
                 valueExpr={'id'}
