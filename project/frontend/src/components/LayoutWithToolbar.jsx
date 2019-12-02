@@ -21,11 +21,8 @@ export default class LayoutWithToolbar extends Component {
         this.state={
                     items:[]
                     };
-        this.addNewLayoutItem = this.addNewLayoutItem.bind(this);
         this.addElementToLayout = this.addElementToLayout.bind(this);
-
         this.getNewLayoutItemID = this.getNewLayoutItemID.bind(this);
-
     }
 
 
@@ -43,13 +40,6 @@ export default class LayoutWithToolbar extends Component {
                         }
     }
 
-    layoutButtonOptions = {
-        icon: 'mediumiconslayout',
-        onClick: () => {
-            notify('layoutButtonOptions');
-        }
-    }
-
     closeButtonOptions = {
         icon: 'close',
         onClick: () => {
@@ -60,35 +50,7 @@ export default class LayoutWithToolbar extends Component {
 
 
     onToolbarCloseClick(itemID){
-        console.log('layout onToolbarRefreshClick', itemID);
         this.setState({ items: _.reject(this.state.items, { i: itemID }) });
-    }
-
-    addNewLayoutItem(){
-        this.setState({
-          // Add a new item. It must have a unique key!
-              items: this.state.items.concat({
-                i: "n" + this.state.items.length,
-                x: 0,
-                y: Infinity, // puts it at the bottom
-                w: 10,
-                h: 3,
-                renderItem:
-
-
-                        <div className="TestBorder">
-
-                            <SheetView
-                                layoutItemID={"n" + this.state.items.length}
-                                onToolbarCloseClick={this.onToolbarCloseClick.bind(this)}
-                                addElementToLayout={this.addElementToLayout.bind(this)}
-                                getNewLayoutItemID={this.getNewLayoutItemID.bind(this)}
-                             />
-
-                        </div>
-
-              })
-        });
     }
 
     getNewLayoutItemID(){
@@ -118,10 +80,7 @@ export default class LayoutWithToolbar extends Component {
                     <Item location={'before'}
                     widget={'dxButton'}
                     options={this.addItemButtonOptions} />
-                   <Item location={'before'}
-                    widget={'dxButton'}
-                    options={this.layoutButtonOptions} />
-                    <Item location={'after'}
+                    <Item location={'before'}
                     widget={'dxButton'}
                     options={this.closeButtonOptions} />
                 </Toolbar>
