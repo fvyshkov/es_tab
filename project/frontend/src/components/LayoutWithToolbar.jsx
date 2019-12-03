@@ -65,7 +65,7 @@ export default class LayoutWithToolbar extends Component {
                 i: "n" + this.state.items.length,
                 x: 0,
                 y: Infinity, // puts it at the bottom
-                w: 10,
+                w: 11,
                 h: 3,
                 renderItem:elementRenderer
               })
