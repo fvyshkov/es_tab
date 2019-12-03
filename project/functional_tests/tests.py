@@ -5,6 +5,7 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.common.action_chains import ActionChains
 
 MAX_WAIT = 10
 
@@ -16,26 +17,141 @@ class NewVisitorTest(SimpleTestCase):
         self.live_server_url = 'http://127.0.0.1:8000/'
 
     def tearDown(self):
-        pass
+        time.sleep(5)
         self.browser.quit()
 
-    def test_first_try(self):
+    def test_open_detail(self):
         self.browser.get(self.live_server_url)
         add_sheet_button_id = 'add_layout_sheet_item'
         self.wait_for_element_by_id(add_sheet_button_id)
         add_sheet_button = self.browser.find_element_by_id(add_sheet_button_id)
         add_sheet_button.send_keys(Keys.ENTER)
 
-        sheet_select_id = 'sheet_select_dropdown'
-        self.wait_for_element_by_id(sheet_select_id)
+        sheet_select_id = "sheet_select_dropdown"
+        self.wait_for_element_by_id("sheet_select_dropdown")
         sheet_select = self.browser.find_element_by_id(sheet_select_id)
         sheet_select.click()
+
+        input_box_xpath = "//div[@class='dx-texteditor-input-container']/input[@class='dx-texteditor-input']"
+        sheet_book_xpath = "//span[text()='1.Бюджет Годовой']"
+        self.wait_for_element_by_xpath(sheet_book_xpath)
+        input_box_list = self.browser.find_elements_by_xpath(input_box_xpath)
+        input_box_list[1].send_keys('заявка на бронирование')
+
+        sheet_xpath = "//span[text()='Заявка на бронирование']"
+        self.wait_for_element_by_xpath(sheet_xpath)
+        sheet = self.browser.find_element_by_xpath(sheet_xpath)
+        sheet.click()
+
+        cell_xpath = "//span[text()='250.00']"
+        self.wait_for_element_by_xpath(cell_xpath)
+        cell = self.browser.find_element_by_xpath(cell_xpath)
+
+        actions = ActionChains(self.browser);
+        actions.context_click(cell).perform();
+
+        menu_dtl_path = "//span[@class='ag-menu-option-text' and contains(text(),'етализация')]"
+
+        self.wait_for_element_by_xpath(menu_dtl_path)
+        self.browser.find_element_by_xpath(menu_dtl_path).click()
+
+        detail_row_xpath= "//span[text()='Ежедневник формата А5']"
+        self.wait_for_element_by_xpath(detail_row_xpath)
+
+    def test_open_multy_sheet_with_filter_and_tree_expanding(self):
+        self.browser.get(self.live_server_url)
+        add_sheet_button_id = 'add_layout_sheet_item'
+        self.wait_for_element_by_id(add_sheet_button_id)
+        add_sheet_button = self.browser.find_element_by_id(add_sheet_button_id)
+        add_sheet_button.send_keys(Keys.ENTER)
+
+        sheet_select_id = "sheet_select_dropdown"
+        self.wait_for_element_by_id("sheet_select_dropdown")
+        sheet_select = self.browser.find_element_by_id(sheet_select_id)
+        sheet_select.click()
+
+        input_box_xpath = "//div[@class='dx-texteditor-input-container']/input[@class='dx-texteditor-input']"
+        sheet_book_xpath = "//span[text()='1.Бюджет Годовой']"
+        self.wait_for_element_by_xpath(sheet_book_xpath)
+        input_box_list = self.browser.find_elements_by_xpath(input_box_xpath)
+        input_box_list[1].send_keys('Ликвидность')
+
+        sheet_xpath = "//span[text()='Ликвидность']"
+        self.wait_for_element_by_xpath(sheet_xpath)
+        sheet = self.browser.find_element_by_xpath(sheet_xpath)
+        sheet.click()
+
+        #time.sleep(3)
+        #ждем загрузки данных
+        btn_xpath = "//span[text()='ГО']"
+        self.wait_for_element_by_xpath(btn_xpath)
+
+        btn_xpath = "//button[span[text()='Аналитики']]"
+        self.wait_for_element_by_xpath(btn_xpath)
+        btn = self.browser.find_element_by_xpath(btn_xpath)
+        print('btn', btn.text)
+        btn.click()
+
+        dep_arrow_xpath = "//a[@id='rdts2_trigger']"
+        self.wait_for_element_by_xpath(dep_arrow_xpath)
+        dep_arrow = self.browser.find_element_by_xpath(dep_arrow_xpath)
+        dep_arrow.click()
+
+        the_dep_xpath = "//input[@id='39595']"
+        self.wait_for_element_by_xpath(the_dep_xpath)
+        the_dep = self.browser.find_element_by_xpath(the_dep_xpath)
+        the_dep.click()
+
+        refresh_xpath = "//div[@aria-label='refresh']"
+        self.wait_for_element_by_xpath(refresh_xpath)
+        refresh = self.browser.find_element_by_xpath(refresh_xpath)
+        refresh.click()
+
+        cell_xpath = "//span[text()='1. Активы']"
+        self.wait_for_element_by_xpath(cell_xpath)
+        cell = self.browser.find_element_by_xpath(cell_xpath)
+        cell.click()
+        ActionChains(self.browser).send_keys(Keys.ENTER).perform()
+
+        cell_xpath = "//span[text()='1.1. Кредиты']"
+        self.wait_for_element_by_xpath(cell_xpath)
+        cell = self.browser.find_element_by_xpath(cell_xpath)
+        cell.click()
+        ActionChains(self.browser).send_keys(Keys.ENTER).perform()
+
+
+        ind_xpath = "//span[text()='1.1.1. Основной долг']"
+        self.wait_for_element_by_xpath(ind_xpath)
+        ind = self.browser.find_element_by_xpath(ind_xpath)
+
 
     def wait_for_element_by_id(self, element_id):
         start_time = time.time()
         while True:
             try:
                 element = self.browser.find_element_by_id(element_id)
+                return
+            except (AssertionError, WebDriverException) as e:
+                if time.time() - start_time > MAX_WAIT:
+                    raise e
+                time.sleep(0.5)
+
+    def wait_for_element_by_class_name(self, class_name):
+        start_time = time.time()
+        while True:
+            try:
+                element = self.browser.find_element_by_class_name(class_name)
+                return
+            except (AssertionError, WebDriverException) as e:
+                if time.time() - start_time > MAX_WAIT:
+                    raise e
+                time.sleep(0.5)
+
+    def wait_for_element_by_xpath(self, xpath):
+        start_time = time.time()
+        while True:
+            try:
+                element = self.browser.find_element_by_xpath(xpath)
                 return
             except (AssertionError, WebDriverException) as e:
                 if time.time() - start_time > MAX_WAIT:
