@@ -107,23 +107,19 @@ class NewVisitorTest(SimpleTestCase):
         refresh = self.browser.find_element_by_xpath(refresh_xpath)
         refresh.click()
 
-        cell_xpath = "//span[text()='1. Активы']"
-        self.wait_for_element_by_xpath(cell_xpath)
-        cell = self.browser.find_element_by_xpath(cell_xpath)
-        cell.click()
-        ActionChains(self.browser).send_keys(Keys.ENTER).perform()
-
-        cell_xpath = "//span[text()='1.1. Кредиты']"
-        self.wait_for_element_by_xpath(cell_xpath)
-        cell = self.browser.find_element_by_xpath(cell_xpath)
-        cell.click()
-        ActionChains(self.browser).send_keys(Keys.ENTER).perform()
-
+        self.expand_tree_node('1. Активы')
+        self.expand_tree_node('1.1. Кредиты')
 
         ind_xpath = "//span[text()='1.1.1. Основной долг']"
         self.wait_for_element_by_xpath(ind_xpath)
         ind = self.browser.find_element_by_xpath(ind_xpath)
 
+    def expand_tree_node(self, node_name):
+        cell_xpath = "//span[text()='"+ node_name +"']"
+        self.wait_for_element_by_xpath(cell_xpath)
+        cell = self.browser.find_element_by_xpath(cell_xpath)
+        cell.click()
+        ActionChains(self.browser).send_keys(Keys.ENTER).perform()
 
     def wait_for_element_by_id(self, element_id):
         start_time = time.time()
