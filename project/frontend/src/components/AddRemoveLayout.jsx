@@ -105,6 +105,7 @@ export default class AddRemoveLayout extends React.PureComponent {
         <ResponsiveReactGridLayout
           onLayoutChange={this.onLayoutChange.bind(this)}
           onBreakpointChange={this.onBreakpointChange.bind(this)}
+          draggableCancel={'.NonDraggableAreaClassName'}
           {...this.props}
         >
           {_.map(this.props.items, el => this.createElement(el))}
