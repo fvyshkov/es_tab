@@ -10,6 +10,7 @@ import { sendRequest } from './App.js';
 import FilterPanelInToolPanel from "./FilterPanelInToolPanel.jsx";
 import {LicenseManager} from "@ag-grid-enterprise/core";
 import SheetDetailView from './SheetDetailView.jsx';
+import ToolbarView from './ToolbarView.jsx';
 
 LicenseManager.setLicenseKey("Evaluation_License_Not_For_Production_29_December_2019__MTU3NzU3NzYwMDAwMA==a3a7a7e770dea1c09a39018caf2c839c");
 
@@ -374,8 +375,13 @@ class GridExample extends React.Component {
     createChartContainer(chartRef) {
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
-            this.props.addElementToLayout(<div id={"item_content_"+newLayoutItemID} class="ag-theme-balham" style={{height:'100%'}}/>);
-            document.querySelector("#item_content_"+newLayoutItemID).appendChild(chartRef.chartElement);
+            this.props.addElementToLayout(<ToolbarView
+                                                layoutItemID={newLayoutItemID}
+                                                addElementToLayout={this.props.addElementToLayout}
+                                                onToolbarCloseClick={this.props.onToolbarCloseClick}
+                                                getNewLayoutItemID={this.props.getNewLayoutItemID}
+                                            />);
+            document.querySelector("#content_"+newLayoutItemID).appendChild(chartRef.chartElement);
         }
     }
 

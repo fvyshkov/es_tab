@@ -1,5 +1,10 @@
 html, body { height: 100%; }
 
+
+:root {
+  --toolbarHeight: 36px;
+}
+
 .treeRef{
 border: solid;
 border-width : thin;
@@ -56,6 +61,11 @@ border-color:red;
 height:100%;
 flex: 1 1 auto;
 display:flex;
+}
+
+/*вычитаем высоту тулбара*/
+.ToolbarViewContent{
+height: calc(100% - var(--toolbarHeight));
 }
 
 .Grid1{
