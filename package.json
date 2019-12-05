@@ -7,7 +7,8 @@
     "dev": "webpack --mode development ./project/frontend/src/index.js --output ./project/frontend/static/frontend/main.js",
     "start": "webpack-dev-server --mode development",
     "build": "webpack --mode production ./project/frontend/src/index.js --output ./project/frontend/static/frontend/main.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --config ./jest.config.json",
+    "test:watch": "npm run test -- --watch"
   },
   "keywords": [],
   "author": "",
@@ -29,6 +30,7 @@
     "devextreme": "^19.2.3",
     "devextreme-react": "^19.2.4",
     "globalize": "^1.4.2",
+    "jest": "^24.9.0",
     "prop-types": "^15.7.2",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",

@@ -371,7 +371,6 @@ class GridExample extends React.Component {
             );
   }
 
-
     createChartContainer(chartRef) {
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
