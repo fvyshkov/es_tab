@@ -42,12 +42,21 @@ border-color:black;
 
 
 .TestBorder{
-border1: solid;
+border: solid;
 border-width : thic;
 border-color:blue;
 height:100%;
+display: flex;
 }
 
+.TestContent{
+border: solid;
+border-width : thic;
+border-color:red;
+height:100%;
+flex: 1 1 auto;
+display:flex;
+}
 
 .Grid1{
 border-width:4px;

@@ -360,6 +360,7 @@ class GridExample extends React.Component {
                             filterNodes={this.props.filterNodes}
                             statusBar={this.state.statusBar}
                             getContextMenuItems={this.getContextMenuItems.bind(this)}
+                            createChartContainer={this.createChartContainer.bind(this)}
                           />
 
                       </div>
@@ -368,6 +369,15 @@ class GridExample extends React.Component {
 
             );
   }
+
+
+    createChartContainer(chartRef) {
+        if (this.props.addElementToLayout){
+            var newLayoutItemID = this.props.getNewLayoutItemID();
+            this.props.addElementToLayout(<div id={"item_content_"+newLayoutItemID} class="ag-theme-balham" style={{height:'100%'}}/>);
+            document.querySelector("#item_content_"+newLayoutItemID).appendChild(chartRef.chartElement);
+        }
+    }
 
     getContextMenuItems(params) {
         var result = [
@@ -453,6 +463,9 @@ function groupColumns(columns){
     }
     return resultColumns;
 }
+
+
+
 
 
 export default GridExample;
