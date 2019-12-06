@@ -21,7 +21,6 @@ class GridExample extends React.Component {
     gridKey:0,
     colorRestrict: 0,
     modules: AllModules,
-
       columnDefs: [],
       treeData: this.props.treeData,
       frameworkComponents: {
@@ -78,9 +77,15 @@ class GridExample extends React.Component {
       },
       getServerSideGroupKey: function(dataItem) {
         return dataItem.node_key;
+      },
+      getRowNodeId: function (dataItem){
+        return dataItem.node_key;
       }
 
     };
+
+    this.expandedKeys = [];
+
     this.refreshGrid = this.refreshGrid.bind(this);
     this.render = this.render.bind(this);
     this.processColumnsData = this.processColumnsData.bind(this);
@@ -126,9 +131,6 @@ class GridExample extends React.Component {
     }
 
     refreshGrid(){
-
-
-
         this.gridApi.purgeServerSideCache([]);
         console.log('GridExample.refreshGrid');
         this.loadColumns();
@@ -307,6 +309,13 @@ class GridExample extends React.Component {
                                                                 }
                                                             }
                                                             params.successCallback(rowData, lastRow());
+
+                                                            //console.log('2 gridComponent.props.expandedGroupIds', gridComponent.props.expandedGroupIds);
+                                                            rowData.forEach(function(row) {
+                                                                if (gridComponent.props.expandedGroupIds.indexOf(row.node_key) > -1) {
+                                                                    gridComponent.gridApi.getRowNode(row.node_key).setExpanded(true);
+                                                                }
+                                                            });
                                                         }else{
                                                             params.successCallback([{columnNameField:"No results found"}], 1);
                                                         }
@@ -337,7 +346,7 @@ class GridExample extends React.Component {
   onGridStateChange(){
     console.log('onGridStateChange')
     if (this.props.onGridStateChange){
-        this.props.onGridStateChange(this.gridColumnApi.getColumnState(),[1,2,3])
+        this.props.onGridStateChange(this.gridColumnApi.getColumnState(),this.expandedKeys)
     }
   }
 
@@ -345,6 +354,18 @@ class GridExample extends React.Component {
 
   }
 
+    onRowGroupOpened(e){
+        if (e.node.expanded){
+            this.expandedKeys.push(e.node.key);
+        }else{
+            if (this.expandedKeys.indexOf(e.node.key) > -1){
+                this.expandedKeys.splice(this.expandedKeys.indexOf(e.node.key),1);
+            }
+        }
+        console.log('onRowGroupOpened this.expandedKeys', this.expandedKeys);
+        this.onGridStateChange();
+        //console.log('onRowGroupOpened', e.node.key, e.node.expanded, this.expandedKeys);
+    }
 
   render() {
                 ///ниже вычитаем высоту тулбара - от этого необходимо избавиться! перенеся и используя эту константу в CSS --calc(100% - 36px)
@@ -384,6 +405,8 @@ class GridExample extends React.Component {
                             onColumnMoved={this.onGridStateChange.bind(this)}
                             onColumnPinned={this.onGridStateChange.bind(this)}
                             onColumnVisible={this.onGridStateChange.bind(this)}
+                            onRowGroupOpened={this.onRowGroupOpened.bind(this)}
+                            getRowNodeId={this.state.getRowNodeId}
                           />
 
                       </div>
