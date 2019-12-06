@@ -23,10 +23,13 @@ class SheetView extends Component {
     constructor(props) {
         super(props);
         this.state={
+                        sheet_id: 0,
                         colorPanelVisible: false,
                         selectedFilterNodes: {},
                         filterNodes: {},
-                        forceGridReload: false
+                        forceGridReload: false,
+                        columnStates: {},
+                        expandedGroupIds : {}
                       };
 
         this.onToolbarPreferencesClick = this.onToolbarPreferencesClick.bind(this);
@@ -136,6 +139,26 @@ class SheetView extends Component {
 
     resetForceGridReload(){
         this.setState({forceGridReload:false});
+
+    }
+
+    onToolbarSaveClick(){
+        notify('save');
+    }
+
+
+    onGridStateChange( sheetColumnStates, sheetExpandedGroupIds){
+        if (this.state.sheet_id){
+            var newColumnStates = this.state.columnStates;
+            var newExpandedGroupIds = this.state.expandedGroupIds;
+            newColumnStates[this.state.sheet_id] = sheetColumnStates;
+            newExpandedGroupIds[this.state.sheet_id] = sheetExpandedGroupIds;
+            this.setState({
+                            columnStates: newColumnStates,
+                            expandedGroupIds : newExpandedGroupIds
+                            }
+                            );
+        }
     }
 
     render(){
@@ -153,13 +176,13 @@ class SheetView extends Component {
                             onPreferencesCallback={this.onToolbarPreferencesClick}
                             onRefreshCallback={this.onToolbarRefreshClick}
                             onCloseCallback={this.onToolbarCloseClick.bind(this)}
+                            onSaveCallback={this.onToolbarSaveClick.bind(this)}
                             onSelectNewSheet={this.loadNewSheet}
                             sheetSelection={true}
                             />
 
 
                             <GridExample
-
                                 sendRefreshGrid={click => this.sendRefreshGrid = click}
                                 skey={this.getFilterSkey}
                                 sheet_id = {this.state.sheet_id}
@@ -168,11 +191,14 @@ class SheetView extends Component {
                                 onFilterPanelChange={this.onFilterPanelChange}
                                 selectedFilterNodes={this.state.selectedFilterNodes}
                                 filterNodes={this.state.filterNodes[this.state.sheet_id]}
+                                columnStates={this.state.columnStates[this.state.sheet_id]}
+                                expandedGroupIds={this.state.expandedGroupIds[this.state.sheet_id]}
                                 addElementToLayout={this.props.addElementToLayout}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick}
                                 getNewLayoutItemID={this.props.getNewLayoutItemID}
                                 forceGridReload={this.state.forceGridReload}
                                 resetForceGridReload={this.resetForceGridReload.bind(this)}
+                                onGridStateChange={this.onGridStateChange.bind(this)}
                                 />
 
 

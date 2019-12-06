@@ -154,7 +154,7 @@ class SheetToolbar extends Component {
         icon: 'save',
         onClick: () => {
             this.props.onSaveCallback();
-            notify('Save button has been clicked!');
+            //notify('Save button has been clicked!');
         }
     }
 

@@ -91,6 +91,8 @@ class GridExample extends React.Component {
     this.componentDidMount = this.componentDidMount.bind(this);
 
     this.onGridReady = this.onGridReady.bind(this);
+    this.onGridStateChange = this.onGridStateChange.bind(this);
+
 
     this.columnsLoaded = false;
 
@@ -233,6 +235,10 @@ class GridExample extends React.Component {
 
 
         this.setState({gridKey: this.props.sheet_id});
+        if (this.props.columnStates){
+            console.log('colState', this.props.columnStates);
+            this.gridColumnApi.setColumnState(this.props.columnStates);
+        }
     }
 
 
@@ -328,6 +334,18 @@ class GridExample extends React.Component {
 
   }
 
+  onGridStateChange(){
+    console.log('onGridStateChange')
+    if (this.props.onGridStateChange){
+        this.props.onGridStateChange(this.gridColumnApi.getColumnState(),[1,2,3])
+    }
+  }
+
+  onColumnResized(){
+
+  }
+
+
   render() {
                 ///ниже вычитаем высоту тулбара - от этого необходимо избавиться! перенеся и используя эту константу в CSS --calc(100% - 36px)
             return (
@@ -362,6 +380,10 @@ class GridExample extends React.Component {
                             statusBar={this.state.statusBar}
                             getContextMenuItems={this.getContextMenuItems.bind(this)}
                             createChartContainer={this.createChartContainer.bind(this)}
+                            onColumnResized={this.onGridStateChange.bind(this)}
+                            onColumnMoved={this.onGridStateChange.bind(this)}
+                            onColumnPinned={this.onGridStateChange.bind(this)}
+                            onColumnVisible={this.onGridStateChange.bind(this)}
                           />
 
                       </div>
