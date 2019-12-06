@@ -362,7 +362,7 @@ class GridExample extends React.Component {
                 this.expandedKeys.splice(this.expandedKeys.indexOf(e.node.key),1);
             }
         }
-        console.log('onRowGroupOpened this.expandedKeys', this.expandedKeys);
+        //console.log('onRowGroupOpened this.expandedKeys', this.expandedKeys);
         this.onGridStateChange();
         //console.log('onRowGroupOpened', e.node.key, e.node.expanded, this.expandedKeys);
     }

@@ -63,6 +63,7 @@ class SheetView extends Component {
     }
 
     loadNewSheet(prm_sheet_id, prm_sheet_type){
+        this.saveSheetState();
         this.setState({sheet_id: prm_sheet_id, sheet_type: prm_sheet_type});
         if (!this.state.filterNodes[prm_sheet_id]){
             sendRequest('sht_filters/?sht_id='+prm_sheet_id, this.onLoadFilterNodes);
@@ -86,10 +87,28 @@ class SheetView extends Component {
     }
 
 
+    saveSheetState(){
+        if (this.state.sheet_id){
+            console.log('saveSheetState', this.state.sheet_id);
+            var sheetState = {};
+            sheetState['filterNodes'] = getSelectedFilterNodes(this.state.filterNodes[this.state.sheet_id]);
+            sheetState['columnStates'] = this.state.columnStates[this.state.sheet_id];
+            sheetState['expandedGroupIds'] = this.state.expandedGroupIds[this.state.sheet_id];
+
+            var httpStr = 'sht_state_update/?sht_id='+this.state.sheet_id;
+            sendRequest(httpStr,()=>{},'POST', sheetState);
+        }
+    }
+
+
     onFilterPanelChange(selectedNodes, allNodes, filterID){
         //this.state.selectedFilterNodes[filterID] = selectedNodes;
         this.state.filterNodes[this.state.sheet_id][filterID].filter_node_list = allNodes;
         this.setState({filterNodes : this.state.filterNodes});
+
+        console.log('filterNodes[sheet_id]', this.state.filterNodes[this.state.sheet_id]);
+
+        var test = getSelectedFilterNodes(this.state.filterNodes[this.state.sheet_id]);
     }
 
     getFilterSkey(){
@@ -210,6 +229,65 @@ class SheetView extends Component {
     }
 
 }
+
+function getSelectedFilterNodes(nodes){
+    var selected = {}
+    for (var filterId in nodes) {
+
+        selected[filterId] = [];
+        if (Object.prototype.hasOwnProperty.call(nodes, filterId)) {
+            if (nodes[filterId]['filter_node_list']){
+                selected[filterId] = getSelectedArrayInSingleTree(nodes[filterId]['filter_node_list']);
+            }
+        }
+    }
+    console.log('selected', selected);
+    return selected;
+}
+
+function getSelectedArrayInSingleTree(singleTreeArray){
+    var selectedIds = [];
+
+    processTree(singleTreeArray, (item)=>{
+                                            if (item.checked){
+                                                selectedIds.push({id:item.id});
+                                            }
+                                         });
+
+    return selectedIds;
+}
+
+function processTree(treeList, callbackForItem){
+    for (var i=0; i < treeList.length; i++ ){
+        callbackForItem(treeList[i]);
+        if (treeList[i]['children']){
+            processTree(treeList[i]['children'], callbackForItem);
+        }
+    }
+}
+
+function markSelectedFilterNodes(nodes, selected){
+
+    var marked = Object.assign({}, nodes);
+
+    for (var filterId in marked) {
+        if (Object.prototype.hasOwnProperty.call(nodes, filterId)) {
+            if (marked[filterId]['filter_node_list']){
+                processTree(marked[filterId]['filter_node_list'],
+                             (item) =>{
+                                            if (selected.find(element => element.id === item.id)){
+                                                item['checked'] = true;
+                                            }else{
+                                                item['checked'] = false;
+                                            }
+                                      }
+                            );
+            }
+        }
+    }
+    return marked;
+}
+
 
 
 export default SheetView;

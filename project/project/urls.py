@@ -28,6 +28,9 @@ urlpatterns = [
     path('refer_value/', views.get_refer_value),
     path('sht_info/', views.get_sheet_info),
     path('sht_info_update/', views.get_sheet_info_update),
+    path('sht_state_update/', views.get_sheet_state_update),
+    path('sht_state/', views.get_sheet_state),
+
     path('', include('frontend.urls')),
 ]
 

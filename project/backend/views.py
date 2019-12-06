@@ -1,6 +1,63 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.db import connection
+import json
+
+def get_sheet_state_update(request):
+    param_dict = dict(request.GET)
+    #if request.is_ajax():
+    #print('Raw Data: "%s"' % request.body)
+    #filter_nodes = request.body.get('filterNodes')
+
+
+
+    data = json.loads(request.body.decode("utf-8"))
+    filter_nodes =  data.get('filterNodes')
+    filter_nodes_str = json.dumps(filter_nodes)
+    print('fn', filter_nodes_str)
+    sht_id = param_dict['sht_id'][0]
+
+
+
+    with connection.cursor() as cursor:
+        cursor.execute("begin c_pkgconnect.popen(); UPDATE c_es_ver_sheet_usr_state s "
+                       "SET s.id_us = p_idus, "
+                       "s.filternodes = %s "
+#                       "s.columnstates = %s, "
+#                       "s.expandedgroupids = %s"
+                       "where sht_id = %s; "
+                       " if sql%%notfound then "
+                       " insert into c_es_ver_sheet_usr_state(filternodes,sht_id, id_us)"
+                       " values(%s, %s, p_idus);"
+                       " end if; "
+                       "end; ",[filter_nodes_str,sht_id, filter_nodes_str,sht_id])#columnstates,expandedgroupids,sht_id])
+
+    return JsonResponse([], safe=False)
+"""
+        cursor.execute("begin UPDATE c_es_ver_sheet_usr_state s "
+                       "SET s.id_us = p_idus, "
+                       "s.filternodes = %s, "
+                       "s.columnstates = %s, "
+                       "s.expandedgroupids = %s"
+                       "where sht_id= %s; "
+                       ""
+                       " if sql%notfound then "
+                       " insert into c_es_ver_sheet_usr_state(id_us, filternodes, columnstates, expandedgroupids, sht_id ) "
+                       " values (p_idus, %s, %s, %s, %s); "
+                       " end; ",
+                       [filternodes,
+                        columnstates,
+                        expandedgroupids,
+                        sht_id,
+
+                        filternodes,
+                        columnstates,
+                        expandedgroupids,
+                        sht_id
+                        ])
+
+"""
+
 
 def get_sheet_info_update(request):
     param_dict = dict(request.GET)
@@ -37,7 +94,6 @@ def get_sheet_info_update(request):
 
     return JsonResponse([], safe=False)
 
-
 def get_sheet_type(sht_id):
     sql_res = get_sql_result(
         'select t.stype from c_es_sheet_type t, c_es_ver_sheet s  where s.id = %s and t.id = s.type_id', [sht_id])
@@ -55,6 +111,21 @@ def get_sheet_info(request):
         sht_id = param_dict['sht_id'][0]
         sheet_info = get_sheet_info_list(sht_id)
         return JsonResponse(sheet_info, safe = False)
+
+
+def get_sheet_state(request):
+    param_dict = dict(request.GET)
+    if 'sht_id' not in param_dict:
+        return JsonResponse([], safe = False)
+    else:
+        sht_id = param_dict['sht_id'][0]
+        sheet_state = get_sheet_state_list(sht_id)
+        return JsonResponse(sheet_state, safe = False)
+
+def get_sheet_state_list(sht_id):
+    sheet_info = get_sql_result("select * from c_es_ver_sheet_usr_state where sht_id=%s  and id_us = p_idus ", [sht_id])
+    return sheet_info
+
 
 def get_sheet_info_list(sht_id):
 
@@ -315,8 +386,6 @@ def get_tree_node_list(request):
     color_restrict = sheet_info[0].get('color_restrict_hex')
     color_hand = sheet_info[0].get('color_hand_hex')
 
-    print('p_sht_id, p_key, p_flt_id, p_flt_item_id, p_flt_root_id, p_cell_key')
-    print('!!!!!',p_sht_id, p_key, p_flt_id, p_flt_item_id, p_flt_root_id, p_cell_key)
     node_list = get_sql_result("select 'FLT_ID_'||x.flt_id||'=>'||x.flt_item_id as node_key, "
                                "x.*, dt.atr_type, dt.round_size, i.ENT_ID "
                                "from table(C_PKGESsheet.fGetNodes(%s,%s,%s,%s,%s,%s)) x, "
@@ -325,16 +394,16 @@ def get_tree_node_list(request):
                                "where dt.id(+) = x.dtype_id "
                                "and i.id(+) = x.IND_ID "
                                "order by x.npp", [p_sht_id, p_key, p_flt_id, p_flt_item_id, p_flt_root_id, p_cell_key])
-    print('success')
+
     for node in node_list:
         p_tmp_cell_key = p_key + ',' + p_cell_key + ',' + 'FLT_ID_' + node['flt_id'] + '=>' + node['flt_item_id']
         p_cell_key += 'FLT_ID_' + node['flt_id'] + '=>' + node['flt_item_id']
         p_tmp_cell_key = Skey(p_tmp_cell_key).process()
-        print('p_tmp_cell_key', p_tmp_cell_key)
+
         cell_list = get_sql_result('''select x.*  from table(C_PKGESSHEET.fGetDataCells(%s, %s)) x''',
                                    [p_sht_id, p_tmp_cell_key])
 
-        print('222 p_tmp_cell_key', p_tmp_cell_key)
+
         if node.get('groupfl')=='1':
             cell_list = [dict(item, color=color_restrict) for item in cell_list]
         else:
@@ -464,7 +533,7 @@ def get_anl_table_rows(sht_id, skey):
     ref_cursor =[]
 
     sheet_info = get_sheet_info_list(sht_id)
-   # print('SI[0]',sheet_info)
+
     color_restrict = sheet_info[0].get('color_restrict_hex')
     color_hand = sheet_info[0].get('color_hand_hex')
     color_filter = sheet_info[0].get('color_filter_hex')
@@ -514,7 +583,7 @@ def get_anl_table_rows(sht_id, skey):
 
 
 def get_anl_detail_table_rows(sht_id, skey, ind_id, parent_id):
-    print('sht_id=',sht_id, 'sk', skey)
+
     import cx_Oracle
     from django.conf import settings
     db_settings =  settings.DATABASES.get('default')
@@ -529,12 +598,12 @@ def get_anl_detail_table_rows(sht_id, skey, ind_id, parent_id):
     ref_cursor =[]
 
     sheet_info = get_sheet_info_list(sht_id)
-   # print('SI[0]',sheet_info)
+
     color_restrict = sheet_info[0].get('color_restrict_hex')
     color_hand = sheet_info[0].get('color_hand_hex')
     color_filter = sheet_info[0].get('color_filter_hex')
 
-    #columns = get_sheet_columns_list('TABLE', sht_id, skey)
+
     columns = get_sheet_details_columns_list(sht_id, skey, ind_id)
     for row in refCursor:
         row_dict = {}

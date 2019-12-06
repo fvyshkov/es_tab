@@ -22,7 +22,7 @@ function onLayoutChange(e){
 }
 
 
-export function sendRequest(request_string, successCallback, method='GET'){
+export function sendRequest(request_string, successCallback, method='GET', data){
     const httpRequest = new XMLHttpRequest();
     var httpStr = 'http://127.0.0.1:8000/'+request_string;
     httpRequest.open(method,httpStr,true);
@@ -32,5 +32,10 @@ export function sendRequest(request_string, successCallback, method='GET'){
             successCallback(respObj);
         }
     };
-    httpRequest.send();
+    if (!data){
+        httpRequest.send();
+    }else{
+        httpRequest.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        httpRequest.send(JSON.stringify(data));
+    }
 }
