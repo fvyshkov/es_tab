@@ -100,7 +100,7 @@ export default class AddRemoveLayout extends React.PureComponent {
 
   render() {
     return (
-      <div id="LayoutGrid" class="TestWrapper">
+      <div id="LayoutGrid" className="TestWrapper">
 
         <ResponsiveReactGridLayout
           onLayoutChange={this.onLayoutChange.bind(this)}

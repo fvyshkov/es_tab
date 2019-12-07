@@ -97,6 +97,18 @@ class SheetView extends Component {
                 this.state.filterNodes[this.state.sheet_id] = markedNodes;
                 this.setState({filterNodes: this.state.filterNodes});
             }
+
+            if (sheetState[0].columnstates){
+                this.state.columnStates[this.state.sheet_id] = sheetState[0].columnstates;
+
+                console.log('this.state.columnStates', this.state.columnStates);
+                this.setState({columnStates: this.state.columnStates});
+            }
+
+            if (sheetState[0].expandedgroupids){
+                this.state.expandedGroupIds[this.state.sheet_id] = sheetState[0].expandedgroupids;
+                this.setState({expandedGroupIds: this.state.expandedGroupIds});
+            }
         }
         this.sendRefreshGrid();
     }
@@ -160,6 +172,10 @@ class SheetView extends Component {
 
 
     onToolbarCloseClick(){
+        if (this.state.sheet_id){
+            this.saveSheetState();
+        }
+
         if (this.props.onToolbarCloseClick){
             console.log('SheetView this.props.layoutItemID', this.props.layoutItemID);
             this.props.onToolbarCloseClick(this.props.layoutItemID);
@@ -288,7 +304,6 @@ function markSelectedFilterNodes(nodes, selected){
         if (Object.prototype.hasOwnProperty.call(nodes, filterId)) {
             if (marked[filterId]['filter_node_list']){
                 if (selected[filterId]){
-                    console.log('будем маркировать ', filterId, selected[filterId] );
                     processTree(marked[filterId]['filter_node_list'],
                              (item) =>{
                                             if (selected[filterId].find(element => element.id === item.id)){

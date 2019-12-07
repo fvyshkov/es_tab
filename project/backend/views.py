@@ -5,16 +5,13 @@ import json
 
 def get_sheet_state_update(request):
     param_dict = dict(request.GET)
-    #if request.is_ajax():
-    #print('Raw Data: "%s"' % request.body)
-    #filter_nodes = request.body.get('filterNodes')
-
-
-
     data = json.loads(request.body.decode("utf-8"))
-    filter_nodes =  data.get('filterNodes')
-    filter_nodes_str = json.dumps(filter_nodes)
-    print('fn', filter_nodes_str)
+    filter_nodes =  json.dumps(data.get('filterNodes'))
+    column_states = json.dumps(data.get('columnStates'))
+    print('col_states', column_states)
+    expanded_ids = json.dumps(data.get('expandedGroupIds'))
+
+
     sht_id = param_dict['sht_id'][0]
 
 
@@ -22,15 +19,23 @@ def get_sheet_state_update(request):
     with connection.cursor() as cursor:
         cursor.execute("begin c_pkgconnect.popen(); UPDATE c_es_ver_sheet_usr_state s "
                        "SET s.id_us = p_idus, "
-                       "s.filternodes = %s "
-#                       "s.columnstates = %s, "
-#                       "s.expandedgroupids = %s"
+                       "s.filternodes = %s, "
+                       "s.columnstates = %s, "
+                       "s.expandedgroupids = %s "
                        "where sht_id = %s; "
                        " if sql%%notfound then "
-                       " insert into c_es_ver_sheet_usr_state(filternodes,sht_id, id_us)"
-                       " values(%s, %s, p_idus);"
+                       " insert into c_es_ver_sheet_usr_state(filternodes,columnstates,expandedgroupids, sht_id, id_us) "
+                       " values(%s, %s, %s, %s, p_idus);"
                        " end if; "
-                       "end; ",[filter_nodes_str,sht_id, filter_nodes_str,sht_id])#columnstates,expandedgroupids,sht_id])
+                       "end; ",[filter_nodes,
+                                column_states,
+                                expanded_ids,
+                                sht_id,
+
+                                filter_nodes,
+                                column_states,
+                                expanded_ids,
+                                sht_id])
 
     return JsonResponse([], safe=False)
 """
@@ -125,9 +130,9 @@ def get_sheet_state(request):
 def get_sheet_state_list(sht_id):
     sheet_info = get_sql_result("select * from c_es_ver_sheet_usr_state where sht_id=%s  and id_us = p_idus ", [sht_id])
     if len(sheet_info)>0:
-        filternodes = json.loads(sheet_info[0].get("filternodes"))
-        print('filternodes', filternodes)
-        sheet_info[0]['filternodes'] = filternodes
+        sheet_info[0]['filternodes'] = json.loads(sheet_info[0].get("filternodes"))
+        sheet_info[0]['columnstates'] = json.loads(sheet_info[0].get("columnstates"))
+        sheet_info[0]['expandedgroupids'] = json.loads(sheet_info[0].get("expandedgroupids"))
 
 
     return sheet_info

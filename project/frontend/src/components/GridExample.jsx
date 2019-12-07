@@ -201,6 +201,12 @@ class GridExample extends React.Component {
         columns = groupColumns(columns);
         this.setState({columnDefs: columns});
 
+        if (this.props.columnStates){
+            console.log('colState', this.props.columnStates);
+            this.gridColumnApi.setColumnState(this.props.columnStates);
+            this.gridApi.refreshHeader();
+        }
+
         this.loadSheetInfo();
         this.columnsLoaded = true;
     }
@@ -237,10 +243,7 @@ class GridExample extends React.Component {
 
 
         this.setState({gridKey: this.props.sheet_id});
-        if (this.props.columnStates){
-            console.log('colState', this.props.columnStates);
-            this.gridColumnApi.setColumnState(this.props.columnStates);
-        }
+
     }
 
 
@@ -312,7 +315,8 @@ class GridExample extends React.Component {
 
                                                             //console.log('2 gridComponent.props.expandedGroupIds', gridComponent.props.expandedGroupIds);
                                                             rowData.forEach(function(row) {
-                                                                if (gridComponent.props.expandedGroupIds.indexOf(row.node_key) > -1) {
+                                                                if (gridComponent.props.expandedGroupIds &&
+                                                                    gridComponent.props.expandedGroupIds.indexOf(row.node_key) > -1) {
                                                                     gridComponent.gridApi.getRowNode(row.node_key).setExpanded(true);
                                                                 }
                                                             });

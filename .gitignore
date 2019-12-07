@@ -2,3 +2,4 @@
 /.idea/
 /project/frontend/static/frontend/main.js
 /project/frontend/static/frontend/
+/project/geckodriver.log
