@@ -81,11 +81,25 @@ class SheetView extends Component {
             newFilterNodes[sheet_id][filter.flt_id] = filter;
         });
 
+        sendRequest('sht_state/?sht_id='+ this.state.sheet_id, this.processSheetState.bind(this));
         this.setState({filterNodes: newFilterNodes});
 
-        this.sendRefreshGrid();
+
     }
 
+    processSheetState(sheetState){
+        if (sheetState.length>0){
+            if (sheetState[0].filternodes){
+                var selectedNodes = sheetState[0].filternodes;
+                console.log('selectedNodes', selectedNodes);
+                var markedNodes = markSelectedFilterNodes(this.state.filterNodes[this.state.sheet_id], selectedNodes);
+                console.log('marked=', markedNodes);
+                this.state.filterNodes[this.state.sheet_id] = markedNodes;
+                this.setState({filterNodes: this.state.filterNodes});
+            }
+        }
+        this.sendRefreshGrid();
+    }
 
     saveSheetState(){
         if (this.state.sheet_id){
@@ -273,15 +287,18 @@ function markSelectedFilterNodes(nodes, selected){
     for (var filterId in marked) {
         if (Object.prototype.hasOwnProperty.call(nodes, filterId)) {
             if (marked[filterId]['filter_node_list']){
-                processTree(marked[filterId]['filter_node_list'],
+                if (selected[filterId]){
+                    console.log('будем маркировать ', filterId, selected[filterId] );
+                    processTree(marked[filterId]['filter_node_list'],
                              (item) =>{
-                                            if (selected.find(element => element.id === item.id)){
+                                            if (selected[filterId].find(element => element.id === item.id)){
                                                 item['checked'] = true;
                                             }else{
                                                 item['checked'] = false;
                                             }
                                       }
                             );
+                }
             }
         }
     }

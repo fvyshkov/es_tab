@@ -124,6 +124,12 @@ def get_sheet_state(request):
 
 def get_sheet_state_list(sht_id):
     sheet_info = get_sql_result("select * from c_es_ver_sheet_usr_state where sht_id=%s  and id_us = p_idus ", [sht_id])
+    if len(sheet_info)>0:
+        filternodes = json.loads(sheet_info[0].get("filternodes"))
+        print('filternodes', filternodes)
+        sheet_info[0]['filternodes'] = filternodes
+
+
     return sheet_info
 
 
@@ -436,7 +442,7 @@ def get_sheet_columns(request):
     if p_sht_id=='':
         return JsonResponse([], safe=False)
 
-    print('i_id', p_ind_id)
+
     if len(p_ind_id)>0:
         p_parent_id = param_dict.get('parent_id',[''])[0]
 
