@@ -29,7 +29,7 @@ class SheetView extends Component {
                         filterNodes: {},
                         forceGridReload: false,
                         columnStates: {},
-                        expandedGroupIds : {}
+                        expandedGroupIds : []
                       };
 
         this.onToolbarPreferencesClick = this.onToolbarPreferencesClick.bind(this);
@@ -63,7 +63,11 @@ class SheetView extends Component {
     }
 
     loadNewSheet(prm_sheet_id, prm_sheet_type){
-        this.saveSheetState();
+        if (this.state.sheet_id){
+            this.sendBeforeCloseToGrid();
+            this.saveSheetState();
+        }
+
         this.setState({sheet_id: prm_sheet_id, sheet_type: prm_sheet_type});
         if (!this.state.filterNodes[prm_sheet_id]){
             sendRequest('sht_filters/?sht_id='+prm_sheet_id, this.onLoadFilterNodes);
@@ -105,21 +109,43 @@ class SheetView extends Component {
                 this.setState({columnStates: this.state.columnStates});
             }
 
-            if (sheetState[0].expandedgroupids){
-                this.state.expandedGroupIds[this.state.sheet_id] = sheetState[0].expandedgroupids;
-                this.setState({expandedGroupIds: this.state.expandedGroupIds});
+            this.setState({expandedGroupIds: sheetState[0].expandedgroupids});
+            console.log('sheetState[0].expandedgroupids', sheetState[0].expandedgroupids);
+
+            console.log('OUT this.state.expandedGroupIds', this.state.expandedGroupIds);
+
+            if (false && sheetState[0].expandedgroupids){
+                var tmpGroupIds = {};// Object.assign({},  this.state.expandedGroupIds);
+                tmpGroupIds[this.state.sheet_id] = sheetState[0].expandedgroupids;
+                    console.log('tmpGroupIds[this.state.sheet_id]', tmpGroupIds[this.state.sheet_id]);
+                    console.log('0 tmpGroupIds', tmpGroupIds);
+
+
+                tmpGroupIds[1] = [1,2,3];
+
+                sheetState[0].expandedgroupids.forEach((item)=> {
+                                                                   // tmpGroupIds[this.state.sheet_id].push(item);
+                                                                    console.log('item', item, tmpGroupIds);
+                                                                 });
+                //tmpGroupIds[this.state.sheet_id].concat ( sheetState[0].expandedgroupids);
+                console.log('1 tmpGroupIds', tmpGroupIds);
+                //this.state.expandedGroupIds[this.state.sheet_id] = ["100", "200"];
+                this.setState({expandedGroupIds: tmpGroupIds});
+
+                console.log('this.state.expandedGroupIds', this.state.expandedGroupIds);
             }
         }
         this.sendRefreshGrid();
     }
 
     saveSheetState(){
+        console.log('?saveSheetState', this.state.sheet_id);
         if (this.state.sheet_id){
-            console.log('saveSheetState', this.state.sheet_id);
+            console.log('!saveSheetState', this.state.sheet_id);
             var sheetState = {};
             sheetState['filterNodes'] = getSelectedFilterNodes(this.state.filterNodes[this.state.sheet_id]);
             sheetState['columnStates'] = this.state.columnStates[this.state.sheet_id];
-            sheetState['expandedGroupIds'] = this.state.expandedGroupIds[this.state.sheet_id];
+            sheetState['expandedGroupIds'] = this.state.expandedGroupIds;//[this.state.sheet_id];
 
             var httpStr = 'sht_state_update/?sht_id='+this.state.sheet_id;
             sendRequest(httpStr,()=>{},'POST', sheetState);
@@ -173,7 +199,9 @@ class SheetView extends Component {
 
     onToolbarCloseClick(){
         if (this.state.sheet_id){
+            this.sendBeforeCloseToGrid();
             this.saveSheetState();
+
         }
 
         if (this.props.onToolbarCloseClick){
@@ -199,18 +227,34 @@ class SheetView extends Component {
     onGridStateChange( sheetColumnStates, sheetExpandedGroupIds){
         if (this.state.sheet_id){
             var newColumnStates = this.state.columnStates;
-            var newExpandedGroupIds = this.state.expandedGroupIds;
+           // var newExpandedGroupIds = this.state.expandedGroupIds;
             newColumnStates[this.state.sheet_id] = sheetColumnStates;
-            newExpandedGroupIds[this.state.sheet_id] = sheetExpandedGroupIds;
+            //newExpandedGroupIds[this.state.sheet_id] = sheetExpandedGroupIds;
+            //newExpandedGroupIds[this.state.sheet_id] = sheetExpandedGroupIds;
+
+            console.log('onmGridStateChange sheetExpandedGroupIds', sheetExpandedGroupIds);
             this.setState({
-                            columnStates: newColumnStates,
-                            expandedGroupIds : newExpandedGroupIds
+                            columnStates: newColumnStates
+                            //,                            expandedGroupIds : sheetExpandedGroupIds// newExpandedGroupIds
                             }
                             );
         }
     }
 
+    onGridExpandedChange(sheetExpandedGroupIds){
+        if (this.state.sheet_id){
+            console.log('onGridExpandedChange sheetExpandedGroupIds', sheetExpandedGroupIds);
+            this.setState({expandedGroupIds : sheetExpandedGroupIds});
+        }
+    }
+
+    sendBeforeCloseToGrid(){
+
+    }
+
     render(){
+        console.log('before render', this.state.expandedGroupIds);
+
         return (
             <React.Fragment>
 
@@ -233,6 +277,7 @@ class SheetView extends Component {
 
                             <GridExample
                                 sendRefreshGrid={click => this.sendRefreshGrid = click}
+                                sendBeforeCloseToGrid={click => this.sendBeforeCloseToGrid = click}
                                 skey={this.getFilterSkey}
                                 sheet_id = {this.state.sheet_id}
                                 sheet_type = {this.state.sheet_type}
@@ -241,13 +286,14 @@ class SheetView extends Component {
                                 selectedFilterNodes={this.state.selectedFilterNodes}
                                 filterNodes={this.state.filterNodes[this.state.sheet_id]}
                                 columnStates={this.state.columnStates[this.state.sheet_id]}
-                                expandedGroupIds={this.state.expandedGroupIds[this.state.sheet_id]}
+                                expandedGroupIds={this.state.expandedGroupIds}
                                 addElementToLayout={this.props.addElementToLayout}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick}
                                 getNewLayoutItemID={this.props.getNewLayoutItemID}
                                 forceGridReload={this.state.forceGridReload}
                                 resetForceGridReload={this.resetForceGridReload.bind(this)}
                                 onGridStateChange={this.onGridStateChange.bind(this)}
+                                onGridExpandedChange={this.onGridExpandedChange.bind(this)}
                                 />
 
 

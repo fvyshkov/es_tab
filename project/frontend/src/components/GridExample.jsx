@@ -17,7 +17,10 @@ LicenseManager.setLicenseKey("Evaluation_License_Not_For_Production_29_December_
 class GridExample extends React.Component {
   constructor(props) {
     super(props);
+
+    this.noExpandedChange = false;
     this.state = {
+    noExpandedChange:false,
     gridKey:0,
     colorRestrict: 0,
     modules: AllModules,
@@ -123,12 +126,20 @@ class GridExample extends React.Component {
     componentDidMount() {
         if (this.props.sendRefreshGrid){
             this.props.sendRefreshGrid(this.refreshGrid);
+            this.props.sendBeforeCloseToGrid(this.onSendBeforeCloseToGrid.bind(this));
         }
 
 
         console.log('componentDidMount', this.gridApi);
 
     }
+
+    onSendBeforeCloseToGrid(){
+        console.log('onSendBeforeCloseToGrid');
+        this.onGridExpandedChange();
+    }
+
+
 
     refreshGrid(){
         this.gridApi.purgeServerSideCache([]);
@@ -284,7 +295,9 @@ class GridExample extends React.Component {
         return {
 
             getRows(params,testFunction){
-
+                console.log('0 gridComponent.props.expandedGroupIds', gridComponent.props.expandedGroupIds);
+                console.log('0 params.successCallback', params.successCallback);
+                console.log('0 params', params);
                 let httpStr = 'sht_nodes/?dummy=1';
                 if (gridComponent.props.sheet_id){
                     httpStr = httpStr.concat('&sht_id=', gridComponent.props.sheet_id);
@@ -313,11 +326,21 @@ class GridExample extends React.Component {
                                                             }
                                                             params.successCallback(rowData, lastRow());
 
-                                                            //console.log('2 gridComponent.props.expandedGroupIds', gridComponent.props.expandedGroupIds);
+                                                            console.log('2 gridComponent.props.expandedGroupIds', gridComponent.props.expandedGroupIds);
                                                             rowData.forEach(function(row) {
                                                                 if (gridComponent.props.expandedGroupIds &&
                                                                     gridComponent.props.expandedGroupIds.indexOf(row.node_key) > -1) {
-                                                                    gridComponent.gridApi.getRowNode(row.node_key).setExpanded(true);
+                                                                    try{
+                                                                        gridComponent.noExpandedChange = true;
+                                                                        console.log('before setExpanded');
+                                                                        gridComponent.gridApi.getRowNode(row.node_key).setExpanded(true);
+                                                                        console.log('after setExpanded');
+                                                                        gridComponent.noExpandedChange = false;
+                                                                    }
+                                                                    finally{
+                                                                        gridComponent.noExpandedChange = false;
+                                                                    }
+
                                                                 }
                                                             });
                                                         }else{
@@ -332,6 +355,7 @@ class GridExample extends React.Component {
 
   onGridReady = params => {
     console.log('onGridReady');
+    console.log('onGridReady expandedGroupIds', this.props.expandedGroupIds);
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
 
@@ -344,6 +368,12 @@ class GridExample extends React.Component {
          this.loadColumns();
      }
 
+     if (this.props.columnStates){
+            console.log('colState GRIDREADY', this.props.columnStates);
+            this.gridColumnApi.setColumnState(this.props.columnStates);
+            this.gridApi.refreshHeader();
+     }
+
 
   }
 
@@ -351,6 +381,13 @@ class GridExample extends React.Component {
     console.log('onGridStateChange')
     if (this.props.onGridStateChange){
         this.props.onGridStateChange(this.gridColumnApi.getColumnState(),this.expandedKeys)
+    }
+  }
+
+  onGridExpandedChange(){
+
+    if (this.props.onGridExpandedChange){
+        this.props.onGridExpandedChange(this.expandedKeys)
     }
   }
 
@@ -366,9 +403,6 @@ class GridExample extends React.Component {
                 this.expandedKeys.splice(this.expandedKeys.indexOf(e.node.key),1);
             }
         }
-        //console.log('onRowGroupOpened this.expandedKeys', this.expandedKeys);
-        this.onGridStateChange();
-        //console.log('onRowGroupOpened', e.node.key, e.node.expanded, this.expandedKeys);
     }
 
   render() {
