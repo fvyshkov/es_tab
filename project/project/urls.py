@@ -30,6 +30,9 @@ urlpatterns = [
     path('sht_info_update/', views.get_sheet_info_update),
     path('sht_state_update/', views.get_sheet_state_update),
     path('sht_state/', views.get_sheet_state),
+    path('insert_record/', views.add_table_record),
+    path('update_record/', views.update_table_record),
+    path('delete_record/', views.delete_table_record),
 
     path('', include('frontend.urls')),
 ]

@@ -3,6 +3,68 @@ from django.http import JsonResponse
 from django.db import connection
 import json
 
+def delete_table_record(request):
+    param_dict = dict(request.GET)
+    req_id = param_dict.get('req_id', [''])[0]
+
+    with connection.cursor() as cursor:
+        cursor.execute("begin c_pkgconnect.popen(); "
+                       " c_pkgesreq.pDelReq( "
+                       "                p_id => %s); " 
+                       " end; ",
+                       [req_id])
+
+    return JsonResponse([], safe=False)
+
+def update_table_record(request):
+    param_dict = dict(request.GET)
+    col_id = param_dict.get('col_id', [''])[0]
+    req_id = param_dict.get('req_id', [''])[0]
+    value = param_dict.get('value', [''])[0]
+    with connection.cursor() as cursor:
+        cursor.execute("begin c_pkgconnect.popen(); "
+                       " c_pkgesreq.pAddReqVal( "
+                       "                p_col_id => %s, "
+                       "p_req_id => %s, "
+                       "p_val => %s ); " 
+                       " end; ",
+                       [col_id,
+                        req_id,
+                        value])
+
+    return JsonResponse([], safe=False)
+
+def add_table_record(request):
+    param_dict = dict(request.GET)
+    data = json.loads(request.body.decode("utf-8"))
+    sht_id = param_dict.get('sht_id', [''])[0]
+    parent_id = param_dict.get('parent_id', [''])[0]
+    req_id = param_dict.get('id', [''])[0]
+    skey = param_dict.get('skey', [''])[0]
+    dop = param_dict.get('dop', [''])[0]
+    ind_id = param_dict.get('ind_id', [''])[0]
+
+
+
+    with connection.cursor() as cursor:
+        cursor.execute("begin c_pkgconnect.popen(); "
+                       " c_pkgesreq.paddreq( "
+                       "                p_id=> %s, "
+                       "p_sht_id => %s, "
+                       "p_skey => %s , "
+                       "p_ind_id => %s, "
+                       "p_dop => %s , "
+                       "p_parent_id => %s); "
+                       " end; ",
+                       [req_id,
+                        sht_id,
+                        skey,
+                        ind_id,
+                        dop,
+                        parent_id])
+
+    return JsonResponse([], safe=False)
+
 def get_sheet_state_update(request):
     param_dict = dict(request.GET)
     data = json.loads(request.body.decode("utf-8"))

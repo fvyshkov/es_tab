@@ -39,9 +39,13 @@ class SheetView extends Component {
         this.getFilterSkey = this.getFilterSkey.bind(this);
         this.onColorPanelClose = this.onColorPanelClose.bind(this);
         this.onLoadFilterNodes = this.onLoadFilterNodes.bind(this);
+        this.componentDidMount = this.componentDidMount.bind(this);
 
 
 
+    }
+
+    componentDidMount(){
 
     }
 
@@ -205,9 +209,26 @@ class SheetView extends Component {
     }
 
     sendBeforeCloseToGrid(){
+    }
+
+    sendInsertRecord(){
 
     }
 
+    sendDeleteRecord(){
+    }
+
+
+    onInsertCallback(){
+        console.log('onInsertCallback', this.state.sheet_id, this.getFilterSkey());
+        if (this.state.sheet_id){
+            sendRequest('insert_record/?sht_id='+this.state.sheet_id+'&skey='+this.getFilterSkey(),
+                        this.sendInsertRecord,
+                        'POST',
+                        {});
+        }
+        //this.sendInsertRecord();
+    }
     render(){
         return (
             <React.Fragment>
@@ -224,6 +245,8 @@ class SheetView extends Component {
                             onRefreshCallback={this.onToolbarRefreshClick}
                             onCloseCallback={this.onToolbarCloseClick.bind(this)}
                             onSaveCallback={this.onToolbarSaveClick.bind(this)}
+                            onInsertCallback={this.onInsertCallback.bind(this)}
+                            onDeleteCallback={this.sendDeleteRecord}
                             onSelectNewSheet={this.loadNewSheet}
                             sheetSelection={true}
                             />
@@ -248,6 +271,8 @@ class SheetView extends Component {
                                 resetForceGridReload={this.resetForceGridReload.bind(this)}
                                 onGridStateChange={this.onGridStateChange.bind(this)}
                                 onGridExpandedChange={this.onGridExpandedChange.bind(this)}
+                                sendInsertRecord={click => this.sendInsertRecord = click}
+                                sendDeleteRecord={click => this.sendDeleteRecord = click}
                                 />
 
 

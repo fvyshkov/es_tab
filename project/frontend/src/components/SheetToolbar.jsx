@@ -131,14 +131,14 @@ class SheetToolbar extends Component {
     insertButtonOptions = {
         icon: 'plus',
         onClick: (e) => {
-
+                            this.props.onInsertCallback();
                         }
     }
 
     deleteButtonOptions = {
         icon: 'minus',
         onClick: (e) => {
-
+                            this.props.onDeleteCallback();
                         }
     }
 

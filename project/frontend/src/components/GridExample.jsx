@@ -18,7 +18,9 @@ class GridExample extends React.Component {
   constructor(props) {
     super(props);
 
-    this.noExpandedChange = false;
+    this.immutableStore =[];
+    this.savedFocusedCell = {};
+
     this.state = {
     gridKey:0,
     colorRestrict: 0,
@@ -99,6 +101,9 @@ class GridExample extends React.Component {
 
     this.onGridReady = this.onGridReady.bind(this);
     this.onGridStateChange = this.onGridStateChange.bind(this);
+    this.sendDeleteRecord = this.sendDeleteRecord.bind(this);
+
+
 
 
     this.columnsLoaded = false;
@@ -129,7 +134,14 @@ class GridExample extends React.Component {
 
         if (this.props.sendBeforeCloseToGrid){
             this.props.sendBeforeCloseToGrid(this.onSendBeforeCloseToGrid.bind(this));
+        }
 
+        if(this.props.sendInsertRecord){
+            this.props.sendInsertRecord(this.sendInsertRecord.bind(this));
+        }
+
+        if(this.props.sendDeleteRecord){
+            this.props.sendDeleteRecord(this.sendDeleteRecord.bind(this));
         }
 
 
@@ -320,6 +332,15 @@ class GridExample extends React.Component {
                                                             }
                                                             params.successCallback(rowData, lastRow());
 
+                                                            console.log('gridComponent.savedFocusedCell', gridComponent.savedFocusedCell);
+
+                                                            if (gridComponent.savedFocusedCell){
+                                                                gridComponent.gridApi.ensureIndexVisible(gridComponent.savedFocusedCell.rowIndex);
+                                                                gridComponent.gridApi.ensureColumnVisible(gridComponent.savedFocusedCell.column);
+                                                                gridComponent.gridApi.setFocusedCell(gridComponent.savedFocusedCell.rowIndex, gridComponent.savedFocusedCell.column);
+                                                             }
+
+
                                                             rowData.forEach(function(row) {
                                                                 if (gridComponent.props.expandedGroupIds &&
                                                                     gridComponent.props.expandedGroupIds.indexOf(row.node_key) > -1) {
@@ -328,6 +349,8 @@ class GridExample extends React.Component {
                                                                     }
 
                                                                 }
+
+
                                                             });
                                                         }else{
                                                             params.successCallback([{columnNameField:"No results found"}], 1);
@@ -354,7 +377,10 @@ class GridExample extends React.Component {
             this.gridApi.refreshHeader();
      }
 
-
+    console.log(' savedFocusedCell', this.savedFocusedCell);
+     //this.gridApi.setFocusedCell(this.savedFocusedCell.column, this.savedFocusedCell.rowIndex,'top');
+    //console.log('this.gridApi.getRowData()', this.gridApi.getRowData());
+    //this.gridApi.setRowData(this.immutableStore);
   }
 
   onGridStateChange(){
@@ -384,12 +410,76 @@ class GridExample extends React.Component {
         }
     }
 
+    onCellValueChanged(params){
+        console.log('onCellValueChanged', params);
+        sendRequest('update_record/?req_id='+params.data.id+'&value='+params.value+'&col_id='+params.column.colDef.ind_id,
+                        ()=> {},
+                        'POST',
+                        {});
+
+    }
+
+
+    sendInsertRecord(){
+        this.savedFocusedCell = this.gridApi.getFocusedCell();
+        console.log('sendInsertRecord');
+        this.gridApi.purgeServerSideCache();
+    }
+
+    sendDeleteRecord(){
+       this.savedFocusedCell = this.gridApi.getFocusedCell();
+       var req_id = this.gridApi.getDisplayedRowAtIndex(this.savedFocusedCell.rowIndex).data.id;
+       this.savedFocusedCell.rowIndex -= 1;
+       sendRequest('delete_record/?req_id='+req_id,
+                        ()=> {},
+                        'POST',
+                        {});
+       this.gridApi.purgeServerSideCache();
+
+       return;
+
+       // var cellRange = this.gridApi.getCellRanges();
+        this.savedFocusedCell = this.gridApi.getFocusedCell();
+//        console.log('===',  cell);
+        this.gridApi.purgeServerSideCache();
+
+       // this.gridApi.addCellRange(cellRange);
+
+        return;
+        var selectedRowNodes = this.gridApi.getSelectedNodes();
+        console.log('selectedRowNodes', selectedRowNodes);
+        var selectedIds = selectedRowNodes.map(function(rowNode) {
+            console.log('rowNode', rowNode);
+            return rowNode.id;
+        });
+        var transaction ={remove: []}
+        this.gridApi.updateRowData(transaction);//, (res)=>{console.log('res', res);});
+
+        return;
+        //console.log('DELE this.gridApi.getRowData()', this.gridApi.getRowData());
+
+
+        var selectedRowNodes = this.gridApi.getSelectedNodes();
+        var selectedIds = selectedRowNodes.map(function(rowNode) {
+          return rowNode.id;
+        });
+
+        console.log('this.immutableStore BEFORE', this.immutableStore);
+        console.log('this.immutableStore BEFORE', this.immutableStore.length);
+        this.immutableStore = this.immutableStore.filter(function(dataItem) {
+          return selectedIds.indexOf(dataItem.symbol) < 0;
+        });
+
+        console.log('this.immutableStore AFTER ', this.immutableStore.length);
+        this.gridApi.setRowData(this.immutableStore);
+    }
+
   render() {
                 ///ниже вычитаем высоту тулбара - от этого необходимо избавиться! перенеся и используя эту константу в CSS --calc(100% - 36px)
             return (
                 <React.Fragment>
 
-                    <div className ="ag-theme-balham NonDraggableAreaClassName" style={ {height: 'calc(100% - 36px)', width: '100%', position: 'absolute'} } key={this.state.gridKey}>
+                    <div className ="ag-theme-balham NonDraggableAreaClassName" style={ {height: 'calc(100% - 36px)', width: '100%', position: 'absolute'} } key={this.state.gridKey} id="myGrid123">
                         <AgGridReact
                             modules={AllModules}
                             columnDefs={this.state.columnDefs}
@@ -424,6 +514,8 @@ class GridExample extends React.Component {
                             onColumnVisible={this.onGridStateChange.bind(this)}
                             onRowGroupOpened={this.onRowGroupOpened.bind(this)}
                             getRowNodeId={this.state.getRowNodeId}
+                            onCellValueChanged={this.onCellValueChanged.bind(this)}
+                            deltaRowDataMode={true}
                           />
 
                       </div>
