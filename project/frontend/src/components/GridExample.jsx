@@ -125,8 +125,13 @@ class GridExample extends React.Component {
     componentDidMount() {
         if (this.props.sendRefreshGrid){
             this.props.sendRefreshGrid(this.refreshGrid);
-            this.props.sendBeforeCloseToGrid(this.onSendBeforeCloseToGrid.bind(this));
         }
+
+        if (this.props.sendBeforeCloseToGrid){
+            this.props.sendBeforeCloseToGrid(this.onSendBeforeCloseToGrid.bind(this));
+
+        }
+
 
     }
 

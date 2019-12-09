@@ -271,7 +271,6 @@ function getSelectedFilterNodes(nodes){
             }
         }
     }
-    console.log('selected', selected);
     return selected;
 }
 
