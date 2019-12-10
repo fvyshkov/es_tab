@@ -163,6 +163,7 @@ class SheetView extends Component {
         return '0';
     }
 
+
     onToolbarRefreshClick(){
         this.sendRefreshGrid();
     }
@@ -229,6 +230,18 @@ class SheetView extends Component {
         }
         //this.sendInsertRecord();
     }
+
+    onInsertCallback(){
+
+    }
+
+    sendUndoToGrid(){
+    }
+
+    onUndoClick(){
+        this.sendUndoToGrid();
+    }
+
     render(){
         return (
             <React.Fragment>
@@ -247,6 +260,7 @@ class SheetView extends Component {
                             onSaveCallback={this.onToolbarSaveClick.bind(this)}
                             onInsertCallback={this.onInsertCallback.bind(this)}
                             onDeleteCallback={this.sendDeleteRecord}
+                            onUndoCallback={this.onUndoClick.bind(this)}
                             onSelectNewSheet={this.loadNewSheet}
                             sheetSelection={true}
                             />
@@ -255,6 +269,7 @@ class SheetView extends Component {
                             <GridExample
                                 sendRefreshGrid={click => this.sendRefreshGrid = click}
                                 sendBeforeCloseToGrid={click => this.sendBeforeCloseToGrid = click}
+                                sendUndoToGrid={click => this.sendUndoToGrid = click}
                                 skey={this.getFilterSkey}
                                 sheet_id = {this.state.sheet_id}
                                 sheet_type = {this.state.sheet_type}

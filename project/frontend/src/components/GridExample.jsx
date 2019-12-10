@@ -102,6 +102,8 @@ class GridExample extends React.Component {
     this.onGridReady = this.onGridReady.bind(this);
     this.onGridStateChange = this.onGridStateChange.bind(this);
     this.sendDeleteRecord = this.sendDeleteRecord.bind(this);
+    this.sendUndoToGrid = this.sendUndoToGrid.bind(this);
+
 
 
 
@@ -140,11 +142,21 @@ class GridExample extends React.Component {
             this.props.sendInsertRecord(this.sendInsertRecord.bind(this));
         }
 
+        if(this.props.sendUndoToGrid){
+            this.props.sendUndoToGrid(this.sendUndoToGrid.bind(this));
+        }
+
+
         if(this.props.sendDeleteRecord){
             this.props.sendDeleteRecord(this.sendDeleteRecord.bind(this));
         }
 
 
+    }
+
+    sendUndoToGrid(){
+        console.log('this.gridApi', this.gridApi);
+        this.gridApi.undoCellEditing();
     }
 
     onSendBeforeCloseToGrid(){
@@ -377,10 +389,6 @@ class GridExample extends React.Component {
             this.gridApi.refreshHeader();
      }
 
-    console.log(' savedFocusedCell', this.savedFocusedCell);
-     //this.gridApi.setFocusedCell(this.savedFocusedCell.column, this.savedFocusedCell.rowIndex,'top');
-    //console.log('this.gridApi.getRowData()', this.gridApi.getRowData());
-    //this.gridApi.setRowData(this.immutableStore);
   }
 
   onGridStateChange(){
@@ -436,42 +444,6 @@ class GridExample extends React.Component {
                         {});
        this.gridApi.purgeServerSideCache();
 
-       return;
-
-       // var cellRange = this.gridApi.getCellRanges();
-        this.savedFocusedCell = this.gridApi.getFocusedCell();
-//        console.log('===',  cell);
-        this.gridApi.purgeServerSideCache();
-
-       // this.gridApi.addCellRange(cellRange);
-
-        return;
-        var selectedRowNodes = this.gridApi.getSelectedNodes();
-        console.log('selectedRowNodes', selectedRowNodes);
-        var selectedIds = selectedRowNodes.map(function(rowNode) {
-            console.log('rowNode', rowNode);
-            return rowNode.id;
-        });
-        var transaction ={remove: []}
-        this.gridApi.updateRowData(transaction);//, (res)=>{console.log('res', res);});
-
-        return;
-        //console.log('DELE this.gridApi.getRowData()', this.gridApi.getRowData());
-
-
-        var selectedRowNodes = this.gridApi.getSelectedNodes();
-        var selectedIds = selectedRowNodes.map(function(rowNode) {
-          return rowNode.id;
-        });
-
-        console.log('this.immutableStore BEFORE', this.immutableStore);
-        console.log('this.immutableStore BEFORE', this.immutableStore.length);
-        this.immutableStore = this.immutableStore.filter(function(dataItem) {
-          return selectedIds.indexOf(dataItem.symbol) < 0;
-        });
-
-        console.log('this.immutableStore AFTER ', this.immutableStore.length);
-        this.gridApi.setRowData(this.immutableStore);
     }
 
   render() {
@@ -516,6 +488,9 @@ class GridExample extends React.Component {
                             getRowNodeId={this.state.getRowNodeId}
                             onCellValueChanged={this.onCellValueChanged.bind(this)}
                             deltaRowDataMode={true}
+                            undoRedoCellEditing={true}
+                            undoRedoCellEditingLimit={100}
+                            enableCellChangeFlash={true}
                           />
 
                       </div>

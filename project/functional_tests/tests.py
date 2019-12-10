@@ -17,7 +17,7 @@ class NewVisitorTest(SimpleTestCase):
         self.live_server_url = 'http://127.0.0.1:8000/'
 
     def tearDown(self):
-        time.sleep(5)
+        #time.sleep(5)
         self.browser.quit()
 
     def test_open_detail(self):

@@ -180,7 +180,12 @@ class SheetToolbar extends Component {
 
                     <Item location={'before'}
                     widget={'dxButton'}
-                    options={this.saveButtonOptions} />
+                    options={{
+                                icon: 'undo',
+                                onClick: () => {
+                                    this.props.onUndoCallback();
+                                }
+                            }} />
 
                     <Item location={'before'}
                     widget={'dxButton'}
