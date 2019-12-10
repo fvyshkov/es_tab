@@ -131,6 +131,7 @@ class SheetToolbar extends Component {
     insertButtonOptions = {
         icon: 'plus',
         onClick: (e) => {
+                            console.log('insertButtonOptions.onClick');
                             this.props.onInsertCallback();
                         }
     }
@@ -173,7 +174,10 @@ class SheetToolbar extends Component {
                 <Toolbar>
                     <Item location={'before'}
                     widget={'dxButton'}
-                    options={this.insertButtonOptions} />
+                    options={
+                            {icon: 'plus',
+                            onClick: (e) => {this.props.onInsertCallback();}}
+                    }/>
                     <Item location={'before'}
                     widget={'dxButton'}
                     options={this.deleteButtonOptions} />

@@ -217,7 +217,7 @@ class GridExample extends React.Component {
                                                         return  (columnData && columnData.editfl===1);
                                                      },
                             cellStyle:  (params) => {
-                                                        if (! params.data.column_data){
+                                                        if (! params.data || ! params.data.column_data){
                                                             return;
                                                         }
                                                         var columnData = getColumnData(params);
@@ -365,7 +365,7 @@ class GridExample extends React.Component {
 
                                                             });
                                                         }else{
-                                                            params.successCallback([{columnNameField:"No results found"}], 1);
+                                                            params.successCallback([], 0);
                                                         }
                                                     }
                             );

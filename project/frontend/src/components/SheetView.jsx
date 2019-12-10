@@ -221,19 +221,14 @@ class SheetView extends Component {
 
 
     onInsertCallback(){
-        console.log('onInsertCallback', this.state.sheet_id, this.getFilterSkey());
         if (this.state.sheet_id){
             sendRequest('insert_record/?sht_id='+this.state.sheet_id+'&skey='+this.getFilterSkey(),
                         this.sendInsertRecord,
                         'POST',
                         {});
         }
-        //this.sendInsertRecord();
     }
 
-    onInsertCallback(){
-
-    }
 
     sendUndoToGrid(){
     }
