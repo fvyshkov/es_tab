@@ -472,11 +472,17 @@ def get_tree_node_list(request):
         p_tmp_cell_key = p_key + ',' + p_cell_key + ',' + 'FLT_ID_' + node['flt_id'] + '=>' + node['flt_item_id']
         p_cell_key += 'FLT_ID_' + node['flt_id'] + '=>' + node['flt_item_id']
         p_tmp_cell_key = Skey(p_tmp_cell_key).process()
-
-        cell_list = get_sql_result('''select x.*  from table(C_PKGESSHEET.fGetDataCells(%s, %s)) x''',
+        print('p_tmp_cell_key', p_tmp_cell_key)
+        cell_list = get_sql_result('''select f.styles, x.*  from table(C_PKGESSHEET.fGetDataCells(%s, %s)) x,
+                                    c_es_ver_sheet_ind_frmt f
+                                    where f.ind_id(+) = x.ind_id and f.tbl_id(+)= x.mark_tbl_id''',
                                    [p_sht_id, p_tmp_cell_key])
 
+       # print('cell_list', cell_list)
+        cell_list = list( map(process_cell_styles, cell_list,   [node]*len(cell_list), [sheet_info[0]]*len(cell_list)))
+        #print('cell_list', cell_list)
 
+        """
         if node.get('groupfl')=='1':
             cell_list = [dict(item, color=color_restrict) for item in cell_list]
         else:
@@ -485,10 +491,47 @@ def get_tree_node_list(request):
                     item['color'] = color_restrict
                 else:
                     item['color'] = color_hand
-
+        """
+        #если OLDFL=1, то BOLD, ITALIC, RED и никаких ругих преобразований
+        #
         node['column_data'] = cell_list
 
     return node_list
+
+
+def process_cell_styles(cell_src, node, sheet_info):
+
+    cell = cell_src.copy()
+
+    cell['brush.color'] = 'white'
+    cell['font.color'] = 'black'
+    cell['border.color'] = 'black'
+    cell['font.italic'] = '0'
+    cell['font.bold'] = '0'
+
+    if node.get('groupfl') == '1' or cell.get('editfl') == '0':
+        cell['brush.color'] = sheet_info.get('color_restrict_hex')
+    else:
+        cell['brush.color'] = sheet_info.get('color_hand_hex')
+
+    if cell.get('oldfl') == '1':
+        cell['font.color'] = 'red'
+        cell['border.color'] = 'red'
+        cell['font.italic'] = '1'
+        cell['font.bold'] = '1'
+
+    elif cell.get('styles'):
+        styles = cell.get('styles').split(',')
+        for style in styles:
+            style_name = style.split('=')[0].lower().replace('"','')
+            if style_name.endswith('color'):
+
+                cell[style_name] = delphi_color_to_hex(int(style.split('=')[1]))
+            else:
+                cell[style_name] = style.split('=')[1]
+    elif cell.get('confirmfl') == '1':
+        cell['border.color'] = 'blue'
+    return cell
 
 def get_sheet_columns(request):
     param_dict = dict(request.GET)
@@ -790,6 +833,7 @@ def get_refer_value(request):
 def delphi_color_to_hex(delphi_color):
     if delphi_color:
         hexStr = hex(delphi_color)
-        return ('#'+hexStr[6:8] + hexStr[4:6] + hexStr[2:4])
+        color =  ('#'+hexStr[6:8] + hexStr[4:6] + hexStr[2:4])
+        return color.ljust(7,'0')
     else:
         return '#0'

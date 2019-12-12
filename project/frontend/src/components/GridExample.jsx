@@ -221,11 +221,18 @@ class GridExample extends React.Component {
                                                             return;
                                                         }
                                                         var columnData = getColumnData(params);
+                                                        var style = {color: 'black', backgroundColor: 'white'};
                                                         if (columnData){
-                                                            return {color: 'black', backgroundColor: columnData.color};
-                                                        }else{
-                                                            return {color: 'black', backgroundColor: 'white'};
+                                                            style = {color: columnData['font.color'], backgroundColor: columnData['brush.color']};
                                                         }
+                                                        //console.log('columnData', columnData);
+                                                        if (columnData['font.bold']==='1'){
+                                                            style['font-weight'] = 'bold';
+                                                        }
+                                                        if (columnData['font.italic']==='1'){
+                                                            style['font-style'] = 'italic';
+                                                        }
+                                                        return style;
 
                                                     }
                             }
