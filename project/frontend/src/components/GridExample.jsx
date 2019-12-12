@@ -232,6 +232,12 @@ class GridExample extends React.Component {
                                                         if (columnData['font.italic']==='1'){
                                                             style['font-style'] = 'italic';
                                                         }
+                                                        if (columnData['border.color']){ 
+                                                            style['border-style'] = 'solid'; 
+                                                            style['border-width'] = 'thin'; 
+                                                            style['border-color'] = columnData['border.color'] 
+                                                        }
+
                                                         return style;
 
                                                     }
