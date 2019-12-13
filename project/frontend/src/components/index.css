@@ -89,6 +89,7 @@ position: relative;
 
 }
 
+
 .SheetTree{
 width:500px
 }
@@ -97,3 +98,24 @@ width:500px
 background-color: #d9ff96;
 }
 
+/*
+.ag-row-hover {
+    background-color: #dfdfff !important;
+}
+
+.ag-column-hover {
+    background-color: #dfffdf !important;
+}
+
+*/
+
+.ag-cell:focus{
+    border-color: #0091EA !important;
+    border-width: 2px !important;
+
+}
+
+.ag-cell-range-selected{
+    border-color: #0091EA !important;
+    border-width: 2px !important;
+}
