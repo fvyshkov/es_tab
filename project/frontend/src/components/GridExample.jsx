@@ -125,7 +125,12 @@ class GridExample extends React.Component {
                     }
                 },
                 pinned: 'left',
-                cellStyle: {color: 'black', backgroundColor: this.state.colorRestrict}
+                cellStyle: {color: 'black',
+                                backgroundColor: this.state.colorRestrict,
+                                borderStyle:'solid',
+                                borderWidth:'thin',
+                                borderColor:'black'
+                                }
             });
     }
 

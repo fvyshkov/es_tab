@@ -472,28 +472,12 @@ def get_tree_node_list(request):
         p_tmp_cell_key = p_key + ',' + p_cell_key + ',' + 'FLT_ID_' + node['flt_id'] + '=>' + node['flt_item_id']
         p_cell_key += 'FLT_ID_' + node['flt_id'] + '=>' + node['flt_item_id']
         p_tmp_cell_key = Skey(p_tmp_cell_key).process()
-        print('p_tmp_cell_key', p_tmp_cell_key)
         cell_list = get_sql_result('''select f.styles, x.*  from table(C_PKGESSHEET.fGetDataCells(%s, %s)) x,
                                     c_es_ver_sheet_ind_frmt f
                                     where f.ind_id(+) = x.ind_id and f.tbl_id(+)= x.mark_tbl_id''',
                                    [p_sht_id, p_tmp_cell_key])
 
-       # print('cell_list', cell_list)
         cell_list = list( map(process_cell_styles, cell_list,   [node]*len(cell_list), [sheet_info[0]]*len(cell_list)))
-        #print('cell_list', cell_list)
-
-        """
-        if node.get('groupfl')=='1':
-            cell_list = [dict(item, color=color_restrict) for item in cell_list]
-        else:
-            for item in cell_list:
-                if item.get('editfl') == '0':
-                    item['color'] = color_restrict
-                else:
-                    item['color'] = color_hand
-        """
-        #если OLDFL=1, то BOLD, ITALIC, RED и никаких ругих преобразований
-        #
         node['column_data'] = cell_list
 
     return node_list
@@ -543,11 +527,7 @@ def get_sheet_columns(request):
     if 'skey' in param_dict:
         p_skey = param_dict['skey'][0]
 
-    #if 'ind_id' in param_dict:
-    #    p_ind_id = param_dict['ind_id'][0]
-
     p_ind_id = param_dict.get('ind_id', [''])[0]
-
 
     if p_sht_id=='':
         return JsonResponse([], safe=False)
@@ -635,6 +615,7 @@ def get_filter_nodes(request):
 
 def get_anl_table_rows(sht_id, skey):
     print('sht_id=',sht_id, 'sk', skey)
+
     import cx_Oracle
     from django.conf import settings
     db_settings =  settings.DATABASES.get('default')
@@ -659,36 +640,41 @@ def get_anl_table_rows(sht_id, skey):
         row_dict = {}
         column_data = []
         for column_idx in range(len(refCursor.description)):
+            cell={}
+            cell['brush.color'] = 'white'
+            cell['font.color'] = 'black'
+            cell['border.color'] = 'black'
+            cell['font.italic'] = '0'
+            cell['font.bold'] = '0'
+
             column_name = refCursor.description[column_idx][0].lower()
             row_dict[column_name] = row[column_idx]
             if any([True for column in columns if column['key'] == column_name.upper()]):
                 column_list = [column for column in columns if column['key'] == column_name.upper()]
                 if len(column_list)>0:
-                    ent_id = column_list[0].get('ent_id')
-                    atr_type = column_list[0].get('atr_type')
-                    editfl = column_list[0].get('editfl')
+                    cell['ent_id'] = column_list[0].get('ent_id')
+                    cell['atr_type'] = column_list[0].get('atr_type')
+                    cell['editfl'] = column_list[0].get('editfl')
+
                     if column_name.upper().startswith('FLT'):
-                        color = color_filter
-                    elif editfl==0:
-                        color = color_restrict
+                        cell['brush.color'] = color_filter
+                    elif cell['editfl'] ==0:
+                        cell['brush.color'] = color_restrict
                     else:
-                        color = color_hand
+                        cell['brush.color'] = color_hand
 
                 else:
-                    ent_id = None
-                    atr_type = None
-                    editfl = 0
-                    color = color_restric
+                    cell['ent_id'] =  None
+                    cell['atr_type'] = None
+                    cell['editfl'] = 0
+                    cell['brush.color'] = color_restric
 
-                column_data.append({
-                                        'key':column_name.upper(),
-                                        'sql_value': row[column_idx],
-                                        'editfl':editfl,
-                                        'ent_id':ent_id,
-                                        'atr_type':atr_type,
-                                        'color':color
 
-                })
+                cell['key'] = column_name.upper()
+                cell['sql_value'] = row[column_idx]
+
+
+                column_data.append(cell)
 
 
         row_dict['node_key'] = row_dict['id']
