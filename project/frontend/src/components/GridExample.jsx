@@ -230,7 +230,7 @@ class GridExample extends React.Component {
                                                         if (columnData){
                                                             style = {color: columnData['font.color'], backgroundColor: columnData['brush.color']};
                                                         }
-                                                        //console.log('columnData', columnData);
+
                                                         if (columnData['font.bold']==='1'){
                                                             style['font-weight'] = 'bold';
                                                         }
@@ -252,13 +252,6 @@ class GridExample extends React.Component {
 
         columns = groupColumns(columns);
         this.setState({columnDefs: columns});
-        /*
-        if (this.props.columnStates){
-            console.log('colState', this.props.columnStates);
-            this.gridColumnApi.setColumnState(this.props.columnStates);
-            this.gridApi.refreshHeader();
-        }
-        */
         this.loadSheetInfo();
         this.columnsLoaded = true;
     }
@@ -437,12 +430,18 @@ class GridExample extends React.Component {
     }
 
     onCellValueChanged(params){
-        console.log('onCellValueChanged', params);
-        sendRequest('update_record/?req_id='+params.data.id+'&value='+params.value+'&col_id='+params.column.colDef.ind_id,
-                        ()=> {},
-                        'POST',
-                        {});
+        console.log('onCellValueChanged', params, this.props.sheet_type);
 
+        if (this.props.sheet_type==='tree'){
+            console.log('change val tree', this.props.skey(), params.data.node_key, params.colDef.field);
+            sendRequest('update_tree_record/?sht_id='+this.props.sheet_id+'&skey='+this.props.skey() + '&cell_skey='+params.data.node_key +','+ params.colDef.field +
+                            '&ind_id='+params.data.ind_id + '&value='+params.value
+
+                        , ()=> {},'POST',{});
+
+        }else{
+            sendRequest('update_record/?req_id='+params.data.id+'&value='+params.value+'&col_id='+params.column.colDef.ind_id, ()=> {},'POST',{});
+        }
     }
 
 

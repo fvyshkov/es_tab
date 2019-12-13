@@ -34,6 +34,27 @@ def update_table_record(request):
 
     return JsonResponse([], safe=False)
 
+
+def update_tree_record(request):
+    param_dict = dict(request.GET)
+    sht_id = param_dict.get('sht_id', [''])[0]
+    cell_skey = param_dict.get('cell_skey', [''])[0]
+    skey = param_dict.get('skey', [''])[0]
+    ind_id = param_dict.get('ind_id', [''])[0]
+    value = param_dict.get('value', [''])[0]
+
+    print('ind_id', ind_id)
+    print('sht_id', sht_id)
+
+    print('SK=', skey  + cell_skey)
+
+    with connection.cursor() as cursor:
+        cursor.execute("begin c_pkgconnect.popen(); "
+                       "   C_PKGESSHEET.pSetShtValueHand(P_SHT_ID => %s, P_IND_ID => %s, P_SKEY => %s, P_SQL_VALUE => %s); end; ",
+                       [sht_id, '', skey+cell_skey, value])
+
+    return JsonResponse([], safe=False)
+
 def add_table_record(request):
     param_dict = dict(request.GET)
     data = json.loads(request.body.decode("utf-8"))
@@ -493,7 +514,7 @@ def process_cell_styles(cell_src, node, sheet_info):
     cell['font.italic'] = '0'
     cell['font.bold'] = '0'
 
-    if node.get('groupfl') == '1' or cell.get('editfl') == '0':
+    if node.get('groupfl') == '1' or cell.get('editfl') == 0:
         cell['brush.color'] = sheet_info.get('color_restrict_hex')
     else:
         cell['brush.color'] = sheet_info.get('color_hand_hex')
@@ -515,6 +536,7 @@ def process_cell_styles(cell_src, node, sheet_info):
                 cell[style_name] = style.split('=')[1]
     elif cell.get('confirmfl') == '1':
         cell['border.color'] = 'blue'
+
     return cell
 
 def get_sheet_columns(request):
@@ -681,7 +703,7 @@ def get_anl_table_rows(sht_id, skey):
         row_dict['column_data'] = column_data
         ref_cursor.append(row_dict)
 
-    return ref_cursor;
+    return ref_cursor
 
 
 def get_anl_detail_table_rows(sht_id, skey, ind_id, parent_id):
