@@ -91,6 +91,21 @@ position: relative;
 }
 
 
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}
+
+.create
+{
+background-image: url('../images/chat.svg');
+background-repeat: no-repeat;
+padding-left: 30px;  /* width of the image plus a little extra padding */
+display: block;  /* may not need this, but I've found I do */
+}
+
 .SheetTree{
 width:500px
 }

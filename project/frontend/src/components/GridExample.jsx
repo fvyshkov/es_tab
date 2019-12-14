@@ -3,7 +3,6 @@ import React from "react";
 import { AgGridReact } from "@ag-grid-community/react";
 import "ag-grid-enterprise";
 import { AllModules } from "@ag-grid-enterprise/all-modules";
-import GridCellRenderer from "./GridCellRenderer.jsx";
 import TreeReferEditor from "./TreeReferEditor.jsx";
 import NumericEditor from "./NumericEditor.jsx";
 import { sendRequest } from './App.js';
@@ -11,6 +10,10 @@ import FilterPanelInToolPanel from "./FilterPanelInToolPanel.jsx";
 import {LicenseManager} from "@ag-grid-enterprise/core";
 import TableView from './TableView.jsx';
 import ToolbarView from './ToolbarView.jsx';
+
+
+import CommentImg from '../images/chat.png';
+
 
 LicenseManager.setLicenseKey("Evaluation_License_Not_For_Production_29_December_2019__MTU3NzU3NzYwMDAwMA==a3a7a7e770dea1c09a39018caf2c839c");
 
@@ -29,7 +32,7 @@ class GridExample extends React.Component {
       treeData: this.props.treeData,
       frameworkComponents: {
         treeReferEditor: TreeReferEditor,
-        gridCellRenderer:GridCellRenderer,
+       // gridCellRenderer:GridCellRenderer,
         numericEditor: NumericEditor,
         filterPanelInToolPanel: FilterPanelInToolPanel
       },
@@ -185,14 +188,7 @@ class GridExample extends React.Component {
             }
         }
 
-        function getColumnData(params){
-            for(var i=0; i< params.data.column_data.length; i++){
-                if (params.data.column_data[i].key===params.colDef.field){
-                    return params.data.column_data[i];
-                }
-            }
-            return null;
-        }
+
         //все эти преобразования лучше перенести в средний слой
         var columns = columnList.map(function prs(currentValue){
 
@@ -354,8 +350,6 @@ class GridExample extends React.Component {
                                                                 }
                                                             }
                                                             params.successCallback(rowData, lastRow());
-
-                                                            console.log('gridComponent.savedFocusedCell', gridComponent.savedFocusedCell);
 
                                                             if (gridComponent.savedFocusedCell){
                                                                 gridComponent.gridApi.ensureIndexVisible(gridComponent.savedFocusedCell.rowIndex);
@@ -572,16 +566,37 @@ class GridExample extends React.Component {
 
 
 function gridCellRenderer(params){
+    var displayValue;
     if (params.colDef.ent_id){
-        return getReferValueById(params.colDef.field, params.value);
+        displayValue = getReferValueById(params.colDef.field, params.value);
     }else if (params.colDef.atr_type==="N" ){
         var num = parseFloat(Math.round(parseFloat(params.value) * 100) / 100).toFixed(2);
         var parts = num.split(".");
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-        return parts.join(".");
+        displayValue = parts.join(".");
     }else{
-        return params.value;
+        displayValue = params.value;
     }
+
+    if (!displayValue){
+        displayValue = '';
+    }
+
+    var element = document.createElement("span");
+
+    var columnData = getColumnData(params);
+    if (columnData.commentfl===1){
+        var imageElement = document.createElement("img");
+        imageElement.setAttribute("width" , "16px");
+        imageElement.setAttribute("height" , "16px");
+
+        imageElement.src = CommentImg;
+        element.appendChild(imageElement);
+    }
+
+    element.appendChild(document.createTextNode(displayValue));
+    return element;
+
 }
 
 function getReferValueById(field, item_id){
@@ -617,6 +632,14 @@ function groupColumns(columns){
 
 
 
+function getColumnData(params){
+    for(var i=0; i< params.data.column_data.length; i++){
+        if (params.data.column_data[i].key===params.colDef.field){
+            return params.data.column_data[i];
+        }
+    }
+    return null;
+}
 
 
 export default GridExample;
