@@ -197,12 +197,20 @@ class SheetToolbar extends Component {
                     <Item location={'before'}
                     widget={'dxButton'}
                     options={this.colorButtonOptions} />
-
+                    {/*
                     <Item location={'before'}
 
                     cssClass={"SheetTreeDropDown"}
                     options={{width:"100%"}}
                     render={this.sheetSelectRender} />
+                    */}
+
+                    <Item location={'before'}
+
+                    cssClass={"SheetTreeDropDown"}
+                    options={{width:"100%"}}
+                    render={this.props.additionalToolbarItem} />
+
 
                     <Item location={'before'}
                     widget={'dxButton'}

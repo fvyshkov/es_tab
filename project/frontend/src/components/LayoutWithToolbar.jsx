@@ -8,7 +8,8 @@ import notify from 'devextreme/ui/notify';
 import { sendRequest } from './App.js';
 import AddRemoveLayout from './AddRemoveLayout.jsx';
 import SheetView from './SheetView.jsx';
-import GridExample from './GridExample.jsx';
+import TableView from './TableView.jsx';
+import TableViewWithSelection from './TableViewWithSelection.jsx';
 import { AgGridReact } from "@ag-grid-community/react";
 
 export default class LayoutWithToolbar extends Component {
@@ -31,7 +32,7 @@ export default class LayoutWithToolbar extends Component {
         icon: 'plus',
         onClick: () => {
                             this.addElementToLayout(
-                                                        <SheetView
+                                                        <TableViewWithSelection
                                                             layoutItemID={"n" + this.state.items.length}
                                                             onToolbarCloseClick={this.onToolbarCloseClick.bind(this)}
                                                             addElementToLayout={this.addElementToLayout.bind(this)}
