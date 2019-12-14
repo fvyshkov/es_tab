@@ -13,110 +13,12 @@ import './index.css';
 
 class SheetToolbar extends Component {
 
-
-
     constructor(props) {
         super(props);
 
         this.state={
-                    sheetList:[],
                     colorPanelVisible:false,
-                    rootValue: '0'
                    };
-
-
-        this.dropDownBoxRef = React.createRef();
-
-        this.sheetSelectRender = this.sheetSelectRender.bind(this);
-        this.componentDidMount = this.componentDidMount.bind(this);
-        this.treeViewRender = this.treeViewRender.bind(this);
-        this.treeView_itemSelectionChanged = this.treeView_itemSelectionChanged.bind(this);
-        this.sheetSelectRender = this.sheetSelectRender.bind(this);
-        this.loadSheetList = this.loadSheetList.bind(this);
-        this.onLoadSheetSuccess = this.onLoadSheetSuccess.bind(this);
-        this.onOpened = this.onOpened.bind(this);
-
-
-
-
-
-
-    }
-
-    onOpened(component){
-        this.dropDownBox = component;
-    }
-
-    sheetSelectRender(){
-        if (!this.props.sheetSelection){
-            return <div />;
-        }
-        return (
-            <DropDownBox
-                ref={this.dropDownBoxRef}
-                elementAttr={{"id": "sheet_select_dropdown"}}
-                dataSource={this.state.sheetList}
-                value={this.state.treeBoxValue}
-                valueExpr={'id'}
-                keyExpr={'id'}
-                rootValue={this.state.rootValue}
-                displayExpr={'label'}
-                virtualModeEnabled={true}
-                dataStructure={'plain'}
-                parentIdExpr ={'parent_id'}
-                placeholder={'Выбор листа для отображения'}
-                contentRender={this.treeViewRender}
-                onOpened={this.onOpened}
-                width={"100%"}
-
-            />
-
-         );
-   }
-
-    componentDidMount() {
-        this.loadSheetList();
-    }
-
-    onLoadSheetSuccess(respObj, compInstance){
-        this.setState({sheetList:respObj});
-    }
-
-    loadSheetList(){
-        sendRequest('sheet_list/', this.onLoadSheetSuccess);
-    }
-
-   treeViewRender() {
-        return (
-            <div className="SheetTree">
-                <TreeView
-                    dataSource={this.state.sheetList}
-                    keyExpr={'id'}
-                    selectionMode={'single'}
-                    virtualModeEnabled={false}
-                    dataStructure={'plain'}
-                    parentIdExpr ={'parent_id'}
-                    valueExpr={'id'}
-                    rootValue={this.state.rootValue}
-                    displayExpr={'label'}
-                    itemsExpr={'children'}
-                    selectByClick={true}
-                    onItemSelectionChanged={this.treeView_itemSelectionChanged}
-                    searchEnabled={true}
-                    searchExpr = {["label"]}
-                    width={400}
-                />
-            </div>
-        );
-  }
-
-    treeView_itemSelectionChanged(e) {
-
-        this.setState({
-            treeBoxValue: e.itemData.id
-            });
-        this.dropDownBoxRef.current.instance.close();
-        this.props.onSelectNewSheet(e.itemData.id, e.itemData.sheet_type);
 
     }
 
@@ -124,38 +26,37 @@ class SheetToolbar extends Component {
     refreshButtonOptions = {
         icon: 'refresh',
         onClick: (e) => {
-                        this.props.onRefreshCallback();
-                        }
+            this.props.onRefreshCallback();
+        }
     }
 
     insertButtonOptions = {
         icon: 'plus',
         onClick: (e) => {
-                            console.log('insertButtonOptions.onClick');
-                            this.props.onInsertCallback();
-                        }
+            console.log('insertButtonOptions.onClick');
+            this.props.onInsertCallback();
+        }
     }
 
     deleteButtonOptions = {
         icon: 'minus',
         onClick: (e) => {
-                            this.props.onDeleteCallback();
-                        }
+            this.props.onDeleteCallback();
+        }
     }
 
 
     closeButtonOptions = {
         icon: 'close',
         onClick: (e) => {
-                        this.props.onCloseCallback();
-                        }
+            this.props.onCloseCallback();
+        }
     }
 
     saveButtonOptions = {
         icon: 'save',
         onClick: () => {
             this.props.onSaveCallback();
-            //notify('Save button has been clicked!');
         }
     }
 
@@ -197,21 +98,9 @@ class SheetToolbar extends Component {
                     <Item location={'before'}
                     widget={'dxButton'}
                     options={this.colorButtonOptions} />
-                    {/*
                     <Item location={'before'}
-
-                    cssClass={"SheetTreeDropDown"}
-                    options={{width:"100%"}}
-                    render={this.sheetSelectRender} />
-                    */}
-
-                    <Item location={'before'}
-
-                    cssClass={"SheetTreeDropDown"}
-                    options={{width:"100%"}}
+                    cssClass={'ToolbarAdditionalItem'}
                     render={this.props.additionalToolbarItem} />
-
-
                     <Item location={'before'}
                     widget={'dxButton'}
                     options={this.closeButtonOptions} />

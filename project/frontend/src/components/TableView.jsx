@@ -49,6 +49,9 @@ export default class TableView extends Component {
         if (this.props.sendLoadNewSheet){
             this.props.sendLoadNewSheet(this.loadNewSheet);
         }
+        if (this.props.sheet_id && this.props.sheet_type){
+            this.setState({sheet_id: this.props.sheet_id, sheet_type: this.props.sheet_type});
+        }
     }
 
     loadNewSheetToFilterPanel(){
@@ -286,6 +289,7 @@ export default class TableView extends Component {
                                 onGridExpandedChange={this.onGridExpandedChange.bind(this)}
                                 sendInsertRecord={click => this.sendInsertRecord = click}
                                 sendDeleteRecord={click => this.sendDeleteRecord = click}
+                                additionalSheetParams={this.props.additionalSheetParams}
                                 />
 
 

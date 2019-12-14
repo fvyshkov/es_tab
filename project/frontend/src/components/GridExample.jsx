@@ -9,7 +9,8 @@ import NumericEditor from "./NumericEditor.jsx";
 import { sendRequest } from './App.js';
 import FilterPanelInToolPanel from "./FilterPanelInToolPanel.jsx";
 import {LicenseManager} from "@ag-grid-enterprise/core";
-import SheetDetailView from './SheetDetailView.jsx';
+//import SheetDetailView from './SheetDetailView.jsx';
+import TableView from './TableView.jsx';
 import ToolbarView from './ToolbarView.jsx';
 
 LicenseManager.setLicenseKey("Evaluation_License_Not_For_Production_29_December_2019__MTU3NzU3NzYwMDAwMA==a3a7a7e770dea1c09a39018caf2c839c");
@@ -552,7 +553,7 @@ class GridExample extends React.Component {
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
             console.log('newLayoutItemID=', newLayoutItemID);
-            var detailRender =  <SheetDetailView
+            var detailRender =  <TableView
                                 sheet_id = {this.props.sheet_id}
                                 sheet_type = {this.props.sheet_type}
                                 additionalSheetParams={{parent_id:params.node.data.id, ind_id:params.column.colDef.ind_id}}
