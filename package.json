@@ -38,6 +38,7 @@
     "devextreme-react": "^19.2.4",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.15.1",
+    "enzyme-to-json": "^3.4.3",
     "globalize": "^1.4.2",
     "jest": "^24.9.0",
     "prop-types": "^15.7.2",
