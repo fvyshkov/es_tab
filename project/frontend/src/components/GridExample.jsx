@@ -9,7 +9,6 @@ import NumericEditor from "./NumericEditor.jsx";
 import { sendRequest } from './App.js';
 import FilterPanelInToolPanel from "./FilterPanelInToolPanel.jsx";
 import {LicenseManager} from "@ag-grid-enterprise/core";
-//import SheetDetailView from './SheetDetailView.jsx';
 import TableView from './TableView.jsx';
 import ToolbarView from './ToolbarView.jsx';
 

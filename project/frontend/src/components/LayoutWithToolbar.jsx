@@ -7,7 +7,6 @@ import 'devextreme/dist/css/dx.light.css';
 import notify from 'devextreme/ui/notify';
 import { sendRequest } from './App.js';
 import AddRemoveLayout from './AddRemoveLayout.jsx';
-import SheetView from './SheetView.jsx';
 import TableView from './TableView.jsx';
 import TableViewWithSelection from './TableViewWithSelection.jsx';
 import { AgGridReact } from "@ag-grid-community/react";
