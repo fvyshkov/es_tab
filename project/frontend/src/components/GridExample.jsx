@@ -10,6 +10,8 @@ import FilterPanelInToolPanel from "./FilterPanelInToolPanel.jsx";
 import {LicenseManager} from "@ag-grid-enterprise/core";
 import TableView from './TableView.jsx';
 import ToolbarView from './ToolbarView.jsx';
+import sheetDatasource from './sheetDatasource';
+import commentDatasource from './commentDatasource';
 
 
 import CommentImg from '../images/chat.png';
@@ -174,6 +176,7 @@ class GridExample extends React.Component {
 
 
     refreshGrid(){
+        console.log('refreshGrid');
         this.gridApi.purgeServerSideCache([]);
         this.loadColumns();
     }
@@ -223,9 +226,11 @@ class GridExample extends React.Component {
                                                         }
                                                         var columnData = getColumnData(params);
                                                         var style = {color: 'black', backgroundColor: 'white'};
-                                                        if (columnData){
-                                                            style = {color: columnData['font.color'], backgroundColor: columnData['brush.color']};
+                                                        if (!columnData){
+                                                            return style;
                                                         }
+                                                        style = {color: columnData['font.color'], backgroundColor: columnData['brush.color']};
+
 
                                                         if (columnData['font.bold']==='1'){
                                                             style['font-weight'] = 'bold';
@@ -253,6 +258,7 @@ class GridExample extends React.Component {
     }
 
     loadSheetInfo(){
+        console.log('loadSheetInfo', this.props.sheet_id, this.state.sheet_id);
         sendRequest('sht_info/?sht_id='+this.props.sheet_id, this.processSheetInfo);
     }
 
@@ -266,9 +272,9 @@ class GridExample extends React.Component {
         if (this.props.resetForceGridReload){
             this.props.resetForceGridReload();
         }
-        //if (infoList.length>0)
-        this.state.colorRestrict = infoList[0].color_restrict_hex;
-        this.setState({
+        if (infoList.length>0){
+            this.state.colorRestrict = infoList[0].color_restrict_hex;
+            this.setState({
                             colorRestrict:infoList[0].color_restrict_hex,
                             colorHand:infoList[0].color_hand_hex,
                             colorTotal:infoList[0].color_total_hex,
@@ -280,7 +286,7 @@ class GridExample extends React.Component {
                             treeData: this.props.sheet_type==='tree' ? true: false
                              });
 
-
+        }
         this.setState({gridKey: this.props.sheet_id});
 
     }
@@ -318,8 +324,17 @@ class GridExample extends React.Component {
         return this.props.sheet_id;
     }
 
-  serverSideDatasource = (gridComponent) => {
+    serverSideDatasource(gridComponent) {
+         //   return sheetDatasource(gridComponent);
 
+        console.log('GRID this.props.getDatasource', this.props.getDatasource);
+        if (this.props.getDatasource){
+             console.log('are going return commentDS');
+            return this.props.getDatasource(gridComponent);
+        }else{
+            return sheetDatasource(gridComponent);
+        }
+/*
         return {
 
             getRows(params,testFunction){
@@ -377,6 +392,7 @@ class GridExample extends React.Component {
 
             }
         }
+        */
    }
 
   onGridReady = params => {
@@ -524,11 +540,69 @@ class GridExample extends React.Component {
         }
     }
 
+    getCommentDatasource(grid){
+        return commentDatasource(grid);
+    }
+
+
+
+    showCommentForCell(params){
+        var columnData = getColumnData(params);
+        if (this.props.addElementToLayout){
+            var newLayoutItemID = this.props.getNewLayoutItemID();
+
+            var skey='';
+            if (this.props.sheet_type === 'tree'){
+                skey = this.props.skey();
+                /*
+                пока все неправильно,
+                работать будет только если все аналитики выбраны,
+                а тут отсекаем аналитику "показатель",
+                потому что с ней пока не работает
+                if (params.node.key){
+                    skey += params.node.key;
+                }
+                */
+                skey += ','+columnData.key;
+            }else{
+
+            }
+            console.log('showCommentForCell=', columnData);
+            console.log('showCommentForCell(params)', params);
+
+            var additionalParams = {
+                                    viewType: 'CommentView',
+                                    ind_id: columnData.ind_id,
+                                    skey: skey
+                                   };
+
+            if (columnData.req_id){
+                additionalParams['req_id'] = columnData.req_id;
+            }
+            console.log('comments sht_id=', this.props.sheet_id);
+            var detailRender =  <TableView
+                                sheet_id = {0}
+                                sheet_type = {''}
+                                additionalSheetParams={additionalParams}
+                                onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
+                                layoutItemID={newLayoutItemID}
+                                getDatasource={this.getCommentDatasource.bind(this)}
+                                />;
+
+            this.props.addElementToLayout(detailRender);
+        }
+    }
+
     getContextMenuItems(params) {
+
         var result = [
           {
             name: 'Детализация <b>[' + params.column.colDef.headerName+']</b>',
             action: this.showDetailForCell.bind(this, params)
+          },
+          {
+            name: 'Комментарии по значению',
+            action: this.showCommentForCell.bind(this, params)
           },
             "separator",
             "expandAll",
@@ -585,7 +659,9 @@ function gridCellRenderer(params){
     var element = document.createElement("span");
 
     var columnData = getColumnData(params);
-    if (columnData.commentfl===1){
+
+
+    if (columnData && columnData.commentfl===1){
         var imageElement = document.createElement("img");
         imageElement.setAttribute("width" , "16px");
         imageElement.setAttribute("height" , "16px");
@@ -633,11 +709,25 @@ function groupColumns(columns){
 
 
 function getColumnData(params){
-    for(var i=0; i< params.data.column_data.length; i++){
-        if (params.data.column_data[i].key===params.colDef.field){
-            return params.data.column_data[i];
+    var columnDataList = [];
+    var colDefField = '';
+
+    if (params.node.data.column_data){
+        columnDataList = params.node.data.column_data;
+        colDefField = params.column.colDef.field;
+    }else{
+        columnDataList = params.data.column_data;
+        colDefField = params.colDef.field;
+        console.log('')
+    }
+
+
+    for(var i=0; i< columnDataList.length; i++){
+        if (columnDataList[i].key===colDefField){
+            return columnDataList[i];
         }
     }
+
     return null;
 }
 

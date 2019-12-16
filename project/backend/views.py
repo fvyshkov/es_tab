@@ -3,6 +3,82 @@ from django.http import JsonResponse
 from django.db import connection
 import json
 
+def get_comments(request):
+    param_dict = dict(request.GET)
+    if 'ind_id' not in param_dict:
+        return JsonResponse([], safe = False)
+    else:
+        ind_id = param_dict.get('ind_id', [''])[0]
+        req_id = param_dict.get('req_id', [''])[0]
+        skey = param_dict.get('skey', [''])[0]
+        if (req_id):
+            cell_skey='REQ_ID=>'+req_id
+        else:
+            cell_skey = skey
+
+        print('ind_id', ind_id, 'cell_key', cell_skey)
+        comments_list = get_comments_list(ind_id, cell_skey)
+
+        return JsonResponse(comments_list, safe = False)
+
+
+def get_comments_list(ind_id, skey):
+    res = get_sql_result("""
+                        select *
+                        from
+                        (
+                        select 
+                        rownum com_id,
+                         c.*,
+                              c_pkgusr.fUsrName(c.id_us) usr_name
+                        from C_ES_SHT_VAL_COMMENT c
+                        where   c.ind_id =  %s 
+                        and c.skey = C_PKGEScalc.fNormalizeKey(%s)
+                        order by ind_id, skey, proc_id, njrn
+                        )
+                        order by correctdt desc
+                            """,
+                        [ind_id, skey])
+    for row in res:
+        column_data = []
+
+        cell ={}
+        cell['key'] = 'prim'
+        cell['editfl'] = '0'
+        cell['sql_value'] = row.get('prim')
+        column_data.append(cell)
+
+        cell = {}
+        cell['key'] = 'correctdt'
+        cell['editfl'] = '0'
+        cell['sql_value'] = row.get('correctdt')
+        column_data.append(cell)
+
+        cell = {}
+        cell['key'] = 'usr_name'
+        cell['editfl'] = '0'
+        cell['sql_value'] = row.get('usr_name')
+        column_data.append(cell)
+
+        row['column_data'] = column_data
+
+    return res
+
+def get_cell_skey(request):
+    param_dict = dict(request.GET)
+    flt_id = req_id = param_dict.get('flt_id', [''])[0]
+    flt_item_id = req_id = param_dict.get('flt_item_id', [''])[0]
+    skey = req_id = param_dict.get('skey', [''])[0]
+    group_keys = req_id = param_dict.get('group_keys', [''])[0]
+
+    skey_total = skey+','+ group_keys;
+
+    if (flt_id):
+        skey_total += ',FLT_ID_'+flt_id+'=>'+flt_item_id;
+    print('SK total', skey_total)
+    skey_total = Skey(skey_total).process()
+    return  skey_total
+
 def delete_table_record(request):
     param_dict = dict(request.GET)
     req_id = param_dict.get('req_id', [''])[0]
@@ -224,6 +300,8 @@ def get_sheet_state_list(sht_id):
 def get_sheet_info_list(sht_id):
 
     sheet_info = get_sql_result("select * from c_es_ver_sheet where id=%s ", [sht_id])
+    if len(sheet_info)==0:
+        return []
 
     sheet_info[0]['color_restrict_hex'] = delphi_color_to_hex(sheet_info[0].get('color_restrict'))
     sheet_info[0]['color_hand_hex'] = delphi_color_to_hex(sheet_info[0].get('color_hand_input'))
@@ -550,12 +628,16 @@ def get_sheet_columns(request):
         p_skey = param_dict['skey'][0]
 
     p_ind_id = param_dict.get('ind_id', [''])[0]
-
-    if p_sht_id=='':
-        return JsonResponse([], safe=False)
+    view_type = param_dict.get('viewType', [''])[0]
 
 
-    if len(p_ind_id)>0:
+    if view_type=='CommentView':
+        columns = []
+        columns.append({'name': 'Комментарий', 'key': 'prim'})
+        columns.append({'name': 'Исполнитель', 'key': 'usr_name'})
+        columns.append({'name': 'Дата и время', 'key': 'correctdt'})
+
+    elif len(p_ind_id)>0:
         p_parent_id = param_dict.get('parent_id',[''])[0]
 
         columns = get_sheet_details_columns_list(p_sht_id, p_skey, p_ind_id)

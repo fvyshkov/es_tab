@@ -243,6 +243,7 @@ export default class TableView extends Component {
     }
 
     render(){
+        console.log('TV render this.props.getDatasource', this.props.getDatasource);
         return (
             <React.Fragment>
 
@@ -290,6 +291,7 @@ export default class TableView extends Component {
                                 sendInsertRecord={click => this.sendInsertRecord = click}
                                 sendDeleteRecord={click => this.sendDeleteRecord = click}
                                 additionalSheetParams={this.props.additionalSheetParams}
+                                getDatasource={this.props.getDatasource}
                                 />
 
 
