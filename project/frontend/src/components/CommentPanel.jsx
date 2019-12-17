@@ -49,28 +49,33 @@ export default class CommentPanel extends React.Component {
           showTitle={true}
           title="Комментарий по значению"
           width={600}
-          height={600}
+          height={800}
           toolbarItems={this.toolbarItems}
+          resizeEnabled={true}
          >
 
 
         <div className="form-container">
           <Form
             onContentReady={null}
-            colCount={2}
+            colCount={1}
             id="form"
-            formData={this.employee}>
+            formData={this.props.commentData}>
 
             <Item itemType="group" caption="Лист планирования" >
-                <Item dataField="Книга" label={{text:"", visible: false}} editorOptions={{ disabled: true }} />
-                <Item dataField="Аналитики" label={{ text:"Аналитики", location:"top", showColon:false}} editorType="dxTextArea" editorOptions={{ height: 90,  disabled: true }} />
-                <Item dataField="Текст комментария" label={{text:"", location:"top", showColon:false}}  editorType="dxTextArea" editorOptions={{ height: 90 }} />
+                <Item dataField="sheet_name" label={{text:"", visible: false}} editorOptions={{ disabled: true }} />
+                <Item dataField="flt_dsrc" label={{ text:"Аналитики", location:"top", showColon:false}} editorType="dxTextArea" editorOptions={{ height: 90,  disabled: true }} />
             </Item>
-            <Item itemType="group" caption=" Файлы" >
+            <Item itemType="group" caption="Комментарий" >
+                <Item dataField="prim" label={{visible:false , location:"top", showColon:false}}  editorType="dxTextArea" editorOptions={{ height: 90 }} />
+            </Item>
+            <Item itemType="group" caption="Файлы" >
                   <FileUploader
                     multiple={true}
                     uploadMode="useButtons"
                     uploadUrl="https://js.devexpress.com/Content/Services/upload.aspx"
+                    value={this.props.commentData.fileList}
+                    onValueChanged={this.props.onFileValueChanged}
                   />
 
             </Item>
