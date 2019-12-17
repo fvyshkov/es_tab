@@ -226,12 +226,20 @@ export default class TableView extends Component {
     }
 
     onInsertCallback(){
-        if (this.state.sheet_id){
-            sendRequest('insert_record/?sht_id='+this.state.sheet_id+'&skey='+this.getFilterSkey(),
-                        this.sendInsertRecord,
-                        'POST',
-                        {});
+        console.log('onInsertCallback');
+        if (this.props.onInsertCallback){
+            console.log('onInsertCallback 2');
+            this.props.onInsertCallback(this);
+
+        }else{
+            if (this.state.sheet_id){
+                sendRequest('insert_record/?sht_id='+this.state.sheet_id+'&skey='+this.getFilterSkey(),
+                            this.sendInsertRecord,
+                            'POST',
+                            {});
+            }
         }
+
     }
 
 

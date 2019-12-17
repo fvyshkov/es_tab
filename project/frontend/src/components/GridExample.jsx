@@ -12,7 +12,7 @@ import TableView from './TableView.jsx';
 import ToolbarView from './ToolbarView.jsx';
 import sheetDatasource from './sheetDatasource';
 import commentDatasource from './commentDatasource';
-
+import TableViewComment from './TableViewComment.jsx';
 
 import CommentImg from '../images/chat.png';
 
@@ -563,7 +563,7 @@ class GridExample extends React.Component {
                     skey += params.node.key;
                 }
                 */
-                skey += ','+columnData.key;
+                skey += columnData.key;
             }else{
 
             }
@@ -580,13 +580,10 @@ class GridExample extends React.Component {
                 additionalParams['req_id'] = columnData.req_id;
             }
             console.log('comments sht_id=', this.props.sheet_id);
-            var detailRender =  <TableView
-                                sheet_id = {0}
-                                sheet_type = {''}
+            var detailRender =  <TableViewComment
                                 additionalSheetParams={additionalParams}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
                                 layoutItemID={newLayoutItemID}
-                                getDatasource={this.getCommentDatasource.bind(this)}
                                 />;
 
             this.props.addElementToLayout(detailRender);
