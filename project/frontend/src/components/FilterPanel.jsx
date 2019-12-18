@@ -20,11 +20,6 @@ export default class FilterPanel extends Component {
 
     refreshPanel() {
         return;
-        /*
-        console.log('refreshPanel');
-        if (this.props.sheet_id)
-            sendRequest('sht_filters/?sht_id='+this.props.sheet_id, this.onLoadFilterNodes)
-        */
     }
 
     onLoadFilterNodes(data){

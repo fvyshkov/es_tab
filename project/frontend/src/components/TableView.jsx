@@ -72,7 +72,6 @@ export default class TableView extends Component {
     }
 
     loadNewSheet(prm_sheet_id, prm_sheet_type){
-        console.log('TableView loadNewSheet!!!=', prm_sheet_id);
 
         if (this.state.sheet_id){
             this.sendBeforeCloseToGrid();
@@ -222,7 +221,16 @@ export default class TableView extends Component {
     sendInsertRecord(){
     }
 
+    onDeleteCallback(){
+        if (this.props.onDeleteCallback){
+            this.props.onDeleteCallback();
+        }else{
+            this.sendDeleteRecord();
+        }
+    }
+
     sendDeleteRecord(){
+
     }
 
     onInsertCallback(){
@@ -250,8 +258,13 @@ export default class TableView extends Component {
         this.sendUndoToGrid();
     }
 
+    onCellFocused(params){
+        if (this.props.onCellFocused){
+            this.props.onCellFocused(params);
+        }
+    }
+
     render(){
-        console.log('TV render this.props.getDatasource', this.props.getDatasource);
         return (
             <React.Fragment>
 
@@ -268,7 +281,7 @@ export default class TableView extends Component {
                             onCloseCallback={this.onToolbarCloseClick.bind(this)}
                             onSaveCallback={this.onToolbarSaveClick.bind(this)}
                             onInsertCallback={this.onInsertCallback.bind(this)}
-                            onDeleteCallback={this.sendDeleteRecord}
+                            onDeleteCallback={this.onDeleteCallback.bind(this)}
                             onUndoCallback={this.onUndoClick.bind(this)}
                             onSelectNewSheet={this.loadNewSheet}
                             sheetSelection={false}
@@ -300,6 +313,7 @@ export default class TableView extends Component {
                                 sendDeleteRecord={click => this.sendDeleteRecord = click}
                                 additionalSheetParams={this.props.additionalSheetParams}
                                 getDatasource={this.props.getDatasource}
+                                onCellFocused={this.onCellFocused.bind(this)}
                                 />
 
 

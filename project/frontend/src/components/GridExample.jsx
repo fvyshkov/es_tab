@@ -176,7 +176,6 @@ class GridExample extends React.Component {
 
 
     refreshGrid(){
-        console.log('refreshGrid');
         this.gridApi.purgeServerSideCache([]);
         this.loadColumns();
     }
@@ -398,6 +397,12 @@ class GridExample extends React.Component {
         this.gridApi.purgeServerSideCache();
     }
 
+    onCellFocused(params){
+        if (this.props.onCellFocused){
+            this.props.onCellFocused(params);
+        }
+    }
+
     sendDeleteRecord(){
        this.savedFocusedCell = this.gridApi.getFocusedCell();
        var req_id = this.gridApi.getDisplayedRowAtIndex(this.savedFocusedCell.rowIndex).data.id;
@@ -455,6 +460,7 @@ class GridExample extends React.Component {
                             undoRedoCellEditing={true}
                             undoRedoCellEditingLimit={100}
                             enableCellChangeFlash={true}
+                            onCellFocused={this.onCellFocused.bind(this)}
                           />
 
                       </div>

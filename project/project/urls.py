@@ -35,6 +35,9 @@ urlpatterns = [
     path('delete_record/', views.delete_table_record),
     path('update_tree_record/', views.update_tree_record),
     path('get_comments/', views.get_comments),
+    path('delete_comment/', views.delete_comment),
+    path('insert_comment/', views.insert_comment),
+
 
     path('', include('frontend.urls')),
 ]

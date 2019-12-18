@@ -92,6 +92,36 @@ def delete_table_record(request):
 
     return JsonResponse([], safe=False)
 
+def delete_comment(request):
+    param_dict = dict(request.GET)
+    proc_id = param_dict.get('proc_id', [''])[0]
+    njrn = param_dict.get('njrn', [''])[0]
+
+
+    with connection.cursor() as cursor:
+        cursor.execute("begin c_pkgconnect.popen(); "
+                       " C_PKGESSHEET.PDELCELLCOMMENT(%s, %s); " 
+                       " end; ",
+                       [proc_id, njrn])
+
+    return JsonResponse([], safe=False)
+
+def insert_comment(request):
+    param_dict = dict(request.GET)
+    prim = param_dict.get('prim', [''])[0]
+    ind_id = param_dict.get('ind_id', [''])[0]
+    skey = param_dict.get('skey', [''])[0]
+    cell_type = param_dict.get('cell_type', [''])[0]
+    fids = param_dict.get('fids', [''])[0]
+
+    with connection.cursor() as cursor:
+        cursor.execute("begin c_pkgconnect.popen(); "
+                       " C_PKGESSHEET.pAddCellComment(%s, %s, %s, %s, %s); " 
+                       " end; ",
+                       [ind_id, skey, prim, cell_type, fids])
+
+    return JsonResponse([], safe=False)
+
 def update_table_record(request):
     param_dict = dict(request.GET)
     col_id = param_dict.get('col_id', [''])[0]
