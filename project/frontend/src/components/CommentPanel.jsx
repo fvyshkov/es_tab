@@ -71,8 +71,8 @@ export default class CommentPanel extends React.Component {
             <Item itemType="group" caption="Файлы" >
                       <FileUploader
                         multiple={true}
-                        uploadMode="useForm"
-                        uploadUrl="https://js.devexpress.com/Content/Services/upload.aspx"
+                        uploadMode="useButtons"
+                        uploadUrl="/upload_file/"
                         value={this.props.commentData.fileList}
                         onValueChanged={this.props.onFileValueChanged}
                       />

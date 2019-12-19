@@ -1,7 +1,18 @@
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.db import connection
 import json
+from django.core.files.base import ContentFile
+
+def upload_file(request):
+    file_obj = request.FILES
+    file = file_obj['files[]']
+    file_data = file.read()
+    with connection.cursor() as cursor:
+        cursor.execute("begin insert into my_blob values(%s);  end; ",[file_data])
+
+    return JsonResponse([{'file_id':1}], safe=False)
+
 
 def get_comments(request):
     param_dict = dict(request.GET)
