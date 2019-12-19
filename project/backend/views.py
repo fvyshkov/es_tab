@@ -3,15 +3,28 @@ from django.http import JsonResponse, HttpResponse
 from django.db import connection
 import json
 from django.core.files.base import ContentFile
+import cx_Oracle
 
 def upload_file(request):
-    file_obj = request.FILES
-    file = file_obj['files[]']
-    file_data = file.read()
-    with connection.cursor() as cursor:
-        cursor.execute("begin insert into my_blob values(%s);  end; ",[file_data])
+    file = request.FILES['files[]']
+    p_file_data = file.read()
+    p_filename = str(file)
+    connection = get_oracle_connection()
+    cursor = connection.cursor()
 
-    return JsonResponse([{'file_id':1}], safe=False)
+    p_id = cursor.var(cx_Oracle.STRING)
+
+    cursor.execute("""declare iid int;
+                     begin c_pkgconnect.popen();
+                           C_PKGESUTILS.pSaveFile( iid, :filename ); 
+                           update c_es_file
+                           set filedata=:file
+                           where id = iid;
+                           :id := iid;
+                           commit; 
+                           end; """, [ p_filename, p_file_data, p_id])
+
+    return JsonResponse([{'file_id':int(p_id.getvalue())}], safe=False)
 
 
 def get_comments(request):
@@ -123,7 +136,7 @@ def insert_comment(request):
     ind_id = param_dict.get('ind_id', [''])[0]
     skey = param_dict.get('skey', [''])[0]
     cell_type = param_dict.get('cell_type', [''])[0]
-    fids = param_dict.get('fids', [''])[0]
+    fids = param_dict.get('fileids', [''])[0]
 
     with connection.cursor() as cursor:
         cursor.execute("begin c_pkgconnect.popen(); "
@@ -758,20 +771,25 @@ def get_filter_nodes(request):
             return JsonResponse(filter_tree, safe = False)
 
 
-def get_anl_table_rows(sht_id, skey):
-    print('sht_id=',sht_id, 'sk', skey)
-
+def get_oracle_connection():
     import cx_Oracle
     from django.conf import settings
     db_settings =  settings.DATABASES.get('default')
     db_connection_prams = db_settings['USER']+'/'+db_settings['PASSWORD']+'@'+db_settings['HOST']+'/'+db_settings['NAME']
-    connection = cx_Oracle.connect(db_connection_prams)
+    return cx_Oracle.connect(db_connection_prams)
+
+
+def get_anl_table_rows(sht_id, skey):
+    print('sht_id=',sht_id, 'sk', skey)
+    connection = get_oracle_connection()
     cursor = connection.cursor()
     refCursor =  connection.cursor()
 
     cursor.execute("""begin c_pkgconnect.popen();
                         :1 := c_pkgesreq.fGetCursor( :2, :3,null,5000,''); 
                     end;""", [refCursor, sht_id, skey])
+
+
     ref_cursor =[]
 
     sheet_info = get_sheet_info_list(sht_id)
@@ -830,12 +848,7 @@ def get_anl_table_rows(sht_id, skey):
 
 
 def get_anl_detail_table_rows(sht_id, skey, ind_id, parent_id):
-
-    import cx_Oracle
-    from django.conf import settings
-    db_settings =  settings.DATABASES.get('default')
-    db_connection_prams = db_settings['USER']+'/'+db_settings['PASSWORD']+'@'+db_settings['HOST']+'/'+db_settings['NAME']
-    connection = cx_Oracle.connect(db_connection_prams)
+    connection = get_oracle_connection()
     cursor = connection.cursor()
     refCursor =  connection.cursor()
 

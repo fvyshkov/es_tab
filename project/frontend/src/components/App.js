@@ -3,13 +3,12 @@ import ReactDOM from "react-dom";
 import LayoutWithToolbar from "./LayoutWithToolbar.jsx";
 import AddRemoveLayout from './AddRemoveLayout.jsx';
 import TestGrid from './TestGrid.jsx';
-
+import { FileUploader } from 'devextreme-react';
 
 const App = () => (
-
-    <LayoutWithToolbar
-
-        />
+    <div>
+        <LayoutWithToolbar />
+    </div>
 );
 
 const wrapper = document.getElementById("app");

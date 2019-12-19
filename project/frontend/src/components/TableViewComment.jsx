@@ -9,22 +9,33 @@ export default class TableViewComment extends Component {
         super(props);
 
         this.savedFocusedCell = {};
-        //this.gripApi = {};
         this.state={
             itemPanelVisible: false,
             itemData:{},
+            fileIds: '',
             focusedCell: {},
             currentComment: {
                                     sheet_name: "Книга => 2019 => 1.0 => Группа => Лист",
                                     flt_dsrc:"Подразделение=ГО \n Показатель=Кредиты",
                                     prim:"",
                                     correctdt : "",
+                                    fileIds: "",
                                     fileList:[]
                                   }
         }
-        //
     }
 
+    onFileUploaded(e){
+
+        var responseObject = JSON.parse(e.request.response);
+        console.log('onFileUploaded resp file_id', responseObject);
+        if (responseObject.length===1){
+            console.log('111=', responseObject[0]['file_id']);
+            this.state.currentComment.fileIds += responseObject[0]['file_id'] + ',';
+            this.setState({currentComment: this.state.currentComment});
+        }
+
+    }
 
     loadItemData(item_id){
         this.setState({currentComment: {
@@ -54,12 +65,21 @@ export default class TableViewComment extends Component {
         this.setState({itemPanelVisible: false});
     }
 
+    uploadFile(o){
+
+        console.log('uploadFile', o);
+
+    }
+
     saveData(){
-        console.log('SAVEDATA this.state.currentComment.PRIM', this.state.currentComment.prim, this.state.currentComment.fileList);
+        console.log('SAVEDATA this.state.currentComment.PRIM', this.state.currentComment.prim, this.state.fileIds);
+
+        //document.querySelector("#FileUploader").submit();
 
         var httpRequest = 'insert_comment/?ind_id=' + this.props.additionalSheetParams.ind_id;
         httpRequest += '&skey=' + this.props.additionalSheetParams.skey;
         httpRequest += '&prim=' + this.state.currentComment.prim;
+        httpRequest += '&fileids=' + this.state.currentComment.fileIds;
         sendRequest(httpRequest, ()=> {this.gridApi.purgeServerSideCache();},'POST',{});
     }
 
@@ -85,9 +105,7 @@ export default class TableViewComment extends Component {
         console.log('delete ', this.state.focusedCell);
         this.savedFocusedCell = this.state.focusedCell;
         var data = this.gridApi.getDisplayedRowAtIndex(this.savedFocusedCell.rowIndex).data;
-        //this.savedFocusedCell.rowIndex -= 1;
         sendRequest('delete_comment/?proc_id=' + data.proc_id + '&njrn=' + data.njrn,()=> {this.gridApi.purgeServerSideCache();},'POST',{});
-        //this.gridApi.purgeServerSideCache();
     }
 
     render() {
@@ -100,6 +118,8 @@ export default class TableViewComment extends Component {
                     commentData={this.state.currentComment}
                     saveData={this.saveData.bind(this)}
                     onFileValueChanged={this.onFileValueChanged.bind(this)}
+                    onFileUploaded={this.onFileUploaded.bind(this)}
+                    uploadFile={this.uploadFile.bind(this)}
                 />
 
                 <TableView

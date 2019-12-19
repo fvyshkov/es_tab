@@ -16,6 +16,8 @@ export default class CommentPanel extends React.Component {
                     popupVisible: this.props.popupVisible
                 };
 
+
+
      this.toolbarItems =   [
                                 {
                                     widget: "dxButton",
@@ -36,7 +38,9 @@ export default class CommentPanel extends React.Component {
     }
 
 
-
+    onFUInitialized(component){
+        console.log('onFUInitialized', component);
+    }
 
 
 
@@ -71,10 +75,15 @@ export default class CommentPanel extends React.Component {
             <Item itemType="group" caption="Файлы" >
                       <FileUploader
                         multiple={true}
-                        uploadMode="useButtons"
-                        uploadUrl="/upload_file/"
-                        value={this.props.commentData.fileList}
-                        onValueChanged={this.props.onFileValueChanged}
+
+                        uploadMode={"instantly"}
+                        uploadUrl={'/upload_file/'}
+                        onInitialized={this.onFUInitialized.bind(this)}
+                        onUploaded={this.props.onFileUploaded}
+
+
+
+
                       />
 
             </Item>
