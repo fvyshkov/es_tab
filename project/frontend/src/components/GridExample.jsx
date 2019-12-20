@@ -283,7 +283,8 @@ class GridExample extends React.Component {
                             colorConf:infoList[0].color_conf_hex,
                             colorConfPart:infoList[0].color_conf_part_hex,
                             autoGroupColumnDef:this.getAutoGroupColumnDef(),
-                            treeData: this.props.sheet_type==='tree' ? true: false
+                            treeData: this.props.sheet_type==='tree' ? true: false,
+                            sheetInfo: infoList[0]
                              });
 
         }
@@ -517,7 +518,9 @@ class GridExample extends React.Component {
             var additionalParams = {
                                     viewType: 'CommentView',
                                     ind_id: columnData.ind_id,
-                                    skey: skey
+                                    skey: skey,
+                                    sheet_path: this.state.sheetInfo.sheet_path,
+                                    flt_dscr: columnData['flt_dscr']
                                    };
 
             if (columnData.req_id){

@@ -49,13 +49,15 @@ export default class TableViewComment extends Component {
     }
 
     onInsertCallback(){
+        console.log('insert addparams', this.props.additionalSheetParams);
         this.setState({currentComment: {
-                                    sheet_name: "Книга => 2019 => 1.0 => Группа => Лист",
-                                    flt_dsrc:"Подразделение=ГО \nПоказатель=Кредиты",
+                                    sheet_name: this.props.additionalSheetParams.sheet_path,
+                                    flt_dscr: this.props.additionalSheetParams.flt_dscr,
                                     prim:"",
                                     correctdt : "",
                                     fileList:[],
-                                    fileIds :""
+                                    fileIds :"",
+
                                   }
                                  });
 

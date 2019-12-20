@@ -70,7 +70,7 @@ export default class CommentPanel extends React.Component {
 
             <Item itemType="group" caption="Лист планирования" >
                 <Item dataField="sheet_name" label={{text:"", visible: false}} editorOptions={{ disabled: true }} />
-                <Item dataField="flt_dsrc" label={{ text:"Аналитики", location:"top", showColon:false}} editorType="dxTextArea" editorOptions={{ height: 90,  disabled: true }} />
+                <Item dataField="flt_dscr" label={{ text:"Аналитики", location:"top", showColon:false}} editorType="dxTextArea" editorOptions={{ height: 90,  disabled: true }} />
             </Item>
             <Item itemType="group" caption="Файлы" >
                       <FileUploader
