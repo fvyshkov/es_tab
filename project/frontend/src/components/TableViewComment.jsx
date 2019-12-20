@@ -54,7 +54,8 @@ export default class TableViewComment extends Component {
                                     flt_dsrc:"Подразделение=ГО \nПоказатель=Кредиты",
                                     prim:"",
                                     correctdt : "",
-                                    fileList:[]
+                                    fileList:[],
+                                    fileIds :""
                                   }
                                  });
 
@@ -72,14 +73,14 @@ export default class TableViewComment extends Component {
     }
 
     saveData(){
-        console.log('SAVEDATA this.state.currentComment.PRIM', this.state.currentComment.prim, this.state.fileIds);
+        console.log('SAVEDATA this.state.currentComment.PRIM', this.state.currentComment.prim, this.state.currentComment.fileIds);
 
         //document.querySelector("#FileUploader").submit();
 
         var httpRequest = 'insert_comment/?ind_id=' + this.props.additionalSheetParams.ind_id;
         httpRequest += '&skey=' + this.props.additionalSheetParams.skey;
         httpRequest += '&prim=' + this.state.currentComment.prim;
-        httpRequest += '&fileids=' + this.state.currentComment.fileIds;
+        httpRequest += '&fileids=' + this.state.currentComment.fileIds.replace(/(^,)|(,$)/g, "");
         sendRequest(httpRequest, ()=> {this.gridApi.purgeServerSideCache();},'POST',{});
     }
 
