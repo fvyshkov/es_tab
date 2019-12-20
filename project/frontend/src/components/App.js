@@ -7,6 +7,7 @@ import { FileUploader } from 'devextreme-react';
 
 const App = () => (
     <div>
+        <a href="/get_file/?file_id=388" >Read more</a>
         <LayoutWithToolbar />
     </div>
 );

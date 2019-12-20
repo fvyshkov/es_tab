@@ -79,6 +79,7 @@ class SheetToolbar extends Component {
                             {icon: 'plus',
                             onClick: (e) => {this.props.onInsertCallback();}}
                     }/>
+
                     <Item location={'before'}
                     widget={'dxButton'}
                     options={this.deleteButtonOptions} />

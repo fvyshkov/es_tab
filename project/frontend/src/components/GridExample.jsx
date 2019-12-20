@@ -207,6 +207,7 @@ class GridExample extends React.Component {
             return {
                             field:currentValue.key,
                             headerName:currentValue.name,
+                            autoHeight: true,
                             ent_id:currentValue.ent_id,
                             ind_id:currentValue.ind_id,
                             ind_id_hi: currentValue.ind_id_hi,
@@ -599,6 +600,22 @@ function gridCellRenderer(params){
     var element = document.createElement("span");
 
     var columnData = getColumnData(params);
+    console.log('columnData', columnData);
+
+    if (columnData.filelistfl===1){
+        var fileList = JSON.parse(params.value);
+        var eList = document.createElement("ul");
+        if (fileList && fileList.length>0){
+            fileList.forEach(function(fileItem){
+                var eListItem = document.createElement("li");
+                eListItem.innerHTML = '<a href="/get_file/?file_id='+fileItem.id+'">'+fileItem.filename+'</a>';
+                eList.appendChild(eListItem);
+
+            });
+        }
+
+        return eList;
+    }
 
 
     if (columnData && columnData.commentfl===1){

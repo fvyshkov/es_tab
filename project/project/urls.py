@@ -38,6 +38,7 @@ urlpatterns = [
     path('delete_comment/', views.delete_comment),
     path('insert_comment/', views.insert_comment),
     path('upload_file/', views.upload_file),
+    path('get_file/', views.get_file),
 
 
     path('', include('frontend.urls')),

@@ -2,8 +2,20 @@ from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
 from django.db import connection
 import json
+import ntpath
 from django.core.files.base import ContentFile
 import cx_Oracle
+
+def get_file(request):
+    file_id = dict(request.GET).get('file_id', [''])[0]
+    file_node = get_sql_result("select filedata, filename from c_es_file where id = %s", [file_id])
+    filedata = file_node[0]['filedata']
+    filename = ntpath.basename(file_node[0]['filename'])
+    print('fn="', "="+filename+'=')
+    response = HttpResponse(filedata.read(), content_type='application/octet-stream')
+    response['Content-Disposition'] = 'attachment; filename="'+filename+'"'
+    return response
+
 
 def upload_file(request):
     file = request.FILES['files[]']
@@ -54,7 +66,18 @@ def get_comments_list(ind_id, skey):
                         select 
                         rownum com_id,
                          c.*,
-                              c_pkgusr.fUsrName(c.id_us) usr_name
+                          (select C_PKGESSHEET.FGETSHEETPATH(i.sht_id,'1') 
+                           from c_es_ver_sheet_ind i where id = c.ind_id) sht_path,
+                            c_pkgescalc.fGetAnlDscr(c.skey) flt_dscr,
+                              c_pkgusr.fUsrName(c.id_us) usr_name,
+                              (select  json_arrayagg(json_object('filename' value filename, 'id' value id))
+                              from  C_ES_COMM_FILES cf,
+                                     C_ES_FILE f
+                              where c.ind_id = cf.ind_id
+                                    and c.skey = cf.skey
+                                    and c.proc_id = cf.proc_id
+                                    and c.njrn = cf.njrn
+                                    and cf.file_id = f.id) file_list
                         from C_ES_SHT_VAL_COMMENT c
                         where   c.ind_id =  %s 
                         and c.skey = C_PKGEScalc.fNormalizeKey(%s)
@@ -82,6 +105,13 @@ def get_comments_list(ind_id, skey):
         cell['key'] = 'usr_name'
         cell['editfl'] = '0'
         cell['sql_value'] = row.get('usr_name')
+        column_data.append(cell)
+
+        cell = {}
+        cell['key'] = 'file_list'
+        cell['editfl'] = '0'
+        cell['sql_value'] = row.get('file_list')
+        cell['filelistfl'] = 1
         column_data.append(cell)
 
         row['column_data'] = column_data
@@ -690,6 +720,7 @@ def get_sheet_columns(request):
         columns.append({'name': 'Комментарий', 'key': 'prim'})
         columns.append({'name': 'Исполнитель', 'key': 'usr_name'})
         columns.append({'name': 'Дата и время', 'key': 'correctdt'})
+        columns.append({'name': 'Файлы', 'key': 'file_list'})
 
     elif len(p_ind_id)>0:
         p_parent_id = param_dict.get('parent_id',[''])[0]

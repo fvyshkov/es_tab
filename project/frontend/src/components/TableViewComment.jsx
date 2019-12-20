@@ -134,6 +134,7 @@ export default class TableViewComment extends Component {
                     onInsertCallback={this.onInsertCallback.bind(this)}
                     onDeleteCallback={this.onDeleteCallback.bind(this)}
                     onCellFocused={this.onCellFocused.bind(this)}
+
                 />
             </div>
         );
