@@ -611,7 +611,7 @@ function gridCellRenderer(params){
         if (fileList && fileList.length>0){
             fileList.forEach(function(fileItem){
                 var eListItem = document.createElement("li");
-                eListItem.innerHTML = '<a href="/get_file/?file_id='+fileItem.id+'">'+fileItem.filename+'</a>';
+                eListItem.innerHTML = fileItem.filename+' <a href="/get_file/?file_id='+fileItem.id+'"> <i class="dx-icon-download"></i></a>';
                 eList.appendChild(eListItem);
 
             });
@@ -665,6 +665,7 @@ function groupColumns(columns){
     }
     return resultColumns;
 }
+
 
 
 
