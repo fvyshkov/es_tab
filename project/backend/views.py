@@ -657,6 +657,12 @@ def get_tree_node_list(request):
         p_tmp_cell_key = Skey(p_tmp_cell_key).process()
         cell_list = get_sql_result('''select f.styles, 
                                         c_pkgescalc.fGetAnlDscr(%s) flt_dscr,
+                                        case when x.commentfl=1 
+                                        then (select f.ind_id from dual) 
+                                        else null end comment_text,
+                                        case when x.commentfl=1 
+                                        then (select f.ind_id from dual) 
+                                        else null end comment_usr_name,
                                         x.*  from table(C_PKGESSHEET.fGetDataCells(%s, %s)) x,
                                     c_es_ver_sheet_ind_frmt f
                                     where f.ind_id(+) = x.ind_id and f.tbl_id(+)= x.mark_tbl_id''',

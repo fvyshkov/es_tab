@@ -13,7 +13,7 @@ import ToolbarView from './ToolbarView.jsx';
 import sheetDatasource from './sheetDatasource';
 import commentDatasource from './commentDatasource';
 import TableViewComment from './TableViewComment.jsx';
-
+import SheetCellTooltip from './SheetCellTooltip.jsx';
 import CommentImg from '../images/chat.png';
 
 
@@ -36,7 +36,8 @@ class GridExample extends React.Component {
         treeReferEditor: TreeReferEditor,
        // gridCellRenderer:GridCellRenderer,
         numericEditor: NumericEditor,
-        filterPanelInToolPanel: FilterPanelInToolPanel
+        filterPanelInToolPanel: FilterPanelInToolPanel,
+        sheetCellTooltip: SheetCellTooltip
       },
       sideBar:  {
                 toolPanels: [
@@ -203,7 +204,7 @@ class GridExample extends React.Component {
                 cellChartDataType = "series";
 
 
-
+            console.log('currentValue', currentValue);
             return {
                             field:currentValue.key,
                             headerName:currentValue.name,
@@ -216,6 +217,22 @@ class GridExample extends React.Component {
                             filter:false,
                             cellEditor: columnCellEditor,
                             cellRenderer: gridCellRenderer,
+
+
+                            //tooltipField: currentValue.key,
+                            tooltipComponentParams: (params)=>{return {columnData: getColumnData(params)};},
+                            tooltipComponent: "sheetCellTooltip",
+                            tooltipValueGetter: function(params) {
+                                                        return { value: null };
+                                                    //console.log('tooltipValueGetter', params);
+                                                    var columnData =  getColumnData(params);
+                                                    //console.log('tooltipValueGetter', columnData);
+                                                    if (columnData.commentfl===1){
+                                                        return { value: params.value }
+                                                    }else{
+                                                        return { value: null };
+                                                    };
+                                                  },
                             editable:function(params) {
                                                         var columnData = getColumnData(params);
                                                         return  (columnData && columnData.editfl===1);
@@ -603,7 +620,6 @@ function gridCellRenderer(params){
     var element = document.createElement("span");
 
     var columnData = getColumnData(params);
-    console.log('columnData', columnData);
 
     if (columnData.filelistfl===1){
         var fileList = JSON.parse(params.value);
@@ -673,13 +689,15 @@ function getColumnData(params){
     var columnDataList = [];
     var colDefField = '';
 
-    if (params.node.data.column_data){
+    if (params.node && params.node.data.column_data){
         columnDataList = params.node.data.column_data;
         colDefField = params.column.colDef.field;
+    }else if(params.rowIndex){
+        columnDataList = params.api.getDisplayedRowAtIndex(params.rowIndex).data.column_data;
+        colDefField = params.colDef.field;
     }else{
         columnDataList = params.data.column_data;
         colDefField = params.colDef.field;
-        console.log('')
     }
 
 
