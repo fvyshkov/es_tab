@@ -655,18 +655,44 @@ def get_tree_node_list(request):
         p_tmp_cell_key = p_key + ',' + p_cell_key + ',' + 'FLT_ID_' + node['flt_id'] + '=>' + node['flt_item_id']
         p_cell_key += 'FLT_ID_' + node['flt_id'] + '=>' + node['flt_item_id']
         p_tmp_cell_key = Skey(p_tmp_cell_key).process()
-        cell_list = get_sql_result('''select f.styles, 
-                                        c_pkgescalc.fGetAnlDscr(%s) flt_dscr,
-                                        case when x.commentfl=1 
-                                        then (select f.ind_id from dual) 
-                                        else null end comment_text,
-                                        case when x.commentfl=1 
-                                        then (select f.ind_id from dual) 
-                                        else null end comment_usr_name,
-                                        x.*  from table(C_PKGESSHEET.fGetDataCells(%s, %s)) x,
-                                    c_es_ver_sheet_ind_frmt f
-                                    where f.ind_id(+) = x.ind_id and f.tbl_id(+)= x.mark_tbl_id''',
-                                   [p_tmp_cell_key, p_sht_id, p_tmp_cell_key])
+
+        print('p_tmp_cell_key', p_tmp_cell_key, 'sht', p_sht_id)
+        cell_list = get_sql_result('''with params as (select %s sht_id, %s skey from dual)
+select f.styles, 
+        c_pkgescalc.fGetAnlDscr(p.skey) flt_dscr,
+        case when x.commentfl=1 
+        then (
+              select c.prim
+              from C_ES_SHT_VAL_COMMENT c
+              where c.ind_id = x.ind_id
+              and  c.skey = c_pkgescalc.fNormalizeKey( c_pkgescalc.fRemoveIndFlt(p.sht_id, p.skey||','||x.key))
+              and correctdt=(
+                            select max(c.correctdt)
+                            from C_ES_SHT_VAL_COMMENT c
+                            where c.ind_id = x.ind_id
+                            and  c.skey = c_pkgescalc.fNormalizeKey( c_pkgescalc.fRemoveIndFlt(p.sht_id, p.skey||','||x.key))
+                           )
+            ) 
+        else null end comment_text,
+        case when x.commentfl=1 
+        then (select c_pkgusr.fLongname( c.id_us)
+             from C_ES_SHT_VAL_COMMENT c
+              where c.ind_id = x.ind_id
+              and  c.skey = c_pkgescalc.fNormalizeKey( c_pkgescalc.fRemoveIndFlt(p.sht_id, p.skey||','||x.key))
+              and correctdt=(
+                            select max(c.correctdt)
+                            from C_ES_SHT_VAL_COMMENT c
+                            where c.ind_id = x.ind_id
+                            and  c.skey = c_pkgescalc.fNormalizeKey( c_pkgescalc.fRemoveIndFlt(p.sht_id, p.skey||','||x.key))
+                           ) 
+             ) 
+        else null end comment_usr_name,
+        x.*  
+from params p, table(C_PKGESSHEET.fGetDataCells(p.sht_id, p.skey)) x,
+     c_es_ver_sheet_ind_frmt f
+where f.ind_id(+) = x.ind_id and f.tbl_id(+)= x.mark_tbl_id
+''',
+                                   [p_sht_id, p_tmp_cell_key])
 
         cell_list = list( map(process_cell_styles, cell_list,   [node]*len(cell_list), [sheet_info[0]]*len(cell_list)))
         node['column_data'] = cell_list

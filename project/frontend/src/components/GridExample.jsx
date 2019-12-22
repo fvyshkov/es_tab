@@ -683,7 +683,7 @@ function getColumnData(params){
     var columnDataList = [];
     var colDefField = '';
 
-    if (params.node && params.node.data.column_data){
+    if (params.node && params.node.data &&  params.node.data.column_data){
         columnDataList = params.node.data.column_data;
         colDefField = params.column.colDef.field;
     }else if(params.rowIndex){
