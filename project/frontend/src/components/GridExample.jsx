@@ -217,20 +217,14 @@ class GridExample extends React.Component {
                             filter:false,
                             cellEditor: columnCellEditor,
                             cellRenderer: gridCellRenderer,
-
-
-                            //tooltipField: currentValue.key,
                             tooltipComponentParams: (params)=>{return {columnData: getColumnData(params)};},
                             tooltipComponent: "sheetCellTooltip",
                             tooltipValueGetter: function(params) {
-                                                        return { value: null };
-                                                    //console.log('tooltipValueGetter', params);
                                                     var columnData =  getColumnData(params);
-                                                    //console.log('tooltipValueGetter', columnData);
                                                     if (columnData.commentfl===1){
                                                         return { value: params.value }
                                                     }else{
-                                                        return { value: null };
+                                                        return;
                                                     };
                                                   },
                             editable:function(params) {

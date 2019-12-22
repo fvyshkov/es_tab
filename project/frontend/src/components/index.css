@@ -139,8 +139,9 @@ background-color: #d9ff96;
 
 .custom-tooltip {
     position: absolute;
-    width: 150px;
+    width: 300px;
     height: 70px;
+
     border: 1px solid cornflowerblue;
     overflow: hidden;
     pointer-events: none;
