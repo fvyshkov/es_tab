@@ -75,9 +75,6 @@ export default class TableViewComment extends Component {
     }
 
     saveData(){
-        console.log('SAVEDATA this.state.currentComment.PRIM', this.state.currentComment.prim, this.state.currentComment.fileIds);
-
-        //document.querySelector("#FileUploader").submit();
 
         var httpRequest = 'insert_comment/?ind_id=' + this.props.additionalSheetParams.ind_id;
         httpRequest += '&skey=' + this.props.additionalSheetParams.skey;
@@ -111,6 +108,12 @@ export default class TableViewComment extends Component {
         sendRequest('delete_comment/?proc_id=' + data.proc_id + '&njrn=' + data.njrn,()=> {this.gridApi.purgeServerSideCache();},'POST',{});
     }
 
+    onGetGridApi(gridApi){
+        //console.log('TableViewComment this.props.onGetGridApi', this.props.onGetGridApi);
+        this.gridApi = gridApi;
+        console.log('onGetGridApi', this.gridApi);
+    }
+
     render() {
         console.log('render ', this.props);
         return (
@@ -136,6 +139,7 @@ export default class TableViewComment extends Component {
                     onInsertCallback={this.onInsertCallback.bind(this)}
                     onDeleteCallback={this.onDeleteCallback.bind(this)}
                     onCellFocused={this.onCellFocused.bind(this)}
+                    onGetGridApi={this.onGetGridApi.bind(this)}
 
                 />
             </div>

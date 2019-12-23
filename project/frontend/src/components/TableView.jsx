@@ -264,6 +264,14 @@ export default class TableView extends Component {
         }
     }
 
+    onGetGridApi(params){
+        console.log('TableView this.props.onGetGridApi', this.props.onGetGridApi);
+        if (this.props.onGetGridApi){
+            this.props.onGetGridApi(params);
+        }
+        this.gripApi = params;
+    }
+
     render(){
         return (
             <React.Fragment>
@@ -314,6 +322,7 @@ export default class TableView extends Component {
                                 additionalSheetParams={this.props.additionalSheetParams}
                                 getDatasource={this.props.getDatasource}
                                 onCellFocused={this.onCellFocused.bind(this)}
+                                onGetGridApi={this.onGetGridApi.bind(this)}
                                 />
 
 

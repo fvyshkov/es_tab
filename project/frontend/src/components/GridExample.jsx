@@ -177,12 +177,9 @@ class GridExample extends React.Component {
 
 
     refreshGrid(){
-        this.gridApi.purgeServerSideCache([]);
+        setTimeout(function(api){api.purgeServerSideCache()},0, this.gridApi);
         this.loadColumns();
     }
-
-
-
 
     processColumnsData(columnList){
         for (var i=0; i < columnList.length; i++){
@@ -204,7 +201,6 @@ class GridExample extends React.Component {
                 cellChartDataType = "series";
 
 
-            console.log('currentValue', currentValue);
             return {
                             field:currentValue.key,
                             headerName:currentValue.name,
@@ -221,7 +217,7 @@ class GridExample extends React.Component {
                             tooltipComponent: "sheetCellTooltip",
                             tooltipValueGetter: function(params) {
                                                     var columnData =  getColumnData(params);
-                                                    if (columnData.commentfl===1){
+                                                    if (columnData && columnData.commentfl===1){
                                                         return { value: params.value }
                                                     }else{
                                                         return;
@@ -347,6 +343,9 @@ class GridExample extends React.Component {
   onGridReady = params => {
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
+
+    console.log('GRID this.props.onGetGridApi', this.props.onGetGridApi);
+    this.props.onGetGridApi(this.gridApi);
 
     var datasource = this.serverSideDatasource(this);
     this.gridApi.setServerSideDatasource(datasource);
@@ -689,7 +688,7 @@ function getColumnData(params){
     }else if(params.rowIndex){
         columnDataList = params.api.getDisplayedRowAtIndex(params.rowIndex).data.column_data;
         colDefField = params.colDef.field;
-    }else{
+    }else if (params.data && params.colDef) {
         columnDataList = params.data.column_data;
         colDefField = params.colDef.field;
     }

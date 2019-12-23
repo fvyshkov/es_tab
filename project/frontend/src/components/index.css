@@ -146,6 +146,8 @@ background-color: #d9ff96;
     overflow: hidden;
     pointer-events: none;
     transition: opacity 1s;
+    backgroundColor: #eff5b8;
+
 }
 
 .custom-tooltip.ag-tooltip-hiding {
