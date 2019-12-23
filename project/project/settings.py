@@ -25,7 +25,7 @@ SECRET_KEY = 'uw_#dk+$l8x7cs!o3tzwa7(i0%r_d5%rn##$wcplio-g@!r)f)'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition

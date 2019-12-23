@@ -22,7 +22,8 @@ function onLayoutChange(e){
 
 export function sendRequest(request_string, successCallback, method='GET', data){
     const httpRequest = new XMLHttpRequest();
-    var httpStr = 'http://127.0.0.1:8000/'+request_string;
+    var httpStr = window.location.origin + '/' + request_string;
+
     httpRequest.open(method,httpStr,true);
     httpRequest.onreadystatechange = () => {
         if (httpRequest.readyState === 4 && httpRequest.status === 200) {
