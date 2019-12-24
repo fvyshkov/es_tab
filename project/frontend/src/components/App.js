@@ -4,6 +4,7 @@ import LayoutWithToolbar from "./LayoutWithToolbar.jsx";
 import AddRemoveLayout from './AddRemoveLayout.jsx';
 import TestGrid from './TestGrid.jsx';
 import { FileUploader } from 'devextreme-react';
+import "./index.css";
 
 const App = () => (
     <div>

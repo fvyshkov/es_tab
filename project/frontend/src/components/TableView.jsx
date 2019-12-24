@@ -6,16 +6,7 @@ import notify from 'devextreme/ui/notify';
 import ColorPanel from './ColorPanel.jsx';
 import { sendRequest } from './App.js';
 
-import 'ag-grid-community/dist/styles/ag-grid.css';
-import 'ag-grid-community/dist/styles/ag-theme-balham.css';
-import 'ag-grid-community/dist/styles/ag-theme-balham-dark.css';
-import 'ag-grid-community/dist/styles/ag-theme-material.css';
-import 'ag-grid-community/dist/styles/ag-theme-dark.css';
-import 'ag-grid-community/dist/styles/ag-theme-fresh.css';
-import 'ag-grid-community/dist/styles/ag-theme-blue.css';
-import 'ag-grid-community/dist/styles/ag-theme-bootstrap.css';
 
-import "./index.css";
 
 
 

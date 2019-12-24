@@ -6,6 +6,22 @@ import ntpath
 from django.core.files.base import ContentFile
 import cx_Oracle
 
+
+def get_schedule(request):
+    param_dict = dict(request.GET)
+    if 'req_id' not in param_dict:
+        return JsonResponse([], safe = False)
+    else:
+        req_id = param_dict.get('req_id', [''])[0]
+        sht_id = param_dict.get('sht_id', [''])[0]
+        schedule_list = get_schedule_list(sht_id, req_id)
+
+        return JsonResponse(schedule_list, safe = False)
+
+
+def get_schedule_list(req_id):
+    return []
+
 def get_file(request):
     file_id = dict(request.GET).get('file_id', [''])[0]
     file_node = get_sql_result("select filedata, filename from c_es_file where id = %s", [file_id])
@@ -755,7 +771,8 @@ def get_sheet_columns(request):
         columns.append({'name': 'Исполнитель', 'key': 'usr_name'})
         columns.append({'name': 'Дата и время', 'key': 'correctdt'})
         columns.append({'name': 'Файлы', 'key': 'file_list'})
-
+    elif view_type=='ScheduleView':
+        columns = get_schedule_column_list(p_sht_id)
     elif len(p_ind_id)>0:
         p_parent_id = param_dict.get('parent_id',[''])[0]
 
@@ -771,6 +788,10 @@ def get_sheet_columns(request):
             column['refer_data'] = get_refer_list(ind_id)
 
     return JsonResponse(columns, safe=False)
+
+def get_schedule_column_list(p_sht_id):
+    columns = []
+    return columns
 
 def get_sheet_details_columns_list(p_sht_id, p_skey, p_ind_id):
     columns = get_sql_result('select c.idx, c.code key, c.longname name, c.editfl, c.ent_id, atr_type,'
