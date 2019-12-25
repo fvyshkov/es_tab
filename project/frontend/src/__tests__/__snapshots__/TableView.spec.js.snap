@@ -1,0 +1,124 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<TableView /> TableView пустой 1`] = `
+Array [
+  <div>
+    <div
+      class="form"
+    >
+      <div
+        class="dx-fieldset"
+      >
+        <div
+          class="dx-field"
+        >
+          <div
+            class="dx-field-label"
+          >
+            Запрет редактирования
+          </div>
+          <div
+            class="dx-field-value"
+          >
+            <div />
+          </div>
+        </div>
+        <div
+          class="dx-field"
+        >
+          <div
+            class="dx-field-label"
+          >
+            Ручной ввод
+          </div>
+          <div
+            class="dx-field-value"
+          >
+            <div />
+          </div>
+        </div>
+        <div
+          class="dx-field"
+        >
+          <div
+            class="dx-field-label"
+          >
+            Итоги
+          </div>
+          <div
+            class="dx-field-value"
+          >
+            <div />
+          </div>
+        </div>
+        <div
+          class="dx-field"
+        >
+          <div
+            class="dx-field-label"
+          >
+            Консолидация
+          </div>
+          <div
+            class="dx-field-value"
+          >
+            <div />
+          </div>
+        </div>
+        <div
+          class="dx-field"
+        >
+          <div
+            class="dx-field-label"
+          >
+            Аналитики
+          </div>
+          <div
+            class="dx-field-value"
+          >
+            <div />
+          </div>
+        </div>
+        <div
+          class="dx-field"
+        >
+          <div
+            class="dx-field-label"
+          >
+            Утверждение
+          </div>
+          <div
+            class="dx-field-value"
+          >
+            <div />
+          </div>
+        </div>
+        <div
+          class="dx-field"
+        >
+          <div
+            class="dx-field-label"
+          >
+            Неполное утверждение
+          </div>
+          <div
+            class="dx-field-value"
+          >
+            <div />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>,
+  <div />,
+  <div
+    class="ag-theme-balham NonDraggableAreaClassName"
+    id="myGrid123"
+    style="height:calc(100% - 36px);width:100%;position:absolute"
+  >
+    <div
+      style="height:100%"
+    />
+  </div>,
+]
+`;

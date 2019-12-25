@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from "react-dom";
-import TableView from './TableView.jsx';
+import TabView from './TabView.jsx';
 import SheetSelectDropDown from './SheetSelectDropDown.jsx';
 
 
@@ -25,7 +25,7 @@ export default class TableViewWithSelection extends Component {
     render(){
         return (
             <React.Fragment>
-                <TableView
+                <TabView
                     sendLoadNewSheet={click => this.sendLoadNewSheet = click}
                     additionalToolbarItem={()=>{return(
                                                         <SheetSelectDropDown
