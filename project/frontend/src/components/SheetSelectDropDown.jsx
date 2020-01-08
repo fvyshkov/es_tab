@@ -3,8 +3,9 @@ import 'devextreme/dist/css/dx.common.css';
 import 'devextreme/dist/css/dx.light.css';
 import 'devextreme/dist/css/dx.common.css';
 import 'devextreme/dist/css/dx.light.css';
-import { sendRequest } from './App.js';
+//import { sendRequest } from './App.js';
 import { DropDownBox, TreeView } from 'devextreme-react';
+import { sendRequestPromise } from './sendRequestPromise.js';
 
 
 
@@ -69,7 +70,8 @@ export default class SheetSelectDropDown extends Component {
     }
 
     loadSheetList(){
-        sendRequest('sheet_list/', this.onLoadSheetSuccess);
+        sendRequestPromise('sheet_list/')
+            .then(respObj=> this.onLoadSheetSuccess(respObj));
     }
 
    treeViewRender() {

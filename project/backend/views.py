@@ -645,14 +645,18 @@ def get_tree_node_list(request):
     else:
         return []
 
+    group_keys = param_dict['group_keys'][0]
+
     if 'flt_id' in param_dict:
         p_flt_id = param_dict['flt_id'][0]
     if 'flt_item_id' in param_dict:
         p_flt_item_id = param_dict['flt_item_id'][0]
     if 'group_keys' in param_dict:
-        p_cell_key = Skey(param_dict['group_keys'][0]).process()
+        p_cell_key = Skey(group_keys).process()
     if 'skey' in param_dict:
         p_key = param_dict['skey'][0]
+
+
 
     sheet_info = get_sheet_info_list(p_sht_id)
     color_restrict = sheet_info[0].get('color_restrict_hex')
@@ -711,7 +715,20 @@ where f.ind_id(+) = x.ind_id and f.tbl_id(+)= x.mark_tbl_id
                                    [p_sht_id, p_tmp_cell_key])
 
         cell_list = list( map(process_cell_styles, cell_list,   [node]*len(cell_list), [sheet_info[0]]*len(cell_list)))
+
+        hie_path = []
+        if (group_keys):
+            skeys =group_keys.split(',')
+            for item in skeys:
+                if item:
+                    hie_path.append(item)
+
+        hie_path.append(node['node_key'])
+
+        node['hie_path'] = hie_path
+
         node['column_data'] = cell_list
+
 
     return node_list
 

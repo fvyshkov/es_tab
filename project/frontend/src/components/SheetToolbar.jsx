@@ -33,7 +33,7 @@ class SheetToolbar extends Component {
     insertButtonOptions = {
         icon: 'plus',
         onClick: (e) => {
-            console.log('insertButtonOptions.onClick');
+            //console.log('insertButtonOptions.onClick');
             this.props.onInsertCallback();
         }
     }

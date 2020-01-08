@@ -1,7 +1,7 @@
 import React from 'react';
 import ColorBox from 'devextreme-react/color-box';
 import { Popup } from 'devextreme-react/popup';
-import { sendRequest } from './App.js';
+import { sendRequestPromise } from './sendRequestPromise.js';
 
 function delphiColorToHex(delphiColor) {
   var hex = Number(delphiColor).toString(16);
@@ -113,7 +113,8 @@ class ColorPanel extends React.Component {
     }
 
     loadColors(){
-        sendRequest('sht_info/?sht_id='+this.props.sheet_id, this.processColors);
+        sendRequestPromise('sht_info/?sht_id='+this.props.sheet_id)
+            .then(response => this.processColors(response));
     }
 
 

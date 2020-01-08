@@ -1,124 +1,216 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<TableView /> TableView пустой 1`] = `
-Array [
-  <div>
-    <div
-      class="form"
-    >
-      <div
-        class="dx-fieldset"
-      >
-        <div
-          class="dx-field"
-        >
-          <div
-            class="dx-field-label"
-          >
-            Запрет редактирования
-          </div>
-          <div
-            class="dx-field-value"
-          >
-            <div />
-          </div>
+exports[`<TabView /> Test mock 1`] = `
+"<div class=\\"dx-overlay dx-popup dx-widget dx-state-invisible dx-visibility-change-handler\\"><div class=\\"dx-overlay-content dx-popup-normal\\" aria-hidden=\\"true\\" tabindex=\\"0\\" style=\\"width: 600px; height: 500px;\\"><div class=\\"dx-popup-content\\"></div></div></div><div class=\\"dx-toolbar dx-widget dx-visibility-change-handler dx-collection\\" role=\\"toolbar\\"><div class=\\"dx-toolbar-items-container\\"><div class=\\"dx-toolbar-before\\"><div class=\\"dx-item dx-toolbar-item dx-toolbar-button\\"><div class=\\"dx-item-content dx-toolbar-item-content\\"><div class=\\"dx-button dx-button-normal dx-button-mode-contained dx-widget dx-button-has-icon\\" role=\\"button\\" aria-label=\\"plus\\" tabindex=\\"0\\"><div class=\\"dx-button-content\\"><i class=\\"dx-icon dx-icon-plus\\"></i></div></div></div></div><div class=\\"dx-item dx-toolbar-item dx-toolbar-button\\"><div class=\\"dx-item-content dx-toolbar-item-content\\"><div class=\\"dx-button dx-button-normal dx-button-mode-contained dx-widget dx-button-has-icon\\" role=\\"button\\" aria-label=\\"minus\\" tabindex=\\"0\\"><div class=\\"dx-button-content\\"><i class=\\"dx-icon dx-icon-minus\\"></i></div></div></div></div><div class=\\"dx-item dx-toolbar-item dx-toolbar-button\\"><div class=\\"dx-item-content dx-toolbar-item-content\\"><div class=\\"dx-button dx-button-normal dx-button-mode-contained dx-widget dx-button-has-icon\\" role=\\"button\\" aria-label=\\"undo\\" tabindex=\\"0\\"><div class=\\"dx-button-content\\"><i class=\\"dx-icon dx-icon-undo\\"></i></div></div></div></div><div class=\\"dx-item dx-toolbar-item dx-toolbar-button\\"><div class=\\"dx-item-content dx-toolbar-item-content\\"><div class=\\"dx-button dx-button-normal dx-button-mode-contained dx-widget dx-button-has-icon\\" role=\\"button\\" aria-label=\\"refresh\\" tabindex=\\"0\\"><div class=\\"dx-button-content\\"><i class=\\"dx-icon dx-icon-refresh\\"></i></div></div></div></div><div class=\\"dx-item dx-toolbar-item dx-toolbar-button\\"><div class=\\"dx-item-content dx-toolbar-item-content\\"><div class=\\"dx-button dx-button-normal dx-button-mode-contained dx-widget dx-button-has-icon\\" role=\\"button\\" aria-label=\\"palette\\" tabindex=\\"0\\"><div class=\\"dx-button-content\\"><i class=\\"dx-icon dx-icon-palette\\"></i></div></div></div></div><div class=\\"dx-item dx-toolbar-item dx-toolbar-button ToolbarAdditionalItem\\"><div class=\\"dx-item-content dx-toolbar-item-content\\"></div></div><div class=\\"dx-item dx-toolbar-item dx-toolbar-button\\"><div class=\\"dx-item-content dx-toolbar-item-content\\"><div class=\\"dx-button dx-button-normal dx-button-mode-contained dx-widget dx-button-has-icon\\" role=\\"button\\" aria-label=\\"close\\" tabindex=\\"0\\"><div class=\\"dx-button-content\\"><i class=\\"dx-icon dx-icon-close\\"></i></div></div></div></div></div><div class=\\"dx-toolbar-center\\"></div><div class=\\"dx-toolbar-after\\"></div></div></div><div class=\\"ag-theme-balham NonDraggableAreaClassName\\" style=\\"width: 100%; position: absolute;\\" id=\\"myGrid123\\"><div style=\\"height: 100%;\\"><div class=\\"ag-root-wrapper ag-layout-normal ag-ltr\\">
+                <!--AG-GRID-HEADER-DROP-ZONES--><div><div class=\\"ag-column-drop ag-unselectable ag-column-drop-horizontal ag-column-drop-row-group ag-hidden\\"><div><span class=\\"ag-icon ag-icon-group ag-column-drop-icon ag-faded\\" unselectable=\\"on\\"></span></div><span class=\\"ag-column-drop-empty-message\\">Drag here to set row groups</span><div class=\\"ag-column-drop-list\\"></div></div><div class=\\"ag-column-drop ag-unselectable ag-column-drop-horizontal ag-column-drop-pivot ag-hidden\\"><div><span class=\\"ag-icon ag-icon-pivot ag-column-drop-icon ag-faded\\" unselectable=\\"on\\"></span></div><span class=\\"ag-column-drop-empty-message\\">Drag here to set column labels</span><div class=\\"ag-column-drop-list\\"></div></div></div>
+                <div class=\\"ag-root-wrapper-body ag-layout-normal\\" ref=\\"rootWrapperBody\\">
+                    <!--AG-GRID-COMP--><div class=\\"ag-root ag-unselectable ag-layout-normal\\" role=\\"grid\\" unselectable=\\"on\\" ref=\\"gridPanel\\" aria-rowcount=\\"2\\" aria-colcount=\\"9\\">
+        <!--AG-HEADER-ROOT--><div class=\\"ag-header ag-pivot-off\\" role=\\"presentation\\" ref=\\"headerRoot\\" unselectable=\\"on\\" style=\\"height: 33px; min-height: 33px;\\">
+            <div class=\\"ag-pinned-left-header ag-hidden\\" ref=\\"ePinnedLeftHeader\\" role=\\"presentation\\" style=\\"width: 0px; max-width: 0px; min-width: 0px;\\"><div class=\\"ag-header-row\\" role=\\"row\\" style=\\"top: 0px; height: 32px; width: 0px;\\" aria-rowindex=\\"1\\"></div></div>
+            <div class=\\"ag-header-viewport\\" ref=\\"eHeaderViewport\\" role=\\"presentation\\">
+                <div class=\\"ag-header-container\\" ref=\\"eHeaderContainer\\" role=\\"rowgroup\\" style=\\"width: 2160px;\\"><div class=\\"ag-header-row\\" role=\\"row\\" style=\\"top: 0px; height: 32px; width: 2160px;\\" aria-rowindex=\\"1\\"><div class=\\"ag-header-cell\\" role=\\"presentation\\" unselectable=\\"on\\" style=\\"width: 240px; left: 0px;\\" col-id=\\"FLT_ID_5618=>53595\\">  <div ref=\\"eResize\\" class=\\"ag-header-cell-resize\\" role=\\"presentation\\"></div>  <!--AG-CHECKBOX--><div class=\\"ag-header-select-all ag-labeled ag-label-align-right ag-checkbox ag-hidden\\" role=\\"presentation\\" ref=\\"cbSelectAll\\">
+            <label ref=\\"eLabel\\" class=\\"ag-hidden\\"></label>
+            <div ref=\\"eWrapper\\" class=\\"ag-wrapper ag-input-wrapper\\" role=\\"presentation\\">
+                <input ref=\\"eInput\\" type=\\"checkbox\\" class=\\"ag-hidden\\">
+            <div><span class=\\"ag-icon ag-icon-checkbox-unchecked\\" unselectable=\\"on\\"></span></div></div>
+        </div><div class=\\"ag-cell-label-container\\" role=\\"presentation\\">  <span ref=\\"eMenu\\" class=\\"ag-header-icon ag-header-cell-menu-button\\" aria-hidden=\\"true\\" style=\\"opacity: 0; transition: opacity 0.2s, border 0.2s;\\"><span class=\\"ag-icon ag-icon-menu\\" unselectable=\\"on\\"></span></span>  <div ref=\\"eLabel\\" class=\\"ag-header-cell-label\\" role=\\"presentation\\" unselectable=\\"on\\">    <span ref=\\"eText\\" class=\\"ag-header-cell-text\\" role=\\"columnheader\\" unselectable=\\"on\\" aria-colindex=\\"1\\">Входящий остаток</span>    <span ref=\\"eFilter\\" class=\\"ag-header-icon ag-filter-icon ag-hidden\\" aria-hidden=\\"true\\"><span class=\\"ag-icon ag-icon-filter\\" unselectable=\\"on\\"></span></span>                  </div></div></div></div></div>
+            </div>
+            <div class=\\"ag-pinned-right-header ag-hidden\\" ref=\\"ePinnedRightHeader\\" role=\\"presentation\\" style=\\"width: 0px; max-width: 0px; min-width: 0px;\\"><div class=\\"ag-header-row\\" role=\\"row\\" style=\\"top: 0px; height: 32px; width: 0px;\\" aria-rowindex=\\"1\\"></div></div>
         </div>
-        <div
-          class="dx-field"
-        >
-          <div
-            class="dx-field-label"
-          >
-            Ручной ввод
-          </div>
-          <div
-            class="dx-field-value"
-          >
-            <div />
-          </div>
+        <div class=\\"ag-floating-top\\" ref=\\"eTop\\" role=\\"presentation\\" unselectable=\\"on\\" style=\\"min-height: 0px; height: 0px; display: none; overflow-y: hidden;\\">
+            <div class=\\"ag-pinned-left-floating-top ag-hidden\\" ref=\\"eLeftTop\\" role=\\"presentation\\" unselectable=\\"on\\"></div>
+            <div class=\\"ag-floating-top-viewport\\" ref=\\"eTopViewport\\" role=\\"presentation\\" unselectable=\\"on\\">
+                <div class=\\"ag-floating-top-container\\" ref=\\"eTopContainer\\" role=\\"presentation\\" unselectable=\\"on\\" style=\\"width: 2160px;\\"></div>
+            </div>
+            <div class=\\"ag-pinned-right-floating-top ag-hidden\\" ref=\\"eRightTop\\" role=\\"presentation\\" unselectable=\\"on\\"></div>
+            <div class=\\"ag-floating-top-full-width-container ag-hidden\\" ref=\\"eTopFullWidthContainer\\" role=\\"presentation\\" unselectable=\\"on\\"></div>
         </div>
-        <div
-          class="dx-field"
-        >
-          <div
-            class="dx-field-label"
-          >
-            Итоги
-          </div>
-          <div
-            class="dx-field-value"
-          >
-            <div />
-          </div>
+        <div class=\\"ag-body-viewport ag-layout-normal ag-row-animation\\" ref=\\"eBodyViewport\\" role=\\"presentation\\" unselectable=\\"on\\">
+            <div class=\\"ag-pinned-left-cols-container ag-hidden\\" ref=\\"eLeftContainer\\" role=\\"presentation\\" unselectable=\\"on\\" style=\\"height: 28px;\\"></div>
+            <div class=\\"ag-center-cols-clipper\\" ref=\\"eCenterColsClipper\\" role=\\"presentation\\" unselectable=\\"on\\" style=\\"height: 28px;\\">
+                <div class=\\"ag-center-cols-viewport\\" ref=\\"eCenterViewport\\" role=\\"presentation\\" unselectable=\\"on\\">
+                    <div class=\\"ag-center-cols-container\\" ref=\\"eCenterContainer\\" role=\\"rowgroup\\" unselectable=\\"on\\" style=\\"width: 2160px; height: 28px;\\"></div>
+                </div>
+            </div>
+            <div class=\\"ag-pinned-right-cols-container ag-hidden\\" ref=\\"eRightContainer\\" role=\\"presentation\\" unselectable=\\"on\\" style=\\"height: 28px;\\"></div>
+            <div class=\\"ag-full-width-container\\" ref=\\"eFullWidthContainer\\" role=\\"presentation\\" unselectable=\\"on\\" style=\\"height: 28px;\\"><div role=\\"row\\" row-index=\\"0\\" aria-rowindex=\\"2\\" comp-id=\\"37\\" class=\\"ag-row ag-row-no-focus ag-row-even ag-row-level-0 ag-row-stub ag-full-width-row ag-row-position-absolute ag-row-first ag-row-last\\" style=\\"height: 28px; transform: translateY(0px); \\"><div class=\\"ag-stub-cell\\">
+            <span class=\\"ag-loading-icon\\" ref=\\"eLoadingIcon\\"><span class=\\"ag-icon ag-icon-loading\\" unselectable=\\"on\\"></span></span>
+            <span class=\\"ag-loading-text\\" ref=\\"eLoadingText\\"></span>
+        </div></div></div>
         </div>
-        <div
-          class="dx-field"
-        >
-          <div
-            class="dx-field-label"
-          >
-            Консолидация
-          </div>
-          <div
-            class="dx-field-value"
-          >
-            <div />
-          </div>
+        <div class=\\"ag-floating-bottom\\" ref=\\"eBottom\\" role=\\"presentation\\" unselectable=\\"on\\" style=\\"min-height: 0px; height: 0px; display: none; overflow-y: hidden;\\">
+            <div class=\\"ag-pinned-left-floating-bottom ag-hidden\\" ref=\\"eLeftBottom\\" role=\\"presentation\\" unselectable=\\"on\\"></div>
+            <div class=\\"ag-floating-bottom-viewport\\" ref=\\"eBottomViewport\\" role=\\"presentation\\" unselectable=\\"on\\">
+                <div class=\\"ag-floating-bottom-container\\" ref=\\"eBottomContainer\\" role=\\"presentation\\" unselectable=\\"on\\" style=\\"width: 2160px;\\"></div>
+            </div>
+            <div class=\\"ag-pinned-right-floating-bottom ag-hidden\\" ref=\\"eRightBottom\\" role=\\"presentation\\" unselectable=\\"on\\"></div>
+            <div class=\\"ag-floating-bottom-full-width-container ag-hidden\\" ref=\\"eBottomFullWidthContainer\\" role=\\"presentation\\" unselectable=\\"on\\"></div>
         </div>
-        <div
-          class="dx-field"
-        >
-          <div
-            class="dx-field-label"
-          >
-            Аналитики
-          </div>
-          <div
-            class="dx-field-value"
-          >
-            <div />
-          </div>
+        <div class=\\"ag-body-horizontal-scroll\\" ref=\\"eHorizontalScrollBody\\" aria-hidden=\\"true\\" style=\\"height: 0px; max-height: 0px; min-height: 0px;\\">
+            <div class=\\"ag-horizontal-left-spacer ag-scroller-corner\\" ref=\\"eHorizontalLeftSpacer\\" style=\\"width: 0px; max-width: 0px; min-width: 0px;\\"></div>
+            <div class=\\"ag-body-horizontal-scroll-viewport\\" ref=\\"eBodyHorizontalScrollViewport\\" style=\\"height: 0px; max-height: 0px; min-height: 0px;\\">
+                <div class=\\"ag-body-horizontal-scroll-container\\" ref=\\"eBodyHorizontalScrollContainer\\" style=\\"width: 2160px; height: 0px; max-height: 0px; min-height: 0px;\\"></div>
+            </div>
+            <div class=\\"ag-horizontal-right-spacer ag-scroller-corner\\" ref=\\"eHorizontalRightSpacer\\" style=\\"width: 0px; max-width: 0px; min-width: 0px;\\"></div>
         </div>
-        <div
-          class="dx-field"
-        >
-          <div
-            class="dx-field-label"
-          >
-            Утверждение
-          </div>
-          <div
-            class="dx-field-value"
-          >
-            <div />
-          </div>
+        <!--AG-OVERLAY-WRAPPER--><div class=\\"ag-overlay ag-hidden\\" aria-hidden=\\"true\\" ref=\\"overlayWrapper\\">
+            <div class=\\"ag-overlay-panel\\">
+                <div class=\\"ag-overlay-wrapper ag-layout-normal\\" ref=\\"eOverlayWrapper\\"></div>
+            </div>
         </div>
-        <div
-          class="dx-field"
-        >
-          <div
-            class="dx-field-label"
-          >
-            Неполное утверждение
-          </div>
-          <div
-            class="dx-field-value"
-          >
-            <div />
-          </div>
+    </div>                    
+                    <!--AG-SIDE-BAR--><div class=\\"ag-side-bar ag-unselectable ag-side-bar-left\\" ref=\\"sideBar\\">
+              <!--AG-SIDE-BAR-BUTTONS--><div class=\\"ag-side-buttons\\" ref=\\"sideBarButtons\\"><div class=\\"ag-side-button\\">
+                <button type=\\"button\\" ref=\\"eToggleButton\\">
+                    <div><span class=\\"ag-icon ag-icon-columns\\" unselectable=\\"on\\"></span></div>
+                    <span>Столбцы</span>
+                </button>
+            </div><div class=\\"ag-side-button ag-selected\\">
+                <button type=\\"button\\" ref=\\"eToggleButton\\">
+                    <div><span class=\\"ag-icon ag-icon-filter\\" unselectable=\\"on\\"></span></div>
+                    <span>Аналитики</span>
+                </button>
+            </div></div><div class=\\"ag-tool-panel-wrapper ag-hidden\\"><div class=\\"ag-tool-panel-horizontal-resize\\"></div><div class=\\"ag-column-panel\\"><div class=\\"ag-pivot-mode-panel\\">
+                <!--AG-CHECKBOX--><div class=\\"ag-pivot-mode-select ag-labeled ag-label-align-right ag-checkbox\\" role=\\"presentation\\" ref=\\"cbPivotMode\\">
+            <label ref=\\"eLabel\\" class=\\"\\"></label>
+            <div ref=\\"eWrapper\\" class=\\"ag-wrapper ag-input-wrapper\\" role=\\"presentation\\">
+                <input ref=\\"eInput\\" type=\\"checkbox\\" class=\\"ag-hidden\\">
+            <div><span class=\\"ag-icon ag-icon-checkbox-unchecked\\" unselectable=\\"on\\"></span></div></div>
         </div>
-      </div>
+            </div><div class=\\"ag-column-select-panel\\">
+            <!--AG-PRIMARY-COLS-HEADER--><div class=\\"ag-primary-cols-header-panel\\" role=\\"presentation\\" ref=\\"primaryColsHeaderPanel\\">
+                <div ref=\\"eExpand\\" class=\\"ag-hidden\\"><span class=\\"ag-icon ag-icon-tree-open\\" unselectable=\\"on\\"></span><span class=\\"ag-icon ag-icon-tree-closed ag-hidden\\" unselectable=\\"on\\"></span><span class=\\"ag-icon ag-icon-tree-indeterminate ag-hidden\\" unselectable=\\"on\\"></span></div>
+                <div ref=\\"eSelect\\"><span class=\\"ag-icon ag-icon-checkbox-checked\\" unselectable=\\"on\\"></span><span class=\\"ag-icon ag-icon-checkbox-unchecked ag-hidden\\" unselectable=\\"on\\"></span><span class=\\"ag-icon ag-icon-checkbox-indeterminate ag-hidden\\" unselectable=\\"on\\"></span></div>
+                <div class=\\"ag-input-wrapper ag-primary-cols-filter-wrapper\\" ref=\\"eFilterWrapper\\" role=\\"presentation\\">
+                    <input class=\\"ag-primary-cols-filter\\" ref=\\"eFilterTextField\\" type=\\"text\\" placeholder=\\"Search...\\">
+                </div>
+            </div>
+            <!--AG-PRIMARY-COLS-LIST--><div class=\\"ag-primary-cols-list-panel\\" ref=\\"primaryColsListPanel\\"><div class=\\"ag-column-tool-panel-column ag-toolpanel-indent-0\\">
+            <!--AG-CHECKBOX--><div class=\\"ag-column-select-checkbox ag-labeled ag-label-align-right ag-checkbox\\" role=\\"presentation\\" ref=\\"cbSelect\\">
+            <label ref=\\"eLabel\\" class=\\"ag-hidden\\"></label>
+            <div ref=\\"eWrapper\\" class=\\"ag-wrapper ag-input-wrapper\\" role=\\"presentation\\">
+                <input ref=\\"eInput\\" type=\\"checkbox\\" class=\\"ag-hidden\\">
+            <div><span class=\\"ag-icon ag-icon-checkbox-checked\\" unselectable=\\"on\\"></span></div></div>
+        </div><span class=\\"ag-icon ag-icon-grip ag-column-drag\\" unselectable=\\"on\\"></span>
+            <span class=\\"ag-column-tool-panel-column-label\\" ref=\\"eLabel\\">Входящий остаток</span>
+        </div><div class=\\"ag-column-tool-panel-column ag-toolpanel-indent-0\\">
+            <!--AG-CHECKBOX--><div class=\\"ag-column-select-checkbox ag-labeled ag-label-align-right ag-checkbox\\" role=\\"presentation\\" ref=\\"cbSelect\\">
+            <label ref=\\"eLabel\\" class=\\"ag-hidden\\"></label>
+            <div ref=\\"eWrapper\\" class=\\"ag-wrapper ag-input-wrapper\\" role=\\"presentation\\">
+                <input ref=\\"eInput\\" type=\\"checkbox\\" class=\\"ag-hidden\\">
+            <div><span class=\\"ag-icon ag-icon-checkbox-checked\\" unselectable=\\"on\\"></span></div></div>
+        </div><span class=\\"ag-icon ag-icon-grip ag-column-drag\\" unselectable=\\"on\\"></span>
+            <span class=\\"ag-column-tool-panel-column-label\\" ref=\\"eLabel\\">До востребования</span>
+        </div><div class=\\"ag-column-tool-panel-column ag-toolpanel-indent-0\\">
+            <!--AG-CHECKBOX--><div class=\\"ag-column-select-checkbox ag-labeled ag-label-align-right ag-checkbox\\" role=\\"presentation\\" ref=\\"cbSelect\\">
+            <label ref=\\"eLabel\\" class=\\"ag-hidden\\"></label>
+            <div ref=\\"eWrapper\\" class=\\"ag-wrapper ag-input-wrapper\\" role=\\"presentation\\">
+                <input ref=\\"eInput\\" type=\\"checkbox\\" class=\\"ag-hidden\\">
+            <div><span class=\\"ag-icon ag-icon-checkbox-checked\\" unselectable=\\"on\\"></span></div></div>
+        </div><span class=\\"ag-icon ag-icon-grip ag-column-drag\\" unselectable=\\"on\\"></span>
+            <span class=\\"ag-column-tool-panel-column-label\\" ref=\\"eLabel\\">От 1 до 7 дней</span>
+        </div><div class=\\"ag-column-tool-panel-column ag-toolpanel-indent-0\\">
+            <!--AG-CHECKBOX--><div class=\\"ag-column-select-checkbox ag-labeled ag-label-align-right ag-checkbox\\" role=\\"presentation\\" ref=\\"cbSelect\\">
+            <label ref=\\"eLabel\\" class=\\"ag-hidden\\"></label>
+            <div ref=\\"eWrapper\\" class=\\"ag-wrapper ag-input-wrapper\\" role=\\"presentation\\">
+                <input ref=\\"eInput\\" type=\\"checkbox\\" class=\\"ag-hidden\\">
+            <div><span class=\\"ag-icon ag-icon-checkbox-checked\\" unselectable=\\"on\\"></span></div></div>
+        </div><span class=\\"ag-icon ag-icon-grip ag-column-drag\\" unselectable=\\"on\\"></span>
+            <span class=\\"ag-column-tool-panel-column-label\\" ref=\\"eLabel\\">От 8 до 30 дней</span>
+        </div><div class=\\"ag-column-tool-panel-column ag-toolpanel-indent-0\\">
+            <!--AG-CHECKBOX--><div class=\\"ag-column-select-checkbox ag-labeled ag-label-align-right ag-checkbox\\" role=\\"presentation\\" ref=\\"cbSelect\\">
+            <label ref=\\"eLabel\\" class=\\"ag-hidden\\"></label>
+            <div ref=\\"eWrapper\\" class=\\"ag-wrapper ag-input-wrapper\\" role=\\"presentation\\">
+                <input ref=\\"eInput\\" type=\\"checkbox\\" class=\\"ag-hidden\\">
+            <div><span class=\\"ag-icon ag-icon-checkbox-checked\\" unselectable=\\"on\\"></span></div></div>
+        </div><span class=\\"ag-icon ag-icon-grip ag-column-drag\\" unselectable=\\"on\\"></span>
+            <span class=\\"ag-column-tool-panel-column-label\\" ref=\\"eLabel\\">От 31 до 90 дней</span>
+        </div><div class=\\"ag-column-tool-panel-column ag-toolpanel-indent-0\\">
+            <!--AG-CHECKBOX--><div class=\\"ag-column-select-checkbox ag-labeled ag-label-align-right ag-checkbox\\" role=\\"presentation\\" ref=\\"cbSelect\\">
+            <label ref=\\"eLabel\\" class=\\"ag-hidden\\"></label>
+            <div ref=\\"eWrapper\\" class=\\"ag-wrapper ag-input-wrapper\\" role=\\"presentation\\">
+                <input ref=\\"eInput\\" type=\\"checkbox\\" class=\\"ag-hidden\\">
+            <div><span class=\\"ag-icon ag-icon-checkbox-checked\\" unselectable=\\"on\\"></span></div></div>
+        </div><span class=\\"ag-icon ag-icon-grip ag-column-drag\\" unselectable=\\"on\\"></span>
+            <span class=\\"ag-column-tool-panel-column-label\\" ref=\\"eLabel\\">От 91 до 180 дней</span>
+        </div><div class=\\"ag-column-tool-panel-column ag-toolpanel-indent-0\\">
+            <!--AG-CHECKBOX--><div class=\\"ag-column-select-checkbox ag-labeled ag-label-align-right ag-checkbox\\" role=\\"presentation\\" ref=\\"cbSelect\\">
+            <label ref=\\"eLabel\\" class=\\"ag-hidden\\"></label>
+            <div ref=\\"eWrapper\\" class=\\"ag-wrapper ag-input-wrapper\\" role=\\"presentation\\">
+                <input ref=\\"eInput\\" type=\\"checkbox\\" class=\\"ag-hidden\\">
+            <div><span class=\\"ag-icon ag-icon-checkbox-checked\\" unselectable=\\"on\\"></span></div></div>
+        </div><span class=\\"ag-icon ag-icon-grip ag-column-drag\\" unselectable=\\"on\\"></span>
+            <span class=\\"ag-column-tool-panel-column-label\\" ref=\\"eLabel\\">От 181 до 365 дней</span>
+        </div><div class=\\"ag-column-tool-panel-column ag-toolpanel-indent-0\\">
+            <!--AG-CHECKBOX--><div class=\\"ag-column-select-checkbox ag-labeled ag-label-align-right ag-checkbox\\" role=\\"presentation\\" ref=\\"cbSelect\\">
+            <label ref=\\"eLabel\\" class=\\"ag-hidden\\"></label>
+            <div ref=\\"eWrapper\\" class=\\"ag-wrapper ag-input-wrapper\\" role=\\"presentation\\">
+                <input ref=\\"eInput\\" type=\\"checkbox\\" class=\\"ag-hidden\\">
+            <div><span class=\\"ag-icon ag-icon-checkbox-checked\\" unselectable=\\"on\\"></span></div></div>
+        </div><span class=\\"ag-icon ag-icon-grip ag-column-drag\\" unselectable=\\"on\\"></span>
+            <span class=\\"ag-column-tool-panel-column-label\\" ref=\\"eLabel\\">366 и более</span>
+        </div><div class=\\"ag-column-tool-panel-column ag-toolpanel-indent-0\\">
+            <!--AG-CHECKBOX--><div class=\\"ag-column-select-checkbox ag-labeled ag-label-align-right ag-checkbox\\" role=\\"presentation\\" ref=\\"cbSelect\\">
+            <label ref=\\"eLabel\\" class=\\"ag-hidden\\"></label>
+            <div ref=\\"eWrapper\\" class=\\"ag-wrapper ag-input-wrapper\\" role=\\"presentation\\">
+                <input ref=\\"eInput\\" type=\\"checkbox\\" class=\\"ag-hidden\\">
+            <div><span class=\\"ag-icon ag-icon-checkbox-checked\\" unselectable=\\"on\\"></span></div></div>
+        </div><span class=\\"ag-icon ag-icon-grip ag-column-drag\\" unselectable=\\"on\\"></span>
+            <span class=\\"ag-column-tool-panel-column-label\\" ref=\\"eLabel\\">ИТОГО</span>
+        </div></div>
+        </div><div class=\\"ag-column-drop ag-unselectable ag-column-drop-vertical ag-column-drop-row-group\\"><div><span class=\\"ag-icon ag-icon-group ag-column-drop-icon\\" unselectable=\\"on\\"></span><span class=\\"ag-column-drop-title\\">Row Groups</span></div><span class=\\"ag-column-drop-empty-message\\">Drag here to set row groups</span><div class=\\"ag-column-drop-list\\"></div></div><div class=\\"ag-column-drop ag-unselectable ag-column-drop-vertical ag-column-drop-values ag-last-column-drop\\"><div><span class=\\"ag-icon ag-icon-aggregation ag-column-drop-icon\\" unselectable=\\"on\\"></span><span class=\\"ag-column-drop-title\\">Values</span></div><span class=\\"ag-column-drop-empty-message\\">Drag here to aggregate</span><div class=\\"ag-column-drop-list\\"></div></div><div class=\\"ag-column-drop ag-unselectable ag-column-drop-vertical ag-column-drop-pivot ag-hidden\\"><div><span class=\\"ag-icon ag-icon-pivot ag-column-drop-icon\\" unselectable=\\"on\\"></span><span class=\\"ag-column-drop-title\\">Column Labels</span></div><span class=\\"ag-column-drop-empty-message\\">Drag here to set column labels</span><div class=\\"ag-column-drop-list\\"></div></div></div></div><div class=\\"ag-tool-panel-wrapper\\"><div class=\\"ag-tool-panel-horizontal-resize\\"></div><div class=\\"ag-react-container\\"><div></div></div></div></div>
+                </div>
+                <!--AG-STATUS-BAR--><div class=\\"ag-status-bar\\" ref=\\"statusBar\\">
+        <div ref=\\"eStatusBarLeft\\" class=\\"ag-status-bar-left\\"></div>
+        <div ref=\\"eStatusBarCenter\\" class=\\"ag-status-bar-center\\"></div>
+        <div ref=\\"eStatusBarRight\\" class=\\"ag-status-bar-right\\"><div class=\\"ag-name-value ag-hidden ag-status-panel ag-status-panel-selected-row-count\\">  
+            <span ref=\\"eLabel\\">Selected</span>:&nbsp;
+            <span ref=\\"eValue\\" class=\\"ag-name-value-value\\">0</span>
+        </div><div class=\\"ag-status-panel ag-status-panel-aggregations\\">
+                <!--AG-NAME-VALUE--><div class=\\"ag-name-value ag-hidden\\" ref=\\"avgAggregationComp\\">  
+            <span ref=\\"eLabel\\">Average</span>:&nbsp;
+            <span ref=\\"eValue\\" class=\\"ag-name-value-value\\">NaN</span>
+        </div>
+                <!--AG-NAME-VALUE--><div class=\\"ag-name-value ag-hidden\\" ref=\\"countAggregationComp\\">  
+            <span ref=\\"eLabel\\">Count</span>:&nbsp;
+            <span ref=\\"eValue\\" class=\\"ag-name-value-value\\">0</span>
+        </div>
+                <!--AG-NAME-VALUE--><div class=\\"ag-name-value ag-hidden\\" ref=\\"minAggregationComp\\">  
+            <span ref=\\"eLabel\\">Min</span>:&nbsp;
+            <span ref=\\"eValue\\" class=\\"ag-name-value-value\\"></span>
+        </div>
+                <!--AG-NAME-VALUE--><div class=\\"ag-name-value ag-hidden\\" ref=\\"maxAggregationComp\\">  
+            <span ref=\\"eLabel\\">Max</span>:&nbsp;
+            <span ref=\\"eValue\\" class=\\"ag-name-value-value\\"></span>
+        </div>
+                <!--AG-NAME-VALUE--><div class=\\"ag-name-value ag-hidden\\" ref=\\"sumAggregationComp\\">  
+            <span ref=\\"eLabel\\">Sum</span>:&nbsp;
+            <span ref=\\"eValue\\" class=\\"ag-name-value-value\\">0</span>
+        </div>
+            </div></div>
     </div>
-  </div>,
-  <div />,
-  <div
-    class="ag-theme-balham NonDraggableAreaClassName"
-    id="myGrid123"
-    style="height:calc(100% - 36px);width:100%;position:absolute"
-  >
-    <div
-      style="height:100%"
-    />
-  </div>,
-]
+                <!--AG-PAGINATION--><div class=\\"ag-paging-panel ag-unselectable ag-hidden\\">
+                <span ref=\\"eSummaryPanel\\" class=\\"ag-paging-row-summary-panel\\">
+                    <span ref=\\"lbFirstRowOnPage\\"></span> to <span ref=\\"lbLastRowOnPage\\"></span> of <span ref=\\"lbRecordCount\\"></span>
+                </span>
+                <span class=\\"ag-paging-page-summary-panel\\">
+                    <div ref=\\"btFirst\\" class=\\"ag-paging-button\\"><span class=\\"ag-icon ag-icon-first\\" unselectable=\\"on\\"></span>
+                        <button type=\\"button\\">First</button>
+                    </div>
+                    <div ref=\\"btPrevious\\" class=\\"ag-paging-button\\"><span class=\\"ag-icon ag-icon-previous\\" unselectable=\\"on\\"></span>
+                        <button type=\\"button\\">Previous</button>
+                    </div>
+                    Page <span ref=\\"lbCurrent\\"></span> of <span ref=\\"lbTotal\\"></span>
+                    <div ref=\\"btNext\\" class=\\"ag-paging-button\\"><span class=\\"ag-icon ag-icon-next\\" unselectable=\\"on\\"></span>
+                        <button type=\\"button\\">Next</button>
+                    </div>
+                    <div ref=\\"btLast\\" class=\\"ag-paging-button\\"><span class=\\"ag-icon ag-icon-last\\" unselectable=\\"on\\"></span>
+                        <button type=\\"button\\">Last</button>
+                    </div>
+                </span>
+            </div>
+                <!--AG-WATERMARK--><div class=\\"ag-watermark ag-hidden\\">
+                    <div ref=\\"eLicenseTextRef\\" class=\\"ag-watermark-text\\"></div>
+               </div>
+            </div></div></div>"
 `;

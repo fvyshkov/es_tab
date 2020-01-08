@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from "react-dom";
 import TabView from './TabView.jsx';
+import TableView from './TableView.jsx';
 import SheetSelectDropDown from './SheetSelectDropDown.jsx';
 
 

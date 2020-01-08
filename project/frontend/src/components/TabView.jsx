@@ -5,16 +5,27 @@ import Grid from './Grid.jsx';
 import notify from 'devextreme/ui/notify';
 import ColorPanel from './ColorPanel.jsx';
 import { sendRequest } from './App.js';
+import { sendRequestPromise } from './sendRequestPromise.js';
+import { connect } from "react-redux";
+import { addArticle, getData } from "../actions/index";
+import { AgGridReact } from "@ag-grid-community/react";
+import {AllModules} from "@ag-grid-enterprise/all-modules";
+import '@ag-grid-community/client-side-row-model';
 
+/*
+import "@ag-grid-community/all-modules/dist/styles/ag-grid.css";
+import "@ag-grid-community/all-modules/dist/styles/ag-theme-balham.css";
+*/
 
-
-export default class TabView extends Component {
+class TabView extends Component {
     constructor(props) {
         super(props);
 
+        const uuidv1 = require('uuid/v1');
 
         this.dataModelDescription = new DataModelDescription();
         this.state={
+                        viewGUID: uuidv1(),
                         sheet_id: 0,
                         colorPanelVisible: false,
                         selectedFilterNodes: {},
@@ -32,9 +43,29 @@ export default class TabView extends Component {
         this.onColorPanelClose = this.onColorPanelClose.bind(this);
         this.onLoadFilterNodes = this.onLoadFilterNodes.bind(this);
         this.componentDidMount = this.componentDidMount.bind(this);
+        this.testGetPromise = this.testGetPromise.bind(this);
+        this.test = this.test.bind(this);
+        this.processSheetState = this.processSheetState.bind(this);
+        this.setTestFieldAsync = this.setTestFieldAsync.bind(this);
+        this.processNodeExpanding = this.processNodeExpanding.bind(this);
+        this.getTabData = this.getTabData.bind(this);
 
 
 
+
+
+    }
+
+
+    testArticlesList(){
+        //this.props.getData({sht_id:100, text:'test text'});
+        this.props.addArticle({ title:'777' });
+    }
+
+    test(){
+        console.log('TableView test');
+        this.setState({test:'test'});
+        return 1;
     }
 
     componentDidMount(){
@@ -55,6 +86,7 @@ export default class TabView extends Component {
     }
 
     onToolbarPreferencesClick(){
+        this.testArticlesList();
 
         this.setState({colorPanelVisible:true});
 
@@ -63,8 +95,111 @@ export default class TabView extends Component {
         }
     }
 
-    loadNewSheet(prm_sheet_id, prm_sheet_type){
+    httpGet(url) {
 
+      return new Promise(function(resolve, reject) {
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+
+        xhr.onload = function() {
+          if (this.status == 200) {
+            resolve(this.response);
+          } else {
+            var error = new Error(this.statusText);
+            error.code = this.status;
+            reject(error);
+          }
+        };
+
+        xhr.onerror = function() {
+          reject(new Error("Network Error"));
+        };
+
+        xhr.send();
+      });
+
+    }
+
+
+
+    testGetPromise(){
+
+        return new Promise(
+                (resolve, reject) => {
+
+                      setTimeout(() => {
+                                        console.log('ON testGetPromise');
+                                        resolve("result");
+
+                                        }, 4000);
+
+                }
+        );
+    }
+
+/*
+    sendNewSheetRequest(prm_sheet_id, prm_sheet_type){
+        return new Promise(
+                (resolve, reject) => {
+
+                    if (this.state.sheet_id){
+                        this.sendBeforeCloseToGrid();
+                        this.saveSheetState();
+                    }
+
+                    this.dataModelDescription.setParams({sht_id:prm_sheet_id});
+
+                    this.setState({sheet_id: prm_sheet_id, sheet_type: prm_sheet_type});
+                    if (!this.state.filterNodes[prm_sheet_id]){
+                        sendRequest('sht_filters/?sht_id='+prm_sheet_id, this.onLoadFilterNodes);
+                    }else{
+                        this.sendRefreshGrid();
+                    }
+
+                }
+        );
+
+
+    }
+    */
+
+    setTestFieldAsync(value){
+        setTimeout(()=>{this.setState({testField:value});}, 2000);
+
+    }
+
+    getTestField(){
+        return this.state.testField;
+    }
+
+    loadNewSheet(prm_sheet_id, prm_sheet_type){
+        console.log('viewGUID', this.state.viewGUID);
+        var tabView = this;
+        return new Promise(function(resolve, reject) {
+            //console.log('loadNewSheet 1');
+            tabView.dataModelDescription.setParams({sht_id:prm_sheet_id});
+            //console.log('loadNewSheet 2');
+            tabView.setState({sheet_id: prm_sheet_id, sheet_type: prm_sheet_type});
+            //console.log('loadNewSheet 3');
+            sendRequestPromise('sht_filters/?sht_id='+prm_sheet_id)
+                .then(respObj=>{
+                                    tabView.onLoadFilterNodesSync(respObj);
+                                })
+                .then(()=>{return sendRequestPromise('sht_state/?sht_id='+ tabView.state.sheet_id)})
+                .then(respObj=>{tabView.processSheetState(respObj);})
+                .then(()=>{console.log('sendRefresh');tabView.sendRefreshGrid()})
+                //в redux-версии здесь должно быть  зачитывание данных и загрузка колонок
+                .then(
+
+                        //()=>  tabView.props.getData({requestString:'sht_nodes/?dummy=1&sht_id=2434&skey=FLT_ID_5619=>39595,&group_keys='})
+                         () => tabView.getTabData(null, true)
+                    )
+
+                .then(()=>resolve('success'));
+        });
+
+        return ;
         if (this.state.sheet_id){
             this.sendBeforeCloseToGrid();
             this.saveSheetState();
@@ -80,6 +215,38 @@ export default class TabView extends Component {
         }
     }
 
+    getTabData(parentNode, reload = false){
+        let httpStr = 'sht_nodes/?dummy=1';
+        if (this.props.sheet_id){
+            httpStr += '&sht_id=' + this.props.sheet_id;
+        }
+        httpStr += '&skey=' + this.getFilterSkey();
+
+        var parentNodeKey;
+
+        if (parentNode && parentNode.data){
+            parentNodeKey = parentNode.data.node_key;
+            httpStr += '&flt_id=' + parentNode.data.flt_id + '&flt_item_id=' + parentNode.data.flt_item_id;
+        }
+
+        if (parentNode && parentNode.data && parentNode.data.hie_path){
+            var pathToExpandedNode = '';
+            parentNode.data.hie_path.forEach(el=>{pathToExpandedNode += el+','});
+            httpStr += '&group_keys='+pathToExpandedNode;
+        }
+
+
+        this.props.getData({
+                                requestString: httpStr,
+                                parentNodeKey: parentNodeKey,
+                                reload: reload,
+                                viewGUID: this.state.viewGUID
+                            });
+
+
+
+    }
+
     onLoadFilterNodes(filterNodesList){
         var newFilterNodes = this.state.filterNodes;
         var sheet_id = this.state.sheet_id;
@@ -89,9 +256,22 @@ export default class TabView extends Component {
             newFilterNodes[sheet_id][filter.flt_id] = filter;
         });
 
-        sendRequest('sht_state/?sht_id='+ this.state.sheet_id, this.processSheetState.bind(this));
         this.setState({filterNodes: newFilterNodes});
 
+        sendRequest('sht_state/?sht_id='+ this.state.sheet_id, this.processSheetState.bind(this));
+
+
+
+    }
+
+    onLoadFilterNodesSync(filterNodesList){
+        var newFilterNodes = this.state.filterNodes;
+        var sheet_id = this.state.sheet_id;
+        newFilterNodes[sheet_id] = {};
+        filterNodesList.forEach(function(filter){
+            newFilterNodes[sheet_id][filter.flt_id] = filter;
+        });
+        this.setState({filterNodes: newFilterNodes});
 
     }
 
@@ -124,7 +304,7 @@ export default class TabView extends Component {
             sheetState['expandedGroupIds'] = this.state.expandedGroupIds;
 
             var httpStr = 'sht_state_update/?sht_id='+this.state.sheet_id;
-            sendRequest(httpStr,()=>{},'POST', sheetState);
+            sendRequestPromise(httpStr, 'POST', sheetState);
         }
     }
 
@@ -249,6 +429,7 @@ export default class TabView extends Component {
     }
 
     onUndoClick(){
+        console.log('this.props', this.props);
         this.sendUndoToGrid();
     }
 
@@ -259,7 +440,7 @@ export default class TabView extends Component {
     }
 
     onGetGridApi(params){
-        console.log('TableView this.props.onGetGridApi', this.props.onGetGridApi);
+        //console.log('TableView this.props.onGetGridApi', this.props.onGetGridApi);
         if (this.props.onGetGridApi){
             this.props.onGetGridApi(params);
         }
@@ -271,6 +452,25 @@ export default class TabView extends Component {
         var dataModelDescription = new DataModelDescription(sheetParams);
         return dataModelDescription;
     }
+
+    processNodeExpanding(params){
+        console.log('processNodeExpanding node', params);
+        var pathToExpandedNode = '';
+        params.data.hie_path.forEach(el=>{pathToExpandedNode += el+','});
+        console.log('pathToExpandedNode', pathToExpandedNode);
+
+        var httpStr = 'sht_nodes/?dummy=1&sht_id=2434&skey=FLT_ID_5619=>39595,&group_keys='+pathToExpandedNode;
+        httpStr +=  '&flt_id=' + params.data.flt_id + '&flt_item_id=' + params.data.flt_item_id;
+         console.log('processNodeExpanding httpStr=', httpStr);
+        var tabView = this;
+        this.props.getData({
+                                requestString: httpStr,
+                                parentNodeKey: params.data.node_key
+
+                            });
+    }
+
+
 
     render(){
         return (
@@ -292,12 +492,12 @@ export default class TabView extends Component {
                             onDeleteCallback={this.onDeleteCallback.bind(this)}
                             onUndoCallback={this.onUndoClick.bind(this)}
                             onSelectNewSheet={this.loadNewSheet}
+                            test={this.test}
                             sheetSelection={false}
                             additionalToolbarItem={this.props.additionalToolbarItem}
                             />
-
-
-                            <Grid
+ <div>
+               <Grid
                                 sendRefreshGrid={click => this.sendRefreshGrid = click}
                                 sendBeforeCloseToGrid={click => this.sendBeforeCloseToGrid = click}
                                 sendUndoToGrid={click => this.sendUndoToGrid = click}
@@ -324,8 +524,10 @@ export default class TabView extends Component {
                                 onCellFocused={this.onCellFocused.bind(this)}
                                 onGetGridApi={this.onGetGridApi.bind(this)}
                                 dataModelDescription={this.dataModelDescription}
+                                gridRowData={this.props.gridData}
+                                processNodeExpanding={this.processNodeExpanding.bind(this)}
                                 />
-
+</div>
 
 
 
@@ -335,6 +537,42 @@ export default class TabView extends Component {
     }
 
 }
+
+/*
+
+
+ <Grid
+                                sendRefreshGrid={click => this.sendRefreshGrid = click}
+                                sendBeforeCloseToGrid={click => this.sendBeforeCloseToGrid = click}
+                                sendUndoToGrid={click => this.sendUndoToGrid = click}
+                                skey={this.getFilterSkey}
+                                sheet_id = {this.state.sheet_id}
+                                sheet_type = {this.state.sheet_type}
+                                treeData = {this.state.sheet_type==='tree'? true:false}
+                                onFilterPanelChange={this.onFilterPanelChange}
+                                selectedFilterNodes={this.state.selectedFilterNodes}
+                                filterNodes={this.state.filterNodes[this.state.sheet_id]}
+                                columnStates={this.state.columnStates[this.state.sheet_id]}
+                                expandedGroupIds={this.state.expandedGroupIds}
+                                addElementToLayout={this.props.addElementToLayout}
+                                onToolbarCloseClick={this.props.onToolbarCloseClick}
+                                getNewLayoutItemID={this.props.getNewLayoutItemID}
+                                forceGridReload={this.state.forceGridReload}
+                                resetForceGridReload={this.resetForceGridReload.bind(this)}
+                                onGridStateChange={this.onGridStateChange.bind(this)}
+                                onGridExpandedChange={this.onGridExpandedChange.bind(this)}
+                                sendInsertRecord={click => this.sendInsertRecord = click}
+                                sendDeleteRecord={click => this.sendDeleteRecord = click}
+                                additionalSheetParams={this.props.additionalSheetParams}
+                                getDatasource={this.props.getDatasource}
+                                onCellFocused={this.onCellFocused.bind(this)}
+                                onGetGridApi={this.onGetGridApi.bind(this)}
+                                dataModelDescription={this.dataModelDescription}
+                                gridRowData={this.props.gridData}
+                                processNodeExpanding={this.processNodeExpanding.bind(this)}
+                                />
+
+*/
 
 function getSelectedFilterNodes(nodes){
     var selected = {}
@@ -426,10 +664,14 @@ class DataModelDescription{
         return httpStr;
     }
 
+    testFunction(){
+        return 'check_value';
+    }
+
 
     getDatasource(gridComponent) {
 
-        console.log('sheetDatasource');
+
         return {
 
 
@@ -447,7 +689,45 @@ class DataModelDescription{
                 }
 
                 httpStr = gridComponent.addAdditionalSheetParams(httpStr);
+                console.log('sheetDatasource (sendRequestPromise)');
+                sendRequestPromise(httpStr)
+                    .then((rowData) =>{
+                                                        if (rowData.length >0) {
+                                                            let lastRow = () => {
+                                                                return rowData.length;
+                                                            };
 
+                                                            for (var i = 0; i < rowData.length; i++) {
+                                                                var colData =  rowData[i].column_data;
+                                                                for (var colIndex=0; colIndex<colData.length; colIndex++){
+                                                                    rowData[i][colData[colIndex].key] = colData[colIndex].sql_value;
+                                                                }
+                                                            }
+                                                            params.successCallback(rowData, lastRow());
+
+                                                            if (gridComponent.savedFocusedCell){
+                                                                gridComponent.gridApi.ensureIndexVisible(gridComponent.savedFocusedCell.rowIndex);
+                                                                gridComponent.gridApi.ensureColumnVisible(gridComponent.savedFocusedCell.column);
+                                                                gridComponent.gridApi.setFocusedCell(gridComponent.savedFocusedCell.rowIndex, gridComponent.savedFocusedCell.column);
+                                                             }
+
+
+                                                            rowData.forEach(function(row) {
+                                                                if (gridComponent.props.expandedGroupIds &&
+                                                                    gridComponent.props.expandedGroupIds.indexOf(row.node_key) > -1) {
+                                                                    if (gridComponent.gridApi.getRowNode(row.node_key)){
+                                                                        gridComponent.gridApi.getRowNode(row.node_key).setExpanded(true);
+                                                                    }
+
+                                                                }
+
+
+                                                            });
+                                                        }else{
+                                                            params.successCallback([], 0);
+                                                        }
+                                                    });
+                /*
                 sendRequest(httpStr, (rowData) =>{
                                                         if (rowData.length >0) {
                                                             let lastRow = () => {
@@ -485,6 +765,7 @@ class DataModelDescription{
                                                         }
                                                     }
                             );
+                            */
 
             }
         }
@@ -494,4 +775,47 @@ class DataModelDescription{
 
 }
 
+function mapStateToProps (state){
+    console.log('tabView mapStateToProps state.expandedNodes', state.expandedNodes );
 
+    var clonedStateData = JSON.parse(JSON.stringify(state.tabViewData[this.state.viewGUID]));
+
+    var data=[];
+
+    clonedStateData.forEach(
+        (row)=>{
+           // console.log('row', row);
+            data.push(row);
+            //data[data.length-1]['orgHierarchy'] = [row.node_key];
+
+            if (row.groupfl==='1' && !state.expandedNodes.includes(row.node_key)){
+
+                console.log('groupgl==1 , adding dummy , row=', row);
+
+                data.push({});
+                var dummy_hie_path = row.hie_path.slice();
+                dummy_hie_path.push(row.node_key+' dummy child');
+
+                console.log('dummy_hie_path', dummy_hie_path);
+                data[data.length-1]['hie_path'] = dummy_hie_path;
+                data[data.length-1]['node_key'] = row.node_key+'_dummy_child';
+                //data[data.length-1]['hie_path'] = [row.node_key+'_child', 'dummy child '+row.node_key];
+            }
+
+
+        }
+    );
+
+    console.log('mapStateToProps data', data);
+    return { articles: state.articles, gridData: data};
+};
+
+
+function mapDispatchToProps(dispatch) {
+    return {
+        addArticle: article => dispatch(addArticle(article)),
+        getData: params => dispatch(getData(params))
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(TabView);

@@ -15,7 +15,7 @@ import commentDatasource from './commentDatasource';
 import TableViewComment from './TableViewComment.jsx';
 import SheetCellTooltip from './SheetCellTooltip.jsx';
 import CommentImg from '../images/chat.png';
-
+import { sendRequestPromise } from './sendRequestPromise.js';
 
 LicenseManager.setLicenseKey("Evaluation_License_Not_For_Production_29_December_2019__MTU3NzU3NzYwMDAwMA==a3a7a7e770dea1c09a39018caf2c839c");
 
@@ -38,6 +38,9 @@ export default class Grid extends React.Component {
         filterPanelInToolPanel: FilterPanelInToolPanel,
         sheetCellTooltip: SheetCellTooltip
       },
+      getDataPath: function(data) {
+        return data.hie_path;
+      },
       sideBar:  {
                 toolPanels: [
                         {
@@ -51,25 +54,16 @@ export default class Grid extends React.Component {
                             id: "sheetFilters",
                             labelDefault: "Аналитики",
                             labelKey: "sheetFilters",
-                            iconKey: "sheetFilters",
+                            iconKey: "filter",
                             toolPanel: "filterPanelInToolPanel"
                           }
                     ],
-                    //defaultToolPanel: "sheetFilters",
+                   // defaultToolPanel: "sheetFilters",
                     position: 'left'
                 },
 
          statusBar: {
                 statusPanels: [
-                  {
-                    statusPanel: "agTotalAndFilteredRowCountComponent",
-                    align: "left"
-                  },
-                  {
-                    statusPanel: "agTotalRowCountComponent",
-                    align: "center"
-                  },
-                  { statusPanel: "agFilteredRowCountComponent" },
                   { statusPanel: "agSelectedRowCountComponent" },
                   { statusPanel: "agAggregationComponent" }
                 ]
@@ -96,7 +90,7 @@ export default class Grid extends React.Component {
     this.expandedKeys = [];
 
     this.refreshGrid = this.refreshGrid.bind(this);
-    this.render = this.render.bind(this);
+/*
     this.processColumnsData = this.processColumnsData.bind(this);
     this.loadSheetInfo = this.loadSheetInfo.bind(this);
 
@@ -115,7 +109,7 @@ export default class Grid extends React.Component {
 
     this.columnsLoaded = false;
 
-
+*/
 
 
   }
@@ -164,8 +158,123 @@ export default class Grid extends React.Component {
 
     }
 
+    refreshGrid(){
+        console.log('Grid.refreshGrid this.gridApi=' , this.gridApi);
+        /*setTimeout(function(api){
+                                    console.log('Grid.refreshGrid 001');
+                                    api.purgeServerSideCache();
+                                    console.log('Grid.refreshGrid 002');
+                                    },0, this.gridApi);*/
+        this.loadColumns();
+    }
+
+
+    loadColumns(){
+
+        var loadColumnsHttpRequestStr = this.props.dataModelDescription.loadColumnsHttpRequestStr();
+        //console.log('Gird loadColumns loadColumnsHttpRequestStr', loadColumnsHttpRequestStr);
+        //sendRequest(loadColumnsHttpRequestStr, this.processColumnsData);
+
+        console.log('000 loadColumns');
+        sendRequestPromise(loadColumnsHttpRequestStr)
+            .then(respObj=>this.processColumnsDataSync(respObj))
+            .then(()=>{console.log('001 loadColumns'); return sendRequestPromise('sht_info/?sht_id='+this.props.sheet_id)})
+            .then(respObj => {
+                                console.log('002 loadColumns');
+                                this.processSheetInfo(respObj)
+
+                            }
+
+                    )
+            .then(()=>{ console.log('loadColumns SUCCESS');  this.columnsLoaded = true;});
+    }
+
+processColumnsDataSync(columnList){
+
+        console.log('processColumnsDataSync', columnList);
+        for (var i=0; i < columnList.length; i++){
+            if (columnList[i].refer_data){
+                referStore.setData(columnList[i].key, JSON.stringify(columnList[i].refer_data));
+            }
+        }
+
+
+        //все эти преобразования лучше перенести в средний слой
+        var columns = columnList.map(function prs(currentValue){
+
+            var columnCellEditor = null;
+            if (currentValue.ent_id)
+                columnCellEditor = "treeReferEditor";
+
+            var cellChartDataType = "category";
+            if (currentValue.atr_type==="N")
+                cellChartDataType = "series";
+
+            return {
+                            field:currentValue.key,
+                            headerName:currentValue.name,
+                            autoHeight: true,
+                            ent_id:currentValue.ent_id,
+                            ind_id:currentValue.ind_id,
+                            ind_id_hi: currentValue.ind_id_hi,
+                            atr_type:currentValue.atr_type,
+                            chartDataType : cellChartDataType,
+                            filter:false,
+                            cellEditor: columnCellEditor,
+                            cellRenderer: gridCellRenderer,
+                            tooltipComponentParams: (params)=>{return {columnData: getColumnData(params)};},
+                            tooltipComponent: "sheetCellTooltip",
+                            tooltipValueGetter: function(params) {
+                                                    var columnData =  getColumnData(params);
+                                                    if (columnData && columnData.commentfl===1){
+                                                        return { value: params.value }
+                                                    }else{
+                                                        return;
+                                                    };
+                                                  },
+                            editable:function(params) {
+                                                        var columnData = getColumnData(params);
+                                                        return  (columnData && columnData.editfl===1);
+                                                     },
+                            cellStyle:  (params) => {
+                                                        if (! params.data || ! params.data.column_data){
+                                                            return;
+                                                        }
+                                                        var columnData = getColumnData(params);
+                                                        var style = {color: 'black', backgroundColor: 'white'};
+                                                        if (!columnData){
+                                                            return style;
+                                                        }
+                                                        style = {color: columnData['font.color'], backgroundColor: columnData['brush.color']};
+
+
+                                                        if (columnData['font.bold']==='1'){
+                                                            style['font-weight'] = 'bold';
+                                                        }
+                                                        if (columnData['font.italic']==='1'){
+                                                            style['font-style'] = 'italic';
+                                                        }
+                                                        if (columnData['border.color']){ 
+                                                            style['border-style'] = 'solid'; 
+                                                            style['border-width'] = 'thin'; 
+                                                            style['border-color'] = columnData['border.color'] 
+                                                        }
+
+                                                        return style;
+
+                                                    }
+/**/
+                            }
+            }
+        );
+
+        columns = groupColumns(columns);
+        this.setState({columnDefs: columns});
+
+    }
+
     sendUndoToGrid(){
-        console.log('this.gridApi', this.gridApi);
+        //console.log('this.gridApi', this.gridApi);
         this.gridApi.undoCellEditing();
     }
 
@@ -175,12 +284,10 @@ export default class Grid extends React.Component {
 
 
 
-    refreshGrid(){
-        setTimeout(function(api){api.purgeServerSideCache()},0, this.gridApi);
-        this.loadColumns();
-    }
+
 
     processColumnsData(columnList){
+
         for (var i=0; i < columnList.length; i++){
             if (columnList[i].refer_data){
                 referStore.setData(columnList[i].key, JSON.stringify(columnList[i].refer_data));
@@ -263,9 +370,13 @@ export default class Grid extends React.Component {
         this.columnsLoaded = true;
     }
 
+
+
+
     loadSheetInfo(){
-        console.log('loadSheetInfo', this.props.sheet_id, this.state.sheet_id);
-        sendRequest('sht_info/?sht_id='+this.props.sheet_id, this.processSheetInfo);
+        //console.log('loadSheetInfo', this.props.sheet_id, this.state.sheet_id);
+        sendRequestPromise('sht_info/?sht_id='+this.props.sheet_id)
+            .then((respObj) => this.processSheetInfo(respObj));
     }
 
     processSheetInfo(infoList){
@@ -294,17 +405,13 @@ export default class Grid extends React.Component {
                              });
 
         }
+
         this.setState({gridKey: this.props.sheet_id});
 
     }
 
 
-    loadColumns(){
 
-        var loadColumnsHttpRequestStr = this.props.dataModelDescription.loadColumnsHttpRequestStr();
-        console.log('Gird loadColumns loadColumnsHttpRequestStr', loadColumnsHttpRequestStr);
-        sendRequest(loadColumnsHttpRequestStr, this.processColumnsData);
-    }
 
     addAdditionalSheetParams(str){
         var httpStr = str;
@@ -325,14 +432,15 @@ export default class Grid extends React.Component {
    }
 
   onGridReady = params => {
+    console.log('onGridReady');
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
 
-    console.log('GRID this.props.onGetGridApi', this.props.onGetGridApi);
-    this.props.onGetGridApi(this.gridApi);
+    //console.log('GRID this.props.onGetGridApi', this.props.onGetGridApi);
+    //this.props.onGetGridApi(this.gridApi);
 
-    var datasource = this.serverSideDatasource(this);
-    this.gridApi.setServerSideDatasource(datasource);
+    //var datasource = this.serverSideDatasource(this);
+    //this.gridApi.setServerSideDatasource(datasource);
      if (this.props.additionalSheetParams && !this.columnsLoaded){
          this.loadColumns();
      }
@@ -362,6 +470,10 @@ export default class Grid extends React.Component {
   }
 
     onRowGroupOpened(e){
+        console.log('onRowGroupOpened', e);
+
+        this.props.processNodeExpanding(e);
+
         if (e.node.expanded){
             this.expandedKeys.push(e.node.key);
         }else{
@@ -389,7 +501,7 @@ export default class Grid extends React.Component {
 
     sendInsertRecord(){
         this.savedFocusedCell = this.gridApi.getFocusedCell();
-        console.log('sendInsertRecord');
+        //console.log('sendInsertRecord');
         this.gridApi.purgeServerSideCache();
     }
 
@@ -411,7 +523,11 @@ export default class Grid extends React.Component {
 
     }
 
+//rowModelType={this.state.rowModelType}
+//treeData={this.state.treeData}
+//onRowGroupOpened={this.onRowGroupOpened.bind(this)}
   render() {
+
                 ///ниже вычитаем высоту тулбара - от этого необходимо избавиться! перенеся и используя эту константу в CSS --calc(100% - 36px)
             return (
                 <React.Fragment>
@@ -422,7 +538,9 @@ export default class Grid extends React.Component {
                             columnDefs={this.state.columnDefs}
                             defaultColDef={this.state.defaultColDef}
                             autoGroupColumnDef={this.state.autoGroupColumnDef}
-                            rowModelType={this.state.rowModelType}
+
+                            rowData={this.props.gridRowData}
+
                             treeData={this.state.treeData}
                             animateRows={true}
                             isServerSideGroup={this.state.isServerSideGroup}
@@ -431,7 +549,7 @@ export default class Grid extends React.Component {
                             floatingFilter={false}
                             sideBar={this.state.sideBar}
                             frameworkComponents={this.state.frameworkComponents}
-                            onModelUpdated={this.onModelUpdated}
+
                             onRowDataChanged={this.onRowDataChanged}
                             onRowDataUpdated={this.onRowDataUpdated}
                             processChartOptions={this.state.processChartOptions}
@@ -449,10 +567,14 @@ export default class Grid extends React.Component {
                             onColumnMoved={this.onGridStateChange.bind(this)}
                             onColumnPinned={this.onGridStateChange.bind(this)}
                             onColumnVisible={this.onGridStateChange.bind(this)}
+
                             onRowGroupOpened={this.onRowGroupOpened.bind(this)}
+                            deltaRowDataMode={true}
+
+                             getDataPath={this.state.getDataPath}
                             getRowNodeId={this.state.getRowNodeId}
                             onCellValueChanged={this.onCellValueChanged.bind(this)}
-                            deltaRowDataMode={true}
+
                             undoRedoCellEditing={true}
                             undoRedoCellEditingLimit={100}
                             enableCellChangeFlash={true}
@@ -465,6 +587,10 @@ export default class Grid extends React.Component {
 
             );
   }
+
+
+
+
 
     createChartContainer(chartRef) {
         if (this.props.addElementToLayout){
@@ -506,8 +632,8 @@ export default class Grid extends React.Component {
             }else{
 
             }
-            console.log('showCommentForCell=', columnData);
-            console.log('showCommentForCell(params)', params);
+           // console.log('showCommentForCell=', columnData);
+           // console.log('showCommentForCell(params)', params);
 
             var additionalParams = {
                                     viewType: 'CommentView',
@@ -663,24 +789,37 @@ function groupColumns(columns){
 
 
 function getColumnData(params){
+    //console.log('getColumnData', params);
+    //return null;
     var columnDataList = [];
     var colDefField = '';
 
     if (params.node && params.node.data &&  params.node.data.column_data){
+        //console.log('getColumnData 10001');
         columnDataList = params.node.data.column_data;
+        //console.log('getColumnData 10002');
         colDefField = params.column.colDef.field;
+        //console.log('getColumnData 10003');
     }else if(params.rowIndex){
+        //console.log('getColumnData 20001');
         columnDataList = params.api.getDisplayedRowAtIndex(params.rowIndex).data.column_data;
+        //console.log('getColumnData 20002', columnDataList   );
         colDefField = params.colDef.field;
+        //console.log('getColumnData 20003');
+
     }else if (params.data && params.colDef) {
         columnDataList = params.data.column_data;
         colDefField = params.colDef.field;
     }
-
-
-    for(var i=0; i< columnDataList.length; i++){
-        if (columnDataList[i].key===colDefField){
-            return columnDataList[i];
+//console.log('getColumnData 4000', columnDataList);
+    //return null;
+    if (columnDataList) {
+        for(var i=0; i< columnDataList.length; i++){
+            if (columnDataList[i].key===colDefField){
+               // console.log('===colDefField', colDefField);
+                //console.log('===columnDataList[i]', columnDataList[i]);
+                return columnDataList[i];
+            }
         }
     }
 

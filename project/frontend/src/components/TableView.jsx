@@ -93,6 +93,7 @@ export default class TableView extends Component {
     }
 
     processSheetState(sheetState){
+        console.log('OLD processSheetState', sheetState);
         if (sheetState.length>0){
             if (sheetState[0].filternodes){
                 var selectedNodes = sheetState[0].filternodes;
