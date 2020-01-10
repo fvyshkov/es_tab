@@ -420,7 +420,7 @@ export default class Grid extends React.Component {
             return (
                 <React.Fragment>
 
-                    <div className ="ag-theme-balham NonDraggableAreaClassName ToolbarViewContent" id="myGrid123">
+                    <div className ="ag-theme-balham NonDraggableAreaClassName ToolbarViewContent" key={this.state.gridKey} id="myGrid123">
                         <AgGridReact
                             gridKey={this.state.gridKey}
                             modules={AllModules}
