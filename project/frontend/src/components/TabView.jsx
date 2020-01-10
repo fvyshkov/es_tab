@@ -7,7 +7,7 @@ import ColorPanel from './ColorPanel.jsx';
 import { sendRequest } from './App.js';
 import { sendRequestPromise } from './sendRequestPromise.js';
 import { connect } from "react-redux";
-import { addArticle, getData } from "../actions/index";
+import { addArticle, getData, clearData, addLoading } from "../actions/index";
 import { AgGridReact } from "@ag-grid-community/react";
 import {AllModules} from "@ag-grid-enterprise/all-modules";
 import '@ag-grid-community/client-side-row-model';
@@ -23,7 +23,8 @@ class TabView extends Component {
 
         //const uuidv1 = require('uuid/v1');
 
-        this.dataModelDescription = new DataModelDescription();
+
+        this.dataModelDescription = new DataModelDescription({}, this.getFilterSkey.bind(this));
         this.state={
                         viewGUID: this.props.layoutItemID,
                         sheet_id: 0,
@@ -32,7 +33,8 @@ class TabView extends Component {
                         filterNodes: {},
                         forceGridReload: false,
                         columnStates: {},
-                        expandedGroupIds : []
+                        expandedGroupIds : [],
+                        loading: 'false'
                       };
 
         this.onToolbarPreferencesClick = this.onToolbarPreferencesClick.bind(this);
@@ -49,6 +51,12 @@ class TabView extends Component {
         this.setTestFieldAsync = this.setTestFieldAsync.bind(this);
         this.processNodeExpanding = this.processNodeExpanding.bind(this);
         this.getTabData = this.getTabData.bind(this);
+
+        this.getFilterSkey = this.getFilterSkey.bind(this);
+        this.clearData = this.clearData.bind(this);
+        this.addLoading = this.addLoading.bind(this);
+
+
 
 
 
@@ -176,6 +184,8 @@ class TabView extends Component {
     loadNewSheet(prm_sheet_id, prm_sheet_type){
         console.log('viewGUID', this.state.viewGUID);
 
+        this.clearData();
+        this.addLoading();
 
         var tabView = this;
         return new Promise(function(resolve, reject) {
@@ -345,8 +355,13 @@ class TabView extends Component {
         return '0';
     }
 
+    clearData(){
+        this.props.clearData({viewGUID: this.state.viewGUID});
+    }
 
     onToolbarRefreshClick(){
+        this.addLoading();
+        this.clearData();
         this.sendRefreshGrid();
         this.getTabData(null, true);
     }
@@ -449,12 +464,13 @@ class TabView extends Component {
         }
         this.gripApi = params;
     }
-
+/*
     getDataModelDescription(){
         var sheetParams={sht_id:this.state.sheet_id, sheet_type: this.state.sheet_type};
         var dataModelDescription = new DataModelDescription(sheetParams);
         return dataModelDescription;
     }
+    */
 
     processNodeExpanding(params){
 
@@ -474,6 +490,10 @@ class TabView extends Component {
                                 parentNodeKey: params.data.node_key
 
                             });
+    }
+
+    addLoading(){
+        this.props.addLoading({viewGUID:this.state.viewGUID});
     }
 
 
@@ -508,6 +528,7 @@ class TabView extends Component {
                                 sendBeforeCloseToGrid={click => this.sendBeforeCloseToGrid = click}
                                 sendUndoToGrid={click => this.sendUndoToGrid = click}
                                 skey={this.getFilterSkey}
+                                loading={this.props.loading}
                                 sheet_id = {this.state.sheet_id}
                                 sheet_type = {this.state.sheet_type}
                                 treeData = {this.state.sheet_type==='tree'? true:false}
@@ -543,42 +564,6 @@ class TabView extends Component {
     }
 
 }
-
-/*
-
-
- <Grid
-                                sendRefreshGrid={click => this.sendRefreshGrid = click}
-                                sendBeforeCloseToGrid={click => this.sendBeforeCloseToGrid = click}
-                                sendUndoToGrid={click => this.sendUndoToGrid = click}
-                                skey={this.getFilterSkey}
-                                sheet_id = {this.state.sheet_id}
-                                sheet_type = {this.state.sheet_type}
-                                treeData = {this.state.sheet_type==='tree'? true:false}
-                                onFilterPanelChange={this.onFilterPanelChange}
-                                selectedFilterNodes={this.state.selectedFilterNodes}
-                                filterNodes={this.state.filterNodes[this.state.sheet_id]}
-                                columnStates={this.state.columnStates[this.state.sheet_id]}
-                                expandedGroupIds={this.state.expandedGroupIds}
-                                addElementToLayout={this.props.addElementToLayout}
-                                onToolbarCloseClick={this.props.onToolbarCloseClick}
-                                getNewLayoutItemID={this.props.getNewLayoutItemID}
-                                forceGridReload={this.state.forceGridReload}
-                                resetForceGridReload={this.resetForceGridReload.bind(this)}
-                                onGridStateChange={this.onGridStateChange.bind(this)}
-                                onGridExpandedChange={this.onGridExpandedChange.bind(this)}
-                                sendInsertRecord={click => this.sendInsertRecord = click}
-                                sendDeleteRecord={click => this.sendDeleteRecord = click}
-                                additionalSheetParams={this.props.additionalSheetParams}
-                                getDatasource={this.props.getDatasource}
-                                onCellFocused={this.onCellFocused.bind(this)}
-                                onGetGridApi={this.onGetGridApi.bind(this)}
-                                dataModelDescription={this.dataModelDescription}
-                                gridRowData={this.props.gridData}
-                                processNodeExpanding={this.processNodeExpanding.bind(this)}
-                                />
-
-*/
 
 function getSelectedFilterNodes(nodes){
     var selected = {}
@@ -643,8 +628,9 @@ function markSelectedFilterNodes(nodes, selected){
 
 class DataModelDescription{
 
-    constructor(queryParams){
+    constructor(queryParams, getFilterSkey){
         this.queryParams = queryParams;
+        this.getFilterSkey = getFilterSkey;
     }
 
     addParamsToString(str, params){
@@ -667,6 +653,12 @@ class DataModelDescription{
     loadColumnsHttpRequestStr(){
         var httpStr = "sht_columns/?";
         httpStr = this.addParamsToString(httpStr, this.queryParams);
+
+        var skey = this.getFilterSkey();
+        if  (skey){
+            httpStr += '&skey='+skey;
+        }
+
         return httpStr;
     }
 
@@ -782,7 +774,7 @@ class DataModelDescription{
 }
 
 function mapStateToProps (state, ownProps){
-    console.log('tabView mapStateToProps state.expandedNodes', ownProps.layoutItemID, state.expandedNodes );
+    console.log('tabView mapStateToProps state.expandedNodes', ownProps.layoutItemID, state.loadingGuids );
 
     var clonedStateData = [];
     if (state.tabViewData.get(ownProps.layoutItemID)){
@@ -828,14 +820,16 @@ function mapStateToProps (state, ownProps){
     );
 
     console.log('mapStateToProps data', data);
-    return { articles: state.articles, gridData: data};
+    return { articles: state.articles, gridData: data, loading: state.loadingGuids.includes(ownProps.layoutItemID)};
 };
 
 
 function mapDispatchToProps(dispatch) {
     return {
         addArticle: article => dispatch(addArticle(article)),
-        getData: params => dispatch(getData(params))
+        getData: params => dispatch(getData(params)),
+        clearData: params => dispatch(clearData(params)),
+        addLoading: params => dispatch(addLoading(params))
     };
 }
 

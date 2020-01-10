@@ -188,7 +188,7 @@ export default class Grid extends React.Component {
             .then(respObj=>this.processColumnsDataSync(respObj))
             .then(()=>{console.log('001 loadColumns'); return sendRequestPromise('sht_info/?sht_id='+this.props.sheet_id)})
             .then(respObj => {
-                                console.log('002 loadColumns');
+                                console.log('002 loadColumns', respObj);
                                 this.processSheetInfo(respObj)
 
                             }
@@ -531,16 +531,15 @@ processColumnsDataSync(columnList){
 
     }
 
-//rowModelType={this.state.rowModelType}
-//treeData={this.state.treeData}
-//onRowGroupOpened={this.onRowGroupOpened.bind(this)}
   render() {
+            if (this.gridApi && this.props.loading){
+                this.gridApi.showLoadingOverlay();
+            }
 
-                ///ниже вычитаем высоту тулбара - от этого необходимо избавиться! перенеся и используя эту константу в CSS --calc(100% - 36px)
             return (
                 <React.Fragment>
 
-                    <div className ="ag-theme-balham NonDraggableAreaClassName" style={ {height: 'calc(100% - 36px)', width: '100%', position: 'absolute'} } key={this.state.gridKey} id="myGrid123">
+                    <div className ="ag-theme-balham NonDraggableAreaClassName ToolbarViewContent"  key={this.state.gridKey} id="myGrid123">
                         <AgGridReact
                             modules={AllModules}
                             columnDefs={this.state.columnDefs}

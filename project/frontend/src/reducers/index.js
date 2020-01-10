@@ -1,9 +1,10 @@
-import { ADD_ARTICLE } from "../constants/action-types";
+import { ADD_ARTICLE, DATA_CLEAR, DATA_LOADED, ADD_LOADING_GUID, API_ERRORED } from "../constants/action-types";
 
 const initialState = {
   articles: [{title:'1'}],
   tabViewData: new Map(),
-  expandedNodes: new Map()
+  expandedNodes: new Map(),
+  loadingGuids: []
 };
 
 function rootReducer(state = initialState, action) {
@@ -17,10 +18,34 @@ function rootReducer(state = initialState, action) {
         });
     }
 
-    if (action.type === "DATA_LOADED") {
+    if (action.type === DATA_CLEAR) {
+        console.log('data_loaded, parent_ke=', action.params);
+        var newState = Object.assign({}, state);
+
+        newState.tabViewData.set(action.params.viewGUID, []);
+        newState.expandedNodes.set(action.params.viewGUID, []);
+
+        return newState;
+    }
+
+    if (action.type === ADD_LOADING_GUID) {
+        return Object.assign({}, state, {
+            loadingGuids: state.loadingGuids.concat(action.params.viewGUID)
+        });
+    }
+
+    if (action.type === API_ERRORED) {
+        return Object.assign({}, state, {
+            loadingGuids: state.loadingGuids.filter(function(e) { return e !== action.params.viewGUID })
+        });
+    }
+
+    if (action.type === DATA_LOADED) {
         console.log('data_loaded, parent_ke=', action.params.parentNodeKey);
 
         var newState = Object.assign({}, state);
+
+        newState.loadingGuids = newState.loadingGuids.filter(function(e) { return e !== action.params.viewGUID });
 
         var expandedNodes = [];
         if (newState.expandedNodes.get(action.params.viewGUID)){
