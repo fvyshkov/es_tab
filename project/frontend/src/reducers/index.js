@@ -2,8 +2,8 @@ import { ADD_ARTICLE } from "../constants/action-types";
 
 const initialState = {
   articles: [{title:'1'}],
-  tabViewData: {},
-  expandedNodes: []
+  tabViewData: new Map(),
+  expandedNodes: new Map()
 };
 
 function rootReducer(state = initialState, action) {
@@ -19,17 +19,33 @@ function rootReducer(state = initialState, action) {
 
     if (action.type === "DATA_LOADED") {
         console.log('data_loaded, parent_ke=', action.params.parentNodeKey);
-        /*
-        action.params={
-                        parentNodeKey
-                        reload
-                        viewGUID
-                        }
-        */
-        var newState = Object.assign({}, state, {
-            tabViewData[action.params.viewGUID]: action.params.reload ? action.payload : state.tabViewData.concat(action.payload),
-            expandedNodes[action.params.viewGUID]: action.params.parentNodeKey ? state.expandedNodes.concat(action.params.parentNodeKey) : state.expandedNodes
-        });
+
+        var newState = Object.assign({}, state);
+
+        var expandedNodes = [];
+        if (newState.expandedNodes.get(action.params.viewGUID)){
+            expandedNodes = newState.expandedNodes.get(action.params.viewGUID);
+        }
+
+        var tabViewData = [];
+        if (newState.tabViewData.get(action.params.viewGUID)){
+            tabViewData = newState.tabViewData.get(action.params.viewGUID);
+        }
+
+        if (action.params.reload){
+            tabViewData = [];
+            expandedNodes = [];
+        }
+
+
+        tabViewData = tabViewData.concat(action.payload);
+
+        if (action.params.parentNodeKey){
+            expandedNodes.push(action.params.parentNodeKey);
+        }
+        console.log('reducer expandedNodes', expandedNodes, action.params.parentNodeKey);
+        newState.tabViewData.set(action.params.viewGUID, tabViewData);
+        newState.expandedNodes.set(action.params.viewGUID, expandedNodes);
 
         return newState;
     }

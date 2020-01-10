@@ -21,11 +21,11 @@ class TabView extends Component {
     constructor(props) {
         super(props);
 
-        const uuidv1 = require('uuid/v1');
+        //const uuidv1 = require('uuid/v1');
 
         this.dataModelDescription = new DataModelDescription();
         this.state={
-                        viewGUID: uuidv1(),
+                        viewGUID: this.props.layoutItemID,
                         sheet_id: 0,
                         colorPanelVisible: false,
                         selectedFilterNodes: {},
@@ -175,6 +175,8 @@ class TabView extends Component {
 
     loadNewSheet(prm_sheet_id, prm_sheet_type){
         console.log('viewGUID', this.state.viewGUID);
+
+
         var tabView = this;
         return new Promise(function(resolve, reject) {
             //console.log('loadNewSheet 1');
@@ -217,8 +219,8 @@ class TabView extends Component {
 
     getTabData(parentNode, reload = false){
         let httpStr = 'sht_nodes/?dummy=1';
-        if (this.props.sheet_id){
-            httpStr += '&sht_id=' + this.props.sheet_id;
+        if (this.state.sheet_id){
+            httpStr += '&sht_id=' + this.state.sheet_id;
         }
         httpStr += '&skey=' + this.getFilterSkey();
 
@@ -346,6 +348,7 @@ class TabView extends Component {
 
     onToolbarRefreshClick(){
         this.sendRefreshGrid();
+        this.getTabData(null, true);
     }
 
 
@@ -454,6 +457,9 @@ class TabView extends Component {
     }
 
     processNodeExpanding(params){
+
+        this.getTabData(params);
+        return;
         console.log('processNodeExpanding node', params);
         var pathToExpandedNode = '';
         params.data.hie_path.forEach(el=>{pathToExpandedNode += el+','});
@@ -775,32 +781,47 @@ class DataModelDescription{
 
 }
 
-function mapStateToProps (state){
-    console.log('tabView mapStateToProps state.expandedNodes', state.expandedNodes );
+function mapStateToProps (state, ownProps){
+    console.log('tabView mapStateToProps state.expandedNodes', ownProps.layoutItemID, state.expandedNodes );
 
-    var clonedStateData = JSON.parse(JSON.stringify(state.tabViewData[this.state.viewGUID]));
+    var clonedStateData = [];
+    if (state.tabViewData.get(ownProps.layoutItemID)){
+        clonedStateData = JSON.parse(JSON.stringify(state.tabViewData.get(ownProps.layoutItemID)));
+     }else{
+        return {};
+     }
+
+    var expandedNodes =[];
+
+    if (state.expandedNodes.get(ownProps.layoutItemID)){
+        expandedNodes = state.expandedNodes.get(ownProps.layoutItemID);
+    }
+
+    console.log('MAP expandedNodes', expandedNodes );
 
     var data=[];
 
     clonedStateData.forEach(
         (row)=>{
-           // console.log('row', row);
             data.push(row);
-            //data[data.length-1]['orgHierarchy'] = [row.node_key];
 
-            if (row.groupfl==='1' && !state.expandedNodes.includes(row.node_key)){
 
-                console.log('groupgl==1 , adding dummy , row=', row);
+            if (row.column_data){
+                var colData =  row.column_data;
+                for (var colIndex=0; colIndex<colData.length; colIndex++){
+                    data[data.length-1][colData[colIndex].key] = colData[colIndex].sql_value;
+                }
+            }
 
+
+            if (row.groupfl==='1' && !expandedNodes.includes(row.node_key)){
                 data.push({});
                 var dummy_hie_path = row.hie_path.slice();
                 dummy_hie_path.push(row.node_key+' dummy child');
-
-                console.log('dummy_hie_path', dummy_hie_path);
                 data[data.length-1]['hie_path'] = dummy_hie_path;
                 data[data.length-1]['node_key'] = row.node_key+'_dummy_child';
-                //data[data.length-1]['hie_path'] = [row.node_key+'_child', 'dummy child '+row.node_key];
             }
+
 
 
         }

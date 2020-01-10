@@ -136,10 +136,10 @@ def get_comments_list(ind_id, skey):
 
 def get_cell_skey(request):
     param_dict = dict(request.GET)
-    flt_id = req_id = param_dict.get('flt_id', [''])[0]
-    flt_item_id = req_id = param_dict.get('flt_item_id', [''])[0]
-    skey = req_id = param_dict.get('skey', [''])[0]
-    group_keys = req_id = param_dict.get('group_keys', [''])[0]
+    flt_id = param_dict.get('flt_id', [''])[0]
+    flt_item_id = param_dict.get('flt_item_id', [''])[0]
+    skey = param_dict.get('skey', [''])[0]
+    group_keys = param_dict.get('group_keys', [''])[0]
 
     skey_total = skey+','+ group_keys;
 
@@ -640,12 +640,14 @@ def get_tree_node_list(request):
     p_flt_root_id = ''
     p_cell_key = ''
 
+
+
     if 'sht_id' in param_dict:
         p_sht_id = param_dict['sht_id'][0]
     else:
         return []
 
-    group_keys = param_dict['group_keys'][0]
+    group_keys = param_dict.get('group_keys', [''])[0]
 
     if 'flt_id' in param_dict:
         p_flt_id = param_dict['flt_id'][0]

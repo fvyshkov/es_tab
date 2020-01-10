@@ -57,7 +57,7 @@
               { loader: "css-loader" }]
           },
           {
-            test: /\.(eot|png|jpg|svg|ttf|woff|woff2)$/,
+            test: /\.(eot|png|jpg|gif|svg|ttf|woff|woff2)$/,
             use: "url-loader?name=[name].[ext]"
           }
         ]

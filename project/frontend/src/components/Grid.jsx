@@ -16,6 +16,7 @@ import TableViewComment from './TableViewComment.jsx';
 import SheetCellTooltip from './SheetCellTooltip.jsx';
 import CommentImg from '../images/chat.png';
 import { sendRequestPromise } from './sendRequestPromise.js';
+import {Spinner} from './spin.js';
 
 LicenseManager.setLicenseKey("Evaluation_License_Not_For_Production_29_December_2019__MTU3NzU3NzYwMDAwMA==a3a7a7e770dea1c09a39018caf2c839c");
 
@@ -24,6 +25,7 @@ export default class Grid extends React.Component {
     super(props);
 
     this.immutableStore =[];
+
     this.savedFocusedCell = {};
 
     this.state = {
@@ -120,7 +122,13 @@ export default class Grid extends React.Component {
                 headerName:"Показатель",
                 cellRendererParams: {
                     innerRenderer: function(params) {
-                        return params.data.name;
+                        if (params.data.node_key.includes('dummy')){
+                            var element = document.createElement("span");
+                            var spinner =  new Spinner({scale: .4, speed: 1.3}).spin(element);
+                            return element;
+                        }else{
+                            return params.data.name;
+                        }
                     }
                 },
                 pinned: 'left',
@@ -704,6 +712,13 @@ processColumnsDataSync(columnList){
 
 
 function gridCellRenderer(params){
+   // console.log("gridCellRenderer params", params);
+   // console.log('gridCellRenderer ??? 001');
+
+    var cellData = params.data;
+
+
+
     var displayValue;
     if (params.colDef.ent_id){
         displayValue = getReferValueById(params.colDef.field, params.value);
@@ -747,7 +762,18 @@ function gridCellRenderer(params){
 
         imageElement.src = CommentImg;
         element.appendChild(imageElement);
+    } /* if (params && cellData && cellData.node_key && cellData.node_key.includes('dummy')){
+        console.log('???');
+        var imageElement = document.createElement("img");
+        displayValue = "Загрузка данных...";
+        imageElement.setAttribute("width" , "16px");
+        imageElement.setAttribute("height" , "16px");
+
+        imageElement.src = CommentImg;
+        element.appendChild(imageElement);
+
     }
+*/
 
     element.appendChild(document.createTextNode(displayValue));
     return element;

@@ -7,12 +7,12 @@ import { FileUploader } from 'devextreme-react';
 import "./index.css";
 import { Provider } from "react-redux";
 import store from "../store/index";
-import FileView from './FileView.jsx';
 
 
 const App = () => (
     <Provider store={store}>
         <div>
+
             <LayoutWithToolbar />
         </div>
     </Provider>
