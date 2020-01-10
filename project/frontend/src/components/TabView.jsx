@@ -31,7 +31,6 @@ class TabView extends Component {
                         colorPanelVisible: false,
                         selectedFilterNodes: {},
                         filterNodes: {},
-                        forceGridReload: false,
                         columnStates: {},
                         expandedGroupIds : [],
                         loading: 'false'
@@ -45,10 +44,7 @@ class TabView extends Component {
         this.onColorPanelClose = this.onColorPanelClose.bind(this);
         this.onLoadFilterNodes = this.onLoadFilterNodes.bind(this);
         this.componentDidMount = this.componentDidMount.bind(this);
-        this.testGetPromise = this.testGetPromise.bind(this);
-        this.test = this.test.bind(this);
         this.processSheetState = this.processSheetState.bind(this);
-        this.setTestFieldAsync = this.setTestFieldAsync.bind(this);
         this.processNodeExpanding = this.processNodeExpanding.bind(this);
         this.getTabData = this.getTabData.bind(this);
 
@@ -65,16 +61,7 @@ class TabView extends Component {
     }
 
 
-    testArticlesList(){
-        //this.props.getData({sht_id:100, text:'test text'});
-        this.props.addArticle({ title:'777' });
-    }
 
-    test(){
-        console.log('TableView test');
-        this.setState({test:'test'});
-        return 1;
-    }
 
     componentDidMount(){
         if (this.props.sendLoadNewSheet){
@@ -94,92 +81,9 @@ class TabView extends Component {
     }
 
     onToolbarPreferencesClick(){
-        this.testArticlesList();
-
         this.setState({colorPanelVisible:true});
-
-        if (this.state.sheet_type==='tree'){
-            this.setState({forceGridReload: true});
-        }
     }
 
-    httpGet(url) {
-
-      return new Promise(function(resolve, reject) {
-
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', url, true);
-
-        xhr.onload = function() {
-          if (this.status == 200) {
-            resolve(this.response);
-          } else {
-            var error = new Error(this.statusText);
-            error.code = this.status;
-            reject(error);
-          }
-        };
-
-        xhr.onerror = function() {
-          reject(new Error("Network Error"));
-        };
-
-        xhr.send();
-      });
-
-    }
-
-
-
-    testGetPromise(){
-
-        return new Promise(
-                (resolve, reject) => {
-
-                      setTimeout(() => {
-                                        console.log('ON testGetPromise');
-                                        resolve("result");
-
-                                        }, 4000);
-
-                }
-        );
-    }
-
-/*
-    sendNewSheetRequest(prm_sheet_id, prm_sheet_type){
-        return new Promise(
-                (resolve, reject) => {
-
-                    if (this.state.sheet_id){
-                        this.sendBeforeCloseToGrid();
-                        this.saveSheetState();
-                    }
-
-                    this.dataModelDescription.setParams({sht_id:prm_sheet_id});
-
-                    this.setState({sheet_id: prm_sheet_id, sheet_type: prm_sheet_type});
-                    if (!this.state.filterNodes[prm_sheet_id]){
-                        sendRequest('sht_filters/?sht_id='+prm_sheet_id, this.onLoadFilterNodes);
-                    }else{
-                        this.sendRefreshGrid();
-                    }
-
-                }
-        );
-
-
-    }
-    */
-
-    setTestFieldAsync(value){
-        setTimeout(()=>{this.setState({testField:value});}, 2000);
-
-    }
-
-    getTestField(){
-        return this.state.testField;
-    }
 
     loadNewSheet(prm_sheet_id, prm_sheet_type){
         console.log('viewGUID', this.state.viewGUID);
@@ -189,43 +93,35 @@ class TabView extends Component {
 
         var tabView = this;
         return new Promise(function(resolve, reject) {
-            //console.log('loadNewSheet 1');
             tabView.dataModelDescription.setParams({sht_id:prm_sheet_id});
-            //console.log('loadNewSheet 2');
             tabView.setState({sheet_id: prm_sheet_id, sheet_type: prm_sheet_type});
-            //console.log('loadNewSheet 3');
+            /*
+            tabView.saveSheetStatePromise()
+                .then(()=>{ return
+            */
             sendRequestPromise('sht_filters/?sht_id='+prm_sheet_id)
                 .then(respObj=>{
                                     tabView.onLoadFilterNodesSync(respObj);
                                 })
                 .then(()=>{return sendRequestPromise('sht_state/?sht_id='+ tabView.state.sheet_id)})
                 .then(respObj=>{tabView.processSheetState(respObj);})
+                /*здесь происходит чтение колонок,
+                    а также чтение типа листа, цветов легенды.
+                    если тип ли та =МП, указываем гриду TreeData=true, установливаем группирующую колонку
+
+                */
                 .then(()=>{console.log('sendRefresh');tabView.sendRefreshGrid()})
                 //в redux-версии здесь должно быть  зачитывание данных и загрузка колонок
-                .then(
-
-                        //()=>  tabView.props.getData({requestString:'sht_nodes/?dummy=1&sht_id=2434&skey=FLT_ID_5619=>39595,&group_keys='})
-                         () => tabView.getTabData(null, true)
-                    )
-
+                .then(() => tabView.getTabData(null, true))
                 .then(()=>resolve('success'));
         });
 
-        return ;
-        if (this.state.sheet_id){
-            this.sendBeforeCloseToGrid();
-            this.saveSheetState();
-        }
-
-        this.dataModelDescription.setParams({sht_id:prm_sheet_id});
-
-        this.setState({sheet_id: prm_sheet_id, sheet_type: prm_sheet_type});
-        if (!this.state.filterNodes[prm_sheet_id]){
-            sendRequest('sht_filters/?sht_id='+prm_sheet_id, this.onLoadFilterNodes);
-        }else{
-            this.sendRefreshGrid();
-        }
     }
+
+
+
+
+
 
     getTabData(parentNode, reload = false){
         let httpStr = 'sht_nodes/?dummy=1';
@@ -291,8 +187,13 @@ class TabView extends Component {
         if (sheetState.length>0){
             if (sheetState[0].filternodes){
                 var selectedNodes = sheetState[0].filternodes;
+
+
+                console.log('processSheetState selectedNodes', selectedNodes);
                 var markedNodes = markSelectedFilterNodes(this.state.filterNodes[this.state.sheet_id], selectedNodes);
                 this.state.filterNodes[this.state.sheet_id] = markedNodes;
+
+                console.log('processSheetState this.state.filterNodes', this.state.filterNodes);
                 this.setState({filterNodes: this.state.filterNodes});
             }
 
@@ -317,6 +218,18 @@ class TabView extends Component {
 
             var httpStr = 'sht_state_update/?sht_id='+this.state.sheet_id;
             sendRequestPromise(httpStr, 'POST', sheetState);
+        }
+    }
+
+    saveSheetStatePromise(){
+        if (this.state.sheet_id){
+            var sheetState = {};
+            sheetState['filterNodes'] = getSelectedFilterNodes(this.state.filterNodes[this.state.sheet_id]);
+            sheetState['columnStates'] = this.state.columnStates[this.state.sheet_id];
+            sheetState['expandedGroupIds'] = this.state.expandedGroupIds;
+
+            var httpStr = 'sht_state_update/?sht_id='+this.state.sheet_id;
+            return sendRequestPromise(httpStr, 'POST', sheetState);
         }
     }
 
@@ -381,11 +294,6 @@ class TabView extends Component {
 
     onColorPanelClose(){
         this.setState({colorPanelVisible:false});
-    }
-
-    resetForceGridReload(){
-        this.setState({forceGridReload:false});
-
     }
 
     onToolbarSaveClick(){
@@ -471,6 +379,14 @@ class TabView extends Component {
         return dataModelDescription;
     }
     */
+    afterLoadColumns(){
+        return sendRequestPromise('sht_info/?sht_id='+this.state.sheet_id)
+            .then(respObj => {
+                                this.processSheetInfo(respObj)
+                            }
+                            );
+
+    }
 
     processNodeExpanding(params){
 
@@ -497,8 +413,13 @@ class TabView extends Component {
     }
 
 
+resetForceGridReload(){
+        this.setState({forceGridReload:false});
 
-    render(){
+    }
+
+   render(){
+    console.log('tabView Render FN ', this.state.filterNodes[this.state.sheet_id]);
         return (
             <React.Fragment>
 
@@ -540,8 +461,11 @@ class TabView extends Component {
                                 addElementToLayout={this.props.addElementToLayout}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick}
                                 getNewLayoutItemID={this.props.getNewLayoutItemID}
-                                forceGridReload={this.state.forceGridReload}
-                                resetForceGridReload={this.resetForceGridReload.bind(this)}
+
+
+forceGridReload={this.state.forceGridReload}
+resetForceGridReload={this.resetForceGridReload.bind(this)}
+
                                 onGridStateChange={this.onGridStateChange.bind(this)}
                                 onGridExpandedChange={this.onGridExpandedChange.bind(this)}
                                 sendInsertRecord={click => this.sendInsertRecord = click}
@@ -553,6 +477,7 @@ class TabView extends Component {
                                 dataModelDescription={this.dataModelDescription}
                                 gridRowData={this.props.gridData}
                                 processNodeExpanding={this.processNodeExpanding.bind(this)}
+                                afterLoadColumns={this.afterLoadColumns.bind(this)}
                                 />
 </div>
 
@@ -725,45 +650,7 @@ class DataModelDescription{
                                                             params.successCallback([], 0);
                                                         }
                                                     });
-                /*
-                sendRequest(httpStr, (rowData) =>{
-                                                        if (rowData.length >0) {
-                                                            let lastRow = () => {
-                                                                return rowData.length;
-                                                            };
 
-                                                            for (var i = 0; i < rowData.length; i++) {
-                                                                var colData =  rowData[i].column_data;
-                                                                for (var colIndex=0; colIndex<colData.length; colIndex++){
-                                                                    rowData[i][colData[colIndex].key] = colData[colIndex].sql_value;
-                                                                }
-                                                            }
-                                                            params.successCallback(rowData, lastRow());
-
-                                                            if (gridComponent.savedFocusedCell){
-                                                                gridComponent.gridApi.ensureIndexVisible(gridComponent.savedFocusedCell.rowIndex);
-                                                                gridComponent.gridApi.ensureColumnVisible(gridComponent.savedFocusedCell.column);
-                                                                gridComponent.gridApi.setFocusedCell(gridComponent.savedFocusedCell.rowIndex, gridComponent.savedFocusedCell.column);
-                                                             }
-
-
-                                                            rowData.forEach(function(row) {
-                                                                if (gridComponent.props.expandedGroupIds &&
-                                                                    gridComponent.props.expandedGroupIds.indexOf(row.node_key) > -1) {
-                                                                    if (gridComponent.gridApi.getRowNode(row.node_key)){
-                                                                        gridComponent.gridApi.getRowNode(row.node_key).setExpanded(true);
-                                                                    }
-
-                                                                }
-
-
-                                                            });
-                                                        }else{
-                                                            params.successCallback([], 0);
-                                                        }
-                                                    }
-                            );
-                            */
 
             }
         }

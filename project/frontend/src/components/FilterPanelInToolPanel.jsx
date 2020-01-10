@@ -6,14 +6,18 @@ export default class FilterPanelInToolPanel extends Component {
     constructor(props) {
         super(props);
         this.state={};
+
         this.onFilterPanelChange = this.props.agGridReact.props.onFilterPanelChange;
-        this.props.api.addEventListener('modelUpdated', this.updatePanel.bind(this));
+        console.log('FilterPanel this.props.api', this.props.api);
+
+        this.props.api.addEventListener('rowDataChanged', this.updatePanel.bind(this));
     }
 
     loadNewSheetToFilterPanel(){
     }
 
     render() {
+        console.log('FN', this.props.agGridReact.props);
         return (
             <FilterPanel
                 sheet_id={this.state.sheet_id}

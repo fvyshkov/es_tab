@@ -28,7 +28,7 @@ function onLayoutChange(e){
 
 
 export function sendRequest(request_string, successCallback, method='GET', data){
-    throw request_string;
+  //  throw request_string;
     console.log('sendRequest', request_string);
     const httpRequest = new XMLHttpRequest();
     var httpStr = window.location.origin + '/' + request_string;

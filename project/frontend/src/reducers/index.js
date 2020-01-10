@@ -65,6 +65,13 @@ function rootReducer(state = initialState, action) {
 
         tabViewData = tabViewData.concat(action.payload);
 
+        tabViewData.forEach(el=>{
+            if (!el.hie_path){
+                el['hie_path'] = [el.node_key];
+            }
+
+        });
+
         if (action.params.parentNodeKey){
             expandedNodes.push(action.params.parentNodeKey);
         }

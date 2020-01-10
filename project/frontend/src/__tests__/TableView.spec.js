@@ -7,6 +7,11 @@ import "babel-polyfill";
 import { AgGridReact } from "@ag-grid-community/react";
 import {sendRequestPromise} from '../components/sendRequestPromise.js';
 
+import { Provider } from "react-redux";
+import store from "../store/index";
+
+
+
 import mock from 'xhr-mock';
 
 jest.mock('../components/sendRequestPromise.js');
@@ -44,17 +49,18 @@ describe('<TabView />', () => {
     it('Test mock', async () => {
 
         console.log('window.location.origin', window.location.origin);
-        const wrapper = mount(<TabView />);
-
+        const wrapper = mount(<Provider store={store}><TabView layoutItemID={'100'} /></Provider>);
+console.log('after mount');
         var myGrid = wrapper.find(Grid).instance();
+        //var tabView = wrapper.find(TabView).instance();
+console.log(wrapper.html());
 
         await waitForAsyncCondition(() => {
-
                                             return myGrid.gridApi !== undefined
                                             },
                                     5);
-
-        //await wrapper.instance().loadNewSheet(2434, 'tree');
+        var tabView = wrapper.find(TabView);
+        await tabView.instance().loadNewSheet(2434, 'tree');
 
         //await setTimeout(()=>{}, 5000);
 
@@ -67,8 +73,8 @@ describe('<TabView />', () => {
 
         wrapper.instance().setTestFieldAsync('100');
 
-        await waitForAsyncCondition(() => {return wrapper.instance().getTestField()==='100'}, 1000);
-        console.log('testField', wrapper.instance().getTestField());
+        await waitForAsyncCondition(() => {return  wrapper.html().includes('4864755');}, 1000);
+       // console.log('testField', wrapper.instance().getTestField());
 /*
         await waitForAsyncCondition(() => {
                                                 //var html='<span class="tag" id="39595_tag" aria-label="ГО">';

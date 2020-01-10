@@ -718,6 +718,14 @@ where f.ind_id(+) = x.ind_id and f.tbl_id(+)= x.mark_tbl_id
 
         cell_list = list( map(process_cell_styles, cell_list,   [node]*len(cell_list), [sheet_info[0]]*len(cell_list)))
 
+        cell_list.append({'key': 'name',
+                          'font.italic':1,
+                          'border.color': 'black',
+                          'brush.color': sheet_info[0].get('color_restrict_hex'),
+                          'font.color': 'black',
+                          'sql_value': node['name']
+                          })
+
         hie_path = []
         if (group_keys):
             skeys =group_keys.split(',')
@@ -821,6 +829,8 @@ def get_sheet_details_columns_list(p_sht_id, p_skey, p_ind_id):
 def get_sheet_columns_list(sheet_type, sht_id, skey):
     if sheet_type=='TREE':
         columns = get_sql_result('select * from table(C_PKGESsheet.fGetColumns(%s, %s))', [sht_id, skey])
+        group_column = {'idx': 0, 'key': 'name', 'name': 'Показатель', 'editfl': 0, 'rowgroupfl': 1}
+        columns.insert(0, group_column)
         return columns
     else:
         return get_sql_result('select c.idx, c.code key, c.longname name, c.editfl, c.ent_id, atr_type,'
@@ -895,6 +905,7 @@ def get_anl_table_rows(sht_id, skey):
                     end;""", [refCursor, sht_id, skey])
 
 
+
     ref_cursor =[]
 
     sheet_info = get_sheet_info_list(sht_id)
@@ -945,9 +956,12 @@ def get_anl_table_rows(sht_id, skey):
                 column_data.append(cell)
 
 
+
         row_dict['node_key'] = row_dict['id']
         row_dict['column_data'] = column_data
+        #row_dict['hie_path'] = [row_dict['node_key']]
         ref_cursor.append(row_dict)
+
 
     return ref_cursor
 
@@ -1008,6 +1022,8 @@ def get_anl_detail_table_rows(sht_id, skey, ind_id, parent_id):
 
         row_dict['node_key'] = row_dict['id']
         row_dict['column_data'] = column_data
+        #row_dict['hie_path'] = [row_dict['node_key']]
+
         ref_cursor.append(row_dict)
 
     return ref_cursor;

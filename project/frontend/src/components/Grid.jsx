@@ -29,7 +29,6 @@ export default class Grid extends React.Component {
     this.savedFocusedCell = {};
 
     this.state = {
-    gridKey:0,
     colorRestrict: 0,
     modules: AllModules,
       columnDefs: [],
@@ -167,12 +166,6 @@ export default class Grid extends React.Component {
     }
 
     refreshGrid(){
-        console.log('Grid.refreshGrid this.gridApi=' , this.gridApi);
-        /*setTimeout(function(api){
-                                    console.log('Grid.refreshGrid 001');
-                                    api.purgeServerSideCache();
-                                    console.log('Grid.refreshGrid 002');
-                                    },0, this.gridApi);*/
         this.loadColumns();
     }
 
@@ -180,24 +173,18 @@ export default class Grid extends React.Component {
     loadColumns(){
 
         var loadColumnsHttpRequestStr = this.props.dataModelDescription.loadColumnsHttpRequestStr();
-        //console.log('Gird loadColumns loadColumnsHttpRequestStr', loadColumnsHttpRequestStr);
-        //sendRequest(loadColumnsHttpRequestStr, this.processColumnsData);
-
-        console.log('000 loadColumns');
         sendRequestPromise(loadColumnsHttpRequestStr)
             .then(respObj=>this.processColumnsDataSync(respObj))
-            .then(()=>{console.log('001 loadColumns'); return sendRequestPromise('sht_info/?sht_id='+this.props.sheet_id)})
+            .then(()=>{return sendRequestPromise('sht_info/?sht_id='+this.props.sheet_id)})
             .then(respObj => {
-                                console.log('002 loadColumns', respObj);
-                                this.processSheetInfo(respObj)
-
-                            }
-
-                    )
-            .then(()=>{ console.log('loadColumns SUCCESS');  this.columnsLoaded = true;});
+                                this.setState({gridKey: 0});
+                                this.setState({sheetInfo: respObj[0]});
+                                this.setState({gridKey: 1});
+                                })
+            .then(()=>{ this.columnsLoaded = true;});
     }
 
-processColumnsDataSync(columnList){
+    processColumnsDataSync(columnList){
 
         console.log('processColumnsDataSync', columnList);
         for (var i=0; i < columnList.length; i++){
@@ -205,8 +192,6 @@ processColumnsDataSync(columnList){
                 referStore.setData(columnList[i].key, JSON.stringify(columnList[i].refer_data));
             }
         }
-
-
         //все эти преобразования лучше перенести в средний слой
         var columns = columnList.map(function prs(currentValue){
 
@@ -221,6 +206,24 @@ processColumnsDataSync(columnList){
             return {
                             field:currentValue.key,
                             headerName:currentValue.name,
+                            showRowGroup: (currentValue.rowgroupfl===1),
+                            //rowGroup: (currentValue.rowgroupfl===1),
+                            cellRenderer: (currentValue.rowgroupfl===1) ? 'agGroupCellRenderer' : gridCellRenderer ,
+
+
+                            cellRendererParams: {
+                                                innerRenderer: function(params) {
+                                                    if (params.data.node_key.includes('dummy')){
+                                                        var element = document.createElement("span");
+                                                        var spinner =  new Spinner({scale: .4, speed: 1.3}).spin(element);
+                                                        return '111='+params.data.node_key; //element;
+                                                    }else{
+                                                        return params.data.name;
+                                                    }
+                                                },
+                                                suppressCount: true
+                                            },
+
                             autoHeight: true,
                             ent_id:currentValue.ent_id,
                             ind_id:currentValue.ind_id,
@@ -229,7 +232,7 @@ processColumnsDataSync(columnList){
                             chartDataType : cellChartDataType,
                             filter:false,
                             cellEditor: columnCellEditor,
-                            cellRenderer: gridCellRenderer,
+
                             tooltipComponentParams: (params)=>{return {columnData: getColumnData(params)};},
                             tooltipComponent: "sheetCellTooltip",
                             tooltipValueGetter: function(params) {
@@ -271,7 +274,7 @@ processColumnsDataSync(columnList){
                                                         return style;
 
                                                     }
-/**/
+
                             }
             }
         );
@@ -292,131 +295,13 @@ processColumnsDataSync(columnList){
 
 
 
-
-
-    processColumnsData(columnList){
-
-        for (var i=0; i < columnList.length; i++){
-            if (columnList[i].refer_data){
-                referStore.setData(columnList[i].key, JSON.stringify(columnList[i].refer_data));
-            }
-        }
-
-
-        //все эти преобразования лучше перенести в средний слой
-        var columns = columnList.map(function prs(currentValue){
-
-            var columnCellEditor = null;
-            if (currentValue.ent_id)
-                columnCellEditor = "treeReferEditor";
-
-            var cellChartDataType = "category";
-            if (currentValue.atr_type==="N")
-                cellChartDataType = "series";
-
-
-            return {
-                            field:currentValue.key,
-                            headerName:currentValue.name,
-                            autoHeight: true,
-                            ent_id:currentValue.ent_id,
-                            ind_id:currentValue.ind_id,
-                            ind_id_hi: currentValue.ind_id_hi,
-                            atr_type:currentValue.atr_type,
-                            chartDataType : cellChartDataType,
-                            filter:false,
-                            cellEditor: columnCellEditor,
-                            cellRenderer: gridCellRenderer,
-                            tooltipComponentParams: (params)=>{return {columnData: getColumnData(params)};},
-                            tooltipComponent: "sheetCellTooltip",
-                            tooltipValueGetter: function(params) {
-                                                    var columnData =  getColumnData(params);
-                                                    if (columnData && columnData.commentfl===1){
-                                                        return { value: params.value }
-                                                    }else{
-                                                        return;
-                                                    };
-                                                  },
-                            editable:function(params) {
-                                                        var columnData = getColumnData(params);
-                                                        return  (columnData && columnData.editfl===1);
-                                                     },
-                            cellStyle:  (params) => {
-                                                        if (! params.data || ! params.data.column_data){
-                                                            return;
-                                                        }
-                                                        var columnData = getColumnData(params);
-                                                        var style = {color: 'black', backgroundColor: 'white'};
-                                                        if (!columnData){
-                                                            return style;
-                                                        }
-                                                        style = {color: columnData['font.color'], backgroundColor: columnData['brush.color']};
-
-
-                                                        if (columnData['font.bold']==='1'){
-                                                            style['font-weight'] = 'bold';
-                                                        }
-                                                        if (columnData['font.italic']==='1'){
-                                                            style['font-style'] = 'italic';
-                                                        }
-                                                        if (columnData['border.color']){ 
-                                                            style['border-style'] = 'solid'; 
-                                                            style['border-width'] = 'thin'; 
-                                                            style['border-color'] = columnData['border.color'] 
-                                                        }
-
-                                                        return style;
-
-                                                    }
-                            }
-            }
-        );
-
-        columns = groupColumns(columns);
-        this.setState({columnDefs: columns});
-        this.loadSheetInfo();
-        this.columnsLoaded = true;
-    }
-
-
-
-
     loadSheetInfo(){
         //console.log('loadSheetInfo', this.props.sheet_id, this.state.sheet_id);
         sendRequestPromise('sht_info/?sht_id='+this.props.sheet_id)
             .then((respObj) => this.processSheetInfo(respObj));
     }
 
-    processSheetInfo(infoList){
-        //необходимо сбросить ключ, чтобы после установки autoGroupColumnDef снова выставить
-        //и тем самым принудительно перерендерить грид (иначе autoGroupColumnDef не обновляется)
-        if (this.props.forceGridReload){
-            this.setState({gridKey:0});
-        }
 
-        if (this.props.resetForceGridReload){
-            this.props.resetForceGridReload();
-        }
-        if (infoList.length>0){
-            this.state.colorRestrict = infoList[0].color_restrict_hex;
-            this.setState({
-                            colorRestrict:infoList[0].color_restrict_hex,
-                            colorHand:infoList[0].color_hand_hex,
-                            colorTotal:infoList[0].color_total_hex,
-                            colorFilter:infoList[0].color_filter_hex,
-                            colorCons:infoList[0].color_cons_hex,
-                            colorConf:infoList[0].color_conf_hex,
-                            colorConfPart:infoList[0].color_conf_part_hex,
-                            autoGroupColumnDef:this.getAutoGroupColumnDef(),
-                            treeData: this.props.sheet_type==='tree' ? true: false,
-                            sheetInfo: infoList[0]
-                             });
-
-        }
-
-        this.setState({gridKey: this.props.sheet_id});
-
-    }
 
 
 
@@ -444,14 +329,11 @@ processColumnsDataSync(columnList){
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
 
-    //console.log('GRID this.props.onGetGridApi', this.props.onGetGridApi);
-    //this.props.onGetGridApi(this.gridApi);
-
-    //var datasource = this.serverSideDatasource(this);
-    //this.gridApi.setServerSideDatasource(datasource);
+    /*
      if (this.props.additionalSheetParams && !this.columnsLoaded){
          this.loadColumns();
      }
+     */
 
      if (this.props.columnStates){
             this.gridColumnApi.setColumnState(this.props.columnStates);
@@ -466,19 +348,17 @@ processColumnsDataSync(columnList){
     }
   }
 
-  onGridExpandedChange(){
-
-    if (this.props.onGridExpandedChange){
-        this.props.onGridExpandedChange(this.expandedKeys)
+    onGridExpandedChange(){
+        if (this.props.onGridExpandedChange){
+            this.props.onGridExpandedChange(this.expandedKeys)
+        }
     }
-  }
 
-  onColumnResized(){
+    onColumnResized(){
 
-  }
+    }
 
     onRowGroupOpened(e){
-        console.log('onRowGroupOpened', e);
 
         this.props.processNodeExpanding(e);
 
@@ -532,6 +412,7 @@ processColumnsDataSync(columnList){
     }
 
   render() {
+
             if (this.gridApi && this.props.loading){
                 this.gridApi.showLoadingOverlay();
             }
@@ -539,16 +420,18 @@ processColumnsDataSync(columnList){
             return (
                 <React.Fragment>
 
-                    <div className ="ag-theme-balham NonDraggableAreaClassName ToolbarViewContent"  key={this.state.gridKey} id="myGrid123">
+                    <div className ="ag-theme-balham NonDraggableAreaClassName ToolbarViewContent" id="myGrid123">
                         <AgGridReact
+                            gridKey={this.state.gridKey}
                             modules={AllModules}
                             columnDefs={this.state.columnDefs}
                             defaultColDef={this.state.defaultColDef}
-                            autoGroupColumnDef={this.state.autoGroupColumnDef}
-
+                            groupSuppressAutoColumn={true}
                             rowData={this.props.gridRowData}
 
-                            treeData={this.state.treeData}
+                            treeData={true}
+
+
                             animateRows={true}
                             isServerSideGroup={this.state.isServerSideGroup}
                             getServerSideGroupKey={this.state.getServerSideGroupKey}
@@ -567,6 +450,8 @@ processColumnsDataSync(columnList){
                             onFilterPanelChange={this.props.onFilterPanelChange}
                             selectedFilterNodes={this.props.selectedFilterNodes}
                             filterNodes={this.props.filterNodes}
+                            //onModelUpdated={this.onModelUpdated}
+
                             statusBar={this.state.statusBar}
                             getContextMenuItems={this.getContextMenuItems.bind(this)}
                             createChartContainer={this.createChartContainer.bind(this)}
@@ -578,7 +463,7 @@ processColumnsDataSync(columnList){
                             onRowGroupOpened={this.onRowGroupOpened.bind(this)}
                             deltaRowDataMode={true}
 
-                             getDataPath={this.state.getDataPath}
+                            getDataPath={this.state.getDataPath}
                             getRowNodeId={this.state.getRowNodeId}
                             onCellValueChanged={this.onCellValueChanged.bind(this)}
 
@@ -639,8 +524,6 @@ processColumnsDataSync(columnList){
             }else{
 
             }
-           // console.log('showCommentForCell=', columnData);
-           // console.log('showCommentForCell(params)', params);
 
             var additionalParams = {
                                     viewType: 'CommentView',
@@ -711,13 +594,7 @@ processColumnsDataSync(columnList){
 
 
 function gridCellRenderer(params){
-   // console.log("gridCellRenderer params", params);
-   // console.log('gridCellRenderer ??? 001');
-
     var cellData = params.data;
-
-
-
     var displayValue;
     if (params.colDef.ent_id){
         displayValue = getReferValueById(params.colDef.field, params.value);
@@ -761,18 +638,7 @@ function gridCellRenderer(params){
 
         imageElement.src = CommentImg;
         element.appendChild(imageElement);
-    } /* if (params && cellData && cellData.node_key && cellData.node_key.includes('dummy')){
-        console.log('???');
-        var imageElement = document.createElement("img");
-        displayValue = "Загрузка данных...";
-        imageElement.setAttribute("width" , "16px");
-        imageElement.setAttribute("height" , "16px");
-
-        imageElement.src = CommentImg;
-        element.appendChild(imageElement);
-
     }
-*/
 
     element.appendChild(document.createTextNode(displayValue));
     return element;
@@ -814,35 +680,21 @@ function groupColumns(columns){
 
 
 function getColumnData(params){
-    //console.log('getColumnData', params);
-    //return null;
     var columnDataList = [];
     var colDefField = '';
-
     if (params.node && params.node.data &&  params.node.data.column_data){
-        //console.log('getColumnData 10001');
         columnDataList = params.node.data.column_data;
-        //console.log('getColumnData 10002');
         colDefField = params.column.colDef.field;
-        //console.log('getColumnData 10003');
     }else if(params.rowIndex){
-        //console.log('getColumnData 20001');
         columnDataList = params.api.getDisplayedRowAtIndex(params.rowIndex).data.column_data;
-        //console.log('getColumnData 20002', columnDataList   );
         colDefField = params.colDef.field;
-        //console.log('getColumnData 20003');
-
     }else if (params.data && params.colDef) {
         columnDataList = params.data.column_data;
         colDefField = params.colDef.field;
     }
-//console.log('getColumnData 4000', columnDataList);
-    //return null;
     if (columnDataList) {
         for(var i=0; i< columnDataList.length; i++){
             if (columnDataList[i].key===colDefField){
-               // console.log('===colDefField', colDefField);
-                //console.log('===columnDataList[i]', columnDataList[i]);
                 return columnDataList[i];
             }
         }

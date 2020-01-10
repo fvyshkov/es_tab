@@ -129,7 +129,7 @@ class ColorPanel extends React.Component {
         httpStr += 'colorTotal='+ hexToDelphiColor(this.state.colorTotal)+'&';
         httpStr += 'colorFilter='+ hexToDelphiColor(this.state.colorFilter);
 
-        sendRequest(httpStr,()=>{},'POST');
+        sendRequestPromise(httpStr,'POST');
     }
 
   render() {
