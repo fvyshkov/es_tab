@@ -51,15 +51,8 @@ export default class Grid extends React.Component {
                             iconKey: 'columns',
                             toolPanel: 'agColumnsToolPanel',
                         },
-                        {
-                            id: "sheetFilters",
-                            labelDefault: "Аналитики",
-                            labelKey: "sheetFilters",
-                            iconKey: "filter",
-                            toolPanel: "filterPanelInToolPanel"
-                          }
+                        ...this.props.additionalToolPanels
                     ],
-                   // defaultToolPanel: "sheetFilters",
                     position: 'left'
                 },
 

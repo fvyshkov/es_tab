@@ -25,7 +25,14 @@ class TabView extends Component {
                         filterNodes: {},
                         columnStates: {},
                         expandedGroupIds : [],
-                        loading: 'false'
+                        loading: 'false',
+                        additionalToolPanels:[{
+                            id: "sheetFilters",
+                            labelDefault: "Аналитики",
+                            labelKey: "sheetFilters",
+                            iconKey: "filter",
+                            toolPanel: "filterPanelInToolPanel"
+                          }]
                       };
 
         this.onToolbarPreferencesClick = this.onToolbarPreferencesClick.bind(this);
@@ -183,6 +190,7 @@ class TabView extends Component {
 
     processSheetState(sheetState){
         if (sheetState.length>0){
+
             if (sheetState[0].filternodes){
                 var selectedNodes = sheetState[0].filternodes;
 
@@ -478,6 +486,7 @@ resetForceGridReload={this.resetForceGridReload.bind(this)}
                                 gridRowData={this.props.gridData}
                                 processNodeExpanding={this.processNodeExpanding.bind(this)}
                                 afterLoadColumns={this.afterLoadColumns.bind(this)}
+                                additionalToolPanels={this.state.additionalToolPanels}
                                 />
 </div>
 
@@ -661,13 +670,31 @@ class DataModelDescription{
 }
 
 function mapStateToProps (state, ownProps){
-    console.log('tabView mapStateToProps state.expandedNodes', ownProps.layoutItemID, state.loadingGuids );
+
+
+
+    var sheetState = state.sheetState[ownProps.layoutItemID];
+
+    console.log('tabView mapStateToProps sheetState', ownProps.layoutItemID, sheetState );
+
+    var columnStates = (sheetState && sheetState.columnstates) ? sheetState.columnstates: [];
+    var expandedGroupIds = (sheetState && sheetState.columnstates) ? sheetState.columnstates: [];
+    var filterNodes = (sheetState && sheetState.filter) ? sheetState.filter: [];
+/*if (sheetState[0].filternodes){
+                var selectedNodes = sheetState[0].filternodes;
+
+
+                console.log('processSheetState selectedNodes', selectedNodes);
+                var markedNodes = markSelectedFilterNodes(this.state.filterNodes[this.state.sheet_id], selectedNodes);
+                this.state.filterNodes[this.state.sheet_id] = markedNodes;
+
+                console.log('processSheetState this.state.filterNodes', this.state.filterNodes);
+                this.setState({filterNodes: this.state.filterNodes});
+            }*/
 
     var clonedStateData = [];
     if (state.tabViewData.get(ownProps.layoutItemID)){
         clonedStateData = JSON.parse(JSON.stringify(state.tabViewData.get(ownProps.layoutItemID)));
-     }else{
-        return {};
      }
 
     var expandedNodes =[];
@@ -683,16 +710,12 @@ function mapStateToProps (state, ownProps){
     clonedStateData.forEach(
         (row)=>{
             data.push(row);
-
-
             if (row.column_data){
                 var colData =  row.column_data;
                 for (var colIndex=0; colIndex<colData.length; colIndex++){
                     data[data.length-1][colData[colIndex].key] = colData[colIndex].sql_value;
                 }
             }
-
-
             if (row.groupfl==='1' && !expandedNodes.includes(row.node_key)){
                 data.push({});
                 var dummy_hie_path = row.hie_path.slice();
@@ -700,14 +723,18 @@ function mapStateToProps (state, ownProps){
                 data[data.length-1]['hie_path'] = dummy_hie_path;
                 data[data.length-1]['node_key'] = row.node_key+'_dummy_child';
             }
-
-
-
         }
     );
 
-    console.log('mapStateToProps data', data);
-    return { articles: state.articles, gridData: data, loading: state.loadingGuids.includes(ownProps.layoutItemID)};
+
+
+    return {
+            columnStates: columnStates,
+            expandedGroupIds: expandedGroupIds,
+            filterNodes: filterNodes,
+            gridData: data,
+            loading: state.loadingGuids.includes(ownProps.layoutItemID)
+    };
 };
 
 

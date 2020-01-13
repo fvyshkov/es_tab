@@ -31,11 +31,6 @@ export default class TableViewSchedule extends Component {
 
     onDeleteCallback(){
         console.log('delete this.gridApi', this.gridApi);
-        /*
-        this.savedFocusedCell = this.state.focusedCell;
-        var data = this.gridApi.getDisplayedRowAtIndex(this.savedFocusedCell.rowIndex).data;
-        sendRequest('delete_comment/?proc_id=' + data.proc_id + '&njrn=' + data.njrn,()=> {this.gridApi.purgeServerSideCache();},'POST',{});
-        */
     }
 
     onGetGridApi(gridApi){
