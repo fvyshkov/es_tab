@@ -433,7 +433,7 @@ export default class ReGrid extends React.Component {
                             defaultColDef={this.state.defaultColDef}
                             autoGroupColumnDef={this.state.autoGroupColumnDef}
                             rowModelType={this.state.rowModelType}
-                            treeData={this.state.treeData}
+                            treeData={this.state.treeData }
                             animateRows={true}
                             isServerSideGroup={this.state.isServerSideGroup}
                             getServerSideGroupKey={this.state.getServerSideGroupKey}
