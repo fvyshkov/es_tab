@@ -1,10 +1,21 @@
-import { ADD_ARTICLE, DATA_CLEAR, DATA_LOADED, ADD_LOADING_GUID, API_ERRORED } from "../constants/action-types";
+import {
+        ADD_ARTICLE,
+        DATA_REQUESTED,
+        DATA_CLEAR,
+        ADD_LOADING_GUID,
+        API_ERRORED,
+        DATA_LOADED,
+        SHEET_FILTER_LIST_REQUESTED,
+        SHEET_FILTER_LIST_LOADED,
+        SHEET_STATE_LOADED } from "../constants/action-types";
 
 const initialState = {
   articles: [{title:'1'}],
   tabViewData: new Map(),
   expandedNodes: new Map(),
-  loadingGuids: []
+  loadingGuids: [],
+  filterList: {},//key=viewGUID, value=filterList for this view
+  sheetState: {},//key=viewGUID, value=sheetState for this view = {filteList, columnStates, expandedGroupIds}
 };
 
 function rootReducer(state = initialState, action) {
@@ -16,6 +27,13 @@ function rootReducer(state = initialState, action) {
             //articles: state.articles.concat(action.payload)
             tabViewData: state.tabViewData.concat({node_key:'sss777', orgHierarchy:['sss777']})
         });
+    }
+
+    if (action.type === SHEET_FILTER_LIST_LOADED) {
+        console.log('SHEET_FILTER_LIST_LOADED', action.payload);
+        var newState = Object.assign({}, state);
+        newState.filterList[action.params.sheet_id] = action.payload;
+        return newState;
     }
 
     if (action.type === DATA_CLEAR) {
@@ -39,6 +57,16 @@ function rootReducer(state = initialState, action) {
             loadingGuids: state.loadingGuids.filter(function(e) { return e !== action.params.viewGUID })
         });
     }
+
+    if (action.type === SHEET_STATE_LOADED) {
+        console.log(action.type, action);
+        var newState = Object.assign({}, state);
+        if (action.payload.length>0){
+            newState.sheetState[action.params.viewGUID] = action.payload[0];
+        }
+        return newState;
+    }
+
 
     if (action.type === DATA_LOADED) {
         console.log('data_loaded, parent_ke=', action.params.parentNodeKey);

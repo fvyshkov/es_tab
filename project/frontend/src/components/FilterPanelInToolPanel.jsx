@@ -1,23 +1,25 @@
 import React, {Component} from 'react';
 import FilterPanel from "./FilterPanel.jsx";
+import { connect } from "react-redux";
+import { addArticle, getData, clearData, addLoading, getSheetFilterList } from "../actions/index";
 
-export default class FilterPanelInToolPanel extends Component {
+class FilterPanelInToolPanel extends Component {
 
     constructor(props) {
         super(props);
         this.state={};
 
         this.onFilterPanelChange = this.props.agGridReact.props.onFilterPanelChange;
-        console.log('FilterPanel this.props.api', this.props.api);
 
-        this.props.api.addEventListener('rowDataChanged', this.updatePanel.bind(this));
+        this.props.api.addEventListener('modelUpdated', this.updatePanel.bind(this));
     }
 
     loadNewSheetToFilterPanel(){
     }
 
     render() {
-        console.log('FN', this.props.agGridReact.props);
+        //console.log('FilterPanelInToolPanel props', this.props.agGridReact.props);
+        //filterNodes={this.props.filterList}
         return (
             <FilterPanel
                 sheet_id={this.state.sheet_id}
@@ -38,3 +40,33 @@ export default class FilterPanelInToolPanel extends Component {
     }
 
 }
+
+
+function mapStateToProps (state, ownProps){
+    console.log('FilterPanelInToolPanel mapStateToProps viewGUID=', ownProps.agGridReact.props.viewGUID, state.sheetState[ownProps.agGridReact.props.viewGUID] );
+
+    var ownSheetState = state.sheetState[ownProps.agGridReact.props.viewGUID];
+
+    //return { articles: state.articles, gridData: data, loading: state.loadingGuids.includes(ownProps.layoutItemID)};
+    //return {filterList:state.filterList[ownProps.agGridReact.props.sheet_id]};
+    if (ownSheetState && ownSheetState.filter){
+        return {filterList: ownSheetState.filter};
+    }else{
+        return {filterList: []};
+    }
+};
+
+
+function mapDispatchToProps(dispatch) {
+    return {
+        /*
+        addArticle: article => dispatch(addArticle(article)),
+        getData: params => dispatch(getData(params)),
+        clearData: params => dispatch(clearData(params)),
+        addLoading: params => dispatch(addLoading(params)),
+        getSheetFilterList: params => dispatch(getSheetFilterList(params)),
+        */
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(FilterPanelInToolPanel);

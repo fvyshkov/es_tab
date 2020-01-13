@@ -7,22 +7,14 @@ import ColorPanel from './ColorPanel.jsx';
 import { sendRequest } from './App.js';
 import { sendRequestPromise } from './sendRequestPromise.js';
 import { connect } from "react-redux";
-import { addArticle, getData, clearData, addLoading } from "../actions/index";
+import { addArticle, getData, clearData, addLoading, getSheetFilterList, getSheetState } from "../actions/index";
 import { AgGridReact } from "@ag-grid-community/react";
 import {AllModules} from "@ag-grid-enterprise/all-modules";
 import '@ag-grid-community/client-side-row-model';
 
-/*
-import "@ag-grid-community/all-modules/dist/styles/ag-grid.css";
-import "@ag-grid-community/all-modules/dist/styles/ag-theme-balham.css";
-*/
-
 class TabView extends Component {
     constructor(props) {
         super(props);
-
-        //const uuidv1 = require('uuid/v1');
-
 
         this.dataModelDescription = new DataModelDescription({}, this.getFilterSkey.bind(this));
         this.state={
@@ -90,6 +82,9 @@ class TabView extends Component {
 
         this.clearData();
         this.addLoading();
+        //this.props.getSheetFilterList({sheet_id: prm_sheet_id});
+
+
 
         var tabView = this;
         return new Promise(function(resolve, reject) {
@@ -99,6 +94,9 @@ class TabView extends Component {
             tabView.saveSheetStatePromise()
                 .then(()=>{ return
             */
+
+            tabView.props.getSheetState({viewGUID: tabView.state.viewGUID, sheet_id: tabView.state.sheet_id});
+
             sendRequestPromise('sht_filters/?sht_id='+prm_sheet_id)
                 .then(respObj=>{
                                     tabView.onLoadFilterNodesSync(respObj);
@@ -419,7 +417,7 @@ resetForceGridReload(){
     }
 
    render(){
-    console.log('tabView Render FN ', this.state.filterNodes[this.state.sheet_id]);
+    console.log('tabView Render FN ', this.state.sheet_id);
         return (
             <React.Fragment>
 
@@ -445,12 +443,14 @@ resetForceGridReload(){
                             />
  <div>
                <Grid
+                                viewGUID={this.state.viewGUID}
                                 sendRefreshGrid={click => this.sendRefreshGrid = click}
                                 sendBeforeCloseToGrid={click => this.sendBeforeCloseToGrid = click}
                                 sendUndoToGrid={click => this.sendUndoToGrid = click}
                                 skey={this.getFilterSkey}
                                 loading={this.props.loading}
-                                sheet_id = {this.state.sheet_id}
+                                sheet_id={this.state.sheet_id}
+                                testField={'123'}
                                 sheet_type = {this.state.sheet_type}
                                 treeData = {this.state.sheet_type==='tree'? true:false}
                                 onFilterPanelChange={this.onFilterPanelChange}
@@ -716,7 +716,10 @@ function mapDispatchToProps(dispatch) {
         addArticle: article => dispatch(addArticle(article)),
         getData: params => dispatch(getData(params)),
         clearData: params => dispatch(clearData(params)),
-        addLoading: params => dispatch(addLoading(params))
+        addLoading: params => dispatch(addLoading(params)),
+        getSheetFilterList: params => dispatch(getSheetFilterList(params)),
+        getSheetState: params => dispatch(getSheetState(params)),
+
     };
 }
 

@@ -1,6 +1,12 @@
-
-//redux tutorial
-import { ADD_ARTICLE, DATA_REQUESTED, DATA_CLEAR, ADD_LOADING_GUID } from "../constants/action-types";
+import {
+        ADD_ARTICLE,
+        DATA_REQUESTED,
+        DATA_CLEAR,
+        ADD_LOADING_GUID,
+        SHEET_FILTER_LIST_REQUESTED,
+        SHEET_FILTER_LIST_LOADED,
+        SHEET_STATE_REQUESTED,
+        SHEET_STATE_LOADED} from "../constants/action-types";
 
 
 export function addArticle(payload) {
@@ -19,4 +25,13 @@ export function clearData(params) {
 
 export function addLoading(params) {
     return { type: ADD_LOADING_GUID, params: params};
+}
+
+export function getSheetFilterList(params) {
+    return { type: SHEET_FILTER_LIST_REQUESTED, params: params};
+}
+
+
+export function getSheetState(params) {
+    return { type: SHEET_STATE_REQUESTED, params: params};
 }

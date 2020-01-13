@@ -392,10 +392,42 @@ def get_sheet_state_list(sht_id):
         sheet_info[0]['filternodes'] = json.loads(sheet_info[0].get("filternodes"))
         sheet_info[0]['columnstates'] = json.loads(sheet_info[0].get("columnstates"))
         sheet_info[0]['expandedgroupids'] = json.loads(sheet_info[0].get("expandedgroupids"))
+    else:
+        sheet_info.append({})
 
+    filter_list = get_sql_result('select f.id flt_id, c_pkgesbook.fGetSheetFltName(f.id) name'
+                                 ' from c_es_ver_sheet_flt f where sht_id = %s',
+                                 [sht_id])
+    for filter in filter_list:
+        filter['filter_node_list'] = get_filter_node_list(filter.get('flt_id'))
+        #if filter.get('flt_id')=='5619':
+        #print('flt',filter.get('flt_id'), sheet_info[0].get('filternodes', [])[str(filter.get('flt_id'))])
+        selected_filter_nodes_obj = sheet_info[0].get('filternodes', []).get(str(filter.get('flt_id')), [])
+        selected_filter_ids = [str(item.get('id'))    for item in selected_filter_nodes_obj]
+        print('selected_filter_nodes', selected_filter_ids)
+        #print('1111=', sheet_info[0].get('filternodes', []), selected_filter_nodes, filter.get('flt_id'))
+        process_tree(filter['filter_node_list'], 'children', mark_selected, selected_filter_ids)
+
+
+    sheet_info[0]['filter'] = filter_list
 
     return sheet_info
 
+
+
+def mark_selected(item, selected_nodes_list):
+    print('selected_nodes_list', selected_nodes_list, 'item', item)
+    if selected_nodes_list and (str(item.get('id')) in selected_nodes_list):
+        print('checked! old', item.get('checked'))
+        item['checked'] = True
+    else:
+        item['checked'] = False
+
+def process_tree(tree, hierarchy_field_name, callback, *args):
+    for item in tree:
+        callback(item, *args)
+        if item.get(hierarchy_field_name):
+            process_tree(item.get(hierarchy_field_name), hierarchy_field_name, callback, *args)
 
 def get_sheet_info_list(sht_id):
 
@@ -677,8 +709,6 @@ def get_tree_node_list(request):
         p_tmp_cell_key = p_key + ',' + p_cell_key + ',' + 'FLT_ID_' + node['flt_id'] + '=>' + node['flt_item_id']
         p_cell_key += 'FLT_ID_' + node['flt_id'] + '=>' + node['flt_item_id']
         p_tmp_cell_key = Skey(p_tmp_cell_key).process()
-
-        print('p_tmp_cell_key', p_tmp_cell_key, 'sht', p_sht_id)
         cell_list = get_sql_result('''with params as (select %s sht_id, %s skey from dual)
 select f.styles, 
         c_pkgescalc.fGetAnlDscr(p.skey) flt_dscr,

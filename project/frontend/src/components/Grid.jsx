@@ -89,56 +89,8 @@ export default class Grid extends React.Component {
     };
 
     this.expandedKeys = [];
-
     this.refreshGrid = this.refreshGrid.bind(this);
-/*
-    this.processColumnsData = this.processColumnsData.bind(this);
-    this.loadSheetInfo = this.loadSheetInfo.bind(this);
-
-    this.getAutoGroupColumnDef = this.getAutoGroupColumnDef.bind(this);
-    this.processSheetInfo = this.processSheetInfo.bind(this);
-    this.componentDidMount = this.componentDidMount.bind(this);
-
-    this.onGridReady = this.onGridReady.bind(this);
-    this.onGridStateChange = this.onGridStateChange.bind(this);
-    this.sendDeleteRecord = this.sendDeleteRecord.bind(this);
-    this.sendUndoToGrid = this.sendUndoToGrid.bind(this);
-
-
-
-
-
-    this.columnsLoaded = false;
-
-*/
-
-
   }
-
-    getAutoGroupColumnDef(){
-        return (
-            {
-                headerName:"Показатель",
-                cellRendererParams: {
-                    innerRenderer: function(params) {
-                        if (params.data.node_key.includes('dummy')){
-                            var element = document.createElement("span");
-                            var spinner =  new Spinner({scale: .4, speed: 1.3}).spin(element);
-                            return element;
-                        }else{
-                            return params.data.name;
-                        }
-                    }
-                },
-                pinned: 'left',
-                cellStyle: {color: 'black',
-                                backgroundColor: this.state.colorRestrict,
-                                borderStyle:'solid',
-                                borderWidth:'thin',
-                                borderColor:'black'
-                                }
-            });
-    }
 
     componentDidMount() {
         if (this.props.sendRefreshGrid){
@@ -414,15 +366,20 @@ export default class Grid extends React.Component {
   render() {
 
             if (this.gridApi && this.props.loading){
-                this.gridApi.showLoadingOverlay();
+                //this.gridApi.showLoadingOverlay();
             }
-
+            // key={this.state.gridKey}
+            //console.log('grid.props.sheet_id', this.props.sheet_id);
+            //console.log('grid.props.viewGUID', this.props.viewGUID);
             return (
                 <React.Fragment>
 
                     <div className ="ag-theme-balham NonDraggableAreaClassName ToolbarViewContent" key={this.state.gridKey} id="myGrid123">
                         <AgGridReact
                             gridKey={this.state.gridKey}
+                            viewGUID={this.props.viewGUID}
+                            testField = {this.props.testField}
+                            sheet_id={this.props.sheet_id}
                             modules={AllModules}
                             columnDefs={this.state.columnDefs}
                             defaultColDef={this.state.defaultColDef}
