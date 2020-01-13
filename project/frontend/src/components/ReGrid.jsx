@@ -198,6 +198,10 @@ export default class ReGrid extends React.Component {
             return {
                             field:currentValue.key,
                             headerName:currentValue.name,
+
+                            showRowGroup: (currentValue.rowgroupfl===1),
+                            cellRenderer: (currentValue.rowgroupfl===1) ? 'agGroupCellRenderer' : gridCellRenderer ,
+
                             autoHeight: true,
                             ent_id:currentValue.ent_id,
                             ind_id:currentValue.ind_id,
@@ -206,7 +210,6 @@ export default class ReGrid extends React.Component {
                             chartDataType : cellChartDataType,
                             filter:false,
                             cellEditor: columnCellEditor,
-                            cellRenderer: gridCellRenderer,
                             tooltipComponentParams: (params)=>{return {columnData: getColumnData(params)};},
                             tooltipComponent: "sheetCellTooltip",
                             tooltipValueGetter: function(params) {
@@ -433,7 +436,8 @@ export default class ReGrid extends React.Component {
                             defaultColDef={this.state.defaultColDef}
                             autoGroupColumnDef={this.state.autoGroupColumnDef}
                             rowModelType={this.state.rowModelType}
-                            treeData={this.state.treeData }
+                            treeData={true}
+                            groupSuppressAutoColumn={true}
                             animateRows={true}
                             isServerSideGroup={this.state.isServerSideGroup}
                             getServerSideGroupKey={this.state.getServerSideGroupKey}
@@ -608,7 +612,7 @@ function gridCellRenderer(params){
 
     var columnData = getColumnData(params);
 
-    if (columnData.filelistfl===1){
+    if (columnData && columnData.filelistfl===1){
         var fileList = JSON.parse(params.value);
         var eList = document.createElement("ul");
         if (fileList && fileList.length>0){
