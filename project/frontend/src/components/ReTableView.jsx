@@ -4,6 +4,7 @@ import SheetToolbar from "./SheetToolbar.jsx";
 import ReGrid from './ReGrid.jsx';
 import TableViewComment from './TableViewComment.jsx';
 import TableViewSchedule from './TableViewSchedule.jsx';
+import TableViewFlow from './TableViewFlow.jsx';
 import notify from 'devextreme/ui/notify';
 import ColorPanel from './ColorPanel.jsx';
 import { sendRequest } from './App.js';
@@ -328,7 +329,12 @@ export default class ReTableView extends Component {
               {
                 name: 'Графики',
                 action: this.showScheduleForRow.bind(this, params)
-              }];
+              },
+              {
+                name: 'Потоки платежей',
+                action: this.showFlowForRow.bind(this, params)
+              }
+              ];
     }
 
     showDetailForCell(params){
@@ -354,6 +360,21 @@ export default class ReTableView extends Component {
             var newLayoutItemID = this.props.getNewLayoutItemID();
             console.log('newLayoutItemID=', newLayoutItemID);
             var detailRender =  <TableViewSchedule
+                                additionalSheetParams={{sht_id: this.state.sheet_id, req_id:params.node.data.id, dop: params.node.data.dop}}
+                                onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
+                                layoutItemID={newLayoutItemID}
+                                />;
+
+            this.props.addElementToLayout(detailRender);
+        }
+    }
+
+    showFlowForRow(params){
+        console.log('showFlowForRow req_id', params.node.data.id);
+        if (this.props.addElementToLayout){
+            var newLayoutItemID = this.props.getNewLayoutItemID();
+            console.log('newLayoutItemID=', newLayoutItemID);
+            var detailRender =  <TableViewFlow
                                 additionalSheetParams={{sht_id: this.state.sheet_id, req_id:params.node.data.id, dop: params.node.data.dop}}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
                                 layoutItemID={newLayoutItemID}
