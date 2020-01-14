@@ -374,8 +374,18 @@ export default class ReTableView extends Component {
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
             console.log('newLayoutItemID=', newLayoutItemID);
+            var dop = new Date(params.node.data.dop);
+            var dopString = dop.getDate().toString().padStart(2,'0')  + '.' +
+                            dop.getMonth().toString().padStart(2,'0') + '.' +
+                            dop.getFullYear();
+            console.log('dopstring', dop, dopString);
+
             var detailRender =  <TableViewFlow
-                                additionalSheetParams={{sht_id: this.state.sheet_id, req_id:params.node.data.id, dop: params.node.data.dop}}
+                                additionalSheetParams={{
+                                                        sht_id: this.state.sheet_id,
+                                                        req_id:params.node.data.id,
+                                                        dop: dopString,
+                                                        skey: this.getFilterSkey()}}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
                                 layoutItemID={newLayoutItemID}
                                 />;

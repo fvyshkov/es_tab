@@ -43,9 +43,6 @@ export default class TableViewFlow extends Component {
         return httpStr;
     }
 
-    getDataRequestString(){
-        return 'get_flow/?viewType=FlowView';
-    }
 
     render() {
         return (
@@ -57,7 +54,7 @@ export default class TableViewFlow extends Component {
                     onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
                     onToolbarDeleteClick={this.onToolbarDeleteClick.bind(this)}
                     layoutItemID={this.props.layoutItemID}
-                    getDatasource={getDatasource.bind(this, getDataRequestString)}
+                    getDatasource={getDatasource.bind(this)}
                     onInsertCallback={this.onInsertCallback.bind(this)}
                     onDeleteCallback={this.onDeleteCallback.bind(this)}
                     onCellFocused={this.onCellFocused.bind(this)}
@@ -77,7 +74,7 @@ function getDatasource(gridComponent, getDataRequestString) {
 
             getRows(params){
 
-                let httpStr = getDataRequestString();
+                let httpStr = 'get_flow/?viewType=FlowView';
 
                 httpStr = gridComponent.addAdditionalSheetParams(httpStr);
 

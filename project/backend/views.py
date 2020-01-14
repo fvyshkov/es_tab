@@ -831,6 +831,9 @@ def get_sheet_columns(request):
     elif view_type=='ScheduleView':
         p_req_id = param_dict.get('req_id', [''])[0]
         columns = get_schedule_column_list(p_sht_id, p_req_id)
+    elif view_type=='FlowView':
+        dop = param_dict.get('dop', [''])[0]
+        columns = get_flow_column_list(p_sht_id, dop, p_skey)
     elif len(p_ind_id)>0:
         p_parent_id = param_dict.get('parent_id',[''])[0]
 
@@ -856,6 +859,22 @@ def get_schedule_column_list(p_sht_id, p_req_id):
                              ' from table(C_PKGESdm.fGetColumns(%s, %s)) c '
                              ' order by c.npp',
                              [p_sht_id, p_req_id])
+
+    return columns
+
+def get_flow_column_list(sht_id, dop, skey):
+    print('get_flow_cols sht_id, dop, skey = ', sht_id, dop, skey)
+    run_sql(      '  begin  '
+                  ' C_PKGESSHEET.PADDFILTER(%s, %s ); '
+                  ' C_PKGESSHEET.PADDFILTER(%s, %s ); '
+                  ' C_PKGESSHEET.PADDFILTER(%s, %s ); '
+                  '  end; ', ['SHT_ID', sht_id, 'PERIOD_STEP', '6', 'DOP',  dop])
+
+    columns = [{'name':'Аналитика/показатель', 'key': 'name', 'editfl': 0 }]
+
+    columns = columns + get_sql_result(' select c.*, c.dfrom as key '
+                             ' from table(C_PKGESreq.fGetPaymentFlowsColumns(%s) ) c ',
+                             [skey])
 
     return columns
 
@@ -1084,6 +1103,98 @@ def get_schedule_rows(request):
 
     return JsonResponse(ref_cursor, safe=False)
 
+def get_flow_rows(request):
+    param_dict = dict(request.GET)
+
+    sht_id = param_dict['sht_id'][0]
+    req_id = param_dict['req_id'][0]
+    dop = param_dict['dop'][0]
+    skey = param_dict['skey'][0]
+
+    print('get_payment_rows (sht_id, req_id, dop, skey)=',sht_id, req_id, dop, skey)
+    flow_list = get_sql_result("""
+                                select x.id, x.longname, C_PKGESreq.fPaymentFlowIsEditable(%s, x.id) editable,
+                                  decode(x.PAY_SHD, 'HAND', 1, 0) as IS_HAND_INPUT_IND,
+                                  d.ROUND_SIZE
+                          from (
+                                 select i.id, i.longname, i.paymentfl, i.PAY_SHD, i.DTYPE_ID
+                                   from C_ES_VER_SHEET_IND i
+                                  start with i.sht_id = %s and i.id_hi is null connect by prior i.id = i.id_hi
+                                  order siblings by i.npp
+                               ) x,
+                              C_ES_DTYPE_STD d
+                         where x.paymentfl = '1'
+                            and x.DTYPE_ID = d.ID(+)""", [req_id, sht_id])
+
+    flow_data_sql = """
+                    with params as (select %s sht_id, %s skey, %dop dop, %s req_id  from dual)
+                    select x.DFROM,x.IND_ID,x.PERIOD_STEP,x.AMOUNT,i.PAY_SHD as PAY_SHD_CODE,
+                    params.REQ_ID as REQ_ID
+                    from table(c_pkgesreq.fGetPaymentFlows(params.SHT_ID, params.REQ_ID, params.SKEY, params.DOP)) x,
+                            C_ES_VER_SHEET_IND_STD i
+                    where i.ID = x.IND_ID and params.REQ_ID is not null
+                        union all
+                    select x.DFROM, x.IND_ID, x.PERIOD_STEP, sum(x.AMOUNT) as AMOUNT, i.PAY_SHD as PAY_SHD_CODE, null  as  REQ_ID
+                    from table(c_pkgesreq.fGetPaymentFlows(params.SHT_ID, null, params.SKEY, params.DOP)) x,
+                    C_ES_VER_SHEET_IND_STD i
+                    where i.ID = x.IND_ID and params.REQ_ID is null
+                    group by x.DFROM, x.IND_ID, x.PERIOD_STEP, i.PAY_SHD
+                """
+
+    flow_data = get_sql_result(flow_data_sql, [sht_id, skey, dop, req_id])
+    sheet_info = get_sheet_info_list(sht_id)
+
+    color_restrict = sheet_info[0].get('color_restrict_hex')
+    color_hand = sheet_info[0].get('color_hand_hex')
+    color_filter = sheet_info[0].get('color_filter_hex')
+
+    columns = get_schedule_column_list(sht_id, req_id)
+    for row in flow_list:
+        print('flow row', row)
+        row_dict = {}
+        column_data = []
+        for column_idx in range(len(refCursor.description)):
+            cell={}
+            cell['brush.color'] = 'white'
+            cell['font.color'] = 'black'
+            cell['border.color'] = 'black'
+            cell['font.italic'] = '0'
+            cell['font.bold'] = '0'
+
+            column_name = refCursor.description[column_idx][0].lower()
+            row_dict[column_name] = row[column_idx]
+            if any([True for column in columns if column['key'] == column_name.upper()]):
+                column_list = [column for column in columns if column['key'] == column_name.upper()]
+                if len(column_list)>0:
+                    cell['ent_id'] = column_list[0].get('ent_id')
+                    cell['atr_type'] = column_list[0].get('atr_type')
+                    cell['editfl'] = column_list[0].get('editfl')
+
+                    if column_name.upper().startswith('FLT'):
+                        cell['brush.color'] = color_filter
+                    elif cell['editfl'] ==0:
+                        cell['brush.color'] = color_restrict
+                    else:
+                        cell['brush.color'] = color_hand
+
+                else:
+                    cell['ent_id'] =  None
+                    cell['atr_type'] = None
+                    cell['editfl'] = 0
+                    cell['brush.color'] = color_restric
+
+
+                cell['key'] = column_name.upper()
+                cell['sql_value'] = row[column_idx]
+
+
+                column_data.append(cell)
+
+        row_dict['node_key'] = row_dict['ind_id']
+        row_dict['column_data'] = column_data
+        ref_cursor.append(row_dict)
+
+    return JsonResponse(ref_cursor, safe=False)
 
 def get_anl_detail_table_rows(sht_id, skey, ind_id, parent_id):
     connection = get_oracle_connection()
@@ -1152,6 +1263,12 @@ def get_sql_result(sql, params):
         cursor.execute('call c_pkgconnect.popen();' );
         cursor.execute(sql, params);
         return dict_fetch_all(cursor);
+
+def run_sql(sql, params):
+    with connection.cursor() as cursor:
+        cursor.execute('call c_pkgconnect.popen();' );
+        cursor.execute(sql, params);
+
 
 def dict_fetch_all(cursor):
     columns = [col[0] for col in cursor.description]

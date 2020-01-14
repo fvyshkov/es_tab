@@ -40,6 +40,7 @@ urlpatterns = [
     path('upload_file/', views.upload_file),
     path('get_file/', views.get_file),
     path('get_schedule/', views.get_schedule_rows),
+    path('get_flow/', views.get_flow_rows),
 
 
     path('', include('frontend.urls')),
