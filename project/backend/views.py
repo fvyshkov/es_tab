@@ -1111,6 +1111,8 @@ def get_flow_rows(request):
     dop = param_dict['dop'][0]
     skey = param_dict['skey'][0]
 
+    columns = get_flow_column_list(sht_id, dop, skey)
+
     print('get_payment_rows (sht_id, req_id, dop, skey)=',sht_id, req_id, dop, skey)
     flow_list = get_sql_result("""
                                 select x.id, x.longname, C_PKGESreq.fPaymentFlowIsEditable(%s, x.id) editable,
@@ -1127,70 +1129,74 @@ def get_flow_rows(request):
                             and x.DTYPE_ID = d.ID(+)""", [req_id, sht_id])
 
     flow_data_sql = """
-                    with params as (select %s sht_id, %s skey, %dop dop, %s req_id  from dual)
                     select x.DFROM,x.IND_ID,x.PERIOD_STEP,x.AMOUNT,i.PAY_SHD as PAY_SHD_CODE,
-                    params.REQ_ID as REQ_ID
-                    from table(c_pkgesreq.fGetPaymentFlows(params.SHT_ID, params.REQ_ID, params.SKEY, params.DOP)) x,
+                    /*params.REQ_ID*/%s as REQ_ID
+                    --from table(c_pkgesreq.fGetPaymentFlows(params.SHT_ID, params.REQ_ID, params.SKEY, params.DOP)) x,
+                    from table(c_pkgesreq.fGetPaymentFlows(%s, %s, %s, %s)) x,
                             C_ES_VER_SHEET_IND_STD i
-                    where i.ID = x.IND_ID and params.REQ_ID is not null
+                    where i.ID = x.IND_ID and /*params.REQ_ID*/%s is not null
                         union all
-                    select x.DFROM, x.IND_ID, x.PERIOD_STEP, sum(x.AMOUNT) as AMOUNT, i.PAY_SHD as PAY_SHD_CODE, null  as  REQ_ID
-                    from table(c_pkgesreq.fGetPaymentFlows(params.SHT_ID, null, params.SKEY, params.DOP)) x,
+                    select x.DFROM, x.IND_ID, x.PERIOD_STEP, sum(x.AMOUNT) as AMOUNT, 
+                    i.PAY_SHD as PAY_SHD_CODE, %s  as  REQ_ID
+                    from table(c_pkgesreq.fGetPaymentFlows(%s, %s, %s, %s)) x,
                     C_ES_VER_SHEET_IND_STD i
-                    where i.ID = x.IND_ID and params.REQ_ID is null
+                    where i.ID = x.IND_ID and %s is null
                     group by x.DFROM, x.IND_ID, x.PERIOD_STEP, i.PAY_SHD
                 """
 
-    flow_data = get_sql_result(flow_data_sql, [sht_id, skey, dop, req_id])
+    flow_data = get_sql_result(flow_data_sql, [req_id, sht_id, req_id, skey, dop, req_id,
+                                                req_id, sht_id, req_id, skey, dop, req_id])
     sheet_info = get_sheet_info_list(sht_id)
 
     color_restrict = sheet_info[0].get('color_restrict_hex')
     color_hand = sheet_info[0].get('color_hand_hex')
-    color_filter = sheet_info[0].get('color_filter_hex')
 
-    columns = get_schedule_column_list(sht_id, req_id)
+
+    ref_cursor = []
     for row in flow_list:
         print('flow row', row)
         row_dict = {}
         column_data = []
-        for column_idx in range(len(refCursor.description)):
-            cell={}
+
+        for column in columns:
+            print('col', column)
+            cell = {}
             cell['brush.color'] = 'white'
             cell['font.color'] = 'black'
             cell['border.color'] = 'black'
             cell['font.italic'] = '0'
             cell['font.bold'] = '0'
 
-            column_name = refCursor.description[column_idx][0].lower()
-            row_dict[column_name] = row[column_idx]
-            if any([True for column in columns if column['key'] == column_name.upper()]):
-                column_list = [column for column in columns if column['key'] == column_name.upper()]
-                if len(column_list)>0:
-                    cell['ent_id'] = column_list[0].get('ent_id')
-                    cell['atr_type'] = column_list[0].get('atr_type')
-                    cell['editfl'] = column_list[0].get('editfl')
+            cell['key'] = column.get('key')
 
-                    if column_name.upper().startswith('FLT'):
-                        cell['brush.color'] = color_filter
-                    elif cell['editfl'] ==0:
-                        cell['brush.color'] = color_restrict
-                    else:
-                        cell['brush.color'] = color_hand
-
-                else:
-                    cell['ent_id'] =  None
-                    cell['atr_type'] = None
-                    cell['editfl'] = 0
-                    cell['brush.color'] = color_restric
+            if column.get('key')=='name':
+                cell['sql_value'] = row.get('longname')
+            else:
+                cell['atr_type']= 'N'
+                values_list = [flow_row.get('amount')
+                                for flow_row in flow_data
+                                if flow_row.get('dfrom') == column.get('dfrom')
+                                    and flow_row.get('dfrom') == column.get('dfrom')
+                                    and flow_row.get('period_step') == column.get('period_step')
+                                    and flow_row.get('ind_id') == row.get('id')]
 
 
-                cell['key'] = column_name.upper()
-                cell['sql_value'] = row[column_idx]
+                if len(values_list)>0:
+                    cell['sql_value'] = values_list[0]
 
 
-                column_data.append(cell)
+            cell['editfl'] = row.get('editfl')
 
-        row_dict['node_key'] = row_dict['ind_id']
+            if cell['editfl'] == 0:
+                cell['brush.color'] = color_restrict
+            else:
+                cell['brush.color'] = color_hand
+
+
+
+            column_data.append(cell)
+
+        row_dict['node_key'] = row.get('id')
         row_dict['column_data'] = column_data
         ref_cursor.append(row_dict)
 

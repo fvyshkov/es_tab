@@ -332,7 +332,16 @@ export default class ReTableView extends Component {
               },
               {
                 name: 'Потоки платежей',
-                action: this.showFlowForRow.bind(this, params)
+                subMenu:[
+                    {
+                    name: 'По выбранной записи',
+                    action: this.showFlowForRow.bind(this, params)
+                    },
+                    {
+                    name: 'Все потоки (по выбранным значениям аналитик)',
+                    action: this.showFlowForSkey.bind(this, params)
+                    }
+                ]
               }
               ];
     }
@@ -370,20 +379,34 @@ export default class ReTableView extends Component {
     }
 
     showFlowForRow(params){
+        this.showFlow(params, true);
+    }
+
+    showFlowForSkey(params){
+        this.showFlow(params, false);
+    }
+
+    showFlow(params, oneRow){
         console.log('showFlowForRow req_id', params.node.data.id);
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
             console.log('newLayoutItemID=', newLayoutItemID);
-            var dop = new Date(params.node.data.dop);
-            var dopString = dop.getDate().toString().padStart(2,'0')  + '.' +
-                            dop.getMonth().toString().padStart(2,'0') + '.' +
-                            dop.getFullYear();
-            console.log('dopstring', dop, dopString);
 
+            var dopString = '';
+
+            if (params.node.data.dop){
+                var dop = new Date(params.node.data.dop);
+                console.log('params.node.data.dop=', params.node.data.dop);
+                var dopString = dop.getDate().toString().padStart(2,'0')  + '.' +
+                                dop.getMonth().toString().padStart(2,'0') + '.' +
+                                dop.getFullYear();
+
+            }
+            console.log('dopstring',  dopString);
             var detailRender =  <TableViewFlow
                                 additionalSheetParams={{
                                                         sht_id: this.state.sheet_id,
-                                                        req_id:params.node.data.id,
+                                                        req_id: oneRow ? params.node.data.id : '',
                                                         dop: dopString,
                                                         skey: this.getFilterSkey()}}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
