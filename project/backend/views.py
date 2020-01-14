@@ -848,7 +848,11 @@ def get_sheet_columns(request):
     return JsonResponse(columns, safe=False)
 
 def get_schedule_column_list(p_sht_id, p_req_id):
-    columns = get_sql_result(' select c.code key, c.longname name '
+    columns = get_sql_result(' select c.code key, c.longname name, '
+                             '  case when c.READONLYFL=1 then 0 '
+                             '      else 1 '
+                             ' end editfl, '
+                             ' c.atr_type '
                              ' from table(C_PKGESdm.fGetColumns(%s, %s)) c '
                              ' order by c.npp',
                              [p_sht_id, p_req_id])
@@ -1046,8 +1050,6 @@ def get_schedule_rows(request):
             cell['font.bold'] = '0'
 
             column_name = refCursor.description[column_idx][0].lower()
-            print('column_name', column_name)
-            print('columns', columns)
             row_dict[column_name] = row[column_idx]
             if any([True for column in columns if column['key'] == column_name.upper()]):
                 column_list = [column for column in columns if column['key'] == column_name.upper()]
@@ -1076,15 +1078,10 @@ def get_schedule_rows(request):
 
                 column_data.append(cell)
 
-        #print('??? before append')
-
         row_dict['node_key'] = row_dict['dop']
         row_dict['column_data'] = column_data
-        #row_dict['hie_path'] = [row_dict['node_key']]
         ref_cursor.append(row_dict)
 
-    print('return ref cursor')
-    #return ref_cursor
     return JsonResponse(ref_cursor, safe=False)
 
 
