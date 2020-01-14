@@ -396,13 +396,12 @@ export default class ReTableView extends Component {
 
             if (params.node.data.dop){
                 var dop = new Date(params.node.data.dop);
-                console.log('params.node.data.dop=', params.node.data.dop);
                 var dopString = dop.getDate().toString().padStart(2,'0')  + '.' +
-                                dop.getMonth().toString().padStart(2,'0') + '.' +
+                                (dop.getMonth()+1).toString().padStart(2,'0') + '.' +
                                 dop.getFullYear();
 
             }
-            console.log('dopstring',  dopString);
+
             var detailRender =  <TableViewFlow
                                 additionalSheetParams={{
                                                         sht_id: this.state.sheet_id,
