@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import TableView from './TableView.jsx';
+import ReTableView from './ReTableView.jsx';
 import commentDatasource from './commentDatasource.js';
 import CommentPanel from './CommentPanel.jsx';
 import {sendRequest} from './App.js';
@@ -38,6 +39,15 @@ export default class TableViewSchedule extends Component {
         console.log('onGetGridApi', this.gridApi);
     }
 
+    getColumnsListRequestString(){
+
+        var httpStr;
+
+        httpStr = "schedule_columns/?dummy=1";
+        //httpStr = this.addAdditionalSheetParams(httpStr);
+        return httpStr;
+    }
+
     render() {
         console.log('render ', this.props);
         return (
@@ -54,6 +64,7 @@ export default class TableViewSchedule extends Component {
                     onDeleteCallback={this.onDeleteCallback.bind(this)}
                     onCellFocused={this.onCellFocused.bind(this)}
                     onGetGridApi={this.onGetGridApi.bind(this)}
+                    getColumnsListRequestString={this.getColumnsListRequestString.bind(this)}
 
                 />
             </div>

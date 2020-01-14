@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import SheetToolbar from "./SheetToolbar.jsx";
 import ReGrid from './ReGrid.jsx';
 import TableViewComment from './TableViewComment.jsx';
+import TableViewSchedule from './TableViewSchedule.jsx';
 import notify from 'devextreme/ui/notify';
 import ColorPanel from './ColorPanel.jsx';
 import { sendRequest } from './App.js';
@@ -280,13 +281,19 @@ export default class ReTableView extends Component {
     }
 
     getColumnsListRequestString(){
-        var httpStr = "sht_columns/?";
-        if (this.state.sheet_id){
-            httpStr +='sht_id='+this.state.sheet_id;
-        }
-        var skey = this.getFilterSkey();
-        if  (skey){
-            httpStr += '&skey='+skey;
+
+        var httpStr;
+        if (this.props.getColumnsListRequestString){
+            httpStr = this.props.getColumnsListRequestString();
+        }else{
+            httpStr = "sht_columns/?";
+            if (this.state.sheet_id){
+                httpStr +='sht_id='+this.state.sheet_id;
+            }
+            var skey = this.getFilterSkey();
+            if  (skey){
+                httpStr += '&skey='+skey;
+            }
         }
 
         httpStr = this.addAdditionalSheetParams(httpStr);
@@ -317,6 +324,10 @@ export default class ReTableView extends Component {
               {
                 name: 'Комментарии по значению',
                 action: this.showCommentForCell.bind(this, params)
+              },
+              {
+                name: 'Графики',
+                action: this.showScheduleForRow.bind(this, params)
               }];
     }
 
@@ -329,6 +340,21 @@ export default class ReTableView extends Component {
                                 sheet_id = {this.state.sheet_id}
                                 sheet_type = {this.state.sheet_type}
                                 additionalSheetParams={{parent_id:params.node.data.id, ind_id:params.column.colDef.ind_id}}
+                                onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
+                                layoutItemID={newLayoutItemID}
+                                />;
+
+            this.props.addElementToLayout(detailRender);
+        }
+    }
+
+    showScheduleForRow(params){
+        console.log('showDetailForCell req_id', params.node.data.id);
+        if (this.props.addElementToLayout){
+            var newLayoutItemID = this.props.getNewLayoutItemID();
+            console.log('newLayoutItemID=', newLayoutItemID);
+            var detailRender =  <TableViewSchedule
+                                additionalSheetParams={{req_id:params.node.data.id}}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
                                 layoutItemID={newLayoutItemID}
                                 />;
