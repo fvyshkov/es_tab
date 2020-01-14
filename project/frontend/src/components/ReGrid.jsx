@@ -209,20 +209,35 @@ export default class ReGrid extends React.Component {
                                                             return;
                                                         }
                                                         var columnData = getColumnData(params);
-                                                        var style = {color: 'black', backgroundColor: 'white'};
-                                                        if (!columnData){
-                                                            return style;
+
+                                                        var fontColor = '#000000';//black
+                                                        var backgroundColor = '#ffffff';//white
+
+                                                        if (columnData){
+                                                            fontColor = columnData['font.color'];
+                                                            backgroundColor = columnData['brush.color'];
+                                                            if (!backgroundColor){
+                                                               backgroundColor = '#ffffff';//white
+                                                            }
+
+                                                            if (params.node.rowIndex % 2 === 1) {
+                                                                var rgbColor = hexToRGB(backgroundColor, .6, -30);
+                                                                backgroundColor = rgbColor;
+                                                            }else{
+                                                                backgroundColor = hexToRGB(backgroundColor, .6);
+                                                            }
                                                         }
-                                                        style = {color: columnData['font.color'], backgroundColor: columnData['brush.color']};
+
+                                                        var style = {color: fontColor, backgroundColor: backgroundColor};
 
 
-                                                        if (columnData['font.bold']==='1'){
+                                                        if (columnData && columnData['font.bold']==='1'){
                                                             style['font-weight'] = 'bold';
                                                         }
-                                                        if (columnData['font.italic']==='1'){
+                                                        if (columnData && columnData['font.italic']==='1'){
                                                             style['font-style'] = 'italic';
                                                         }
-                                                        if (columnData['border.color']){ 
+                                                        if (columnData && columnData['border.color']){ 
                                                             style['border-style'] = 'solid'; 
                                                             style['border-width'] = 'thin'; 
                                                             style['border-color'] = columnData['border.color'] 
@@ -378,6 +393,12 @@ export default class ReGrid extends React.Component {
 
     }
 
+    getRowClass(params) {
+        if (params.node.rowIndex % 2 === 0) {
+            return 'myShadedEffect';
+        }
+    }
+
   render() {
     console.log('render regrid this.props.filterNodes', this.props.filterNodes);
             return (
@@ -386,6 +407,7 @@ export default class ReGrid extends React.Component {
                     <div className ="ag-theme-balham NonDraggableAreaClassName ToolbarViewContent" key={this.state.gridKey} id="myGrid123">
                         <AgGridReact
                             modules={AllModules}
+                            getRowClass={this.getRowClass}
                             columnDefs={this.state.columnDefs}
                             defaultColDef={this.state.defaultColDef}
                             autoGroupColumnDef={this.state.autoGroupColumnDef}
@@ -591,4 +613,16 @@ function getColumnData(params){
     return null;
 }
 
+
+function hexToRGB(hex, alpha, delta=0) {
+    var r = parseInt(hex.slice(1, 3), 16) + delta,
+        g = parseInt(hex.slice(3, 5), 16) + delta,
+        b = parseInt(hex.slice(5, 7), 16) + delta;
+
+    if (alpha) {
+        return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
+    } else {
+        return "rgb(" + r + ", " + g + ", " + b + ")";
+    }
+}
 

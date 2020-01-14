@@ -1155,12 +1155,10 @@ def get_flow_rows(request):
 
     ref_cursor = []
     for row in flow_list:
-        print('flow row', row)
         row_dict = {}
         column_data = []
 
         for column in columns:
-            #print('col', column)
             cell = {}
             cell['brush.color'] = 'white'
             cell['font.color'] = 'black'
@@ -1175,12 +1173,7 @@ def get_flow_rows(request):
             else:
                 cell['atr_type']= 'N'
                 values_list = [flow_row.get('amount') for flow_row in flow_data if (flow_row.get('dfrom') == column.get('dfrom') and flow_row.get('period_step') == column.get('period_step') and flow_row.get('ind_id') == row.get('id'))]
-
-
                 if len(values_list)>0:
-                    print('...',  column.get('dfrom'),
-                                    column.get('period_step') ,
-                                    row.get('id'), values_list[0])
                     cell['sql_value'] = values_list[0]
 
 
