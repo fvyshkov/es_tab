@@ -29,28 +29,15 @@ export default class TableViewComment extends Component {
     onFileUploaded(e){
 
         var responseObject = JSON.parse(e.request.response);
-        console.log('onFileUploaded resp file_id', responseObject);
         if (responseObject.length===1){
-            console.log('111=', responseObject[0]['file_id']);
             this.state.currentComment.fileIds += responseObject[0]['file_id'] + ',';
             this.setState({currentComment: this.state.currentComment});
         }
 
     }
 
-    loadItemData(item_id){
-        this.setState({currentComment: {
-                                    com_id:1,
-                                    sheet_name: "Книга => 2019 => 1.0 => Группа => Лист",
-                                    flt_dsrc:"Подразделение=ГО \n Показатель=Кредиты",
-                                    prim:"test\n test2 \n test3 ",
-                                    correctdt : ""
-                                  }
-                                 });
-    }
 
     onInsertCallback(){
-        console.log('insert addparams', this.props.additionalSheetParams);
         this.setState({currentComment: {
                                     sheet_name: this.props.additionalSheetParams.sheet_path,
                                     flt_dscr: this.props.additionalSheetParams.flt_dscr,

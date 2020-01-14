@@ -453,63 +453,12 @@ export default class ReGrid extends React.Component {
 
 
 
-    showCommentForCell(params){
-        var columnData = getColumnData(params);
-        if (this.props.addElementToLayout){
-            var newLayoutItemID = this.props.getNewLayoutItemID();
 
-            var skey='';
-            if (this.props.sheet_type === 'tree'){
-                skey = this.props.skey();
-                /*
-                пока все неправильно,
-                работать будет только если все аналитики выбраны,
-                а тут отсекаем аналитику "показатель",
-                потому что с ней пока не работает
-                if (params.node.key){
-                    skey += params.node.key;
-                }
-                */
-                skey += columnData.key;
-            }else{
-
-            }
-            console.log('showCommentForCell=', columnData);
-            console.log('showCommentForCell(params)', params);
-
-            var additionalParams = {
-                                    viewType: 'CommentView',
-                                    ind_id: columnData.ind_id,
-                                    skey: skey,
-                                    sheet_path: this.state.sheetInfo.sheet_path,
-                                    flt_dscr: columnData['flt_dscr']
-                                   };
-
-            if (columnData.req_id){
-                additionalParams['req_id'] = columnData.req_id;
-            }
-            console.log('comments sht_id=', this.props.sheet_id);
-            var detailRender =  <TableViewComment
-                                additionalSheetParams={additionalParams}
-                                onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
-                                layoutItemID={newLayoutItemID}
-                                />;
-
-            this.props.addElementToLayout(detailRender);
-        }
-    }
 
     getContextMenuItems(params) {
 
         var result = [
-          {
-            name: 'Детализация <b>[' + params.column.colDef.headerName+']</b>',
-            action: this.showDetailForCell.bind(this, params)
-          },
-          {
-            name: 'Комментарии по значению',
-            action: this.showCommentForCell.bind(this, params)
-          },
+            ...this.props.getContextMenuItems(params),
             "separator",
             "expandAll",
             "copyWithHeadersCopy",
@@ -520,23 +469,6 @@ export default class ReGrid extends React.Component {
         return result;
       }
 
-
-    showDetailForCell(params){
-        console.log('showDetailForCell', params);
-        if (this.props.addElementToLayout){
-            var newLayoutItemID = this.props.getNewLayoutItemID();
-            console.log('newLayoutItemID=', newLayoutItemID);
-            var detailRender =  <ReTableView
-                                sheet_id = {this.props.sheet_id}
-                                sheet_type = {this.props.sheet_type}
-                                additionalSheetParams={{parent_id:params.node.data.id, ind_id:params.column.colDef.ind_id}}
-                                onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
-                                layoutItemID={newLayoutItemID}
-                                />;
-
-            this.props.addElementToLayout(detailRender);
-        }
-    }
 
   onFirstDataRendered(params) {
 

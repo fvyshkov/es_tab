@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import ReactDOM from "react-dom";
 import SheetToolbar from "./SheetToolbar.jsx";
 import ReGrid from './ReGrid.jsx';
+import TableViewComment from './TableViewComment.jsx';
 import notify from 'devextreme/ui/notify';
 import ColorPanel from './ColorPanel.jsx';
 import { sendRequest } from './App.js';
@@ -71,6 +72,12 @@ export default class ReTableView extends Component {
         if (this.state.sheet_type==='tree'){
             this.setState({forceGridReload: true});
         }
+    }
+
+
+    loadAll(params){
+        this.props.beforeLoadAll(params);
+        this.props.loadAll(params);
     }
 
     loadNewSheet(prm_sheet_id, prm_sheet_type){
@@ -299,6 +306,85 @@ export default class ReTableView extends Component {
         return httpStr;
     }
 
+
+    getContextMenuItems(params){
+
+
+        return  [{
+                name: 'Детализация <b>[' + params.column.colDef.headerName+']</b>',
+                action: this.showDetailForCell.bind(this, params)
+              },
+              {
+                name: 'Комментарии по значению',
+                action: this.showCommentForCell.bind(this, params)
+              }];
+    }
+
+    showDetailForCell(params){
+        console.log('showDetailForCell', params);
+        if (this.props.addElementToLayout){
+            var newLayoutItemID = this.props.getNewLayoutItemID();
+            console.log('newLayoutItemID=', newLayoutItemID);
+            var detailRender =  <ReTableView
+                                sheet_id = {this.state.sheet_id}
+                                sheet_type = {this.state.sheet_type}
+                                additionalSheetParams={{parent_id:params.node.data.id, ind_id:params.column.colDef.ind_id}}
+                                onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
+                                layoutItemID={newLayoutItemID}
+                                />;
+
+            this.props.addElementToLayout(detailRender);
+        }
+    }
+
+    showCommentForCell(params){
+        console.log('showCommentForCell new ', params);
+        var columnData = getColumnData(params);
+        if (this.props.addElementToLayout){
+            var newLayoutItemID = this.props.getNewLayoutItemID();
+
+            var skey='';
+            if (this.state.sheet_type === 'tree'){
+                skey = this.getFilterSkey();
+                /*
+                пока все неправильно,
+                работать будет только если все аналитики выбраны,
+                а тут отсекаем аналитику "показатель",
+                потому что с ней пока не работает
+                if (params.node.key){
+                    skey += params.node.key;
+                }
+                */
+                skey += columnData.key;
+            }else{
+
+            }
+            console.log('showCommentForCell=', columnData);
+            console.log('showCommentForCell(params)', params);
+
+            var additionalParams = {
+                                    viewType: 'CommentView',
+                                    ind_id: columnData.ind_id,
+                                    skey: skey,
+                                    sheet_path: 'sheetInfoDummy',//this.state.sheetInfo.sheet_path,
+                                    flt_dscr: columnData['flt_dscr']
+                                   };
+
+            if (columnData.req_id){
+                additionalParams['req_id'] = columnData.req_id;
+            }
+            console.log('comments sht_id=', this.props.sheet_id);
+            var detailRender =  <TableViewComment
+                                additionalSheetParams={additionalParams}
+                                onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
+                                layoutItemID={newLayoutItemID}
+                                />;
+
+            this.props.addElementToLayout(detailRender);
+        }
+    }
+
+
     render(){
         return (
             <React.Fragment>
@@ -325,6 +411,8 @@ export default class ReTableView extends Component {
 
 
                             <ReGrid
+
+                            getContextMenuItems={this.getContextMenuItems.bind(this)}
                                 getColumnsListRequestString={this.getColumnsListRequestString.bind(this)}
                                 sendRefreshGrid={click => this.sendRefreshGrid = click}
                                 sendBeforeCloseToGrid={click => this.sendBeforeCloseToGrid = click}
@@ -421,6 +509,32 @@ function markSelectedFilterNodes(nodes, selected){
         }
     }
     return marked;
+}
+
+
+function getColumnData(params){
+    var columnDataList = [];
+    var colDefField = '';
+
+    if (params.node && params.node.data &&  params.node.data.column_data){
+        columnDataList = params.node.data.column_data;
+        colDefField = params.column.colDef.field;
+    }else if(params.rowIndex){
+        columnDataList = params.api.getDisplayedRowAtIndex(params.rowIndex).data.column_data;
+        colDefField = params.colDef.field;
+    }else if (params.data && params.colDef) {
+        columnDataList = params.data.column_data;
+        colDefField = params.colDef.field;
+    }
+
+
+    for(var i=0; i< columnDataList.length; i++){
+        if (columnDataList[i].key===colDefField){
+            return columnDataList[i];
+        }
+    }
+
+    return null;
 }
 
 

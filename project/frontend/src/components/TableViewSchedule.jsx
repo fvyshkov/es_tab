@@ -42,7 +42,7 @@ export default class TableViewSchedule extends Component {
         console.log('render ', this.props);
         return (
             <div>
-                <TableView
+                <ReTableView
                     sheet_id = {0}
                     sheet_type = {''}
                     additionalSheetParams={this.props.additionalSheetParams}
