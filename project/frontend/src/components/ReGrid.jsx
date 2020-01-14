@@ -50,7 +50,6 @@ export default class ReGrid extends React.Component {
                         },
                         ...this.props.addToolPanels
                     ],
-                    //defaultToolPanel: "sheetFilters",
                     position: 'left'
                 },
 
@@ -74,7 +73,6 @@ export default class ReGrid extends React.Component {
         resizable: true,
         filter: false
       },
-      autoGroupColumnDef: {},
       rowModelType: "serverSide",
       isServerSideGroup: function(dataItem) {
         return dataItem.groupfl==='1';
@@ -95,7 +93,6 @@ export default class ReGrid extends React.Component {
     this.processColumnsData = this.processColumnsData.bind(this);
     this.loadSheetInfo = this.loadSheetInfo.bind(this);
 
-    this.getAutoGroupColumnDef = this.getAutoGroupColumnDef.bind(this);
     this.processSheetInfo = this.processSheetInfo.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
 
@@ -115,24 +112,6 @@ export default class ReGrid extends React.Component {
 
   }
 
-    getAutoGroupColumnDef(){
-        return (
-            {
-                headerName:"Показатель",
-                cellRendererParams: {
-                    innerRenderer: function(params) {
-                        return params.data.name;
-                    }
-                },
-                pinned: 'left',
-                cellStyle: {color: 'black',
-                                backgroundColor: this.state.colorRestrict,
-                                borderStyle:'solid',
-                                borderWidth:'thin',
-                                borderColor:'black'
-                                }
-            });
-    }
 
     componentDidMount() {
         if (this.props.sendRefreshGrid){
@@ -267,37 +246,21 @@ export default class ReGrid extends React.Component {
     }
 
     processSheetInfo(infoList){
-        //необходимо сбросить ключ, чтобы после установки autoGroupColumnDef снова выставить
-        //и тем самым принудительно перерендерить грид (иначе autoGroupColumnDef не обновляется)
-        if (this.props.forceGridReload){
-            this.setState({gridKey:0});
-        }
-
-        if (this.props.resetForceGridReload){
-            this.props.resetForceGridReload();
-        }
-        if (infoList.length>0){
-            this.state.colorRestrict = infoList[0].color_restrict_hex;
-            this.setState({
-                            colorRestrict:infoList[0].color_restrict_hex,
-                            colorHand:infoList[0].color_hand_hex,
-                            colorTotal:infoList[0].color_total_hex,
-                            colorFilter:infoList[0].color_filter_hex,
-                            colorCons:infoList[0].color_cons_hex,
-                            colorConf:infoList[0].color_conf_hex,
-                            colorConfPart:infoList[0].color_conf_part_hex,
-                            autoGroupColumnDef:this.getAutoGroupColumnDef(),
-                            treeData: this.props.sheet_type==='tree' ? true: false,
+        this.setState({
+                            gridKey: 0,
                             sheetInfo: infoList[0]
                              });
 
-        }
-        this.setState({gridKey: this.props.sheet_id});
+        //заставляем грид перерендериться
+        //без этого "загадочного" действия в FilterToolPanel почему-то не попадают новые пропсы
+        this.setState({gridKey: 1});
 
     }
 
 
     loadColumns(){
+
+
         var httpStr = "sht_columns/?";
         if (this.props.sheet_id){
             httpStr +='sht_id='+this.props.sheet_id;
@@ -308,6 +271,7 @@ export default class ReGrid extends React.Component {
         }
 
         httpStr = this.addAdditionalSheetParams(httpStr);
+
         sendRequest(httpStr, this.processColumnsData);
     }
 
@@ -425,11 +389,11 @@ export default class ReGrid extends React.Component {
     }
 
   render() {
-                ///ниже вычитаем высоту тулбара - от этого необходимо избавиться! перенеся и используя эту константу в CSS --calc(100% - 36px)
+    console.log('render regrid this.props.filterNodes', this.props.filterNodes);
             return (
                 <React.Fragment>
 
-                    <div className ="ag-theme-balham NonDraggableAreaClassName" style={ {height: 'calc(100% - 36px)', width: '100%', position: 'absolute'} } key={this.state.gridKey} id="myGrid123">
+                    <div className ="ag-theme-balham NonDraggableAreaClassName ToolbarViewContent" key={this.state.gridKey} id="myGrid123">
                         <AgGridReact
                             modules={AllModules}
                             columnDefs={this.state.columnDefs}

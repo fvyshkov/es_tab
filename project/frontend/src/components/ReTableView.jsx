@@ -26,7 +26,7 @@ export default class ReTableView extends Component {
                                 id: "sheetFilters",
                                 labelDefault: "Аналитики",
                                 labelKey: "sheetFilters",
-                                iconKey: "sheetFilters",
+                                iconKey: "filter",
                                 toolPanel: "filterPanelInToolPanel"
                                 }
                             ]
@@ -81,24 +81,23 @@ export default class ReTableView extends Component {
         }
 
         this.setState({sheet_id: prm_sheet_id, sheet_type: prm_sheet_type});
-        if (!this.state.filterNodes[prm_sheet_id]){
-            sendRequest('sht_filters/?sht_id='+prm_sheet_id, this.onLoadFilterNodes);
-        }else{
-            this.sendRefreshGrid();
-        }
+        sendRequest('sht_filters/?sht_id='+prm_sheet_id, this.onLoadFilterNodes);
+
     }
 
     onLoadFilterNodes(filterNodesList){
         var newFilterNodes = this.state.filterNodes;
         var sheet_id = this.state.sheet_id;
-        newFilterNodes[sheet_id] = {};
+        newFilterNodes = {};
 
         filterNodesList.forEach(function(filter){
-            newFilterNodes[sheet_id][filter.flt_id] = filter;
+            newFilterNodes[filter.flt_id] = filter;
         });
 
-        sendRequest('sht_state/?sht_id='+ this.state.sheet_id, this.processSheetState.bind(this));
         this.setState({filterNodes: newFilterNodes});
+
+        sendRequest('sht_state/?sht_id='+ this.state.sheet_id, this.processSheetState.bind(this));
+
 
 
     }
@@ -108,15 +107,13 @@ export default class ReTableView extends Component {
         if (sheetState.length>0){
             if (sheetState[0].filternodes){
                 var selectedNodes = sheetState[0].filternodes;
-                var markedNodes = markSelectedFilterNodes(this.state.filterNodes[this.state.sheet_id], selectedNodes);
-                this.state.filterNodes[this.state.sheet_id] = markedNodes;
-                this.setState({filterNodes: this.state.filterNodes});
+                var markedNodes = markSelectedFilterNodes(this.state.filterNodes, selectedNodes);
+                this.setState({filterNodes: markedNodes});
+            }else{
+                console.log('NOT sheetState[0].filternodes');
             }
 
-            if (sheetState[0].columnstates){
-                this.state.columnStates[this.state.sheet_id] = sheetState[0].columnstates;
-                this.setState({columnStates: this.state.columnStates});
-            }
+            this.setState({columnStates: sheetState[0].columnstates});
 
             this.setState({expandedGroupIds: sheetState[0].expandedgroupids});
 
@@ -128,8 +125,8 @@ export default class ReTableView extends Component {
     saveSheetState(){
         if (this.state.sheet_id){
             var sheetState = {};
-            sheetState['filterNodes'] = getSelectedFilterNodes(this.state.filterNodes[this.state.sheet_id]);
-            sheetState['columnStates'] = this.state.columnStates[this.state.sheet_id];
+            sheetState['filterNodes'] = getSelectedFilterNodes(this.state.filterNodes);
+            sheetState['columnStates'] = this.state.columnStates;
             sheetState['expandedGroupIds'] = this.state.expandedGroupIds;
 
             var httpStr = 'sht_state_update/?sht_id='+this.state.sheet_id;
@@ -139,15 +136,15 @@ export default class ReTableView extends Component {
 
 
     onFilterPanelChange(selectedNodes, allNodes, filterID){
-        this.state.filterNodes[this.state.sheet_id][filterID].filter_node_list = allNodes;
+        this.state.filterNodes[filterID].filter_node_list = allNodes;
         this.setState({filterNodes : this.state.filterNodes});
     }
 
     getFilterSkey(){
         var skey = '';
-        for (var filterID in this.state.filterNodes[this.state.sheet_id]){
-            if (Object.prototype.hasOwnProperty.call(this.state.filterNodes[this.state.sheet_id], filterID)) {
-                var filterNodeList = this.state.filterNodes[this.state.sheet_id][filterID].filter_node_list;
+        for (var filterID in this.state.filterNodes){
+            if (Object.prototype.hasOwnProperty.call(this.state.filterNodes, filterID)) {
+                var filterNodeList = this.state.filterNodes[filterID].filter_node_list;
                 var itemID = this.getCheckedFilterNodeId(filterNodeList);
                 if (itemID !='0'){
                     skey = skey+ 'FLT_ID_'+filterID+'=>'+itemID+',';
@@ -310,8 +307,8 @@ export default class ReTableView extends Component {
                                 treeData = {this.state.sheet_type==='tree'? true:false}
                                 onFilterPanelChange={this.onFilterPanelChange}
                                 selectedFilterNodes={this.state.selectedFilterNodes}
-                                filterNodes={this.state.filterNodes[this.state.sheet_id]}
-                                columnStates={this.state.columnStates[this.state.sheet_id]}
+                                filterNodes={this.state.filterNodes}
+                                columnStates={this.state.columnStates}
                                 expandedGroupIds={this.state.expandedGroupIds}
                                 addElementToLayout={this.props.addElementToLayout}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick}
