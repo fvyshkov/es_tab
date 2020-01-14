@@ -272,6 +272,33 @@ export default class ReTableView extends Component {
         this.gripApi = params;
     }
 
+    getColumnsListRequestString(){
+        var httpStr = "sht_columns/?";
+        if (this.state.sheet_id){
+            httpStr +='sht_id='+this.state.sheet_id;
+        }
+        var skey = this.getFilterSkey();
+        if  (skey){
+            httpStr += '&skey='+skey;
+        }
+
+        httpStr = this.addAdditionalSheetParams(httpStr);
+        return httpStr;
+    }
+
+    addAdditionalSheetParams(str){
+        var httpStr = str;
+        if (this.props.additionalSheetParams){
+            for (var paramName in this.props.additionalSheetParams){
+                if (Object.prototype.hasOwnProperty.call(this.props.additionalSheetParams, paramName)){
+                    httpStr += '&'+paramName+'='+this.props.additionalSheetParams[paramName];
+                }
+            }
+
+        }
+        return httpStr;
+    }
+
     render(){
         return (
             <React.Fragment>
@@ -298,6 +325,7 @@ export default class ReTableView extends Component {
 
 
                             <ReGrid
+                                getColumnsListRequestString={this.getColumnsListRequestString.bind(this)}
                                 sendRefreshGrid={click => this.sendRefreshGrid = click}
                                 sendBeforeCloseToGrid={click => this.sendBeforeCloseToGrid = click}
                                 sendUndoToGrid={click => this.sendUndoToGrid = click}

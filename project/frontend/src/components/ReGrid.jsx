@@ -260,18 +260,7 @@ export default class ReGrid extends React.Component {
 
     loadColumns(){
 
-
-        var httpStr = "sht_columns/?";
-        if (this.props.sheet_id){
-            httpStr +='sht_id='+this.props.sheet_id;
-        }
-        var skey = this.props.skey();
-        if  (skey){
-            httpStr += '&skey='+skey;
-        }
-
-        httpStr = this.addAdditionalSheetParams(httpStr);
-
+        var httpStr = this.props.getColumnsListRequestString();
         sendRequest(httpStr, this.processColumnsData);
     }
 
