@@ -872,8 +872,9 @@ def get_flow_column_list(sht_id, dop, skey):
 
     columns = [{'name':'Аналитика/показатель', 'key': 'name', 'editfl': 0 }]
 
-    columns = columns + get_sql_result(' select c.*, c.dfrom as key '
-                             ' from table(C_PKGESreq.fGetPaymentFlowsColumns(%s) ) c ',
+    columns = columns + get_sql_result(""" select c.*, to_char(c.dfrom,'ddmmyyyy')||'_'||c.period_step as key ,
+                                        'N' atr_type
+                              from table(C_PKGESreq.fGetPaymentFlowsColumns(%s) ) c """,
                              [skey])
 
     return columns
@@ -1159,7 +1160,7 @@ def get_flow_rows(request):
         column_data = []
 
         for column in columns:
-            print('col', column)
+            #print('col', column)
             cell = {}
             cell['brush.color'] = 'white'
             cell['font.color'] = 'black'
@@ -1173,15 +1174,13 @@ def get_flow_rows(request):
                 cell['sql_value'] = row.get('longname')
             else:
                 cell['atr_type']= 'N'
-                values_list = [flow_row.get('amount')
-                                for flow_row in flow_data
-                                if flow_row.get('dfrom') == column.get('dfrom')
-                                    and flow_row.get('dfrom') == column.get('dfrom')
-                                    and flow_row.get('period_step') == column.get('period_step')
-                                    and flow_row.get('ind_id') == row.get('id')]
+                values_list = [flow_row.get('amount') for flow_row in flow_data if (flow_row.get('dfrom') == column.get('dfrom') and flow_row.get('period_step') == column.get('period_step') and flow_row.get('ind_id') == row.get('id'))]
 
 
                 if len(values_list)>0:
+                    print('...',  column.get('dfrom'),
+                                    column.get('period_step') ,
+                                    row.get('id'), values_list[0])
                     cell['sql_value'] = values_list[0]
 
 

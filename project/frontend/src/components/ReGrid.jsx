@@ -482,10 +482,14 @@ function gridCellRenderer(params){
     if (params.colDef.ent_id){
         displayValue = getReferValueById(params.colDef.field, params.value);
     }else if (params.colDef.atr_type==="N" ){
-        var num = parseFloat(Math.round(parseFloat(params.value) * 100) / 100).toFixed(2);
-        var parts = num.split(".");
-        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-        displayValue = parts.join(".");
+        if (params.value){
+            var num = parseFloat(Math.round(parseFloat(params.value) * 100) / 100).toFixed(2);
+            var parts = num.split(".");
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+            displayValue = parts.join(".");
+        }else{
+            displayValue = '';
+        }
     }else{
         displayValue = params.value;
     }
