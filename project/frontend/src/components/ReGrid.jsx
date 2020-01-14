@@ -9,6 +9,7 @@ import { sendRequest } from './App.js';
 import FilterPanelInToolPanel from "./FilterPanelInToolPanel.jsx";
 import {LicenseManager} from "@ag-grid-enterprise/core";
 import TableView from './TableView.jsx';
+import ReTableView from './ReTableView.jsx';
 import ToolbarView from './ToolbarView.jsx';
 import sheetDatasource from './sheetDatasource';
 import commentDatasource from './commentDatasource';
@@ -525,7 +526,7 @@ export default class ReGrid extends React.Component {
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
             console.log('newLayoutItemID=', newLayoutItemID);
-            var detailRender =  <TableView
+            var detailRender =  <ReTableView
                                 sheet_id = {this.props.sheet_id}
                                 sheet_type = {this.props.sheet_type}
                                 additionalSheetParams={{parent_id:params.node.data.id, ind_id:params.column.colDef.ind_id}}

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import TableView from './TableView.jsx';
+import ReTableView from './ReTableView.jsx';
 import commentDatasource from './commentDatasource.js';
 import CommentPanel from './CommentPanel.jsx';
 import {sendRequest} from './App.js';
@@ -128,7 +129,7 @@ export default class TableViewComment extends Component {
                     uploadFile={this.uploadFile.bind(this)}
                 />
 
-                <TableView
+                <ReTableView
                     sheet_id = {0}
                     sheet_type = {''}
                     additionalSheetParams={this.props.additionalSheetParams}
