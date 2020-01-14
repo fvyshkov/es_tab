@@ -39,6 +39,7 @@ urlpatterns = [
     path('insert_comment/', views.insert_comment),
     path('upload_file/', views.upload_file),
     path('get_file/', views.get_file),
+    path('get_schedule/', views.get_schedule_rows),
 
 
     path('', include('frontend.urls')),

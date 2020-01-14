@@ -43,7 +43,7 @@ export default class TableViewSchedule extends Component {
 
         var httpStr;
 
-        httpStr = "schedule_columns/?dummy=1";
+        httpStr = "sht_columns/?viewType=ScheduleView";
         //httpStr = this.addAdditionalSheetParams(httpStr);
         return httpStr;
     }

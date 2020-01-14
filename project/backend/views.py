@@ -402,11 +402,11 @@ def get_sheet_state_list(sht_id):
         filter['filter_node_list'] = get_filter_node_list(filter.get('flt_id'))
         #if filter.get('flt_id')=='5619':
         #print('flt',filter.get('flt_id'), sheet_info[0].get('filternodes', [])[str(filter.get('flt_id'))])
-        selected_filter_nodes_obj = sheet_info[0].get('filternodes', []).get(str(filter.get('flt_id')), [])
-        selected_filter_ids = [str(item.get('id'))    for item in selected_filter_nodes_obj]
-        print('selected_filter_nodes', selected_filter_ids)
+        #selected_filter_nodes_obj = sheet_info[0].get('filternodes', []).get(str(filter.get('flt_id')), [])
+        #selected_filter_ids = [str(item.get('id'))    for item in selected_filter_nodes_obj]
+        #print('selected_filter_nodes', selected_filter_ids)
         #print('1111=', sheet_info[0].get('filternodes', []), selected_filter_nodes, filter.get('flt_id'))
-        process_tree(filter['filter_node_list'], 'children', mark_selected, selected_filter_ids)
+        #process_tree(filter['filter_node_list'], 'children', mark_selected, selected_filter_ids)
 
 
     sheet_info[0]['filter'] = filter_list
@@ -829,7 +829,8 @@ def get_sheet_columns(request):
         columns.append({'name': 'Дата и время', 'key': 'correctdt'})
         columns.append({'name': 'Файлы', 'key': 'file_list'})
     elif view_type=='ScheduleView':
-        columns = get_schedule_column_list(p_sht_id)
+        p_req_id = param_dict.get('req_id', [''])[0]
+        columns = get_schedule_column_list(p_sht_id, p_req_id)
     elif len(p_ind_id)>0:
         p_parent_id = param_dict.get('parent_id',[''])[0]
 
@@ -846,8 +847,12 @@ def get_sheet_columns(request):
 
     return JsonResponse(columns, safe=False)
 
-def get_schedule_column_list(p_sht_id):
-    columns = []
+def get_schedule_column_list(p_sht_id, p_req_id):
+    columns = get_sql_result(' select c.code key, c.longname name '
+                             ' from table(C_PKGESdm.fGetColumns(%s, %s)) c '
+                             ' order by c.npp',
+                             [p_sht_id, p_req_id])
+
     return columns
 
 def get_sheet_details_columns_list(p_sht_id, p_skey, p_ind_id):
@@ -994,6 +999,93 @@ def get_anl_table_rows(sht_id, skey):
 
 
     return ref_cursor
+
+
+def get_schedule_rows(request):
+    param_dict = dict(request.GET)
+
+    sht_id = param_dict['sht_id'][0]
+    req_id = param_dict['req_id'][0]
+    dop_dirty = param_dict['dop'][0]
+    #dop_dirty = 2016-10-03T00:00:00
+    if dop_dirty:
+        dop = dop_dirty[8:10]+'.'+ dop_dirty[5:7]+'.'+dop_dirty[0:4]
+    else:
+        dop = ''
+
+    print('get_schedule_rows (sht_id, req_id, dop)=',sht_id, req_id, dop)
+    connection = get_oracle_connection()
+    cursor = connection.cursor()
+    refCursor =  connection.cursor()
+
+    cursor.execute("""begin c_pkgconnect.popen();
+                          :1 := C_PKGESdm.fGetCursor(:2, :3);
+                    end;""", [refCursor, req_id, dop])
+
+
+
+    ref_cursor =[]
+
+    sheet_info = get_sheet_info_list(sht_id)
+
+    color_restrict = sheet_info[0].get('color_restrict_hex')
+    color_hand = sheet_info[0].get('color_hand_hex')
+    color_filter = sheet_info[0].get('color_filter_hex')
+
+    columns = get_schedule_column_list(sht_id, req_id)
+    for row in refCursor:
+        #print('shd row')
+        row_dict = {}
+        column_data = []
+        for column_idx in range(len(refCursor.description)):
+            cell={}
+            cell['brush.color'] = 'white'
+            cell['font.color'] = 'black'
+            cell['border.color'] = 'black'
+            cell['font.italic'] = '0'
+            cell['font.bold'] = '0'
+
+            column_name = refCursor.description[column_idx][0].lower()
+            print('column_name', column_name)
+            print('columns', columns)
+            row_dict[column_name] = row[column_idx]
+            if any([True for column in columns if column['key'] == column_name.upper()]):
+                column_list = [column for column in columns if column['key'] == column_name.upper()]
+                if len(column_list)>0:
+                    cell['ent_id'] = column_list[0].get('ent_id')
+                    cell['atr_type'] = column_list[0].get('atr_type')
+                    cell['editfl'] = column_list[0].get('editfl')
+
+                    if column_name.upper().startswith('FLT'):
+                        cell['brush.color'] = color_filter
+                    elif cell['editfl'] ==0:
+                        cell['brush.color'] = color_restrict
+                    else:
+                        cell['brush.color'] = color_hand
+
+                else:
+                    cell['ent_id'] =  None
+                    cell['atr_type'] = None
+                    cell['editfl'] = 0
+                    cell['brush.color'] = color_restric
+
+
+                cell['key'] = column_name.upper()
+                cell['sql_value'] = row[column_idx]
+
+
+                column_data.append(cell)
+
+        #print('??? before append')
+
+        row_dict['node_key'] = row_dict['dop']
+        row_dict['column_data'] = column_data
+        #row_dict['hie_path'] = [row_dict['node_key']]
+        ref_cursor.append(row_dict)
+
+    print('return ref cursor')
+    #return ref_cursor
+    return JsonResponse(ref_cursor, safe=False)
 
 
 def get_anl_detail_table_rows(sht_id, skey, ind_id, parent_id):

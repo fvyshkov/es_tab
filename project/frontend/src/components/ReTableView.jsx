@@ -354,7 +354,7 @@ export default class ReTableView extends Component {
             var newLayoutItemID = this.props.getNewLayoutItemID();
             console.log('newLayoutItemID=', newLayoutItemID);
             var detailRender =  <TableViewSchedule
-                                additionalSheetParams={{req_id:params.node.data.id}}
+                                additionalSheetParams={{sht_id: this.state.sheet_id, req_id:params.node.data.id, dop: params.node.data.dop}}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
                                 layoutItemID={newLayoutItemID}
                                 />;
