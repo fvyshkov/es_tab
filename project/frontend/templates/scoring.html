@@ -1,0 +1,232 @@
+<form action="/your-name/" method="post">
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}style.css" />
+    <style>
+
+        .row {
+  display: flex;
+}
+
+.column {
+  flex: 50%;
+
+}
+
+.longColumn {
+  flex: 100%;
+    width: 500px;
+}
+
+.longField {
+  flex: 100%;
+    width: 650px;
+}
+
+.btn {
+  position: relative;
+
+  display: block;
+  margin: 30px auto;
+  padding: 0;
+
+  overflow: hidden;
+
+  border-width: 0;
+  outline: none;
+  border-radius: 2px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .6);
+
+  background-color: #2ecc71;
+  color: #ecf0f1;
+
+  transition: background-color .3s;
+}
+
+
+.likeLabel{
+    display: inline-block;
+    float: left;
+    clear: left;
+    width: 250px;
+    text-align: right;
+}
+
+label{
+    display: inline-block;
+    float: left;
+    clear: left;
+    width: 250px;
+    text-align: right;
+    /*font-weight: bold;*/
+    font-family: arial;
+}
+
+input {
+  display: inline-block;
+  float: left;
+  margin-left: 20px;
+}
+
+.farAwayField{
+  margin-left: 40px;
+}
+
+.buttonScore{margin-left: 300px;
+    margin-top: 13;}
+
+.pure-material-button-contained {
+    position: relative;
+    display: inline-block;
+    box-sizing: border-box;
+    border: none;
+    border-radius: 4px;
+    padding: 0 16px;
+    min-width: 64px;
+    height: 36px;
+    vertical-align: middle;
+    text-align: center;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    color: rgb(var(--pure-material-onprimary-rgb, 255, 255, 255));
+    background-color: rgb(var(--pure-material-primary-rgb, 33, 150, 243));
+    box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+    font-family: var(--pure-material-font, "Roboto", "Segoe UI", BlinkMacSystemFont, system-ui, -apple-system);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 36px;
+    overflow: hidden;
+    outline: none;
+    cursor: pointer;
+    transition: box-shadow 0.2s;
+}
+
+.pure-material-button-contained::-moz-focus-inner {
+    border: none;
+}
+
+/* Overlay */
+.pure-material-button-contained::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgb(var(--pure-material-onprimary-rgb, 255, 255, 255));
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+/* Ripple */
+.pure-material-button-contained::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border-radius: 50%;
+    padding: 50%;
+    width: 32px; /* Safari */
+    height: 32px; /* Safari */
+    background-color: rgb(var(--pure-material-onprimary-rgb, 255, 255, 255));
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+    transition: opacity 1s, transform 0.5s;
+}
+
+/* Hover, Focus */
+.pure-material-button-contained:hover,
+.pure-material-button-contained:focus {
+    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
+}
+
+.pure-material-button-contained:hover::before {
+    opacity: 0.08;
+}
+
+.pure-material-button-contained:focus::before {
+    opacity: 0.24;
+}
+
+.pure-material-button-contained:hover:focus::before {
+    opacity: 0.3;
+}
+
+/* Active */
+.pure-material-button-contained:active {
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.pure-material-button-contained:active::after {
+    opacity: 0.32;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0s;
+}
+
+/* Disabled */
+.pure-material-button-contained:disabled {
+    color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.38);
+    background-color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.12);
+    box-shadow: none;
+    cursor: initial;
+}
+
+.pure-material-button-contained:disabled::before {
+    opacity: 0;
+}
+
+.pure-material-button-contained:disabled::after {
+    opacity: 0;
+}
+    </style>
+    {% csrf_token %}
+    <!--
+    {{ form }}
+    {{ form.as_ul }}
+
+
+
+    <div class="fieldWrapper">
+                {{ form.your_name.label_tag }}
+                {{ form.your_name }}
+            </div>
+-->
+    <div class="row">
+        <div class="longColumn">
+            <div class="fieldWrapper">
+                <label>Организация</label><input type="text" class="longField" value="Ваша микрокредитная организация"></p>
+            </div>
+        </div>
+    </div>
+     <div class="row">
+      <div class="column">
+
+            <p><label>Клиент</label><input type="text"></p>
+<br>
+      <p><label>Номер карты</label><input type = "text"></p>
+<br>
+      <p><label>Срок действия</label><input type="text"></p>
+<br>
+<br>
+
+
+      </div>
+      <div class="column">
+
+          <p><label>Сумма займа, сом</label><input type="text"></p>
+          <br>
+      <p><label>Срок займа, мес</label><input type = "text"></p>
+          <br>
+      <p><label>Процентная ставка</label><input type="text"></p>
+<br>
+
+          <br>
+
+          <br>
+
+
+      </div>
+    </div>
+
+    <input type="submit" class="pure-material-button-contained buttonScore" value="Рассчитать скорбал ">
+    <br>
+     <input class="farAwayField" type="text">
+</form>
