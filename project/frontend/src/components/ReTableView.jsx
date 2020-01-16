@@ -18,7 +18,6 @@ export default class ReTableView extends Component {
     constructor(props) {
         super(props);
         this.state={
-                        sheet_id: 0,
                         colorPanelVisible: false,
                         selectedFilterNodes: {},
                         filterNodes: {},
@@ -54,9 +53,10 @@ export default class ReTableView extends Component {
         if (this.props.sendLoadAll){
             this.props.sendLoadAll(this.loadAll.bind(this));
         }
+        /*
         if (this.props.sheet_id && this.props.sheet_type){
             this.setState({sheet_id: this.props.sheet_id, sheet_type: this.props.sheet_type});
-        }
+        }*/
     }
 
     loadNewSheetToFilterPanel(){
@@ -89,7 +89,7 @@ export default class ReTableView extends Component {
             this.saveSheetState();
         }
 
-        //this.setState({sheet_id: prm_sheet_id, sheet_type: prm_sheet_type});
+        this.setState({sheet_id: prm_sheet_id, sheet_type: prm_sheet_type});
 
         var tabView = this;
             //запрашиваем фильтры
@@ -233,7 +233,7 @@ export default class ReTableView extends Component {
     onGridStateChange( sheetColumnStates){
         if (this.state.sheet_id){
             var newColumnStates = this.state.columnStates;
-            newColumnStates[this.state.sheet_id] = sheetColumnStates;
+            newColumnStates = sheetColumnStates;
             this.setState({columnStates: newColumnStates});
         }
     }
@@ -367,16 +367,22 @@ export default class ReTableView extends Component {
               }
               ];
     }
+/*
+                                sheet_id = {this.props.additionalSheetParams.sht_id}
+                                sheet_type = {this.props.additionalSheetParams.sheet_type}
 
+*/
     showDetailForCell(params){
         console.log('showDetailForCell', params);
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
             console.log('newLayoutItemID=', newLayoutItemID);
             var detailRender =  <ReTableView
-                                sheet_id = {this.props.additionalSheetParams.sht_id}
-                                sheet_type = {this.props.additionalSheetParams.sheet_type}
-                                additionalSheetParams={{parent_id:params.node.data.id, ind_id:params.column.colDef.ind_id}}
+                                additionalSheetParams={{
+                                                            parent_id:params.node.data.id,
+                                                            ind_id:params.column.colDef.ind_id,
+                                                            sht_id: this.props.additionalSheetParams.sht_id
+                                                            }}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
                                 layoutItemID={newLayoutItemID}
                                 />;
@@ -436,6 +442,11 @@ export default class ReTableView extends Component {
 
             this.props.addElementToLayout(detailRender);
         }
+    }
+
+
+    loadSheetInfo(){
+        sendRequest('sht_info/?sht_id='+this.props.sheet_id, this.processSheetInfo);
     }
 
     showCommentForCell(params){

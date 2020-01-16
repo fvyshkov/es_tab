@@ -253,11 +253,12 @@ export default class ReGrid extends React.Component {
         columns = groupColumns(columns);
         this.setState({columnDefs: columns});
         this.loadSheetInfo();
+
         this.columnsLoaded = true;
     }
 
+
     loadSheetInfo(){
-        console.log('loadSheetInfo', this.props.sheet_id, this.state.sheet_id);
         sendRequest('sht_info/?sht_id='+this.props.sheet_id, this.processSheetInfo);
     }
 
