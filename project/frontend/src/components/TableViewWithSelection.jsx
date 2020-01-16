@@ -22,15 +22,31 @@ export default class TableViewWithSelection extends Component {
 
 
     getFilterData(){
-        var filterData = sendRequestPromise('sht_filters/?sht_id='+this.state.sheet_id);
-        console.log('filterData', filterData);
-        return filterData;
+        return sendRequestPromise('sht_filters/?sht_id='+this.state.sheet_id);
     }
 
 
     loadNewSheet(prm_sheet_id, prm_sheet_type){
         this.setState({sheet_id: prm_sheet_id, sheet_type: prm_sheet_type});
         this.sendLoadAll(prm_sheet_id, prm_sheet_type);
+    }
+
+    getViewUserPreferences(){
+        return sendRequestPromise('sht_state/?sht_id='+ this.state.sheet_id);
+    }
+
+    getColumnsListRequestString(){
+
+        var httpStr = "sht_columns/?";
+        if (this.state.sheet_id){
+            httpStr +='sht_id='+this.state.sheet_id;
+        }
+       /* var skey = this.getFilterSkey();
+        if  (skey){
+            httpStr += '&skey='+skey;
+        }*/
+        //httpStr = this.addAdditionalSheetParams(httpStr);
+        return httpStr;
     }
 
     render(){
@@ -40,6 +56,9 @@ export default class TableViewWithSelection extends Component {
                 <ReTableView
                     sendLoadAll={click => this.sendLoadAll = click}
                     getFilterData={this.getFilterData.bind(this)}
+                    additionalSheetParams={{sht_id: this.state.sheet_id, sheet_type: this.state.sheet_type}}
+                    getViewUserPreferences={this.getViewUserPreferences.bind(this)}
+                    getColumnsListRequestString={this.getColumnsListRequestString.bind(this)}
                     additionalToolbarItem={()=>{return(
                                                         <SheetSelectDropDown
                                                             onSelectNewSheet={this.loadNewSheet.bind(this)}

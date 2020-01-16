@@ -89,7 +89,7 @@ export default class ReTableView extends Component {
             this.saveSheetState();
         }
 
-        this.setState({sheet_id: prm_sheet_id, sheet_type: prm_sheet_type});
+        //this.setState({sheet_id: prm_sheet_id, sheet_type: prm_sheet_type});
 
         var tabView = this;
             //запрашиваем фильтры
@@ -106,7 +106,13 @@ export default class ReTableView extends Component {
             //обрабатываем пришедшие данные
             .then(filterNodesList=>{tabView.onLoadFilterNodes(filterNodesList);})
             //запрашиваем состояние колонок, списки открытых нод
-            .then(()=>{return sendRequestPromise('sht_state/?sht_id='+ tabView.state.sheet_id)})
+            .then(()=>{
+                            if (tabView.props.getViewUserPreferences){
+                                return tabView.props.getViewUserPreferences();
+                            }else{
+                                    return [];
+                            }
+                      })
             //обрабатываем пришедшие данные
             .then(viewState=>{tabView.processViewState(viewState);})
             //шлем указание гриду - там загрузятся столцы и данные
@@ -116,7 +122,6 @@ export default class ReTableView extends Component {
 
     onLoadFilterNodes(filterNodesList){
         var newFilterNodes = this.state.filterNodes;
-        var sheet_id = this.state.sheet_id;
         newFilterNodes = {};
 
         filterNodesList.forEach(function(filter){
@@ -147,7 +152,7 @@ export default class ReTableView extends Component {
     }
 
     saveSheetState(){
-        if (this.state.sheet_id){
+        //if (this.state.sheet_id){
             var sheetState = {};
             sheetState['filterNodes'] = getSelectedFilterNodes(this.state.filterNodes);
             sheetState['columnStates'] = this.state.columnStates;
@@ -155,7 +160,7 @@ export default class ReTableView extends Component {
 
             var httpStr = 'sht_state_update/?sht_id='+this.state.sheet_id;
             sendRequest(httpStr,()=>{},'POST', sheetState);
-        }
+        //}
     }
 
 
@@ -306,11 +311,13 @@ export default class ReTableView extends Component {
             if (this.state.sheet_id){
                 httpStr +='sht_id='+this.state.sheet_id;
             }
-            var skey = this.getFilterSkey();
-            if  (skey){
-                httpStr += '&skey='+skey;
-            }
+
         }
+
+         var skey = this.getFilterSkey();
+         if  (skey){
+            httpStr += '&skey='+skey;
+         }
 
         httpStr = this.addAdditionalSheetParams(httpStr);
         return httpStr;
@@ -367,8 +374,8 @@ export default class ReTableView extends Component {
             var newLayoutItemID = this.props.getNewLayoutItemID();
             console.log('newLayoutItemID=', newLayoutItemID);
             var detailRender =  <ReTableView
-                                sheet_id = {this.state.sheet_id}
-                                sheet_type = {this.state.sheet_type}
+                                sheet_id = {this.props.additionalSheetParams.sht_id}
+                                sheet_type = {this.props.additionalSheetParams.sheet_type}
                                 additionalSheetParams={{parent_id:params.node.data.id, ind_id:params.column.colDef.ind_id}}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
                                 layoutItemID={newLayoutItemID}
@@ -384,7 +391,7 @@ export default class ReTableView extends Component {
             var newLayoutItemID = this.props.getNewLayoutItemID();
             console.log('newLayoutItemID=', newLayoutItemID);
             var detailRender =  <TableViewSchedule
-                                additionalSheetParams={{sht_id: this.state.sheet_id, req_id:params.node.data.id, dop: params.node.data.dop}}
+                                additionalSheetParams={{sht_id: this.props.additionalSheetParams.sht_id, req_id:params.node.data.id, dop: params.node.data.dop}}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
                                 layoutItemID={newLayoutItemID}
                                 />;
@@ -419,7 +426,7 @@ export default class ReTableView extends Component {
 
             var detailRender =  <TableViewFlow
                                 additionalSheetParams={{
-                                                        sht_id: this.state.sheet_id,
+                                                        sht_id: this.props.additionalSheetParams.sht_id,
                                                         req_id: oneRow ? params.node.data.id : '',
                                                         dop: dopString,
                                                         skey: this.getFilterSkey()}}
@@ -438,21 +445,17 @@ export default class ReTableView extends Component {
             var newLayoutItemID = this.props.getNewLayoutItemID();
 
             var skey='';
-            if (this.state.sheet_type === 'tree'){
-                skey = this.getFilterSkey();
-                /*
+
+            /*
                 пока все неправильно,
                 работать будет только если все аналитики выбраны,
                 а тут отсекаем аналитику "показатель",
-                потому что с ней пока не работает
-                if (params.node.key){
-                    skey += params.node.key;
-                }
+                потому что с ней пока не работает.
+                кроме того, работает только на МП
                 */
-                skey += columnData.key;
-            }else{
+            skey = this.getFilterSkey();
+            skey += columnData.key;
 
-            }
             console.log('showCommentForCell=', columnData);
             console.log('showCommentForCell(params)', params);
 
