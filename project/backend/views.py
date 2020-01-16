@@ -361,10 +361,13 @@ def get_sheet_info_update(request):
 def get_sheet_type(sht_id):
     sql_res = get_sql_result(
         'select t.stype from c_es_sheet_type t, c_es_ver_sheet s  where s.id = %s and t.id = s.type_id', [sht_id])
-    if sql_res[0].get('stype') in ['R', 'DM', 'MULTY_DM']:
-        return 'TABLE'
+    if len(sql_res)>0:
+        if sql_res[0].get('stype') in ['R', 'DM', 'MULTY_DM']:
+            return 'TABLE'
+        else:
+            return 'TREE'
     else:
-        return 'TREE'
+        return 'NONE'
 
 
 def get_sheet_info(request):
@@ -430,8 +433,12 @@ def process_tree(tree, hierarchy_field_name, callback, *args):
             process_tree(item.get(hierarchy_field_name), hierarchy_field_name, callback, *args)
 
 def get_sheet_info_list(sht_id):
+    try:
+        sheet_info = get_sql_result("select s.*, C_PKGESSHEET.FGETSHEETPATH(s.id,'1') sheet_path from c_es_ver_sheet s where id=%s ", [sht_id])
+    except:
+        print('get_sheet_info_list ERROR')
+        return []
 
-    sheet_info = get_sql_result("select s.*, C_PKGESSHEET.FGETSHEETPATH(s.id,'1') sheet_path from c_es_ver_sheet s where id=%s ", [sht_id])
     if len(sheet_info)==0:
         return []
 
@@ -959,10 +966,13 @@ def get_anl_table_rows(sht_id, skey):
     cursor = connection.cursor()
     refCursor =  connection.cursor()
 
-    cursor.execute("""begin c_pkgconnect.popen();
+    try:
+        cursor.execute("""begin c_pkgconnect.popen();
                         :1 := c_pkgesreq.fGetCursor( :2, :3,null,5000,''); 
                     end;""", [refCursor, sht_id, skey])
-
+    except:
+        print("get_anl_table_rows ERROR")
+        return []
 
 
     ref_cursor =[]
