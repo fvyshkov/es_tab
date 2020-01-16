@@ -90,21 +90,19 @@ export default class ReTableView extends Component {
         }
 
         this.setState({sheet_id: prm_sheet_id, sheet_type: prm_sheet_type});
-        //sendRequest('sht_filters/?sht_id='+prm_sheet_id, this.onLoadFilterNodes);
-        /*  как грузится лист
-            - содержимое панели Filter (запрос sht_filters)
-            - состояние листа (sht_state), там же и какие аналитики выбраны (хотя это уже пришло в последней вресии sht_filters)
-            - sendRefreshGrid (там будут загружены столбцы и данные) - реализовано на ReGrid
-        */
+
         var tabView = this;
             //запрашиваем фильтры
-        sendRequestPromise('sht_filters/?sht_id='+prm_sheet_id)
+        let emptyPromise = new Promise((resolve, reject)=>{resolve('success');});
+
+        emptyPromise
+            .then(()=>{return sendRequestPromise('sht_filters/?sht_id='+prm_sheet_id);})
             //обрабатываем пришедшие данные
-            .then(respObj=>{tabView.onLoadFilterNodesSync(respObj);})
+            .then(filterNodesList=>{tabView.onLoadFilterNodes(filterNodesList);})
             //запрашиваем состояние колонок, списки открытых нод
             .then(()=>{return sendRequestPromise('sht_state/?sht_id='+ tabView.state.sheet_id)})
             //обрабатываем пришедшие данные
-            .then(respObj=>{tabView.processSheetState(respObj);})
+            .then(viewState=>{tabView.processViewState(viewState);})
             //шлем указание гриду - там загрузятся столцы и данные
             .then(()=>{tabView.sendRefreshGrid()});
             //в redux-версии здесь должно быть  зачитывание данных и загрузка колонок
@@ -112,7 +110,7 @@ export default class ReTableView extends Component {
 
     }
 
-    onLoadFilterNodesSync(filterNodesList){
+    onLoadFilterNodes(filterNodesList){
         var newFilterNodes = this.state.filterNodes;
         var sheet_id = this.state.sheet_id;
         newFilterNodes = {};
@@ -125,29 +123,23 @@ export default class ReTableView extends Component {
 
     }
 
-    onLoadFilterNodes(filterNodesList){
-        onLoadFilterNodesSync(filterNodesList);
-        sendRequest('sht_state/?sht_id='+ this.state.sheet_id, this.processSheetState.bind(this));
-    }
 
-    processSheetState(sheetState){
-        console.log('OLD processSheetState', sheetState);
-        if (sheetState.length>0){
-            if (sheetState[0].filternodes){
-                var selectedNodes = sheetState[0].filternodes;
+
+    processViewState(viewState){
+        console.log('OLD processSheetState', viewState);
+        if (viewState.length>0){
+            if (viewState[0].filternodes){
+                var selectedNodes = viewState[0].filternodes;
                 var markedNodes = markSelectedFilterNodes(this.state.filterNodes, selectedNodes);
                 this.setState({filterNodes: markedNodes});
-            }else{
-                console.log('NOT sheetState[0].filternodes');
             }
 
-            this.setState({columnStates: sheetState[0].columnstates});
+            this.setState({columnStates: viewState[0].columnstates});
 
-            this.setState({expandedGroupIds: sheetState[0].expandedgroupids});
+            this.setState({expandedGroupIds: viewState[0].expandedgroupids});
 
 
         }
-        this.sendRefreshGrid();
     }
 
     saveSheetState(){
