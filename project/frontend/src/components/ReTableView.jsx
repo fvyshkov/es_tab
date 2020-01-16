@@ -8,6 +8,7 @@ import TableViewFlow from './TableViewFlow.jsx';
 import notify from 'devextreme/ui/notify';
 import ColorPanel from './ColorPanel.jsx';
 import { sendRequest } from './App.js';
+import { sendRequestPromise } from './sendRequestPromise.js';
 
 
 
@@ -36,7 +37,6 @@ export default class ReTableView extends Component {
                       };
 
         this.onToolbarPreferencesClick = this.onToolbarPreferencesClick.bind(this);
-        this.loadNewSheet = this.loadNewSheet.bind(this);
         this.onFilterPanelChange = this.onFilterPanelChange.bind(this);
         this.onToolbarRefreshClick = this.onToolbarRefreshClick.bind(this);
         this.getFilterSkey = this.getFilterSkey.bind(this);
@@ -51,8 +51,8 @@ export default class ReTableView extends Component {
 
 
     componentDidMount(){
-        if (this.props.sendLoadNewSheet){
-            this.props.sendLoadNewSheet(this.loadNewSheet);
+        if (this.props.sendLoadAll){
+            this.props.sendLoadAll(this.loadAll.bind(this));
         }
         if (this.props.sheet_id && this.props.sheet_type){
             this.setState({sheet_id: this.props.sheet_id, sheet_type: this.props.sheet_type});
@@ -82,7 +82,7 @@ export default class ReTableView extends Component {
         this.props.loadAll(params);
     }
 
-    loadNewSheet(prm_sheet_id, prm_sheet_type){
+    loadAll(prm_sheet_id, prm_sheet_type){
 
         if (this.state.sheet_id){
             this.sendBeforeCloseToGrid();
@@ -90,11 +90,29 @@ export default class ReTableView extends Component {
         }
 
         this.setState({sheet_id: prm_sheet_id, sheet_type: prm_sheet_type});
-        sendRequest('sht_filters/?sht_id='+prm_sheet_id, this.onLoadFilterNodes);
+        //sendRequest('sht_filters/?sht_id='+prm_sheet_id, this.onLoadFilterNodes);
+        /*  как грузится лист
+            - содержимое панели Filter (запрос sht_filters)
+            - состояние листа (sht_state), там же и какие аналитики выбраны (хотя это уже пришло в последней вресии sht_filters)
+            - sendRefreshGrid (там будут загружены столбцы и данные) - реализовано на ReGrid
+        */
+        var tabView = this;
+            //запрашиваем фильтры
+        sendRequestPromise('sht_filters/?sht_id='+prm_sheet_id)
+            //обрабатываем пришедшие данные
+            .then(respObj=>{tabView.onLoadFilterNodesSync(respObj);})
+            //запрашиваем состояние колонок, списки открытых нод
+            .then(()=>{return sendRequestPromise('sht_state/?sht_id='+ tabView.state.sheet_id)})
+            //обрабатываем пришедшие данные
+            .then(respObj=>{tabView.processSheetState(respObj);})
+            //шлем указание гриду - там загрузятся столцы и данные
+            .then(()=>{tabView.sendRefreshGrid()});
+            //в redux-версии здесь должно быть  зачитывание данных и загрузка колонок
+            //.then(() => tabView.getTabData(null, true));
 
     }
 
-    onLoadFilterNodes(filterNodesList){
+    onLoadFilterNodesSync(filterNodesList){
         var newFilterNodes = this.state.filterNodes;
         var sheet_id = this.state.sheet_id;
         newFilterNodes = {};
@@ -105,10 +123,11 @@ export default class ReTableView extends Component {
 
         this.setState({filterNodes: newFilterNodes});
 
+    }
+
+    onLoadFilterNodes(filterNodesList){
+        onLoadFilterNodesSync(filterNodesList);
         sendRequest('sht_state/?sht_id='+ this.state.sheet_id, this.processSheetState.bind(this));
-
-
-
     }
 
     processSheetState(sheetState){
@@ -483,10 +502,11 @@ export default class ReTableView extends Component {
                             onInsertCallback={this.onInsertCallback.bind(this)}
                             onDeleteCallback={this.onDeleteCallback.bind(this)}
                             onUndoCallback={this.onUndoClick.bind(this)}
-                            onSelectNewSheet={this.loadNewSheet}
+                            onSelectNewSheet={this.loadAll.bind(this)}
                             sheetSelection={false}
                             additionalToolbarItem={this.props.additionalToolbarItem}
                             />
+
 
 
                             <ReGrid

@@ -17,11 +17,11 @@ export default class TableViewWithSelection extends Component {
                       };
     }
 
-    sendLoadNewSheet(){
+    sendLoadAll(){
     }
 
     loadNewSheet(prm_sheet_id, prm_sheet_type){
-        this.sendLoadNewSheet(prm_sheet_id, prm_sheet_type);
+        this.sendLoadAll(prm_sheet_id, prm_sheet_type);
     }
 
     render(){
@@ -29,7 +29,7 @@ export default class TableViewWithSelection extends Component {
         return (
             <React.Fragment>
                 <ReTableView
-                    sendLoadNewSheet={click => this.sendLoadNewSheet = click}
+                    sendLoadAll={click => this.sendLoadAll = click}
                     additionalToolbarItem={()=>{return(
                                                         <SheetSelectDropDown
                                                             onSelectNewSheet={this.loadNewSheet.bind(this)}
