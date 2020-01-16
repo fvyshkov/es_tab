@@ -96,7 +96,13 @@ export default class ReTableView extends Component {
         let emptyPromise = new Promise((resolve, reject)=>{resolve('success');});
 
         emptyPromise
-            .then(()=>{return sendRequestPromise('sht_filters/?sht_id='+prm_sheet_id);})
+            .then(()=>{
+                            if (tabView.props.getFilterData){
+                                return tabView.props.getFilterData();
+                            }else{
+                                    return [];
+                            }
+                      })
             //обрабатываем пришедшие данные
             .then(filterNodesList=>{tabView.onLoadFilterNodes(filterNodesList);})
             //запрашиваем состояние колонок, списки открытых нод
@@ -105,8 +111,6 @@ export default class ReTableView extends Component {
             .then(viewState=>{tabView.processViewState(viewState);})
             //шлем указание гриду - там загрузятся столцы и данные
             .then(()=>{tabView.sendRefreshGrid()});
-            //в redux-версии здесь должно быть  зачитывание данных и загрузка колонок
-            //.then(() => tabView.getTabData(null, true));
 
     }
 
