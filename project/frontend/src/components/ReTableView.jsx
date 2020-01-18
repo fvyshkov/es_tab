@@ -152,15 +152,14 @@ export default class ReTableView extends Component {
     }
 
     saveSheetState(){
-        //if (this.state.sheet_id){
-            var sheetState = {};
-            sheetState['filterNodes'] = getSelectedFilterNodes(this.state.filterNodes);
-            sheetState['columnStates'] = this.state.columnStates;
-            sheetState['expandedGroupIds'] = this.state.expandedGroupIds;
+        if (this.props.saveViewState){
+            var viewState = {};
+            viewState['filterNodes'] = getSelectedFilterNodes(this.state.filterNodes);
+            viewState['columnStates'] = this.state.columnStates;
+            viewState['expandedGroupIds'] = this.state.expandedGroupIds;
 
-            var httpStr = 'sht_state_update/?sht_id='+this.state.sheet_id;
-            sendRequest(httpStr,()=>{},'POST', sheetState);
-        //}
+            this.props.saveViewState(viewState);
+        }
     }
 
 

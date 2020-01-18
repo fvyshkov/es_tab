@@ -49,6 +49,11 @@ export default class TableViewWithSelection extends Component {
         return httpStr;
     }
 
+    saveViewState(viewState){
+        var httpStr = 'sht_state_update/?sht_id='+this.state.sheet_id;
+        sendRequestPromise(httpStr,'POST', viewState);
+    }
+
     render(){
 
         return (
@@ -59,6 +64,7 @@ export default class TableViewWithSelection extends Component {
                     additionalSheetParams={{sht_id: this.state.sheet_id, sheet_type: this.state.sheet_type}}
                     getViewUserPreferences={this.getViewUserPreferences.bind(this)}
                     getColumnsListRequestString={this.getColumnsListRequestString.bind(this)}
+                    saveViewState={this.saveViewState.bind(this)}
                     additionalToolbarItem={()=>{return(
                                                         <SheetSelectDropDown
                                                             onSelectNewSheet={this.loadNewSheet.bind(this)}
