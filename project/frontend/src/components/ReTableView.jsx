@@ -206,7 +206,6 @@ export default class ReTableView extends Component {
 
     onToolbarCloseClick(){
         if (this.state.sheet_id){
-            this.sendBeforeCloseToGrid();
             this.saveSheetState();
 
         }
