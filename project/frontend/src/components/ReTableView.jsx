@@ -22,7 +22,7 @@ export default class ReTableView extends Component {
                         selectedFilterNodes: {},
                         filterNodes: {},
                         forceGridReload: false,
-                        columnStates: {},
+                        columnStates: [],
                         expandedGroupIds : [],
                         addToolPanels: [
                                 {
@@ -50,6 +50,7 @@ export default class ReTableView extends Component {
 
 
     componentDidMount(){
+        console.log('RETABLE MOUNT');
         if (this.props.sendLoadAll){
             this.props.sendLoadAll(this.loadAll.bind(this));
         }
@@ -229,17 +230,13 @@ export default class ReTableView extends Component {
 
 
     onGridStateChange( sheetColumnStates){
-        if (this.state.sheet_id){
-            var newColumnStates = this.state.columnStates;
-            newColumnStates = sheetColumnStates;
-            this.setState({columnStates: newColumnStates});
-        }
+        var newColumnStates = this.state.columnStates;
+        newColumnStates = sheetColumnStates;
+        this.setState({columnStates: newColumnStates});
     }
 
     onGridExpandedChange(sheetExpandedGroupIds){
-        if (this.state.sheet_id){
-            this.setState({expandedGroupIds : sheetExpandedGroupIds});
-        }
+        this.setState({expandedGroupIds : sheetExpandedGroupIds});
     }
 
     sendBeforeCloseToGrid(){
@@ -491,6 +488,8 @@ export default class ReTableView extends Component {
     }
 
 
+
+
     render(){
         return (
             <React.Fragment>
@@ -510,7 +509,7 @@ export default class ReTableView extends Component {
                             onInsertCallback={this.onInsertCallback.bind(this)}
                             onDeleteCallback={this.onDeleteCallback.bind(this)}
                             onUndoCallback={this.onUndoClick.bind(this)}
-                            onSelectNewSheet={this.loadAll.bind(this)}
+
                             sheetSelection={false}
                             additionalToolbarItem={this.props.additionalToolbarItem}
                             />
@@ -547,6 +546,7 @@ export default class ReTableView extends Component {
                                 onCellFocused={this.onCellFocused.bind(this)}
                                 onGetGridApi={this.onGetGridApi.bind(this)}
                                 addToolPanels={this.state.addToolPanels}
+                                onCellValueChanged={this.props.onCellValueChanged}
                                 />
 
 

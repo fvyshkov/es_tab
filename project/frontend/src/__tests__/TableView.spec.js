@@ -1,14 +1,16 @@
 import React from 'react';
 import TabView from '../components/TabView.jsx';
+import TableViewWithSelection from '../components/TableViewWithSelection.jsx';
 import Grid from '../components/Grid.jsx';
+import ReGrid from '../components/ReGrid.jsx';
 import { render, mount, shallow } from 'enzyme';
 import { renderToJson } from 'enzyme-to-json';
 import "babel-polyfill";
 import { AgGridReact } from "@ag-grid-community/react";
 import {sendRequestPromise} from '../components/sendRequestPromise.js';
-
 import { Provider } from "react-redux";
 import store from "../store/index";
+import PropTypes from 'prop-types';
 
 
 
@@ -49,19 +51,65 @@ describe('<TabView />', () => {
     it('Test mock', async () => {
 
         console.log('window.location.origin', window.location.origin);
-        const wrapper = mount(<Provider store={store}><TabView layoutItemID={'100'} /></Provider>);
+        //return;
+        const wrapper = mount(<Provider store={store}><TableViewWithSelection layoutItemID={'100'} /></Provider>);
 console.log('after mount');
-        var myGrid = wrapper.find(Grid).instance();
+        var myGrid = wrapper.find(ReGrid).instance();
+
+        var agGridReact = wrapper.find(AgGridReact).instance();
         //var tabView = wrapper.find(TabView).instance();
-console.log(wrapper.html());
+//console.log(wrapper.html());
 
         await waitForAsyncCondition(() => {
                                             return myGrid.gridApi !== undefined
                                             },
                                     5);
-        var tabView = wrapper.find(TabView);
-        await tabView.instance().loadNewSheet(2434, 'tree');
 
+        await waitForAsyncCondition(() => {
+                                            return (myGrid.gridReadyFlag)
+                                            },
+                                    500);
+
+
+        var tabView = wrapper.find(TableViewWithSelection);
+        tabView.instance().loadNewSheet(2434, 'tree');
+
+        // expect(agGridReact.api).toBeTruthy();
+
+        //return;
+        //tabView.instance().testAsyncSetValue(100);
+        await waitForAsyncCondition(() => {
+                            //console.log('testing...');
+                                            //wrapper.html().includes('ag-header-cell-text');
+                                            return (myGrid.state.columnDefs.length>1);
+                                            },
+                                            1000);
+
+
+        //agGridReact.render();
+        //const agGridReactWrapper = wrapper.find(AgGridReact);
+      //  console.log('FINAL', myGrid.gridColumnApi);
+
+
+        await waitForAsyncCondition(() => { return myGrid.gridApi.getDisplayedRowCount() >1
+                                            },
+                                            1000);
+
+        //myGrid.gridApi.forEachNode((node, index)=>{console.log('row', index, node);});
+        //console.log('FINAL', myGrid.gridApi.getDisplayedRowAtIndex(0).data);
+
+        await waitForAsyncCondition(() => myGrid.gridApi.getCellRendererInstances() &&
+                                      myGrid.gridApi.getCellRendererInstances().length > 0, 5)
+              .then(() => null, () => fail("Renderer instance not created within expected time"));
+
+     //   myGrid.gridApi.getCellRendererInstances().forEach((cell)=>{console.log('cell', cell);});
+     //   console.log('FINAL', myGrid.gridApi.getDisplayedRowAtIndex(0).data);
+        //console.log('FINAL', wrapper.html());// agGridReact.render().html());
+
+          expect(wrapper.contains('')).toEqual(true);
+
+      //  await waitForAsyncCondition(() => {return  tabView.instance().state.sheet_id==2324;}, 1000);
+ //await waitForAsyncCondition(() => {return  wrapper.html().includes('востребования');}, 1000);
         //await setTimeout(()=>{}, 5000);
 
         //console.log(wrapper.html());
@@ -71,9 +119,9 @@ console.log(wrapper.html());
         //expect(htmlIncludeColumn).toBeFalsy();
         //expect(wrapper.html()).toMatchSnapshot();
 
-        wrapper.instance().setTestFieldAsync('100');
+        //wrapper.instance().setTestFieldAsync('100');
 
-        await waitForAsyncCondition(() => {return  wrapper.html().includes('4864755');}, 1000);
+       // await waitForAsyncCondition(() => {return  wrapper.html().includes('востребования');}, 1000);
        // console.log('testField', wrapper.instance().getTestField());
 /*
         await waitForAsyncCondition(() => {

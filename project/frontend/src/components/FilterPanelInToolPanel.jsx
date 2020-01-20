@@ -32,7 +32,6 @@ class FilterPanelInToolPanel extends Component {
     }
 
     updatePanel() {
-        console.log('updateFilterPanel' , this.props);//.agGridReact.props.filterNodes);
         if (this.props.agGridReact.props.sheet_id){
             this.state.sheet_id = this.props.agGridReact.props.sheet_id;
         }

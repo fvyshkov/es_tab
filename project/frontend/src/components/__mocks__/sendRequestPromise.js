@@ -25,12 +25,15 @@ export function sendRequestPromise(request_string, method='GET', data) {
         }else if (request_string.startsWith('sht_nodes')){
             console.log('nodes');
             data = sht_nodes_2434;
+        }else{
+                console.log('MOCK ELSE');
+            data = [{a:'a'}];
         }
 
 
 
-        resolve(data);
-        //process.nextTick(() =>  {console.log('resolving...', data);resolve(data);});
+        //resolve(data);
+        process.nextTick(() =>  {resolve(data);});
 
 
     });

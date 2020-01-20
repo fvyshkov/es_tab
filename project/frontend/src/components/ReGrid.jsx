@@ -6,6 +6,7 @@ import { AllModules } from "@ag-grid-enterprise/all-modules";
 import TreeReferEditor from "./TreeReferEditor.jsx";
 import NumericEditor from "./NumericEditor.jsx";
 import { sendRequest } from './App.js';
+import { sendRequestPromise } from './sendRequestPromise.js';
 import FilterPanelInToolPanel from "./FilterPanelInToolPanel.jsx";
 import {LicenseManager} from "@ag-grid-enterprise/core";
 import TableView from './TableView.jsx';
@@ -23,6 +24,8 @@ LicenseManager.setLicenseKey("Evaluation_License_Not_For_Production_29_December_
 export default class ReGrid extends React.Component {
   constructor(props) {
     super(props);
+
+    this.gridReadyFlag = false;
 
     this.immutableStore =[];
     this.savedFocusedCell = {};
@@ -115,6 +118,7 @@ export default class ReGrid extends React.Component {
 
 
     componentDidMount() {
+        console.log('REGRID MOUNT');
         if (this.props.sendRefreshGrid){
             this.props.sendRefreshGrid(this.refreshGrid);
         }
@@ -156,6 +160,7 @@ export default class ReGrid extends React.Component {
     }
 
     processColumnsData(columnList){
+        console.log('processColumnsData', columnList);
         for (var i=0; i < columnList.length; i++){
             if (columnList[i].refer_data){
                 referStore.setData(columnList[i].key, JSON.stringify(columnList[i].refer_data));
@@ -251,6 +256,7 @@ export default class ReGrid extends React.Component {
         );
 
         columns = groupColumns(columns);
+//        console.log('set state columns', columns);
         this.setState({columnDefs: columns});
         this.loadSheetInfo();
 
@@ -259,7 +265,8 @@ export default class ReGrid extends React.Component {
 
 
     loadSheetInfo(){
-        sendRequest('sht_info/?sht_id='+this.props.sheet_id, this.processSheetInfo);
+        sendRequestPromise('sht_info/?sht_id='+this.props.sheet_id)
+        .then(data => this.processSheetInfo(data));
     }
 
     processSheetInfo(infoList){
@@ -270,7 +277,8 @@ export default class ReGrid extends React.Component {
 
         //заставляем грид перерендериться
         //без этого "загадочного" действия в FilterToolPanel почему-то не попадают новые пропсы
-        this.setState({gridKey: 1});
+
+        this.setState({gridKey: this.state.gridKey+1});
 
     }
 
@@ -278,7 +286,8 @@ export default class ReGrid extends React.Component {
     loadColumns(){
 
         var httpStr = this.props.getColumnsListRequestString();
-        sendRequest(httpStr, this.processColumnsData);
+        sendRequestPromise(httpStr)
+            .then(data=> this.processColumnsData(data));
     }
 
     addAdditionalSheetParams(str){
@@ -295,10 +304,6 @@ export default class ReGrid extends React.Component {
     }
 
 
-    getSheetID(){
-        return this.props.sheet_id;
-    }
-
     serverSideDatasource(gridComponent) {
         if (this.props.getDatasource){
             return this.props.getDatasource(gridComponent);
@@ -307,25 +312,33 @@ export default class ReGrid extends React.Component {
         }
    }
 
-  onGridReady = params => {
-    this.gridApi = params.api;
-    this.gridColumnApi = params.columnApi;
+    onGridReady = params => {
 
-    console.log('GRID this.props.onGetGridApi', this.props.onGetGridApi);
-    this.props.onGetGridApi(this.gridApi);
 
-    var datasource = this.serverSideDatasource(this);
-    this.gridApi.setServerSideDatasource(datasource);
-     if (this.props.additionalSheetParams && !this.columnsLoaded){
-         this.loadColumns();
-     }
 
-     if (this.props.columnStates){
+
+        this.gridApi = params.api;
+        this.gridColumnApi = params.columnApi;
+
+        console.log('GRID this.props.onGetGridApi', this.props.onGetGridApi);
+        this.props.onGetGridApi(this.gridApi);
+
+        var datasource = this.serverSideDatasource(this);
+        this.gridApi.setServerSideDatasource(datasource);
+        if (this.props.additionalSheetParams && !this.columnsLoaded){
+            this.loadColumns();
+        }
+                /*
+         if (this.props.columnStates){
+            console.log('onGridReady this.props.columnStates', this.props.columnStates);
             this.gridColumnApi.setColumnState(this.props.columnStates);
             this.gridApi.refreshHeader();
-     }
+         }
+         */
 
-  }
+         this.gridReadyFlag = true;
+
+    }
 
   onGridStateChange(){
     if (this.props.onGridStateChange){
@@ -355,18 +368,10 @@ export default class ReGrid extends React.Component {
     }
 
     onCellValueChanged(params){
-        console.log('onCellValueChanged', params, this.props.sheet_type);
-
-        if (this.props.sheet_type==='tree'){
-            console.log('change val tree', this.props.skey(), params.data.node_key, params.colDef.field);
-            sendRequest('update_tree_record/?sht_id='+this.props.sheet_id+'&skey='+this.props.skey() + '&cell_skey='+params.data.node_key +','+ params.colDef.field +
-                            '&ind_id='+params.data.ind_id + '&value='+params.value
-
-                        , ()=> {},'POST',{});
-
-        }else{
-            sendRequest('update_record/?req_id='+params.data.id+'&value='+params.value+'&col_id='+params.column.colDef.ind_id, ()=> {},'POST',{});
+        if (this.props.onCellValueChanged) {
+            this.props.onCellValueChanged(params);
         }
+
     }
 
 
@@ -401,10 +406,23 @@ export default class ReGrid extends React.Component {
     }
 
   render() {
-    console.log('render regrid this.props.filterNodes', this.props.filterNodes);
+    console.log('render regrid this.state.gridKey', this.state.gridKey);
+
+            var listItems = [];
+
+        if (this.state.columnDefs){
+            listItems = this.state.columnDefs.map((column) =>
+              <li>{column.headerName}</li>
+            );
+        }
+
             return (
                 <React.Fragment>
-
+                    <ul>
+                        {this.state.columnDefs.map((column) =>
+                            <li key={column.headerName}>{column.headerName}</li>
+                        )}
+                    </ul>
                     <div className ="ag-theme-balham NonDraggableAreaClassName ToolbarViewContent" key={this.state.gridKey} id="myGrid123">
                         <AgGridReact
                             modules={AllModules}

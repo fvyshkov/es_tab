@@ -1,4 +1,5 @@
 import { sendRequest } from './App.js';
+import { sendRequestPromise } from './sendRequestPromise.js';
 
 export default function sheetDatasource(gridComponent) {
 
@@ -21,7 +22,8 @@ export default function sheetDatasource(gridComponent) {
 
                 httpStr = gridComponent.addAdditionalSheetParams(httpStr);
 
-                sendRequest(httpStr, (rowData) =>{
+                sendRequestPromise(httpStr)
+                    .then((rowData) =>{
                                                         if (rowData.length >0) {
                                                             let lastRow = () => {
                                                                 return rowData.length;
