@@ -9,7 +9,7 @@ import notify from 'devextreme/ui/notify';
 import ColorPanel from './ColorPanel.jsx';
 import { sendRequest } from './App.js';
 import { sendRequestPromise } from './sendRequestPromise.js';
-
+import {TableData} from './tableData.js';
 
 
 
@@ -42,8 +42,10 @@ export default class ReTableView extends Component {
         this.onColorPanelClose = this.onColorPanelClose.bind(this);
         this.onLoadFilterNodes = this.onLoadFilterNodes.bind(this);
         this.componentDidMount = this.componentDidMount.bind(this);
+        this.loadData = this.loadData.bind(this);
+        this.getTabData = this.getTabData.bind(this);
 
-
+        this.tableData = new TableData();
 
     }
 
@@ -70,11 +72,95 @@ export default class ReTableView extends Component {
 
     onToolbarPreferencesClick(){
 
-        this.setState({colorPanelVisible:true});
+        this.loadData({}, true);
+        //this.setState({colorPanelVisible:true});
 
-        if (this.state.sheet_type==='tree'){
-            this.setState({forceGridReload: true});
+    }
+
+    loadData(parentNode, reload = false){
+        this.tableData.setRequestString(()=>{
+            let httpStr = 'sht_nodes/?dummy=1';
+            if (this.state.sheet_id){
+                httpStr += '&sht_id=' + this.state.sheet_id;
+            }
+            httpStr += '&skey=' + this.getFilterSkey();
+            return httpStr;
+        });
+
+        var rowData;
+        return this.tableData.loadData(parentNode, reload)
+            .then((data)=>{
+                console.log('loadData', data);
+                this.setState({rowData: data});
+                console.log('rowData.length', this.state.rowData.length);
+
+            });
+        //console.log('loadData', rowData);
+    }
+
+    loadData1(parentNode, reload = false){
+
+        if (reload){
+            //установить картинку "идет загрузка"
+            this.setState({rowData: []});
         }
+
+        this.getTabData(parentNode)
+            .then((rowData)=> {
+
+
+                    clonedStateData.forEach(
+                        (row)=>{
+                            data.push(row);
+                            if (row.column_data){
+                                var colData =  row.column_data;
+                                for (var colIndex=0; colIndex<colData.length; colIndex++){
+                                    data[data.length-1][colData[colIndex].key] = colData[colIndex].sql_value;
+                                }
+                            }
+                            if (row.groupfl==='1' && !expandedNodes.includes(row.node_key)){
+                                data.push({});
+                                var dummy_hie_path = row.hie_path.slice();
+                                dummy_hie_path.push(row.node_key+' dummy child');
+                                data[data.length-1]['hie_path'] = dummy_hie_path;
+                                data[data.length-1]['node_key'] = row.node_key+'_dummy_child';
+                            }
+                        }
+                    );
+
+                    this.setState({rowData: rowData});
+                })
+            .then(()=>{
+                    //снять картинку "идет загрузка"
+                });
+
+    }
+
+    getTabData(parentNode){
+        let httpStr = 'sht_nodes/?dummy=1';
+        if (this.state.sheet_id){
+            httpStr += '&sht_id=' + this.state.sheet_id;
+        }
+        httpStr += '&skey=' + this.getFilterSkey();
+
+        var parentNodeKey;
+
+        if (parentNode && parentNode.data){
+            parentNodeKey = parentNode.data.node_key;
+            httpStr += '&flt_id=' + parentNode.data.flt_id + '&flt_item_id=' + parentNode.data.flt_item_id;
+        }
+
+        if (parentNode && parentNode.data && parentNode.data.hie_path){
+            var pathToExpandedNode = '';
+            parentNode.data.hie_path.forEach(el=>{pathToExpandedNode += el+','});
+            httpStr += '&group_keys='+pathToExpandedNode;
+        }
+
+
+        return sendRequestPromise(httpStr);
+
+
+
     }
 /*
 
@@ -117,7 +203,8 @@ export default class ReTableView extends Component {
                       })
             //обрабатываем пришедшие данные
             .then(viewState=>{tabView.processViewState(viewState);})
-            //шлем указание гриду - там загрузятся столцы и данные
+            .then(()=>this.loadData())
+            //шлем указание гриду - там загрузятся столцы
             .then(()=>{tabView.sendRefreshGrid()});
 
     }
@@ -488,8 +575,14 @@ export default class ReTableView extends Component {
         }
     }
 
+    processNodeExpanding(parentNode){
+        this.loadData(parentNode)
+            .then(()=>this.sendRefreshData());
+    }
 
+    sendRefreshData(){
 
+    }
 
     render(){
         return (
@@ -518,7 +611,7 @@ export default class ReTableView extends Component {
 
 
                             <ReGrid
-
+                                    rowData={this.state.rowData}
                             getContextMenuItems={this.getContextMenuItems.bind(this)}
                                 getColumnsListRequestString={this.getColumnsListRequestString.bind(this)}
                                 sendRefreshGrid={click => this.sendRefreshGrid = click}
@@ -548,6 +641,8 @@ export default class ReTableView extends Component {
                                 onGetGridApi={this.onGetGridApi.bind(this)}
                                 addToolPanels={this.state.addToolPanels}
                                 onCellValueChanged={this.props.onCellValueChanged}
+                                processNodeExpanding={this.processNodeExpanding.bind(this)}
+                                sendRefreshData={click => this.sendRefreshData = click}
                                 />
 
 

@@ -17,7 +17,7 @@ import commentDatasource from './commentDatasource';
 import TableViewComment from './TableViewComment.jsx';
 import SheetCellTooltip from './SheetCellTooltip.jsx';
 import CommentImg from '../images/chat.png';
-
+import {Spinner} from './spin.js';
 
 LicenseManager.setLicenseKey("Evaluation_License_Not_For_Production_29_December_2019__MTU3NzU3NzYwMDAwMA==a3a7a7e770dea1c09a39018caf2c839c");
 
@@ -117,10 +117,19 @@ export default class ReGrid extends React.Component {
   }
 
 
+    refreshData(){
+        console.log('refreshData(){');
+        this.gridApi.setRowData(this.props.rowData);
+    }
+
     componentDidMount() {
         console.log('REGRID MOUNT');
         if (this.props.sendRefreshGrid){
             this.props.sendRefreshGrid(this.refreshGrid);
+        }
+
+         if (this.props.sendRefreshData){
+            this.props.sendRefreshData(this.refreshData.bind(this));
         }
 
         if (this.props.sendBeforeCloseToGrid){
@@ -154,9 +163,11 @@ export default class ReGrid extends React.Component {
 
 
 
+
     refreshGrid(){
-        setTimeout(function(api){api.purgeServerSideCache()},0, this.gridApi);
+        //setTimeout(function(api){api.purgeServerSideCache()},0, this.gridApi);
         this.loadColumns();
+
     }
 
     processColumnsData(columnList){
@@ -179,6 +190,7 @@ export default class ReGrid extends React.Component {
             if (currentValue.atr_type==="N")
                 cellChartDataType = "series";
 
+            console.log('BEFORE INNER inner', currentValue.node_key);
 
             return {
                             field:currentValue.key,
@@ -186,6 +198,18 @@ export default class ReGrid extends React.Component {
 
                             showRowGroup: (currentValue.rowgroupfl===1),
                             cellRenderer: (currentValue.rowgroupfl===1) ? 'agGroupCellRenderer' : gridCellRenderer ,
+                            cellRendererParams: {
+                                                innerRenderer: function(params) {
+                                                    if (params.data.node_key.includes('dummy')){
+                                                        var element = document.createElement("span");
+                                                        var spinner =  new Spinner({scale: .4, speed: 1.3}).spin(element);
+                                                        return element;
+                                                    }else{
+                                                        return params.data.name;
+                                                    }
+                                                },
+                                                suppressCount: true
+                                            },
 
                             autoHeight: true,
                             ent_id:currentValue.ent_id,
@@ -312,6 +336,7 @@ export default class ReGrid extends React.Component {
         }
    }
 
+
     onGridReady = params => {
 
 
@@ -323,8 +348,8 @@ export default class ReGrid extends React.Component {
         console.log('GRID this.props.onGetGridApi', this.props.onGetGridApi);
         this.props.onGetGridApi(this.gridApi);
 
-        var datasource = this.serverSideDatasource(this);
-        this.gridApi.setServerSideDatasource(datasource);
+        //var datasource = this.serverSideDatasource(this);
+        //this.gridApi.setServerSideDatasource(datasource);
         if (this.props.additionalSheetParams && !this.columnsLoaded){
             this.loadColumns();
         }
@@ -358,6 +383,9 @@ export default class ReGrid extends React.Component {
   }
 
     onRowGroupOpened(e){
+
+        this.props.processNodeExpanding(e);
+
         if (e.node.expanded){
             this.expandedKeys.push(e.node.key);
         }else{
@@ -407,6 +435,7 @@ export default class ReGrid extends React.Component {
 
   render() {
         console.log('render regrid this.state.gridKey', this.state.gridKey);
+        //rowModelType={this.state.rowModelType}
         return (
                 <React.Fragment>
                     <div className ="ag-theme-balham NonDraggableAreaClassName ToolbarViewContent" key={this.state.gridKey} id="myGrid123">
@@ -416,8 +445,8 @@ export default class ReGrid extends React.Component {
                             cacheBlockSize={1000}
                             columnDefs={this.state.columnDefs}
                             defaultColDef={this.state.defaultColDef}
-                            autoGroupColumnDef={this.state.autoGroupColumnDef}
-                            rowModelType={this.state.rowModelType}
+                            getDataPath={(data)=>{return data.hie_path;}}
+                            rowData={this.props.rowData}
                             treeData={true}
                             groupSuppressAutoColumn={true}
                             animateRows={true}
@@ -609,10 +638,11 @@ function getColumnData(params){
         colDefField = params.colDef.field;
     }
 
-
-    for(var i=0; i< columnDataList.length; i++){
-        if (columnDataList[i].key===colDefField){
-            return columnDataList[i];
+    if (columnDataList) {
+        for(var i=0; i< columnDataList.length; i++){
+            if (columnDataList[i].key===colDefField){
+                return columnDataList[i];
+            }
         }
     }
 
