@@ -35,7 +35,7 @@ export default function sheetDatasource(gridComponent) {
                                                                     rowData[i][colData[colIndex].key] = colData[colIndex].sql_value;
                                                                 }
                                                             }
-                                                            params.successCallback(rowData, lastRow());
+                                                            params.successCallback(rowData, rowData.length);//lastRow());
 
                                                             if (gridComponent.savedFocusedCell){
                                                                 gridComponent.gridApi.ensureIndexVisible(gridComponent.savedFocusedCell.rowIndex);

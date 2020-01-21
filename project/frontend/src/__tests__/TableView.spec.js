@@ -1,5 +1,6 @@
 import React from 'react';
 import TabView from '../components/TabView.jsx';
+import TestGrid from '../components/TestGrid.jsx';
 import TableViewWithSelection from '../components/TableViewWithSelection.jsx';
 import Grid from '../components/Grid.jsx';
 import ReGrid from '../components/ReGrid.jsx';
@@ -46,19 +47,45 @@ export const waitForAsyncCondition = (condition, maxAttempts, attempts=0) => new
 
 
 
+
+
 describe('<TabView />', () => {
 
-    it('Test mock', async () => {
 
+it('Test mock 000', async () => {
+
+        const wrapper = mount(<div >  <TestGrid /></div>);
+        console.log('after mount');
+        //var myGrid = wrapper.find(ReGrid).instance();
+
+        var agGridReact = wrapper.find(AgGridReact).instance();
+        //var tabView = wrapper.find(TabView).instance();
+
+
+        await waitForAsyncCondition(() => {
+                                            return wrapper.html().includes('Ford')
+                                            },
+                                    5000);
+        //console.log('agGridReact.api', agGridReact.api);
+        console.log('rows', wrapper.html());
+
+     });
+
+    it('Test mock', async () => {
+        return;
         console.log('window.location.origin', window.location.origin);
         //return;
-        const wrapper = mount(<Provider store={store}><TableViewWithSelection layoutItemID={'100'} /></Provider>);
+        const wrapper = mount(<Provider store={store}>
+                        <div style={{width:500, height:500}}>
+                        <TableViewWithSelection layoutItemID={'100'} />
+                        </div>
+                        </Provider>);
 console.log('after mount');
         var myGrid = wrapper.find(ReGrid).instance();
 
         var agGridReact = wrapper.find(AgGridReact).instance();
         //var tabView = wrapper.find(TabView).instance();
-//console.log(wrapper.html());
+
 
         await waitForAsyncCondition(() => {
                                             return myGrid.gridApi !== undefined
@@ -100,13 +127,23 @@ console.log('after mount');
 
         await waitForAsyncCondition(() => myGrid.gridApi.getCellRendererInstances() &&
                                       myGrid.gridApi.getCellRendererInstances().length > 0, 5)
-              .then(() => null, () => fail("Renderer instance not created within expected time"));
+              .then(() => null, () => fail("Renderer instance not created within expected time")
 
+              );
+
+
+ await waitForAsyncCondition(() => { return // wrapper.html().includes('<span class="tag" id="39595_tag" aria-label="ГО">');// true;//wrapper.find(".ag-row").length >1
+    wrapper.html().includes('ag-body-viewport')
+                                            },
+                                            1000);
+             console.log('rows', wrapper.find(".ag-row").length);
+
+  console.log(wrapper.html());
      //   myGrid.gridApi.getCellRendererInstances().forEach((cell)=>{console.log('cell', cell);});
      //   console.log('FINAL', myGrid.gridApi.getDisplayedRowAtIndex(0).data);
         //console.log('FINAL', wrapper.html());// agGridReact.render().html());
 
-          expect(wrapper.contains('')).toEqual(true);
+         // expect(wrapper.contains('')).toEqual(true);
 
       //  await waitForAsyncCondition(() => {return  tabView.instance().state.sheet_id==2324;}, 1000);
  //await waitForAsyncCondition(() => {return  wrapper.html().includes('востребования');}, 1000);

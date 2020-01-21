@@ -406,27 +406,14 @@ export default class ReGrid extends React.Component {
     }
 
   render() {
-    console.log('render regrid this.state.gridKey', this.state.gridKey);
-
-            var listItems = [];
-
-        if (this.state.columnDefs){
-            listItems = this.state.columnDefs.map((column) =>
-              <li>{column.headerName}</li>
-            );
-        }
-
-            return (
+        console.log('render regrid this.state.gridKey', this.state.gridKey);
+        return (
                 <React.Fragment>
-                    <ul>
-                        {this.state.columnDefs.map((column) =>
-                            <li key={column.headerName}>{column.headerName}</li>
-                        )}
-                    </ul>
                     <div className ="ag-theme-balham NonDraggableAreaClassName ToolbarViewContent" key={this.state.gridKey} id="myGrid123">
                         <AgGridReact
                             modules={AllModules}
                             getRowClass={this.getRowClass}
+                            cacheBlockSize={1000}
                             columnDefs={this.state.columnDefs}
                             defaultColDef={this.state.defaultColDef}
                             autoGroupColumnDef={this.state.autoGroupColumnDef}

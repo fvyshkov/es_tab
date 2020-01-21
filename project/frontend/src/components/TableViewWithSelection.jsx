@@ -27,9 +27,6 @@ export default class TableViewWithSelection extends Component {
         return sendRequestPromise('sht_filters/?sht_id='+this.state.sheet_id);
     }
 
-
-
-
     loadNewSheet(prm_sheet_id, prm_sheet_type){
         this.setState({sheet_id: prm_sheet_id, sheet_type: prm_sheet_type});
         this.sendLoadAll(prm_sheet_id, prm_sheet_type);

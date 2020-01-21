@@ -76,12 +76,13 @@ export default class ReTableView extends Component {
             this.setState({forceGridReload: true});
         }
     }
-
+/*
 
     loadAll(params){
         this.props.beforeLoadAll(params);
         this.props.loadAll(params);
     }
+    */
 
     loadAll(prm_sheet_id, prm_sheet_type){
 
