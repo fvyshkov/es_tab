@@ -44,7 +44,6 @@ export default class ReTableView extends Component {
         this.onLoadFilterNodes = this.onLoadFilterNodes.bind(this);
         this.componentDidMount = this.componentDidMount.bind(this);
         this.loadData = this.loadData.bind(this);
-        this.getTabData = this.getTabData.bind(this);
 
         this.tableData = new TableData();
 
@@ -57,14 +56,6 @@ export default class ReTableView extends Component {
         if (this.props.sendLoadAll){
             this.props.sendLoadAll(this.loadAll.bind(this));
         }
-        /*
-        if (this.props.sheet_id && this.props.sheet_type){
-            this.setState({sheet_id: this.props.sheet_id, sheet_type: this.props.sheet_type});
-        }*/
-    }
-
-    loadNewSheetToFilterPanel(){
-
     }
 
     sendRefreshGrid(){
@@ -100,78 +91,6 @@ export default class ReTableView extends Component {
         //console.log('loadData', rowData);
     }
 
-    loadData1(parentNode, reload = false){
-
-        if (reload){
-            //установить картинку "идет загрузка"
-            this.setState({rowData: []});
-        }
-
-        this.getTabData(parentNode)
-            .then((rowData)=> {
-
-
-                    clonedStateData.forEach(
-                        (row)=>{
-                            data.push(row);
-                            if (row.column_data){
-                                var colData =  row.column_data;
-                                for (var colIndex=0; colIndex<colData.length; colIndex++){
-                                    data[data.length-1][colData[colIndex].key] = colData[colIndex].sql_value;
-                                }
-                            }
-                            if (row.groupfl==='1' && !expandedNodes.includes(row.node_key)){
-                                data.push({});
-                                var dummy_hie_path = row.hie_path.slice();
-                                dummy_hie_path.push(row.node_key+' dummy child');
-                                data[data.length-1]['hie_path'] = dummy_hie_path;
-                                data[data.length-1]['node_key'] = row.node_key+'_dummy_child';
-                            }
-                        }
-                    );
-
-                    this.setState({rowData: rowData});
-                })
-            .then(()=>{
-                    //снять картинку "идет загрузка"
-                });
-
-    }
-
-    getTabData(parentNode){
-        let httpStr = 'sht_nodes/?dummy=1';
-        if (this.state.sheet_id){
-            httpStr += '&sht_id=' + this.state.sheet_id;
-        }
-        httpStr += '&skey=' + this.getFilterSkey();
-
-        var parentNodeKey;
-
-        if (parentNode && parentNode.data){
-            parentNodeKey = parentNode.data.node_key;
-            httpStr += '&flt_id=' + parentNode.data.flt_id + '&flt_item_id=' + parentNode.data.flt_item_id;
-        }
-
-        if (parentNode && parentNode.data && parentNode.data.hie_path){
-            var pathToExpandedNode = '';
-            parentNode.data.hie_path.forEach(el=>{pathToExpandedNode += el+','});
-            httpStr += '&group_keys='+pathToExpandedNode;
-        }
-
-
-        return sendRequestPromise(httpStr);
-
-
-
-    }
-/*
-
-    loadAll(params){
-        this.props.beforeLoadAll(params);
-        this.props.loadAll(params);
-    }
-    */
-
     loadAll(prm_sheet_id, prm_sheet_type){
 
         if (this.state.sheet_id){
@@ -179,7 +98,7 @@ export default class ReTableView extends Component {
             this.saveSheetState();
         }
 
-        this.setState({sheet_id: prm_sheet_id, sheet_type: prm_sheet_type});
+       this.setState({sheet_id: prm_sheet_id, sheet_type: prm_sheet_type});
 
         var tabView = this;
             //запрашиваем фильтры
@@ -290,20 +209,16 @@ export default class ReTableView extends Component {
 
 
     onToolbarRefreshClick(){
-        //this.sendRefreshGrid();
          this.gripApi.setRowData([]);
          this.loadData({}, true);
+         this.sendRefreshGrid();
         //
 
     }
 
 
     onToolbarCloseClick(){
-        if (this.state.sheet_id){
-            this.saveSheetState();
-
-        }
-
+        this.saveSheetState();
         if (this.props.onToolbarCloseClick){
             this.props.onToolbarCloseClick(this.props.layoutItemID);
         }
