@@ -271,14 +271,6 @@ export default class ReTableView extends Component {
         if (this.props.onInsertCallback){
             console.log('onInsertCallback 2');
             this.props.onInsertCallback(this);
-
-        }else{
-            if (this.state.sheet_id){
-                sendRequest('insert_record/?sht_id='+this.state.sheet_id+'&skey='+this.getFilterSkey(),
-                            this.sendInsertRecord,
-                            'POST',
-                            {});
-            }
         }
 
     }
@@ -371,11 +363,7 @@ export default class ReTableView extends Component {
               }
               ];
     }
-/*
-                                sheet_id = {this.props.additionalSheetParams.sht_id}
-                                sheet_type = {this.props.additionalSheetParams.sheet_type}
 
-*/
     showDetailForCell(params){
         console.log('showDetailForCell', params);
         if (this.props.addElementToLayout){
@@ -448,11 +436,6 @@ export default class ReTableView extends Component {
         }
     }
 
-
-    loadSheetInfo(){
-        sendRequest('sht_info/?sht_id='+this.props.sheet_id, this.processSheetInfo);
-    }
-
     showCommentForCell(params){
         console.log('showCommentForCell new ', params);
         var columnData = getColumnData(params);
@@ -485,7 +468,7 @@ export default class ReTableView extends Component {
             if (columnData.req_id){
                 additionalParams['req_id'] = columnData.req_id;
             }
-            console.log('comments sht_id=', this.props.sheet_id);
+
             var detailRender =  <TableViewComment
                                 additionalSheetParams={additionalParams}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
@@ -497,16 +480,19 @@ export default class ReTableView extends Component {
     }
 
     processNodeExpanding(parentNode){
-        //console.log('processNodeExpanding', parentNode);
-        //console.log('e.node.expanded', parentNode.node.expanded);
         if (parentNode.node.expanded && !this.tableData.loadedNodes.includes(parentNode.node.data.node_key)){
             this.loadData(parentNode);
         }
     }
 
     sendRefreshData(){
-
     }
+
+/*
+sheet_id = {this.state.sheet_id}
+sheet_type = {this.state.sheet_type}
+treeData = {this.state.sheet_type==='tree'? true:false}
+*/
 
     render(){
         return (
@@ -535,16 +521,13 @@ export default class ReTableView extends Component {
 
 
                             <ReGrid
-                                    rowData={this.state.rowData}
-                            getContextMenuItems={this.getContextMenuItems.bind(this)}
+                                rowData={this.state.rowData}
+                                getContextMenuItems={this.getContextMenuItems.bind(this)}
                                 getColumnsListRequestString={this.getColumnsListRequestString.bind(this)}
                                 sendRefreshGrid={click => this.sendRefreshGrid = click}
                                 sendBeforeCloseToGrid={click => this.sendBeforeCloseToGrid = click}
                                 sendUndoToGrid={click => this.sendUndoToGrid = click}
                                 skey={this.getFilterSkey}
-                                sheet_id = {this.state.sheet_id}
-                                sheet_type = {this.state.sheet_type}
-                                treeData = {this.state.sheet_type==='tree'? true:false}
                                 onFilterPanelChange={this.onFilterPanelChange}
                                 selectedFilterNodes={this.state.selectedFilterNodes}
                                 filterNodes={this.state.filterNodes}

@@ -57,11 +57,7 @@ export default class TableViewWithSelection extends Component {
         if (this.state.sheet_id){
             httpStr +='sht_id='+this.state.sheet_id;
         }
-       /* var skey = this.getFilterSkey();
-        if  (skey){
-            httpStr += '&skey='+skey;
-        }*/
-        //httpStr = this.addAdditionalSheetParams(httpStr);
+
         return httpStr;
     }
 
@@ -73,6 +69,12 @@ export default class TableViewWithSelection extends Component {
     onInsertCallback(){
         //this.loadNewSheet(2434, 'tree');
         console.log('ins test', this);
+        if (this.state.sheet_id){
+                sendRequest('insert_record/?sht_id='+this.state.sheet_id+'&skey='+this.getFilterSkey(),
+                            this.sendInsertRecord,
+                            'POST',
+                            {});
+        }
     }
 
     getDataRequestString(){

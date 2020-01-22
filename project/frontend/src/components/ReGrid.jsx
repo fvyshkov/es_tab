@@ -22,99 +22,95 @@ import {Spinner} from './spin.js';
 LicenseManager.setLicenseKey("Evaluation_License_Not_For_Production_29_December_2019__MTU3NzU3NzYwMDAwMA==a3a7a7e770dea1c09a39018caf2c839c");
 
 export default class ReGrid extends React.Component {
-  constructor(props) {
-    super(props);
+    constructor(props) {
+        super(props);
 
-    this.gridReadyFlag = false;
+        this.gridReadyFlag = false;
 
-    this.immutableStore =[];
-    this.savedFocusedCell = {};
+        this.immutableStore =[];
+        this.savedFocusedCell = {};
 
-    this.state = {
-    gridKey:0,
-    colorRestrict: 0,
-    modules: AllModules,
-      columnDefs: [],
-      treeData: this.props.treeData,
-      frameworkComponents: {
-        treeReferEditor: TreeReferEditor,
-       // gridCellRenderer:GridCellRenderer,
-        numericEditor: NumericEditor,
-        filterPanelInToolPanel: FilterPanelInToolPanel,
-        sheetCellTooltip: SheetCellTooltip
-      },
-      sideBar:  {
-                toolPanels: [
-                        {
-                            id: 'columns',
-                            labelDefault: 'Столбцы',
-                            labelKey: 'columns',
-                            iconKey: 'columns',
-                            toolPanel: 'agColumnsToolPanel',
-                        },
-                        ...this.props.addToolPanels
-                    ],
-                    position: 'left'
-                },
+        this.state = {
+        gridKey:0,
+        colorRestrict: 0,
+        modules: AllModules,
+          columnDefs: [],
+          treeData: this.props.treeData,
+          frameworkComponents: {
+            treeReferEditor: TreeReferEditor,
+           // gridCellRenderer:GridCellRenderer,
+            numericEditor: NumericEditor,
+            filterPanelInToolPanel: FilterPanelInToolPanel,
+            sheetCellTooltip: SheetCellTooltip
+          },
+          sideBar:  {
+                    toolPanels: [
+                            {
+                                id: 'columns',
+                                labelDefault: 'Столбцы',
+                                labelKey: 'columns',
+                                iconKey: 'columns',
+                                toolPanel: 'agColumnsToolPanel',
+                            },
+                            ...this.props.addToolPanels
+                        ],
+                        position: 'left'
+                    },
 
-         statusBar: {
-                statusPanels: [
-                  {
-                    statusPanel: "agTotalAndFilteredRowCountComponent",
-                    align: "left"
+             statusBar: {
+                    statusPanels: [
+                      {
+                        statusPanel: "agTotalAndFilteredRowCountComponent",
+                        align: "left"
+                      },
+                      {
+                        statusPanel: "agTotalRowCountComponent",
+                        align: "center"
+                      },
+                      { statusPanel: "agFilteredRowCountComponent" },
+                      { statusPanel: "agSelectedRowCountComponent" },
+                      { statusPanel: "agAggregationComponent" }
+                    ]
                   },
-                  {
-                    statusPanel: "agTotalRowCountComponent",
-                    align: "center"
-                  },
-                  { statusPanel: "agFilteredRowCountComponent" },
-                  { statusPanel: "agSelectedRowCountComponent" },
-                  { statusPanel: "agAggregationComponent" }
-                ]
-              },
-      defaultColDef: {
-        width: 240,
-        resizable: true,
-        filter: false
-      },
-      rowModelType: "serverSide",
-      isServerSideGroup: function(dataItem) {
-        return dataItem.groupfl==='1';
-      },
-      getServerSideGroupKey: function(dataItem) {
-        return dataItem.node_key;
-      },
-      getRowNodeId: function (dataItem){
-        return dataItem.node_key;
-      }
+          defaultColDef: {
+            width: 240,
+            resizable: true,
+            filter: false
+          },
+          rowModelType: "serverSide",
+          isServerSideGroup: function(dataItem) {
+            return dataItem.groupfl==='1';
+          },
+          getServerSideGroupKey: function(dataItem) {
+            return dataItem.node_key;
+          },
+          getRowNodeId: function (dataItem){
+            return dataItem.node_key;
+          }
 
-    };
+        };
 
-    this.expandedKeys = [];
+        this.expandedKeys = [];
 
-    this.refreshGrid = this.refreshGrid.bind(this);
-    this.render = this.render.bind(this);
-    this.processColumnsData = this.processColumnsData.bind(this);
-    this.loadSheetInfo = this.loadSheetInfo.bind(this);
-
-    this.processSheetInfo = this.processSheetInfo.bind(this);
-    this.componentDidMount = this.componentDidMount.bind(this);
-
-    this.onGridReady = this.onGridReady.bind(this);
-    this.onGridStateChange = this.onGridStateChange.bind(this);
-    this.sendDeleteRecord = this.sendDeleteRecord.bind(this);
-    this.sendUndoToGrid = this.sendUndoToGrid.bind(this);
+        this.refreshGrid = this.refreshGrid.bind(this);
+        this.render = this.render.bind(this);
+        this.processColumnsData = this.processColumnsData.bind(this);
+        this.componentDidMount = this.componentDidMount.bind(this);
+        this.onGridReady = this.onGridReady.bind(this);
+        this.onGridStateChange = this.onGridStateChange.bind(this);
+        this.sendDeleteRecord = this.sendDeleteRecord.bind(this);
+        this.sendUndoToGrid = this.sendUndoToGrid.bind(this);
 
 
 
 
 
-    this.columnsLoaded = false;
+        this.columnsLoaded = false;
 
 
 
 
-  }
+    }
 
 
     refreshData(){
@@ -280,31 +276,15 @@ export default class ReGrid extends React.Component {
         );
 
         columns = groupColumns(columns);
-//        console.log('set state columns', columns);
         this.setState({columnDefs: columns});
-        this.loadSheetInfo();
-
-        this.columnsLoaded = true;
-    }
-
-
-    loadSheetInfo(){
-        sendRequestPromise('sht_info/?sht_id='+this.props.sheet_id)
-        .then(data => this.processSheetInfo(data));
-    }
-
-    processSheetInfo(infoList){
-        this.setState({
-                            gridKey: 0,
-                            sheetInfo: infoList[0]
-                             });
-
         //заставляем грид перерендериться
         //без этого "загадочного" действия в FilterToolPanel почему-то не попадают новые пропсы
 
         this.setState({gridKey: this.state.gridKey+1});
 
+        this.columnsLoaded = true;
     }
+
 
 
     loadColumns(){
@@ -338,49 +318,29 @@ export default class ReGrid extends React.Component {
 
 
     onGridReady = params => {
-
-
-
-
         this.gridApi = params.api;
         this.gridColumnApi = params.columnApi;
-
-        console.log('GRID this.props.onGetGridApi', this.props.onGetGridApi);
         this.props.onGetGridApi(this.gridApi);
-
-        //var datasource = this.serverSideDatasource(this);
-        //this.gridApi.setServerSideDatasource(datasource);
         if (this.props.additionalSheetParams && !this.columnsLoaded){
             this.loadColumns();
         }
-                /*
-         if (this.props.columnStates){
-            console.log('onGridReady this.props.columnStates', this.props.columnStates);
-            this.gridColumnApi.setColumnState(this.props.columnStates);
-            this.gridApi.refreshHeader();
-         }
-         */
-
-         this.gridReadyFlag = true;
-
     }
 
-  onGridStateChange(){
-    if (this.props.onGridStateChange){
-        this.props.onGridStateChange(this.gridColumnApi.getColumnState())
+    onGridStateChange(){
+        if (this.props.onGridStateChange){
+            this.props.onGridStateChange(this.gridColumnApi.getColumnState())
+        }
     }
-  }
 
-  onGridExpandedChange(){
-
-    if (this.props.onGridExpandedChange){
-        this.props.onGridExpandedChange(this.expandedKeys)
+    onGridExpandedChange(){
+        if (this.props.onGridExpandedChange){
+            this.props.onGridExpandedChange(this.expandedKeys)
+        }
     }
-  }
 
-  onColumnResized(){
+    onColumnResized(){
 
-  }
+    }
 
     onRowGroupOpened(e){
 
@@ -439,11 +399,14 @@ export default class ReGrid extends React.Component {
 
         /*if (this.gridApi && this.props.loading){
             this.gridApi.showLoadingOverlay();
-        }*/
+        }
 
         if (this.gridApi ){
             this.gridApi.hideOverlay();
         }
+
+        sheet_id={this.props.sheet_id}
+        */
 
         return (
                 <React.Fragment>
@@ -472,7 +435,7 @@ export default class ReGrid extends React.Component {
                             onFirstDataRendered={this.onFirstDataRendered.bind(this)}
                             enableRangeSelection={true}
                             enableCharts={true}
-                            sheet_id={this.props.sheet_id}
+
                             onFilterPanelChange={this.props.onFilterPanelChange}
                             selectedFilterNodes={this.props.selectedFilterNodes}
                             filterNodes={this.props.filterNodes}
