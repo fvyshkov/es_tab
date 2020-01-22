@@ -145,6 +145,12 @@ export default class ReGrid extends React.Component {
             this.props.sendDeleteRecord(this.sendDeleteRecord.bind(this));
         }
 
+        if(this.props.sendDeleteRecord){
+            this.props.sendDeleteRecord(this.sendDeleteRecord.bind(this));
+        }
+
+
+
 
     }
 
@@ -323,6 +329,10 @@ export default class ReGrid extends React.Component {
         this.props.onGetGridApi(this.gridApi);
         if (this.props.additionalSheetParams && !this.columnsLoaded){
             this.loadColumns();
+        }
+
+        if (this.props.onGridReady){
+            this.props.onGridReady();
         }
     }
 

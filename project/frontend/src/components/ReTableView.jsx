@@ -494,11 +494,10 @@ export default class ReTableView extends Component {
     sendRefreshData(){
     }
 
-/*
-sheet_id = {this.state.sheet_id}
-sheet_type = {this.state.sheet_type}
-treeData = {this.state.sheet_type==='tree'? true:false}
-*/
+
+    onGridReady(){
+        this.loadData({}, true);
+    }
 
     render(){
         return (
@@ -558,6 +557,7 @@ treeData = {this.state.sheet_type==='tree'? true:false}
                                 sendRefreshData={click => this.sendRefreshData = click}
                                 loading={this.state.loading}
                                 getRowNodeId={this.props.getRowNodeId}
+                                onGridReady={this.onGridReady.bind(this)}
                                 />
 
 

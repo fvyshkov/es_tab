@@ -265,9 +265,7 @@ export default class Grid extends React.Component {
     }
 
 
-    serverSideDatasource(gridComponent) {
-        return this.props.dataModelDescription.getDatasource(gridComponent);
-   }
+
 
   onGridReady = params => {
     console.log('onGridReady');

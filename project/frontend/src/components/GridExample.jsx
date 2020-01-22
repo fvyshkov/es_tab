@@ -332,13 +332,7 @@ class GridExample extends React.Component {
         return this.props.sheet_id;
     }
 
-    serverSideDatasource(gridComponent) {
-        if (this.props.getDatasource){
-            return this.props.getDatasource(gridComponent);
-        }else{
-            return sheetDatasource(gridComponent);
-        }
-   }
+
 
   onGridReady = params => {
     this.gridApi = params.api;
