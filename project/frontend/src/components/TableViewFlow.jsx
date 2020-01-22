@@ -43,13 +43,17 @@ export default class TableViewFlow extends Component {
         return httpStr;
     }
 
+    getDataRequestString(){
+        var httpStr = 'get_flow/?viewType=FlowView';
+        return httpStr;
+    }
 
     render() {
         return (
             <div>
                 <ReTableView
-                    sheet_id = {0}
-                    sheet_type = {''}
+                    getRowNodeId={(data)=>{return data.node_key;}}
+                    getDataRequestString={this.getDataRequestString.bind(this)}
                     additionalSheetParams={this.props.additionalSheetParams}
                     onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
                     onToolbarDeleteClick={this.onToolbarDeleteClick.bind(this)}

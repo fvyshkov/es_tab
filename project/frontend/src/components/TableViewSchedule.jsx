@@ -48,6 +48,11 @@ export default class TableViewSchedule extends Component {
         return httpStr;
     }
 
+    getDataRequestString(){
+        var httpStr = 'get_schedule/?viewType=ScheduleView';
+        return httpStr;
+    }
+
     render() {
         console.log('render ', this.props);
         return (
@@ -56,6 +61,8 @@ export default class TableViewSchedule extends Component {
                     sheet_id = {0}
                     sheet_type = {''}
                     additionalSheetParams={this.props.additionalSheetParams}
+                    getRowNodeId={(data)=>{return data.node_key;}}
+                    getDataRequestString={this.getDataRequestString.bind(this)}
                     onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
                     onToolbarDeleteClick={this.onToolbarDeleteClick.bind(this)}
                     layoutItemID={this.props.layoutItemID}
