@@ -447,7 +447,7 @@ export default class ReGrid extends React.Component {
                             onColumnPinned={this.onGridStateChange.bind(this)}
                             onColumnVisible={this.onGridStateChange.bind(this)}
                             onRowGroupOpened={this.onRowGroupOpened.bind(this)}
-                            getRowNodeId={this.state.getRowNodeId}
+                            getRowNodeId={this.props.getRowNodeId}
                             onCellValueChanged={this.onCellValueChanged.bind(this)}
                             deltaRowDataMode={true}
                             undoRedoCellEditing={true}

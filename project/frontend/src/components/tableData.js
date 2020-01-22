@@ -2,15 +2,18 @@ import { sendRequestPromise } from './sendRequestPromise.js';
 
 export class TableData {
 
-    constructor(getRequestString){
+    constructor(getRequestString, getRowNodeId){
         this.rowData = [];
         this.loadedNodes = [];
         this.getRequestString = getRequestString;
+        this.getRowNodeId = getRowNodeId;
     }
 
     setRequestString(getRequestString){
         this.getRequestString = getRequestString;
     }
+
+
 
     getRowData(){
         return this.rowData;
@@ -44,7 +47,7 @@ export class TableData {
                 //добавляем hie_path где его нет (у нас грид всегда в режиме treeData=true)
                 data.forEach(el=>{
                     if (!el.hie_path){
-                        el['hie_path'] = [el.node_key];
+                        el['hie_path'] = [this.getRowNodeId(el)];
                     }
                 });
                 return data;

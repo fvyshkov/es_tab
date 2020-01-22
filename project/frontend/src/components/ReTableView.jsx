@@ -45,7 +45,7 @@ export default class ReTableView extends Component {
         this.componentDidMount = this.componentDidMount.bind(this);
         this.loadData = this.loadData.bind(this);
 
-        this.tableData = new TableData();
+        this.tableData = new TableData(()=>{}, this.props.getRowNodeId);
 
     }
 
@@ -71,7 +71,13 @@ export default class ReTableView extends Component {
 
             let httpStr = this.props.getDataRequestString();
 
-            httpStr += '&skey=' + this.getFilterSkey();
+            var skey = this.getFilterSkey();
+            if (skey){
+                httpStr += '&skey=' + this.getFilterSkey();
+            }
+
+            httpStr = this.addAdditionalSheetParams(httpStr);
+
             return httpStr;
         });
 
@@ -551,6 +557,7 @@ treeData = {this.state.sheet_type==='tree'? true:false}
                                 processNodeExpanding={this.processNodeExpanding.bind(this)}
                                 sendRefreshData={click => this.sendRefreshData = click}
                                 loading={this.state.loading}
+                                getRowNodeId={this.props.getRowNodeId}
                                 />
 
 

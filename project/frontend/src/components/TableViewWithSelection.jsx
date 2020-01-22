@@ -99,6 +99,7 @@ export default class TableViewWithSelection extends Component {
                     saveViewState={this.saveViewState.bind(this)}
                     onCellValueChanged={this.onCellValueChanged.bind(this)}
                     getDataRequestString={this.getDataRequestString.bind(this)}
+                    getRowNodeId={(data)=>{return data.node_key;}}
                     additionalToolbarItem={()=>{return(
                                                         <SheetSelectDropDown
                                                             onSelectNewSheet={this.loadNewSheet.bind(this)}

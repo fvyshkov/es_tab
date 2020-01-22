@@ -89,6 +89,14 @@ export default class TableViewComment extends Component {
         console.log('onCellFocused this.gripApi', this.gridApi);
     }
 
+    getDataRequestString(){
+        var httpStr = 'get_comments/?dummy=1';
+        /*if (this.state.sheet_id){
+            httpStr += '&sht_id=' + this.state.sheet_id;
+        }*/
+        return httpStr;
+    }
+
     onDeleteCallback(){
         console.log('delete ', this.state.focusedCell);
         this.savedFocusedCell = this.state.focusedCell;
@@ -117,8 +125,6 @@ export default class TableViewComment extends Component {
                 />
 
                 <ReTableView
-                    sheet_id = {0}
-                    sheet_type = {''}
                     additionalSheetParams={this.props.additionalSheetParams}
                     onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
                     onToolbarDeleteClick={this.onToolbarDeleteClick.bind(this)}
@@ -128,6 +134,8 @@ export default class TableViewComment extends Component {
                     onDeleteCallback={this.onDeleteCallback.bind(this)}
                     onCellFocused={this.onCellFocused.bind(this)}
                     onGetGridApi={this.onGetGridApi.bind(this)}
+                    getDataRequestString={this.getDataRequestString.bind(this)}
+                    getRowNodeId={(data)=>{return data.com_id;}}
 
                 />
             </div>
