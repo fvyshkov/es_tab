@@ -436,6 +436,15 @@ export default class ReGrid extends React.Component {
   render() {
         console.log('render regrid this.state.gridKey', this.state.gridKey);
         //rowModelType={this.state.rowModelType}
+
+        /*if (this.gridApi && this.props.loading){
+            this.gridApi.showLoadingOverlay();
+        }*/
+
+        if (this.gridApi ){
+            this.gridApi.hideOverlay();
+        }
+
         return (
                 <React.Fragment>
                     <div className ="ag-theme-balham NonDraggableAreaClassName ToolbarViewContent" key={this.state.gridKey} id="myGrid123">

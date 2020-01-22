@@ -18,6 +18,7 @@ export default class ReTableView extends Component {
     constructor(props) {
         super(props);
         this.state={
+                        rowData: [],
                         colorPanelVisible: false,
                         selectedFilterNodes: {},
                         filterNodes: {},
@@ -76,14 +77,16 @@ export default class ReTableView extends Component {
 
     loadData(parentNode, reload = false){
         this.tableData.setRequestString(()=>{
-            let httpStr = 'sht_nodes/?dummy=1';
-            if (this.state.sheet_id){
-                httpStr += '&sht_id=' + this.state.sheet_id;
-            }
+
+            let httpStr = this.props.getDataRequestString();
+
             httpStr += '&skey=' + this.getFilterSkey();
             return httpStr;
         });
 
+        if(!parentNode){
+            this.setState({loading:false});
+        }
         var rowData;
         return this.tableData.loadData(parentNode, reload)
             .then((data)=>{
@@ -92,7 +95,8 @@ export default class ReTableView extends Component {
                 console.log('rowData.length', this.state.rowData.length);
 
             })
-            .then(()=> this.sendRefreshData());
+            .then(()=> this.sendRefreshData())
+            .then(()=>{this.setState({loading:false})});
         //console.log('loadData', rowData);
     }
 
@@ -201,7 +205,7 @@ export default class ReTableView extends Component {
                       })
             //обрабатываем пришедшие данные
             .then(viewState=>{tabView.processViewState(viewState);})
-            .then(()=>this.loadData())
+            .then(()=>this.loadData({},true))
             //шлем указание гриду - там загрузятся столцы
             .then(()=>{tabView.sendRefreshGrid()});
 
@@ -287,6 +291,7 @@ export default class ReTableView extends Component {
 
     onToolbarRefreshClick(){
         //this.sendRefreshGrid();
+         this.gripApi.setRowData([]);
          this.loadData({}, true);
         //
 
@@ -577,7 +582,11 @@ export default class ReTableView extends Component {
     }
 
     processNodeExpanding(parentNode){
-        this.loadData(parentNode);
+        //console.log('processNodeExpanding', parentNode);
+        //console.log('e.node.expanded', parentNode.node.expanded);
+        if (parentNode.node.expanded && !this.tableData.loadedNodes.includes(parentNode.node.data.node_key)){
+            this.loadData(parentNode);
+        }
     }
 
     sendRefreshData(){
@@ -643,6 +652,7 @@ export default class ReTableView extends Component {
                                 onCellValueChanged={this.props.onCellValueChanged}
                                 processNodeExpanding={this.processNodeExpanding.bind(this)}
                                 sendRefreshData={click => this.sendRefreshData = click}
+                                loading={this.state.loading}
                                 />
 
 

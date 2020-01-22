@@ -4,7 +4,7 @@ export class TableData {
 
     constructor(getRequestString){
         this.rowData = [];
-        this.openedNodes = [];
+        this.loadedNodes = [];
         this.getRequestString = getRequestString;
     }
 
@@ -20,12 +20,14 @@ export class TableData {
     loadData(parentNode, reload = false){
         if (reload){
             this.rowData = [];
+            this.loadedNodes =[];
         }
 
 
         var parentNodeKey = '';
         if (parentNode && parentNode.data){
             parentNodeKey = parentNode.data.node_key;
+            this.loadedNodes.push(parentNodeKey);
         }
 
 
@@ -36,6 +38,15 @@ export class TableData {
                 //удаляем фиктивную ноду
                 this.rowData = this.rowData.filter(e => e.node_key !== parentNodeKey + '_dummy_child');
 
+                return data;
+            })
+            .then((data)=>{
+                //добавляем hie_path где его нет (у нас грид всегда в режиме treeData=true)
+                data.forEach(el=>{
+                    if (!el.hie_path){
+                        el['hie_path'] = [el.node_key];
+                    }
+                });
                 return data;
             })
             .then((data)=> {
@@ -50,8 +61,6 @@ export class TableData {
                             var colData =  row.column_data;
                             for (var colIndex=0; colIndex<colData.length; colIndex++){
                                 this.rowData[this.rowData.length-1][colData[colIndex].key] = colData[colIndex].sql_value;
-
-                                console.log('colData[colIndex].key', colData[colIndex].key);
                             }
                         }
                         //вставляем фиктивную ноду под нераскрытую группу
@@ -90,7 +99,8 @@ export class TableData {
             parentNode.data.hie_path.forEach(el=>{pathToExpandedNode += el+','});
             httpStr += '&group_keys='+pathToExpandedNode;
         }
-
+        console.log('getTabData (send request)');
         return sendRequestPromise(httpStr);
+
     }
 }

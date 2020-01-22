@@ -75,6 +75,13 @@ export default class TableViewWithSelection extends Component {
         console.log('ins test', this);
     }
 
+    getDataRequestString(){
+        var httpStr = 'sht_nodes/?dummy=1';
+        if (this.state.sheet_id){
+            httpStr += '&sht_id=' + this.state.sheet_id;
+        }
+        return httpStr;
+    }
 
     render(){
 
@@ -89,6 +96,7 @@ export default class TableViewWithSelection extends Component {
                     getColumnsListRequestString={this.getColumnsListRequestString.bind(this)}
                     saveViewState={this.saveViewState.bind(this)}
                     onCellValueChanged={this.onCellValueChanged.bind(this)}
+                    getDataRequestString={this.getDataRequestString.bind(this)}
                     additionalToolbarItem={()=>{return(
                                                         <SheetSelectDropDown
                                                             onSelectNewSheet={this.loadNewSheet.bind(this)}
