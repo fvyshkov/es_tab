@@ -51,166 +51,66 @@ export const waitForAsyncCondition = (condition, maxAttempts, attempts=0) => new
 
 describe('<TabView />', () => {
 
+    beforeEach((done) => {
 
-it('Test mock 000', async () => {
+        wrapper = mount(<Provider store={store}>
+                        <div style={{width:500, height:500}}>
+                        <TableViewWithSelection layoutItemID={'100'} />
+                        </div>
+                        </Provider>);
 
-        const wrapper = mount(<div >  <TestGrid /></div>);
-        console.log('after mount');
-        //var myGrid = wrapper.find(ReGrid).instance();
-
-        var agGridReact = wrapper.find(AgGridReact).instance();
-        //var tabView = wrapper.find(TabView).instance();
-
-
+        var grid = wrapper.find(ReGrid).instance();
         await waitForAsyncCondition(() => {
-                                            return wrapper.html().includes('Ford')
+                                            return grid.gridApi !== undefined
                                             },
-                                    5000);
-        //console.log('agGridReact.api', agGridReact.api);
-        console.log('rows', wrapper.html());
+                                    5);
 
-     });
+          /*
+        component = mount(());
+        agGridReact = component.find(AgGridReact).instance();
+        // don't start our tests until the grid is ready
+        ensureGridApiHasBeenSet(component).then(() => done(), () => fail("Grid API not set within expected time limits"));
+            */
+    });
 
-    it('Test mock', async () => {
-        return;
-        console.log('window.location.origin', window.location.origin);
-        //return;
+    it('check snapshot', async () => {
+
         const wrapper = mount(<Provider store={store}>
                         <div style={{width:500, height:500}}>
                         <TableViewWithSelection layoutItemID={'100'} />
                         </div>
                         </Provider>);
-console.log('after mount');
+
         var myGrid = wrapper.find(ReGrid).instance();
-
-        var agGridReact = wrapper.find(AgGridReact).instance();
-        //var tabView = wrapper.find(TabView).instance();
-
-
         await waitForAsyncCondition(() => {
                                             return myGrid.gridApi !== undefined
                                             },
                                     5);
 
-        await waitForAsyncCondition(() => {
-                                            return (myGrid.gridReadyFlag)
-                                            },
-                                    500);
-
-
         var tabView = wrapper.find(TableViewWithSelection);
         tabView.instance().loadNewSheet(2434, 'tree');
-
-        // expect(agGridReact.api).toBeTruthy();
-
-        //return;
-        //tabView.instance().testAsyncSetValue(100);
-        await waitForAsyncCondition(() => {
-                            //console.log('testing...');
-                                            //wrapper.html().includes('ag-header-cell-text');
-                                            return (myGrid.state.columnDefs.length>1);
-                                            },
-                                            1000);
-
-
-        //agGridReact.render();
-        //const agGridReactWrapper = wrapper.find(AgGridReact);
-      //  console.log('FINAL', myGrid.gridColumnApi);
-
-
+/*
         await waitForAsyncCondition(() => { return myGrid.gridApi.getDisplayedRowCount() >1
                                             },
                                             1000);
 
-        //myGrid.gridApi.forEachNode((node, index)=>{console.log('row', index, node);});
-        //console.log('FINAL', myGrid.gridApi.getDisplayedRowAtIndex(0).data);
 
         await waitForAsyncCondition(() => myGrid.gridApi.getCellRendererInstances() &&
                                       myGrid.gridApi.getCellRendererInstances().length > 0, 5)
-              .then(() => null, () => fail("Renderer instance not created within expected time")
-
-              );
-
-
- await waitForAsyncCondition(() => { return // wrapper.html().includes('<span class="tag" id="39595_tag" aria-label="ГО">');// true;//wrapper.find(".ag-row").length >1
-    wrapper.html().includes('ag-body-viewport')
-                                            },
-                                            1000);
-             console.log('rows', wrapper.find(".ag-row").length);
-
-  console.log(wrapper.html());
-     //   myGrid.gridApi.getCellRendererInstances().forEach((cell)=>{console.log('cell', cell);});
-     //   console.log('FINAL', myGrid.gridApi.getDisplayedRowAtIndex(0).data);
-        //console.log('FINAL', wrapper.html());// agGridReact.render().html());
-
-         // expect(wrapper.contains('')).toEqual(true);
-
-      //  await waitForAsyncCondition(() => {return  tabView.instance().state.sheet_id==2324;}, 1000);
- //await waitForAsyncCondition(() => {return  wrapper.html().includes('востребования');}, 1000);
-        //await setTimeout(()=>{}, 5000);
-
-        //console.log(wrapper.html());
-
-        //var htmlIncludeColumn = wrapper.html().includes('<span class="tag" id="39595_tag" aria-label="ГО">');
-
-        //expect(htmlIncludeColumn).toBeFalsy();
-        //expect(wrapper.html()).toMatchSnapshot();
-
-        //wrapper.instance().setTestFieldAsync('100');
-
-       // await waitForAsyncCondition(() => {return  wrapper.html().includes('востребования');}, 1000);
-       // console.log('testField', wrapper.instance().getTestField());
-/*
-        await waitForAsyncCondition(() => {
-                                                //var html='<span class="tag" id="39595_tag" aria-label="ГО">';
-                                                var testValue='199322';
-                                                //return html.includes('-199322.73')
-                                                return wrapper.html().includes(testValue)
-                                          }, 10000);
-
+            .then(() => null, () => fail("Renderer instance not created within expected time")
+            );
 */
-        //console.log(wrapper.html());
-    //
+
+        await waitForAsyncCondition(() => {return   wrapper.html().includes('5864755.22');},
+                                            1000);
+
+         expect(wrapper.html()).toMatchSnapshot();
     })
 
 
-/*
-    it('should do something', async function() {
-        jest.setTimeout(20000);
-        const wrapper = mount(<TabView />);
 
-        var myGrid = wrapper.find(Grid).instance();
-        //var AgGridReact = wrapper.find(AgGridReact).instance();
-        // don't start our tests until the grid is ready
-       // await ensureGridApiHasBeenSet(agGridReact).then(() => done(), () => fail("Grid API not set within expected time limits"));
+    //});
 
-       await waitForAsyncCondition(() => {
 
-                                            return myGrid.gridApi !== undefined
-                                            },
-                                    5);
-
-        wrapper.instance().loadNewSheet(6754, 'tree');
-
-        await waitForAsyncCondition(() => {
-                                                var html='<span>-199322.73</span>';
-                                                //return html.includes('-199322.73')
-                                                return wrapper.html().includes('2402')
-                                          }, 10000);
-
-//        console.log(wrapper.html());
-
-        //console.log(wrapper.html());
-        //component.render().find('.ag-cell-value').html().toEqual(`<span>-199322.73</span>`)
-        //console.log('agGridReact.api', agGridReact.api);
-        //wrapper.instance().loadNewSheet(2324, 'tree');
-        //console.log('after testGetPromise');
-        //wrapper.update();
-        //
-        //console.log('inst', wrapper.instance);
-        //expect(wrapper.instance().bar).toBe(100);
-        //expect(renderToJson(wrapper)).toMatchSnapshot();
-    });
-*/
 
 });

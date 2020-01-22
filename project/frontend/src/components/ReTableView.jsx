@@ -71,10 +71,7 @@ export default class ReTableView extends Component {
     }
 
     onToolbarPreferencesClick(){
-
-        this.loadData({}, true);
-        //this.setState({colorPanelVisible:true});
-
+        this.setState({colorPanelVisible:true});
     }
 
     loadData(parentNode, reload = false){
@@ -94,7 +91,8 @@ export default class ReTableView extends Component {
                 this.setState({rowData: data});
                 console.log('rowData.length', this.state.rowData.length);
 
-            });
+            })
+            .then(()=> this.sendRefreshData());
         //console.log('loadData', rowData);
     }
 
@@ -288,7 +286,10 @@ export default class ReTableView extends Component {
 
 
     onToolbarRefreshClick(){
-        this.sendRefreshGrid();
+        //this.sendRefreshGrid();
+         this.loadData({}, true);
+        //
+
     }
 
 
@@ -576,8 +577,7 @@ export default class ReTableView extends Component {
     }
 
     processNodeExpanding(parentNode){
-        this.loadData(parentNode)
-            .then(()=>this.sendRefreshData());
+        this.loadData(parentNode);
     }
 
     sendRefreshData(){

@@ -45,7 +45,6 @@ export class TableData {
 
                 data.forEach(
                     (row)=>{
-                        console.log('row', row);
                         this.rowData.push(row);
                         if (row.column_data){
                             var colData =  row.column_data;
