@@ -543,6 +543,7 @@ export default class ReTableView extends Component {
     }
 
     render(){
+
         return (
             <React.Fragment>
 
@@ -572,6 +573,8 @@ export default class ReTableView extends Component {
 
                             sheetSelection={false}
                             additionalToolbarItem={this.props.additionalToolbarItem}
+                            getMenuItems={this.props.getMenuItems}
+                            menuItemClick={(params)=>{console.log('menuItemClick', params);}}
                             />
 
 

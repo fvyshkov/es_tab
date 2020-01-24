@@ -85,8 +85,34 @@ export default class TableViewWithSelection extends Component {
         return httpStr;
     }
 
-    render(){
+    getMenuItems(){
+        var items = [{
+                                            id: '1_1',
+                                            name: 'HD Video Player',
+                                            price: 220,
+                                            icon: 'download',
+                                            items: [{
+                                                    name: 'HD Video Player',
+                                                    price: 220,
+                                                    icon: 'download'
+                                                  },
+                                                  {
+                                                    id: '1_1_2',
+                                                    name: 'HD ----- Video Player',
+                                                    price: 220,
+                                                    icon: 'filter'
+                                                  }]
+                                          },
+                                          {
+                                            id: '1_2',
+                                            name: 'HD ----- Video Player',
+                                            price: 220,
+                                            icon: 'filter'
+                                          }];
+        return items;
+    }
 
+    render(){
         return (
             <React.Fragment>
                 <ReTableView
@@ -100,6 +126,7 @@ export default class TableViewWithSelection extends Component {
                     onCellValueChanged={this.onCellValueChanged.bind(this)}
                     getDataRequestString={this.getDataRequestString.bind(this)}
                     getRowNodeId={(data)=>{return data.node_key;}}
+                    getMenuItems={this.getMenuItems}
                     additionalToolbarItem={()=>{return(
                                                         <SheetSelectDropDown
                                                             onSelectNewSheet={this.loadNewSheet.bind(this)}

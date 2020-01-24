@@ -110,8 +110,16 @@ export default class TableViewComment extends Component {
         console.log('onGetGridApi', this.gridApi);
     }
 
+    getMenuItems(){
+        var items = [{
+                        id: '1_1',
+                        name: 'Удалить все комментарии',
+                        price: 220,
+                        icon: 'download'}];
+        return items;
+    }
+
     render() {
-        console.log('render ', this.props);
         return (
             <div>
                 <CommentPanel
@@ -136,6 +144,7 @@ export default class TableViewComment extends Component {
                     onGetGridApi={this.onGetGridApi.bind(this)}
                     getDataRequestString={this.getDataRequestString.bind(this)}
                     getRowNodeId={(data)=>{return data.com_id;}}
+                    getMenuItems={this.getMenuItems}
 
                 />
             </div>

@@ -10,8 +10,10 @@ import { DropDownBox, TreeView } from 'devextreme-react';
 import ColorPanel from './ColorPanel.jsx';
 import './index.css';
 
+import { Menu, SelectBox, CheckBox } from 'devextreme-react';
 
-class SheetToolbar extends Component {
+
+export default class SheetToolbar extends Component {
 
     constructor(props) {
         super(props);
@@ -19,6 +21,14 @@ class SheetToolbar extends Component {
         this.state={
                     colorPanelVisible:false,
                    };
+
+        this.showFirstSubmenuModes = [{
+                                  name: 'onHover',
+                                  delay: { show: 0, hide: 500 }
+                                }, {
+                                  name: 'onClick',
+                                  delay: { show: 0, hide: 300 }
+                                }];
 
     }
 
@@ -68,6 +78,9 @@ class SheetToolbar extends Component {
     }
 
 
+    menuItemClick(params){
+        console.log('menuItemClick(params)', params);
+    }
 
     render(){
         return (
@@ -96,15 +109,55 @@ class SheetToolbar extends Component {
                     <Item location={'before'}
                     widget={'dxButton'}
                     options={this.refreshButtonOptions} />
+
                     <Item location={'before'}
                     widget={'dxButton'}
                     options={this.colorButtonOptions} />
+
+                    <Item location={'before'}
+                    render={()=>{
+                                var menuItems =[];
+                                if (this.props.getMenuItems){
+
+                                    menuItems = this.props.getMenuItems();
+                                    console.log('this.props.getMenuItems', this.props.getMenuItems);
+                                }
+
+                                if (menuItems.length>0){
+                                    return (
+                                        <Menu
+                                            dataSource={
+                                                [{id: '1',
+                                                name: 'Операции',
+                                                items: menuItems
+                                                }]
+                                                }
+
+                                            displayExpr="name"
+                                            showFirstSubmenuMode={this.showFirstSubmenuModes[0]}
+                                            orientation={'horizontal'}
+                                            submenuDirection={'auto'}
+                                            hideSubmenuOnMouseLeave={true}
+                                            onItemClick={this.props.menuItemClick}
+                                          />
+                                    );
+
+                                }else{
+                                    return null;
+                                    }
+                                }
+                          }
+                     />
+
+
                     <Item location={'before'}
                     cssClass={'ToolbarAdditionalItem'}
                     render={this.props.additionalToolbarItem} />
+
                     <Item location={'before'}
                     widget={'dxButton'}
                     options={this.closeButtonOptions} />
+
                 </Toolbar>
             </React.Fragment>
         );
@@ -112,4 +165,4 @@ class SheetToolbar extends Component {
 
 }
 
-export default SheetToolbar;
+
