@@ -9,6 +9,7 @@ import { sendRequest } from './App.js';
 import { DropDownBox, TreeView } from 'devextreme-react';
 import ColorPanel from './ColorPanel.jsx';
 import './index.css';
+import {processTree} from './esUtils.js';
 
 import { Menu, SelectBox, CheckBox } from 'devextreme-react';
 
@@ -128,6 +129,11 @@ export default class SheetToolbar extends Component {
                                         console.log('item.getDisabled!=', item.getDisabled());
                                         item['disabled'] = item.getDisabled();
                                     }
+
+                                    if (item.getVisible){
+                                       item['visible'] = item.getVisible();
+                                    }
+
                                 });
 
                                 if (menuItems.length>0){
@@ -173,14 +179,7 @@ export default class SheetToolbar extends Component {
 }
 
 
-function processTree(treeList, callbackForItem, childrenFieldName = 'items'){
-    for (var i=0; i < treeList.length; i++ ){
-        callbackForItem(treeList[i]);
-        if (treeList[i][childrenFieldName]){
-            processTree(treeList[i][childrenFieldName], callbackForItem);
-        }
-    }
-}
+
 
 
 

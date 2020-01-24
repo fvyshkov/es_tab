@@ -127,7 +127,22 @@ export default class TableViewWithSelection extends Component {
                                             name: 'Утверждение по выбранным аналитикам',
                                             onClick: ()=> this.confirm(),
                                             icon: 'check'
-                                          }];
+                                          },
+                                          {
+                                            id: '1_4',
+                                            name: 'Загрузка данных',
+                                            onClick: ()=> this.confirm(),
+                                            icon: 'download'
+                                          },
+                                          {
+                                            id: '1_5',
+                                            name: 'Сформировать потоки по графикам',
+                                            onClick: ()=> this.confirm(),
+                                            icon: 'datafield',
+                                            getVisible: ()=> { return this.state.sheet_id ? true: false;}
+                                          }
+
+                                          ];
         return items;
     }
 
