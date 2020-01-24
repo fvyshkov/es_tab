@@ -7,7 +7,9 @@ import TableViewSchedule from './TableViewSchedule.jsx';
 import TableViewFlow from './TableViewFlow.jsx';
 import notify from 'devextreme/ui/notify';
 import ColorPanel from './ColorPanel.jsx';
+import ReportDialog from './ReportDialog.jsx';
 import { sendRequest } from './App.js';
+import { getReport } from './getReport.js';
 import { sendRequestPromise } from './sendRequestPromise.js';
 import {TableData} from './tableData.js';
 
@@ -35,6 +37,9 @@ export default class ReTableView extends Component {
                                 }
                             ]
                       };
+
+        this.reportDialogParams = [];
+
 
         this.onToolbarPreferencesClick = this.onToolbarPreferencesClick.bind(this);
         this.onFilterPanelChange = this.onFilterPanelChange.bind(this);
@@ -366,6 +371,11 @@ export default class ReTableView extends Component {
                     action: this.showFlowForSkey.bind(this, params)
                     }
                 ]
+              },
+              "separator",
+              {
+                name: 'Отчет по расчету значения',
+                action: this.showCalcReport.bind(this, params)
               }
               ];
     }
@@ -387,6 +397,39 @@ export default class ReTableView extends Component {
 
             this.props.addElementToLayout(detailRender);
         }
+    }
+
+
+    getCellSkey(params){
+        //временное упрощение - будет работать правильно только если все аналитики выбираны на закладке "аналитики"
+        //и только на МП (о табличных листах, не говоря уже о прочих датасетах подумаем позже)
+        var skey = this.getFilterSkey();
+        skey += params.column.colId + ',' + params.node.data.node_key;
+        return skey;
+    }
+
+    downloadFile(dataurl) {
+      var a = document.createElement("a");
+      a.href = dataurl;
+      a.click();
+    }
+
+    showCalcReport(params){
+
+        this.reportDialogParams = [
+            //то что должен установить пользователь
+            {dataField:"SHOW_PF", label:"Потоки платежей", editorType:"dxCheckBox", value:false, visible: true},
+            {dataField:"SHOW_DTL", label:"Детализация", editorType:"dxCheckBox", value:false, visible: true},
+            {dataField:"SHOW_DM", label:"Данные витрин", editorType:"dxCheckBox", value:false, visible: true},
+            //прочие параметры отчета
+            {dataField:"P_IND_ID", value: params.node.data.ind_id, visible: false},
+            {dataField:"P_SKEY", value: this.getCellSkey(params), visible: false},
+            {dataField:"P_SHT_ID", value: this.props.additionalSheetParams.sht_id, visible: false},
+        ];
+        this.reportCode = 'C_ES_CALC_STEPS';
+        this.reportTitle="Отчет по расчету значения";
+        this.setState({reportDialogVisible:true});
+
     }
 
     showScheduleForRow(params){
@@ -503,6 +546,14 @@ export default class ReTableView extends Component {
         return (
             <React.Fragment>
 
+                <ReportDialog
+                    dialogParams={this.reportDialogParams}
+                    reportCode={this.reportCode}
+                    popupVisible={this.state.reportDialogVisible}
+                    reportTitle={this.reportTitle}
+                    onDialogClose={()=>{this.setState({reportDialogVisible:false});}}
+
+                />
                 <ColorPanel
                     popupVisible={this.state.colorPanelVisible}
                     sendColorPanelClose={this.onColorPanelClose}

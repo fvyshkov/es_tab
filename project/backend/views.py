@@ -32,6 +32,20 @@ def get_file(request):
     response['Content-Disposition'] = 'attachment; filename="'+filename+'"'
     return response
 
+def get_report(request):
+    from urllib.request import urlopen
+    print('rptParams', dict(request.GET).get('params', [''])[0])
+    url = 'http://127.0.0.1:8001/rpt/?params='+ dict(request.GET).get('params', [''])[0]
+    #{%22DBG%22:%221%22,%20%22RPT_CODE%22:%22ES$RPT_500%22,%22PARAMS%22:{}}'
+    report_data = urlopen(url).read()
+
+
+    response = HttpResponse(report_data, content_type='application/octet-stream')
+    response['Content-Disposition'] = 'attachment; filename="' + 'REPORT.xml' + '"'
+    return response
+
+
+
 
 def upload_file(request):
     file = request.FILES['files[]']

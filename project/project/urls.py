@@ -42,6 +42,7 @@ urlpatterns = [
     path('get_schedule/', views.get_schedule_rows),
     path('get_flow/', views.get_flow_rows),
     path('scoring_form/', views.scoring_form),
+    path('get_report/', views.get_report),
 
 
     path('', include('frontend.urls')),
