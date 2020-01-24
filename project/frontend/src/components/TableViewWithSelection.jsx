@@ -17,6 +17,8 @@ export default class TableViewWithSelection extends Component {
                         sheet_type:''
                       };
 
+        this.confirm = this.confirm.bind(this);
+
     }
 
     sendLoadAll(){
@@ -85,29 +87,46 @@ export default class TableViewWithSelection extends Component {
         return httpStr;
     }
 
+    recalc(component, recalcType){
+        console.log('recalc', component, recalcType);
+    }
+
+    confirm(){
+        console.log('confirm this=', this);
+    }
+
     getMenuItems(){
+
         var items = [{
                                             id: '1_1',
-                                            name: 'HD Video Player',
-                                            price: 220,
-                                            icon: 'download',
+                                            name: 'Пересчет',
+                                            icon: 'smalliconslayout',
                                             items: [{
-                                                    name: 'HD Video Player',
-                                                    price: 220,
-                                                    icon: 'download'
+                                                    name: 'Пересчет устаревших значений по выбранным аналитикам',
+                                                    icon : 'filter',
+                                                    onClick: ()=> this.recalc(this, 'old'),
+                                                    getDisabled: ()=> { return this.state.sheet_id ? false: true;}
+
+
                                                   },
                                                   {
                                                     id: '1_1_2',
-                                                    name: 'HD ----- Video Player',
-                                                    price: 220,
-                                                    icon: 'filter'
+                                                    name: 'Пересчет выделенного диапазона',
+                                                    icon: 'fieldchooser',
+                                                    onClick: ()=> this.recalc(this,'selected')
+                                                  },
+                                                  {
+                                                    id: '1_1_3',
+                                                    name: 'Полный пересчет листа',
+                                                    icon : 'repeat',
+                                                    onClick: ()=> this.recalc(this,'full')
                                                   }]
                                           },
                                           {
                                             id: '1_2',
-                                            name: 'HD ----- Video Player',
-                                            price: 220,
-                                            icon: 'filter'
+                                            name: 'Утверждение по выбранным аналитикам',
+                                            onClick: ()=> this.confirm(),
+                                            icon: 'check'
                                           }];
         return items;
     }
@@ -126,7 +145,7 @@ export default class TableViewWithSelection extends Component {
                     onCellValueChanged={this.onCellValueChanged.bind(this)}
                     getDataRequestString={this.getDataRequestString.bind(this)}
                     getRowNodeId={(data)=>{return data.node_key;}}
-                    getMenuItems={this.getMenuItems}
+                    getMenuItems={this.getMenuItems.bind(this)}
                     additionalToolbarItem={()=>{return(
                                                         <SheetSelectDropDown
                                                             onSelectNewSheet={this.loadNewSheet.bind(this)}
@@ -141,5 +160,7 @@ export default class TableViewWithSelection extends Component {
     }
 
 }
+
+
 
 

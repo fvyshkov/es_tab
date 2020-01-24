@@ -79,7 +79,7 @@ export default class SheetToolbar extends Component {
 
 
     menuItemClick(params){
-        console.log('menuItemClick(params)', params);
+        //console.log('menuItemClick(params)', params);
     }
 
     render(){
@@ -123,6 +123,13 @@ export default class SheetToolbar extends Component {
                                     console.log('this.props.getMenuItems', this.props.getMenuItems);
                                 }
 
+                                processTree(menuItems, (item)=>{
+                                    if (item.getDisabled){
+                                        console.log('item.getDisabled!=', item.getDisabled());
+                                        item['disabled'] = item.getDisabled();
+                                    }
+                                });
+
                                 if (menuItems.length>0){
                                     return (
                                         <Menu
@@ -138,7 +145,7 @@ export default class SheetToolbar extends Component {
                                             orientation={'horizontal'}
                                             submenuDirection={'auto'}
                                             hideSubmenuOnMouseLeave={true}
-                                            onItemClick={this.props.menuItemClick}
+                                            onItemClick={this.menuItemClick}
                                           />
                                     );
 
@@ -164,5 +171,16 @@ export default class SheetToolbar extends Component {
     }
 
 }
+
+
+function processTree(treeList, callbackForItem, childrenFieldName = 'items'){
+    for (var i=0; i < treeList.length; i++ ){
+        callbackForItem(treeList[i]);
+        if (treeList[i][childrenFieldName]){
+            processTree(treeList[i][childrenFieldName], callbackForItem);
+        }
+    }
+}
+
 
 
