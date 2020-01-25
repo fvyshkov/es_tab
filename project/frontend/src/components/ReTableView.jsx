@@ -343,190 +343,24 @@ export default class ReTableView extends Component {
         return httpStr;
     }
 
+/*
+    getContextMenuItems(params) {
 
-    getContextMenuItems(params){
+        var result = [
+            ...this.props.getContextMenuItems(params),
+            "separator",
+            "expandAll",
+            "copyWithHeadersCopy",
+            "export",
+            "chartRange"
 
-
-        return  [{
-                name: 'Детализация <b>[' + params.column.colDef.headerName+']</b>',
-                action: this.showDetailForCell.bind(this, params)
-              },
-              {
-                name: 'Комментарии по значению',
-                action: this.showCommentForCell.bind(this, params)
-              },
-              {
-                name: 'Графики',
-                action: this.showScheduleForRow.bind(this, params)
-              },
-              {
-                name: 'Потоки платежей',
-                subMenu:[
-                    {
-                    name: 'По выбранной записи',
-                    action: this.showFlowForRow.bind(this, params)
-                    },
-                    {
-                    name: 'Все потоки (по выбранным значениям аналитик)',
-                    action: this.showFlowForSkey.bind(this, params)
-                    }
-                ]
-              },
-              "separator",
-              {
-                name: 'Отчет по расчету значения',
-                action: this.showCalcReport.bind(this, params)
-              }
-              ];
-    }
-
-    showDetailForCell(params){
-        console.log('showDetailForCell', params);
-        if (this.props.addElementToLayout){
-            var newLayoutItemID = this.props.getNewLayoutItemID();
-            console.log('newLayoutItemID=', newLayoutItemID);
-            var detailRender =  <ReTableView
-                                additionalSheetParams={{
-                                                            parent_id:params.node.data.id,
-                                                            ind_id:params.column.colDef.ind_id,
-                                                            sht_id: this.props.additionalSheetParams.sht_id
-                                                            }}
-                                onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
-                                layoutItemID={newLayoutItemID}
-                                />;
-
-            this.props.addElementToLayout(detailRender);
-        }
-    }
-
-
-    getCellSkey(params){
-        //временное упрощение - будет работать правильно только если все аналитики выбираны на закладке "аналитики"
-        //и только на МП (о табличных листах, не говоря уже о прочих датасетах подумаем позже)
-        var skey = this.getFilterSkey();
-        skey += params.column.colId + ',' + params.node.data.node_key;
-        return skey;
-    }
-
-    downloadFile(dataurl) {
-      var a = document.createElement("a");
-      a.href = dataurl;
-      a.click();
-    }
-
-    showCalcReport(params){
-
-        this.reportDialogParams = [
-            //то что должен установить пользователь
-            {dataField:"SHOW_PF", label:"Потоки платежей", editorType:"dxCheckBox", value:false, visible: true},
-            {dataField:"SHOW_DTL", label:"Детализация", editorType:"dxCheckBox", value:false, visible: true},
-            {dataField:"SHOW_DM", label:"Данные витрин", editorType:"dxCheckBox", value:false, visible: true},
-            //прочие параметры отчета
-            {dataField:"P_IND_ID", value: params.node.data.ind_id, visible: false},
-            {dataField:"P_SKEY", value: this.getCellSkey(params), visible: false},
-            {dataField:"P_SHT_ID", value: this.props.additionalSheetParams.sht_id, visible: false},
         ];
-        this.reportCode = 'C_ES_CALC_STEPS';
-        this.reportTitle="Отчет по расчету значения";
-        this.setState({reportDialogVisible:true});
+        return result;
+      }
+      */
 
-    }
 
-    showScheduleForRow(params){
-        console.log('showDetailForCell req_id', params.node.data.id);
-        if (this.props.addElementToLayout){
-            var newLayoutItemID = this.props.getNewLayoutItemID();
-            console.log('newLayoutItemID=', newLayoutItemID);
-            var detailRender =  <TableViewSchedule
-                                additionalSheetParams={{sht_id: this.props.additionalSheetParams.sht_id, req_id:params.node.data.id, dop: params.node.data.dop}}
-                                onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
-                                layoutItemID={newLayoutItemID}
-                                />;
 
-            this.props.addElementToLayout(detailRender);
-        }
-    }
-
-    showFlowForRow(params){
-        this.showFlow(params, true);
-    }
-
-    showFlowForSkey(params){
-        this.showFlow(params, false);
-    }
-
-    showFlow(params, oneRow){
-        console.log('showFlowForRow req_id', params.node.data.id);
-        if (this.props.addElementToLayout){
-            var newLayoutItemID = this.props.getNewLayoutItemID();
-            console.log('newLayoutItemID=', newLayoutItemID);
-
-            var dopString = '';
-
-            if (params.node.data.dop){
-                var dop = new Date(params.node.data.dop);
-                var dopString = dop.getDate().toString().padStart(2,'0')  + '.' +
-                                (dop.getMonth()+1).toString().padStart(2,'0') + '.' +
-                                dop.getFullYear();
-
-            }
-
-            var detailRender =  <TableViewFlow
-                                additionalSheetParams={{
-                                                        sht_id: this.props.additionalSheetParams.sht_id,
-                                                        req_id: oneRow ? params.node.data.id : '',
-                                                        dop: dopString,
-                                                        skey: this.getFilterSkey()}}
-                                onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
-                                layoutItemID={newLayoutItemID}
-                                />;
-
-            this.props.addElementToLayout(detailRender);
-        }
-    }
-
-    showCommentForCell(params){
-        console.log('showCommentForCell new ', params);
-        var columnData = getColumnData(params);
-        if (this.props.addElementToLayout){
-            var newLayoutItemID = this.props.getNewLayoutItemID();
-
-            var skey='';
-
-            /*
-                пока все неправильно,
-                работать будет только если все аналитики выбраны,
-                а тут отсекаем аналитику "показатель",
-                потому что с ней пока не работает.
-                кроме того, работает только на МП
-                */
-            skey = this.getFilterSkey();
-            skey += columnData.key;
-
-            console.log('showCommentForCell=', columnData);
-            console.log('showCommentForCell(params)', params);
-
-            var additionalParams = {
-                                    viewType: 'CommentView',
-                                    ind_id: columnData.ind_id,
-                                    skey: skey,
-                                    sheet_path: 'sheetInfoDummy',//this.state.sheetInfo.sheet_path,
-                                    flt_dscr: columnData['flt_dscr']
-                                   };
-
-            if (columnData.req_id){
-                additionalParams['req_id'] = columnData.req_id;
-            }
-
-            var detailRender =  <TableViewComment
-                                additionalSheetParams={additionalParams}
-                                onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
-                                layoutItemID={newLayoutItemID}
-                                />;
-
-            this.props.addElementToLayout(detailRender);
-        }
-    }
 
     processNodeExpanding(parentNode){
         if (parentNode.node.expanded && !this.tableData.loadedNodes.includes(parentNode.node.data.node_key)){
@@ -547,14 +381,7 @@ export default class ReTableView extends Component {
         return (
             <React.Fragment>
 
-                <ReportDialog
-                    dialogParams={this.reportDialogParams}
-                    reportCode={this.reportCode}
-                    popupVisible={this.state.reportDialogVisible}
-                    reportTitle={this.reportTitle}
-                    onDialogClose={()=>{this.setState({reportDialogVisible:false});}}
 
-                />
                 <ColorPanel
                     popupVisible={this.state.colorPanelVisible}
                     sendColorPanelClose={this.onColorPanelClose}
@@ -581,12 +408,13 @@ export default class ReTableView extends Component {
 
                             <ReGrid
                                 rowData={this.state.rowData}
-                                getContextMenuItems={this.getContextMenuItems.bind(this)}
+                                getContextMenuItems={this.props.getContextMenuItems}
                                 getColumnsListRequestString={this.getColumnsListRequestString.bind(this)}
                                 sendRefreshGrid={click => this.sendRefreshGrid = click}
                                 sendBeforeCloseToGrid={click => this.sendBeforeCloseToGrid = click}
                                 sendUndoToGrid={click => this.sendUndoToGrid = click}
                                 skey={this.getFilterSkey}
+                                getFilterSkey={this.getFilterSkey}
                                 onFilterPanelChange={this.onFilterPanelChange}
                                 selectedFilterNodes={this.state.selectedFilterNodes}
                                 filterNodes={this.state.filterNodes}
@@ -684,30 +512,7 @@ function markSelectedFilterNodes(nodes, selected){
 }
 
 
-function getColumnData(params){
-    var columnDataList = [];
-    var colDefField = '';
 
-    if (params.node && params.node.data &&  params.node.data.column_data){
-        columnDataList = params.node.data.column_data;
-        colDefField = params.column.colDef.field;
-    }else if(params.rowIndex){
-        columnDataList = params.api.getDisplayedRowAtIndex(params.rowIndex).data.column_data;
-        colDefField = params.colDef.field;
-    }else if (params.data && params.colDef) {
-        columnDataList = params.data.column_data;
-        colDefField = params.colDef.field;
-    }
-
-
-    for(var i=0; i< columnDataList.length; i++){
-        if (columnDataList[i].key===colDefField){
-            return columnDataList[i];
-        }
-    }
-
-    return null;
-}
 
 
 

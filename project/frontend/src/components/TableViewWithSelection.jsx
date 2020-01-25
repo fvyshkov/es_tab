@@ -6,7 +6,21 @@ import ReTableView from './ReTableView.jsx';
 import SheetSelectDropDown from './SheetSelectDropDown.jsx';
 import { sendRequestPromise } from './sendRequestPromise.js';
 import notify from 'devextreme/ui/notify';
+import {getFilterSkeyByCell} from './esUtils.js';
 
+import TableViewComment from './TableViewComment.jsx';
+
+import TableViewSchedule from './TableViewSchedule.jsx';
+import TableViewFlow from './TableViewFlow.jsx';
+
+import ReportDialog from './ReportDialog.jsx';
+import { getReport } from './getReport.js';
+
+/*
+import { sendRequest } from './App.js';
+import notify from 'devextreme/ui/notify';
+import ColorPanel from './ColorPanel.jsx';
+*/
 
 export default class TableViewWithSelection extends Component {
 
@@ -16,10 +30,12 @@ export default class TableViewWithSelection extends Component {
                         sheet_id: 0,
                         sheet_type:''
                       };
+        this.reportDialogParams = [];
 
         this.confirm = this.confirm.bind(this);
 
     }
+
 
     sendLoadAll(){
     }
@@ -40,9 +56,8 @@ export default class TableViewWithSelection extends Component {
 
     onCellValueChanged(params){
         if (this.state.sheet_type==='tree'){
-            console.log('change val tree', this.getFilterSkey(), params.data.node_key, params.colDef.field);
             sendRequestPromise('update_tree_record/?sht_id='+this.state.sheet_id+
-                                '&skey='+this.getFilterSkey()+
+                                '&skey='+getFilterSkeyByCell(params)+
                                 '&cell_skey='+params.data.node_key +','+ params.colDef.field +
                             '&ind_id='+params.data.ind_id + '&value='+params.value
 
@@ -140,17 +155,219 @@ export default class TableViewWithSelection extends Component {
                                             onClick: ()=> this.confirm(),
                                             icon: 'datafield',
                                             getVisible: ()=> { return this.state.sheet_id ? true: false;}
+                                          },
+                                          {
+                                            id: '1_5',
+                                            name: 'Отчеты',
+                                            onClick: ()=> this.showReportList(),
+                                            icon: 'detailslayout',
+                                            getVisible: ()=> { return this.state.sheet_id ? true: false;}
+
                                           }
 
                                           ];
         return items;
     }
 
+
+    getContextMenuItems(params){
+
+
+        return  [{
+                name: 'Детализация <b>[' + params.column.colDef.headerName+']</b>',
+                action: this.showDetailForCell.bind(this, params)
+              },
+              {
+                name: 'Комментарии по значению',
+                action: this.showCommentForCell.bind(this, params)
+              },
+              {
+                name: 'Графики',
+                action: this.showScheduleForRow.bind(this, params)
+              },
+              {
+                name: 'Потоки платежей',
+                subMenu:[
+                    {
+                    name: 'По выбранной записи',
+                    action: this.showFlowForRow.bind(this, params)
+                    },
+                    {
+                    name: 'Все потоки (по выбранным значениям аналитик)',
+                    action: this.showFlowForSkey.bind(this, params)
+                    }
+                ]
+              },
+              "separator",
+              {
+                name: 'Отчет по расчету значения',
+                action: this.showCalcReport.bind(this, params)
+              }
+              ];
+    }
+
+
+
+showDetailForCell(params){
+        console.log('showDetailForCell', params);
+        if (this.props.addElementToLayout){
+            var newLayoutItemID = this.props.getNewLayoutItemID();
+            console.log('newLayoutItemID=', newLayoutItemID);
+            var detailRender =  <ReTableView
+                                additionalSheetParams={{
+                                                            parent_id:params.node.data.id,
+                                                            ind_id:params.column.colDef.ind_id,
+                                                            sht_id: this.state.sheet_id
+                                                            }}
+                                onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
+                                layoutItemID={newLayoutItemID}
+                                />;
+
+            this.props.addElementToLayout(detailRender);
+        }
+    }
+
+
+    getCellSkey(params){
+
+        //временное упрощение - будет работать правильно только если все аналитики выбираны на закладке "аналитики"
+        //и только на МП (о табличных листах, не говоря уже о прочих датасетах подумаем позже)
+        var skey = getFilterSkeyByCell(params);
+        skey += params.column.colId + ',' + params.node.data.node_key;
+        return skey;
+    }
+
+    showCalcReport(params){
+
+        console.log('report this.state.sheet_id', this.state.sheet_id);
+        this.reportDialogParams = [
+            //то что должен установить пользователь
+            {dataField:"SHOW_PF", label:"Потоки платежей", editorType:"dxCheckBox", value:false, visible: true},
+            {dataField:"SHOW_DTL", label:"Детализация", editorType:"dxCheckBox", value:false, visible: true},
+            {dataField:"SHOW_DM", label:"Данные витрин", editorType:"dxCheckBox", value:false, visible: true},
+            //прочие параметры отчета
+            {dataField:"P_IND_ID", value: params.node.data.ind_id, visible: false},
+            {dataField:"P_SKEY", value: this.getCellSkey(params), visible: false},
+            {dataField:"P_SHT_ID", value: this.state.sheet_id, visible: false},
+        ];
+        this.reportCode = 'C_ES_CALC_STEPS';
+        this.reportTitle="Отчет по расчету значения";
+        this.setState({reportDialogVisible:true});
+
+    }
+
+    showScheduleForRow(params){
+        console.log('showDetailForCell req_id', params.node.data.id);
+        if (this.props.addElementToLayout){
+            var newLayoutItemID = this.props.getNewLayoutItemID();
+            console.log('newLayoutItemID=', newLayoutItemID);
+            var detailRender =  <TableViewSchedule
+                                additionalSheetParams={{sht_id: this.state.sheet_id, req_id:params.node.data.id, dop: params.node.data.dop}}
+                                onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
+                                layoutItemID={newLayoutItemID}
+                                />;
+
+            this.props.addElementToLayout(detailRender);
+        }
+    }
+
+    showFlowForRow(params){
+        this.showFlow(params, true);
+    }
+
+    showFlowForSkey(params){
+        this.showFlow(params, false);
+    }
+
+    showFlow(params, oneRow){
+        console.log('showFlowForRow req_id', params.node.data.id);
+        if (this.props.addElementToLayout){
+            var newLayoutItemID = this.props.getNewLayoutItemID();
+            console.log('newLayoutItemID=', newLayoutItemID);
+
+            var dopString = '';
+
+            if (params.node.data.dop){
+                var dop = new Date(params.node.data.dop);
+                var dopString = dop.getDate().toString().padStart(2,'0')  + '.' +
+                                (dop.getMonth()+1).toString().padStart(2,'0') + '.' +
+                                dop.getFullYear();
+
+            }
+
+            var detailRender =  <TableViewFlow
+                                additionalSheetParams={{
+                                                        sht_id: this.state.sheet_id,
+                                                        req_id: oneRow ? params.node.data.id : '',
+                                                        dop: dopString,
+                                                        skey: getFilterSkeyByCell(params)}}
+                                onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
+                                layoutItemID={newLayoutItemID}
+                                />;
+
+            this.props.addElementToLayout(detailRender);
+        }
+    }
+
+    showCommentForCell(params){
+        console.log('showCommentForCell new ', params);
+        var columnData = getColumnData(params);
+        if (this.props.addElementToLayout){
+            var newLayoutItemID = this.props.getNewLayoutItemID();
+
+            var skey='';
+
+            /*
+                пока все неправильно,
+                работать будет только если все аналитики выбраны,
+                а тут отсекаем аналитику "показатель",
+                потому что с ней пока не работает.
+                кроме того, работает только на МП
+                */
+            skey = getFilterSkeyByCell(params);
+            skey += columnData.key;
+
+            console.log('showCommentForCell=', columnData);
+            console.log('showCommentForCell(params)', params);
+
+            var additionalParams = {
+                                    viewType: 'CommentView',
+                                    ind_id: columnData.ind_id,
+                                    skey: skey,
+                                    sheet_path: 'sheetInfoDummy',//this.state.sheetInfo.sheet_path,
+                                    flt_dscr: columnData['flt_dscr']
+                                   };
+
+            if (columnData.req_id){
+                additionalParams['req_id'] = columnData.req_id;
+            }
+
+            var detailRender =  <TableViewComment
+                                additionalSheetParams={additionalParams}
+                                onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
+                                layoutItemID={newLayoutItemID}
+                                />;
+
+            this.props.addElementToLayout(detailRender);
+        }
+    }
+
     render(){
         return (
             <React.Fragment>
+
+            <ReportDialog
+                    dialogParams={this.reportDialogParams}
+                    reportCode={this.reportCode}
+                    popupVisible={this.state.reportDialogVisible}
+                    reportTitle={this.reportTitle}
+                    onDialogClose={()=>{this.setState({reportDialogVisible:false});}}
+
+                />
+
                 <ReTableView
                     sendLoadAll={click => this.sendLoadAll = click}
+                    getContextMenuItems={this.getContextMenuItems.bind(this)}
                     onInsertCallback={this.onInsertCallback.bind(this)}
                     getFilterData={this.getFilterData.bind(this)}
                     additionalSheetParams={{sht_id: this.state.sheet_id, sheet_type: this.state.sheet_type}}
@@ -174,6 +391,32 @@ export default class TableViewWithSelection extends Component {
         );
     }
 
+}
+
+
+function getColumnData(params){
+    var columnDataList = [];
+    var colDefField = '';
+
+    if (params.node && params.node.data &&  params.node.data.column_data){
+        columnDataList = params.node.data.column_data;
+        colDefField = params.column.colDef.field;
+    }else if(params.rowIndex){
+        columnDataList = params.api.getDisplayedRowAtIndex(params.rowIndex).data.column_data;
+        colDefField = params.colDef.field;
+    }else if (params.data && params.colDef) {
+        columnDataList = params.data.column_data;
+        colDefField = params.colDef.field;
+    }
+
+
+    for(var i=0; i< columnDataList.length; i++){
+        if (columnDataList[i].key===colDefField){
+            return columnDataList[i];
+        }
+    }
+
+    return null;
 }
 
 

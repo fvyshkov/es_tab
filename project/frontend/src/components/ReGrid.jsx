@@ -403,6 +403,8 @@ export default class ReGrid extends React.Component {
         }
     }
 
+
+
   render() {
         console.log('render regrid this.state.gridKey', this.state.gridKey);
         //rowModelType={this.state.rowModelType}
@@ -445,6 +447,8 @@ export default class ReGrid extends React.Component {
                             onFirstDataRendered={this.onFirstDataRendered.bind(this)}
                             enableRangeSelection={true}
                             enableCharts={true}
+
+                            gridOptions={{context: { getFilterSkey: this.props.getFilterSkey }}}
 
                             onFilterPanelChange={this.props.onFilterPanelChange}
                             selectedFilterNodes={this.props.selectedFilterNodes}

@@ -9,6 +9,7 @@ export default class SheetCellTooltip extends Component {
     render() {
         //const data = this.props.api.getDisplayedRowAtIndex(this.props.rowIndex).data;
         //console.log('tooltip' , this.props);
+            return null;
 
         return (
             <div className="custom-tooltip" style={{backgroundColor: this.props.color || '#eff5b8'}}>
