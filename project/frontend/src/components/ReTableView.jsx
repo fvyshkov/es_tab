@@ -151,6 +151,9 @@ export default class ReTableView extends Component {
 
         this.setState({filterNodes: newFilterNodes});
 
+        if (this.props.onFilterNodesChange){
+            this.props.onFilterNodesChange(this.state.filterNodes);
+        }
     }
 
 
@@ -163,6 +166,9 @@ export default class ReTableView extends Component {
                 var markedNodes = markSelectedFilterNodes(this.state.filterNodes, selectedNodes);
                 this.setState({filterNodes: markedNodes});
             }
+
+
+
 
             this.setState({columnStates: viewState[0].columnstates});
 
@@ -185,8 +191,13 @@ export default class ReTableView extends Component {
 
 
     onFilterPanelChange(selectedNodes, allNodes, filterID){
+        console.log('onFilterPanelChange selectedNodes', selectedNodes);
         this.state.filterNodes[filterID].filter_node_list = allNodes;
         this.setState({filterNodes : this.state.filterNodes});
+
+        if (this.props.onFilterNodesChange){
+            this.props.onFilterNodesChange(this.state.filterNodes);
+        }
     }
 
     getFilterSkey(){
@@ -342,23 +353,6 @@ export default class ReTableView extends Component {
         }
         return httpStr;
     }
-
-/*
-    getContextMenuItems(params) {
-
-        var result = [
-            ...this.props.getContextMenuItems(params),
-            "separator",
-            "expandAll",
-            "copyWithHeadersCopy",
-            "export",
-            "chartRange"
-
-        ];
-        return result;
-      }
-      */
-
 
 
 

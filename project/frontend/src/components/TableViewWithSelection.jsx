@@ -17,6 +17,7 @@ import ReportDialog from './ReportDialog.jsx';
 import { getReport } from './getReport.js';
 
 import CommentPanel from './CommentPanel.jsx';
+import {processTree} from './esUtils.js';
 
 /*
 import { sendRequest } from './App.js';
@@ -32,6 +33,7 @@ export default class TableViewWithSelection extends Component {
                         sheet_id: 0,
                         sheet_type:'',
                         confirmPanelVisible: false,
+                        filterNodes: [],
                         confirmData: {
                                     sheet_name: "",
                                     flt_dsrc: "",
@@ -118,9 +120,28 @@ export default class TableViewWithSelection extends Component {
     }
 
     confirm(){
+        var filterDscr='';
+
+        console.log('confirm', this.state.filterNodes);
+
+        for (var filterId in this.state.filterNodes){
+            processTree(this.state.filterNodes[filterId]['filter_node_list'],
+                        (item) =>
+                        {
+                               console.log('item', item);
+                               if (item.checked){
+                                    filterDscr += this.state.filterNodes[filterId].name + ' = ' + item.name+'\n';
+                               }
+                        },
+                        'children'
+            );
+        }
+
+        console.log('confirm filterDscr', filterDscr);
+
         this.setState({confirmData: {
                                     sheet_name: this.state.sheet_path,
-                                    flt_dscr: 'dummyFlt',//this.props.additionalSheetParams.flt_dscr,
+                                    flt_dscr: filterDscr,
                                     prim:"",
                                     correctdt : "",
                                     fileList:[],
@@ -403,6 +424,11 @@ showDetailForCell(params){
         this.setState({confirmPanelVisible: false});
     }
 
+    onFilterNodesChange(nodes){
+        console.log('onFilterNodesChange', nodes);
+        this.setState({filterNodes: nodes});
+    }
+
     render(){
         return (
             <React.Fragment>
@@ -440,6 +466,7 @@ showDetailForCell(params){
                     getDataRequestString={this.getDataRequestString.bind(this)}
                     getRowNodeId={(data)=>{return data.node_key;}}
                     getMenuItems={this.getMenuItems.bind(this)}
+                    onFilterNodesChange={this.onFilterNodesChange.bind(this)}
                     additionalToolbarItem={()=>{return(
                                                         <SheetSelectDropDown
                                                             onSelectNewSheet={this.loadNewSheet.bind(this)}
