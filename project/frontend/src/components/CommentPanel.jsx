@@ -53,7 +53,7 @@ export default class CommentPanel extends React.Component {
           dragEnabled={true}
           closeOnOutsideClick={true}
           showTitle={true}
-          title="Комментарий по значению"
+          title={this.props.title}
 
 
           toolbarItems={this.toolbarItems}

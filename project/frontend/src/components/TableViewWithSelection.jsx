@@ -16,6 +16,8 @@ import TableViewFlow from './TableViewFlow.jsx';
 import ReportDialog from './ReportDialog.jsx';
 import { getReport } from './getReport.js';
 
+import CommentPanel from './CommentPanel.jsx';
+
 /*
 import { sendRequest } from './App.js';
 import notify from 'devextreme/ui/notify';
@@ -28,7 +30,16 @@ export default class TableViewWithSelection extends Component {
         super(props);
         this.state={
                         sheet_id: 0,
-                        sheet_type:''
+                        sheet_type:'',
+                        confirmPanelVisible: false,
+                        confirmData: {
+                                    sheet_name: "",
+                                    flt_dsrc: "",
+                                    prim: "",
+                                    correctdt : "",
+                                    fileIds: "",
+                                    fileList:[]
+                                  }
                       };
         this.reportDialogParams = [];
 
@@ -45,9 +56,9 @@ export default class TableViewWithSelection extends Component {
         return sendRequestPromise('sht_filters/?sht_id='+this.state.sheet_id);
     }
 
-    loadNewSheet(prm_sheet_id, prm_sheet_type){
-        this.setState({sheet_id: prm_sheet_id, sheet_type: prm_sheet_type});
-        this.sendLoadAll(prm_sheet_id, prm_sheet_type);
+    loadNewSheet(sheet){
+        this.setState({sheet_id: sheet.id, sheet_type: sheet.sheet_type, sheet_path: sheet.sheet_path});
+        this.sendLoadAll(sheet.id, sheet.sheet_type);
     }
 
     getViewUserPreferences(){
@@ -107,7 +118,18 @@ export default class TableViewWithSelection extends Component {
     }
 
     confirm(){
-        console.log('confirm this=', this);
+        this.setState({confirmData: {
+                                    sheet_name: this.state.sheet_path,
+                                    flt_dscr: 'dummyFlt',//this.props.additionalSheetParams.flt_dscr,
+                                    prim:"",
+                                    correctdt : "",
+                                    fileList:[],
+                                    fileIds :"",
+
+                                  }
+                                 });
+
+        this.setState({confirmPanelVisible: true});
     }
 
     getMenuItems(){
@@ -167,6 +189,26 @@ export default class TableViewWithSelection extends Component {
 
                                           ];
         return items;
+    }
+
+
+
+    onFileValueChanged(e){
+        console.log('onFileValueChanged', e);
+        this.state.confirmData.fileList = e.previousValue;
+        this.setState({confirmData: this.state.confirmData});
+
+
+    }
+
+    onFileUploaded(e){
+
+        var responseObject = JSON.parse(e.request.response);
+        if (responseObject.length===1){
+            this.state.confirmData.fileIds += responseObject[0]['file_id'] + ',';
+            this.setState({confirmData: this.state.confirmData});
+        }
+
     }
 
 
@@ -334,7 +376,7 @@ showDetailForCell(params){
                                     viewType: 'CommentView',
                                     ind_id: columnData.ind_id,
                                     skey: skey,
-                                    sheet_path: 'sheetInfoDummy',//this.state.sheetInfo.sheet_path,
+                                    sheet_path: this.state.sheet_path,
                                     flt_dscr: columnData['flt_dscr']
                                    };
 
@@ -352,9 +394,29 @@ showDetailForCell(params){
         }
     }
 
+    onConfirmPanelClose(){
+        this.setState({confirmPanelVisible: false});
+    }
+
+    saveConfirm(){
+        console.log('saveConfirm!', this.state.confirmData);
+        this.setState({confirmPanelVisible: false});
+    }
+
     render(){
         return (
             <React.Fragment>
+
+
+            <CommentPanel
+                    title={"Утверждение"}
+                    popupVisible={this.state.confirmPanelVisible}
+                    sendItemPanelClose={this.onConfirmPanelClose.bind(this)}
+                    commentData={this.state.confirmData}
+                    saveData={this.saveConfirm.bind(this)}
+                    onFileValueChanged={this.onFileValueChanged.bind(this)}
+                    onFileUploaded={this.onFileUploaded.bind(this)}
+                />
 
             <ReportDialog
                     dialogParams={this.reportDialogParams}

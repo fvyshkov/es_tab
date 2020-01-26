@@ -123,6 +123,7 @@ export default class TableViewComment extends Component {
         return (
             <div>
                 <CommentPanel
+                    title={"Комментарий по значению"}
                     popupVisible={this.state.itemPanelVisible}
                     sendItemPanelClose={this.onItemPanelClose.bind(this)}
                     commentData={this.state.currentComment}

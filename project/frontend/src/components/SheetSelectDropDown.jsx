@@ -104,7 +104,7 @@ export default class SheetSelectDropDown extends Component {
             treeBoxValue: e.itemData.id
             });
         this.dropDownBoxRef.current.instance.close();
-        this.props.onSelectNewSheet(e.itemData.id, e.itemData.sheet_type);
+        this.props.onSelectNewSheet(e.itemData);
 
     }
 

@@ -476,7 +476,8 @@ def get_sheet_list_plane(request):
                                "cmp.year cmp_name,v.CODE ver_name,g.longname grp_name, s.LONGNAME sheet_name,    "
                                "s.id sheet_id, "
                                 "b.id book_id, cmp.id cmp_id, v.id ver_id, g.id grp_id ,"
-                                " t.stype "
+                                " t.stype, "
+                                " c_pkgessheet.fGetSheetPath(s.id) sheet_path "
                                "from c_es_sheet_type t, c_es_ver_sheet s, c_es_ver_sheet_grp g, "
                                 "       C_ES_VRS v, c_es_ver_camp cmp, c_es_book b, c_es_class c "
                                "where c.id = b.CLASS_ID "
@@ -528,7 +529,9 @@ def get_sheet_list_plane(request):
                  'parent_id':grp.get('id'),
                  'hasItems': False,
                  'icon' : 'detailslayout',
-                 'sheet_type' : sheet_type
+                 'sheet_type' : sheet_type,
+                 'stype' : sheet_list.get('stype'),
+                 'sheet_path' : sheet_list.get('sheet_path')
                  }
         sheet_tree.append(sheet)
 
