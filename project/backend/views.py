@@ -224,6 +224,60 @@ def update_table_record(request):
 
     return JsonResponse([], safe=False)
 
+def sheet_confirm(request):
+    param_dict = dict(request.GET)
+    prim = param_dict.get('prim', [''])[0]
+    sht_id = param_dict.get('sht_id', [''])[0]
+    fileids = param_dict.get('fileids', [''])[0]
+    skey = param_dict.get('skey', [''])[0]
+
+    skey = skey.replace('=>','%')
+    skey = skey.replace(',','#')
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+                        declare
+                            nPROC_ID number(10);
+                            nSHT_ID   number(10) := %s;
+                            nVER_ID number(10);
+                            sYEAR varchar2(4);
+                            sFileIDS varchar2(250) := %s;
+                            sPRIM varchar2(250) := %s;
+                            sSKEY varchar2(250) := %s;
+                            sOUT_PRM varchar2(2000);
+                            nOPER_RESULT int;
+                        begin
+                            c_pkgconnect.popen;
+                            
+                            select c.year, v.id, s.proc_id
+                            into syear, nver_id,  nPROC_ID
+                            from c_es_ver_camp c, c_es_vrs v , c_es_ver_sheet s
+                            where s.id = nSHT_ID
+                            and v.ID = s.VER_ID
+                            and c.id = v.cmp_id;
+                               
+                           nOPER_RESULT := t_pkgrunoprutl.fRunOperation( 
+                                  nProcId => nProc_Id,
+                                 sOperCode =>  'CONFIRM',
+                                 sInOperParams => 'PRIM=>' || sPRIM || 
+                                                  ',FILE_IDS=>' || sFileIDS||
+                                                  ',SKEY=>'||sSKEY||
+                                                  ',VER_ID=>'||nver_id||
+                                                  ',YEAR=>'||syear||
+                                                  ',BPFL=>1'
+                                                  ,
+                                 sOutOperParams => sOUT_PRM);                 
+                                
+                          
+                        end;
+                        """,
+                       [sht_id,
+                        fileids,
+                        prim,
+                        skey])
+
+    return JsonResponse([], safe=False)
+
 
 def update_tree_record(request):
     param_dict = dict(request.GET)

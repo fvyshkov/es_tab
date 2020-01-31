@@ -6,7 +6,7 @@ import ReTableView from './ReTableView.jsx';
 import SheetSelectDropDown from './SheetSelectDropDown.jsx';
 import { sendRequestPromise } from './sendRequestPromise.js';
 import notify from 'devextreme/ui/notify';
-import {getFilterSkeyByCell} from './esUtils.js';
+import {getFilterSkeyByCell, getFilterSkey} from './esUtils.js';
 
 import TableViewComment from './TableViewComment.jsx';
 
@@ -422,12 +422,27 @@ showDetailForCell(params){
     saveConfirm(){
         console.log('saveConfirm!', this.state.confirmData);
         this.setState({confirmPanelVisible: false});
+        var httpStr = 'sheet_confirm/?sht_id=' + this.state.sheet_id;
+        httpStr += '&skey='+ getFilterSkey(this.state.filterNodes);
+
+        httpStr += '&fileids=' + this.state.confirmData.fileIds;
+        httpStr += '&prim=' + this.state.confirmData.prim;
+
+        sendRequestPromise(httpStr)
+            .then(()=> notify('confirm successful'))
+            .catch((data)=> notify(data));
     }
 
     onFilterNodesChange(nodes){
         console.log('onFilterNodesChange', nodes);
         this.setState({filterNodes: nodes});
+
+        console.log('onFilterNodesChange', getFilterSkey(nodes));
+
     }
+
+
+
 
     render(){
         return (
@@ -455,6 +470,7 @@ showDetailForCell(params){
 
                 <ReTableView
                     sendLoadAll={click => this.sendLoadAll = click}
+                    sendGetFilterSkey={click => this.sendGetFilterSkey = click}
                     getContextMenuItems={this.getContextMenuItems.bind(this)}
                     onInsertCallback={this.onInsertCallback.bind(this)}
                     getFilterData={this.getFilterData.bind(this)}

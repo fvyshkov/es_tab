@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 
 export default class SheetCellTooltip extends Component {
     getReactContainerClasses() {
-        console.log('tooltip getReactContainerClasses');
+        //console.log('tooltip getReactContainerClasses');
         return ['custom-tooltip'];
     }
 

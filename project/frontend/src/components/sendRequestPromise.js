@@ -13,11 +13,15 @@ export function sendRequestPromise(request_string, method='GET', data){
         //console.log('method', method, 'httpStr', httpStr);
         httpRequest.open(method,httpStr,true);
         httpRequest.onreadystatechange = () => {
-            if (httpRequest.readyState === 4 && httpRequest.status === 200) {
-                var respObj = JSON.parse(httpRequest.responseText);
-                console.log('respObj', respObj);
+            if (httpRequest.readyState === 4){
+                if (httpRequest.status === 200) {
+                    var respObj = JSON.parse(httpRequest.responseText);
+                    console.log('respObj', respObj);
 
-                resolve(respObj);
+                    resolve(respObj);
+                }else{
+                    reject(httpRequest.statusText);
+                }
             }
         };
         if (!data){
