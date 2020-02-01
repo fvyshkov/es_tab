@@ -396,6 +396,8 @@ export default class ReTableView extends Component {
                             additionalToolbarItem={this.props.additionalToolbarItem}
                             getMenuItems={this.props.getMenuItems}
                             menuItemClick={(params)=>{console.log('menuItemClick', params);}}
+
+                            onTopMenuClick={this.props.onTopMenuClick}
                             />
 
 

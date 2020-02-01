@@ -81,7 +81,7 @@ DATABASES = {
     #ANLDWDEMO4=1.1.1.84, DWAPPDEV=1.1.1.32, DWRL3MGR = 1.1.1.84 //1.1.1.56/ANLDWRL4
     'default': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': 'ANLDWDEMO4',
+        'NAME': 'DWRL3MGR',
         'USER': 'colvir',
         'PASSWORD': 'colvir',
         'HOST': '1.1.1.84',

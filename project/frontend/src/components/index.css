@@ -101,6 +101,19 @@ position: relative;
   width: 50%;
 }
 
+.cancelOperation{
+
+
+    font-weight: bold;
+    color: red;
+    /*
+    background-color: #d9ff96;
+border: solid;
+border-width : thin;
+    border-color:red;
+    */
+}
+
 .spinner {
    vertical-align: middle;
    /*-webkit-animation: spin 1s infinite linear;*/

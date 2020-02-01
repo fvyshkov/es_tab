@@ -32,6 +32,7 @@ export default class TableViewWithSelection extends Component {
         this.state={
                         sheet_id: 0,
                         sheet_type:'',
+                        sheet: {},
                         confirmPanelVisible: false,
                         filterNodes: [],
                         confirmData: {
@@ -44,6 +45,7 @@ export default class TableViewWithSelection extends Component {
                                   }
                       };
         this.reportDialogParams = [];
+        this.operList = [];
 
         this.confirm = this.confirm.bind(this);
 
@@ -59,8 +61,9 @@ export default class TableViewWithSelection extends Component {
     }
 
     loadNewSheet(sheet){
-        this.setState({sheet_id: sheet.id, sheet_type: sheet.sheet_type, sheet_path: sheet.sheet_path});
+        this.setState({sheet_id: sheet.id, sheet_type: sheet.sheet_type, sheet_path: sheet.sheet_path, sheet: sheet});
         this.sendLoadAll(sheet.id, sheet.sheet_type);
+        this.loadOperList();
     }
 
     getViewUserPreferences(){
@@ -153,7 +156,47 @@ export default class TableViewWithSelection extends Component {
         this.setState({confirmPanelVisible: true});
     }
 
+    runOper(item){
+        notify(item.name);
+
+        //sendRequestPromise()
+    }
+
+    operMenuItemRender(item){
+        if (item.cancelfl==="1"){
+            var element = document.createElement("span");
+            element.setAttribute("class" , "cancelOperation");
+            element.appendChild(document.createTextNode(item.name));
+            return element;
+
+        }else{
+            return item.name;
+        }
+    }
+
     getMenuItems(){
+        var operMenu=[];
+
+        if (this.operList.length>0){
+            operMenu = [
+                            {
+                                id: '1_6',
+                                name: 'Операции',
+                                icon: 'menu',
+                                items: this.operList.map((item)=>{
+                                   return {
+                                            id: item.nord,
+                                            name: item.name,
+                                            onClick: () => this.runOper(item),
+                                            template: this.operMenuItemRender,
+                                            getDisabled: ()=> { return item.enable==="1" ? false: true;},
+                                            cancelfl: item.cancelfl
+                                          };
+                                })
+                            }
+                    ];
+
+        }
 
         var items = [{
                                             id: '1_1',
@@ -209,7 +252,7 @@ export default class TableViewWithSelection extends Component {
                                           }
 
                                           ];
-        return items;
+        return items.concat(operMenu);
     }
 
 
@@ -433,6 +476,20 @@ showDetailForCell(params){
             .catch((data)=> notify(data));
     }
 
+    loadOperList(){
+        this.operList = new operList(this.state.sheet.proc_id, this.state.sheet.bop_id, this.state.sheet.nstat);
+
+        var httpStr = 'operlist/?proc_id=' + this.state.sheet.proc_id;
+        httpStr += '&bop_id=' + this.state.sheet.bop_id;
+        httpStr += '&nstat=' + this.state.sheet.nstat;
+
+        sendRequestPromise(httpStr)
+            .then((operList)=> {
+                //console.log('operlist', operList);
+                this.operList = operList;
+            });
+    }
+
     onFilterNodesChange(nodes){
         console.log('onFilterNodesChange', nodes);
         this.setState({filterNodes: nodes});
@@ -443,6 +500,13 @@ showDetailForCell(params){
 
 
 
+
+    onTopMenuClick(){
+        console.log('onTopMenuClick');
+        if (this.state.sheet.id ){
+           // this.loadOperList();
+        }
+    }
 
     render(){
         return (
@@ -483,6 +547,7 @@ showDetailForCell(params){
                     getRowNodeId={(data)=>{return data.node_key;}}
                     getMenuItems={this.getMenuItems.bind(this)}
                     onFilterNodesChange={this.onFilterNodesChange.bind(this)}
+                    onTopMenuClick={this.onTopMenuClick.bind(this)}
                     additionalToolbarItem={()=>{return(
                                                         <SheetSelectDropDown
                                                             onSelectNewSheet={this.loadNewSheet.bind(this)}

@@ -141,10 +141,14 @@ export default class SheetToolbar extends Component {
                                         <Menu
                                             dataSource={
                                                 [{id: '1',
-                                                name: 'Операции',
+                                                name: 'Лист',
                                                 items: menuItems
                                                 }]
                                                 }
+
+
+                                            onSubmenuShowing={this.props.onTopMenuClick}
+
 
                                             displayExpr="name"
                                             showFirstSubmenuMode={this.showFirstSubmenuModes[0]}

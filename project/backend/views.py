@@ -471,15 +471,6 @@ def get_sheet_state_list(sht_id):
                                  [sht_id])
     for filter in filter_list:
         filter['filter_node_list'] = get_filter_node_list(filter.get('flt_id'))
-        #if filter.get('flt_id')=='5619':
-        #print('flt',filter.get('flt_id'), sheet_info[0].get('filternodes', [])[str(filter.get('flt_id'))])
-        #selected_filter_nodes_obj = sheet_info[0].get('filternodes', []).get(str(filter.get('flt_id')), [])
-        #selected_filter_ids = [str(item.get('id'))    for item in selected_filter_nodes_obj]
-        #print('selected_filter_nodes', selected_filter_ids)
-        #print('1111=', sheet_info[0].get('filternodes', []), selected_filter_nodes, filter.get('flt_id'))
-        #process_tree(filter['filter_node_list'], 'children', mark_selected, selected_filter_ids)
-
-
     sheet_info[0]['filter'] = filter_list
 
     return sheet_info
@@ -529,14 +520,15 @@ def get_sheet_list_plane(request):
     sheet_list = get_sql_result("select b.code||' '|| b.longname book_name, "
                                "cmp.year cmp_name,v.CODE ver_name,g.longname grp_name, s.LONGNAME sheet_name,    "
                                "s.id sheet_id, "
-                                "b.id book_id, cmp.id cmp_id, v.id ver_id, g.id grp_id ,"
+                                "b.id book_id, cmp.id cmp_id, v.id ver_id, g.id grp_id , s.proc_id, p.bop_id,  p.nstat,  "
                                 " t.stype, "
                                 " c_pkgessheet.fGetSheetPath(s.id) sheet_path "
-                               "from c_es_sheet_type t, c_es_ver_sheet s, c_es_ver_sheet_grp g, "
+                               "from t_process p, c_es_sheet_type t, c_es_ver_sheet s, c_es_ver_sheet_grp g, "
                                 "       C_ES_VRS v, c_es_ver_camp cmp, c_es_book b, c_es_class c "
                                "where c.id = b.CLASS_ID "
-                               "and c.code='MIS' and cmp.BOOK_ID = b.id"
+                               "and c.code='MIS' and cmp.BOOK_ID = b.id "
                             "  and t.id = s.type_id "
+                            "  and p.id = s.proc_id "
                                "and v.cmp_id = cmp.id and g.VER_ID = v.ID and s.grp_id = g.id order by 1,2,3,4,5",[])
     book = {}
     cmp = {}
@@ -577,6 +569,7 @@ def get_sheet_list_plane(request):
         else:
             sheet_type = 'tree'
 
+
         sheet = {'label': sheet_list.get('sheet_name'),
                  'type': 'SHEET',
                  'id': str(sheet_list.get('sheet_id')),
@@ -585,7 +578,10 @@ def get_sheet_list_plane(request):
                  'icon' : 'detailslayout',
                  'sheet_type' : sheet_type,
                  'stype' : sheet_list.get('stype'),
-                 'sheet_path' : sheet_list.get('sheet_path')
+                 'sheet_path' : sheet_list.get('sheet_path'),
+                 'proc_id' : sheet_list.get('proc_id'),
+                 'nstat' : sheet_list.get('nstat'),
+                 'bop_id' : sheet_list.get('bop_id')
                  }
         sheet_tree.append(sheet)
 
@@ -1030,6 +1026,40 @@ def get_oracle_connection():
     db_connection_prams = db_settings['USER']+'/'+db_settings['PASSWORD']+'@'+db_settings['HOST']+'/'+db_settings['NAME']
     return cx_Oracle.connect(db_connection_prams)
 
+
+def get_operlist(request):
+    param_dict = dict(request.GET)
+    proc_id = param_dict.get('proc_id', [''])[0]
+    bop_id = param_dict.get('bop_id', [''])[0]
+    nstat = param_dict.get('nstat', [''])[0]
+
+    operlist = get_operlist_list(proc_id, bop_id, nstat)
+
+    return JsonResponse(operlist, safe=False)
+
+def get_operlist_list(proc_id, bop_id, nstat):
+    connection = get_oracle_connection()
+    cursor = connection.cursor()
+    refCursor =  connection.cursor()
+
+    cursor.execute("""begin c_pkgconnect.popen();
+                        bs_operation.OPERLIST(:1, :2, :3, :4);
+                    end;""", [refCursor, proc_id, bop_id, nstat])
+
+    print('operlist', refCursor)
+    operlist = []
+    for oper in refCursor:
+        #print('oper', oper)
+
+        row_dict = {}
+        column_data = []
+        for column_idx in range(len(refCursor.description)):
+            column_name = refCursor.description[column_idx][0].lower()
+            row_dict[column_name] = oper[column_idx]
+
+        operlist.append(row_dict)
+
+    return operlist
 
 def get_anl_table_rows(sht_id, skey):
     print('sht_id=',sht_id, 'sk', skey)
