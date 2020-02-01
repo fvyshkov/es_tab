@@ -18,6 +18,7 @@ import { getReport } from './getReport.js';
 
 import CommentPanel from './CommentPanel.jsx';
 import {processTree} from './esUtils.js';
+import {operList} from './operList.js';
 
 /*
 import { sendRequest } from './App.js';
@@ -45,7 +46,7 @@ export default class TableViewWithSelection extends Component {
                                   }
                       };
         this.reportDialogParams = [];
-        this.operList = [];
+        this.operList = new operList();
 
         this.confirm = this.confirm.bind(this);
 
@@ -156,47 +157,12 @@ export default class TableViewWithSelection extends Component {
         this.setState({confirmPanelVisible: true});
     }
 
-    runOper(item){
-        notify(item.name);
-
-        //sendRequestPromise()
-    }
-
-    operMenuItemRender(item){
-        if (item.cancelfl==="1"){
-            var element = document.createElement("span");
-            element.setAttribute("class" , "cancelOperation");
-            element.appendChild(document.createTextNode(item.name));
-            return element;
-
-        }else{
-            return item.name;
-        }
-    }
 
     getMenuItems(){
-        var operMenu=[];
 
-        if (this.operList.length>0){
-            operMenu = [
-                            {
-                                id: '1_6',
-                                name: 'Операции',
-                                icon: 'menu',
-                                items: this.operList.map((item)=>{
-                                   return {
-                                            id: item.nord,
-                                            name: item.name,
-                                            onClick: () => this.runOper(item),
-                                            template: this.operMenuItemRender,
-                                            getDisabled: ()=> { return item.enable==="1" ? false: true;},
-                                            cancelfl: item.cancelfl
-                                          };
-                                })
-                            }
-                    ];
+        var operMenuList = this.operList.getOperMenuList();
 
-        }
+
 
         var items = [{
                                             id: '1_1',
@@ -252,7 +218,8 @@ export default class TableViewWithSelection extends Component {
                                           }
 
                                           ];
-        return items.concat(operMenu);
+
+        return items.concat(operMenuList);
     }
 
 
@@ -478,6 +445,8 @@ showDetailForCell(params){
 
     loadOperList(){
         this.operList = new operList(this.state.sheet.proc_id, this.state.sheet.bop_id, this.state.sheet.nstat);
+        this.operList.init();
+        return;
 
         var httpStr = 'operlist/?proc_id=' + this.state.sheet.proc_id;
         httpStr += '&bop_id=' + this.state.sheet.bop_id;
