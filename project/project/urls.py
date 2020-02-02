@@ -45,6 +45,8 @@ urlpatterns = [
     path('get_report/', views.get_report),
     path('sheet_confirm/', views.sheet_confirm),
     path('operlist/', views.get_operlist),
+    path('run_oper/', views.run_oper),
+    path('conf_opers/', views.get_conf_opers),
 
 
     path('', include('frontend.urls')),

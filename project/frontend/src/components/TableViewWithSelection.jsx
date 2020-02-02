@@ -19,6 +19,7 @@ import { getReport } from './getReport.js';
 import CommentPanel from './CommentPanel.jsx';
 import {processTree} from './esUtils.js';
 import {operList} from './operList.js';
+import Reference from './Reference.js';
 
 /*
 import { sendRequest } from './App.js';
@@ -34,6 +35,8 @@ export default class TableViewWithSelection extends Component {
                         sheet_id: 0,
                         sheet_type:'',
                         sheet: {},
+                        confirmUndoData:[],
+                        showRef: false,
                         confirmPanelVisible: false,
                         filterNodes: [],
                         confirmData: {
@@ -49,6 +52,7 @@ export default class TableViewWithSelection extends Component {
         this.operList = new operList();
 
         this.confirm = this.confirm.bind(this);
+        this.beforeOperRun = this.beforeOperRun.bind(this);
 
     }
 
@@ -146,7 +150,7 @@ export default class TableViewWithSelection extends Component {
         this.setState({confirmData: {
                                     sheet_name: this.state.sheet_path,
                                     flt_dscr: filterDscr,
-                                    prim:"",
+                                    prim: "",
                                     correctdt : "",
                                     fileList:[],
                                     fileIds :"",
@@ -157,6 +161,25 @@ export default class TableViewWithSelection extends Component {
         this.setState({confirmPanelVisible: true});
     }
 
+    beforeOperRun(item, runOperCallback){
+        console.log('beforeOperRun', item);
+        if (item.code==='CONFIRM'){
+            this.onConfirmCallBack=runOperCallback;
+            this.operItem = item;
+            this.confirm();
+        }else if (item.code==='CONFIRM_UNDO'){
+            /////
+
+            this.onConfirmCallBack=runOperCallback;
+            this.operItem = item;
+            sendRequestPromise('conf_opers/?proc_id='+this.state.sheet.proc_id+'&rootfl=0')
+                .then((data)=>{this.setState({confirmUndoData: data, showRef: true})});
+
+        }else{
+            runOperCallback(item,'');
+        }
+
+    }
 
     getMenuItems(){
 
@@ -430,6 +453,27 @@ showDetailForCell(params){
     }
 
     saveConfirm(){
+        var operParams;
+        operParams = 'PRIM=>'+this.state.confirmData.prim;
+        operParams += ',FILE_IDS=>'+this.state.confirmData.fileIds;
+        operParams += ',SHT_ID=>'+this.state.sheet.id;
+        operParams += ',VER_ID=>'+this.state.sheet.ver_id;
+        operParams += ',YEAR=>'+this.state.sheet.year;
+        operParams += ',BPFL=>1';
+
+
+        var skey = getFilterSkey(this.state.filterNodes);
+        //skey = skey.replace('=>','%');
+        //skey = skey.replace(',','#');
+
+        operParams += ',SKEY=>'+skey;
+
+        this.onConfirmCallBack(this.operItem, operParams);
+        this.setState({confirmPanelVisible: false});
+
+        return;
+
+
         console.log('saveConfirm!', this.state.confirmData);
         this.setState({confirmPanelVisible: false});
         var httpStr = 'sheet_confirm/?sht_id=' + this.state.sheet_id;
@@ -438,25 +482,16 @@ showDetailForCell(params){
         httpStr += '&fileids=' + this.state.confirmData.fileIds;
         httpStr += '&prim=' + this.state.confirmData.prim;
 
+
         sendRequestPromise(httpStr)
             .then(()=> notify('confirm successful'))
             .catch((data)=> notify(data));
+
     }
 
     loadOperList(){
-        this.operList = new operList(this.state.sheet.proc_id, this.state.sheet.bop_id, this.state.sheet.nstat);
+        this.operList = new operList(this.state.sheet.proc_id, this.state.sheet.bop_id, this.state.sheet.nstat, this.beforeOperRun);
         this.operList.init();
-        return;
-
-        var httpStr = 'operlist/?proc_id=' + this.state.sheet.proc_id;
-        httpStr += '&bop_id=' + this.state.sheet.bop_id;
-        httpStr += '&nstat=' + this.state.sheet.nstat;
-
-        sendRequestPromise(httpStr)
-            .then((operList)=> {
-                //console.log('operlist', operList);
-                this.operList = operList;
-            });
     }
 
     onFilterNodesChange(nodes){
@@ -477,10 +512,34 @@ showDetailForCell(params){
         }
     }
 
+
+    closeReference(row) {
+      console.log('closeReference ', row);
+
+        this.onConfirmCallBack(this.operItem, 'NJRN=>'+row.njrn+',ROOTFL=>0,BPFL=>1');
+        this.setState({showRef: false, refCode: ''});
+    };
+
     render(){
+
+        var referComp = this.state.showRef ? <Reference
+                data={this.state.confirmUndoData}
+                 onRefHidden={this.closeReference.bind(this)}
+                 keyField={'njrn'}
+                refdscr={{
+                        title: 'Отмена утверждения',
+                        columns: [
+                          {caption: 'Дата и время', field: 'execdt'},
+                          {caption: 'Пользователь', field: 'usr'},
+                          {caption: 'Утверждение', field: 'dscr'}
+                        ]
+                      }}
+            /> : null;
+
         return (
             <React.Fragment>
 
+            {referComp}
 
             <CommentPanel
                     title={"Утверждение"}

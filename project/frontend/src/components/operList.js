@@ -3,17 +3,43 @@ import notify from 'devextreme/ui/notify';
 
 export class operList{
 
-    constructor(proc_id, bop_id, nstat){
+    constructor(proc_id, bop_id, nstat, callbackBeforeOperRun){
         this.proc_id = proc_id;
         this.bop_id = bop_id;
         this.nstat = nstat;
         this.itemsList = [];
         this.operMenuList=[];
+        this.callbackBeforeOperRun = callbackBeforeOperRun;
+
     }
 
     runOper(item){
-          notify(item.longname+'='+item.name);
+        notify(item.longname+'='+item.name);
 
+
+        if (this.callbackBeforeOperRun){
+            this.callbackBeforeOperRun(item, this.runOperCallback);
+
+        }
+/*
+
+            */
+    }
+
+    runOperCallback(item, userParams){
+        console.log('runOperCallback', item, userParams);
+        //return;
+        var httpStr = 'run_oper/?proc_id=' + item.proc_id;
+        httpStr += '&oper_code=' + item.code;
+
+        if (userParams){
+            httpStr += '&oper_params='+userParams;
+        }
+
+        sendRequestPromise(httpStr)
+            .then(()=>notify('Операция "'+item.name+'" успешно завершена'))
+            //перечитаем список операций
+            .then(()=>this.init());
     }
 
     operMenuItemRender(item){
@@ -29,7 +55,7 @@ export class operList{
     }
 
     getOperMenuList(){
-
+        this.init();
         var operMenuList = [];
 
         if (this.itemsList.length>0){
@@ -38,6 +64,7 @@ export class operList{
                                 id: '1_6',
                                 name: 'Операции',
                                 icon: 'menu',
+                                onClick: ()=> {console.log('onItemContextMenu');},
                                 items: this.itemsList.map((item)=>{
                                    return {
                                             id: item.nord,

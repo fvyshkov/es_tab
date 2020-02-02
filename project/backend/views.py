@@ -279,6 +279,30 @@ def sheet_confirm(request):
     return JsonResponse([], safe=False)
 
 
+def run_oper(request):
+    param_dict = dict(request.GET)
+    proc_id = param_dict.get('proc_id', [''])[0]
+    oper_code = param_dict.get('oper_code', [''])[0]
+    oper_params = param_dict.get('oper_params', [''])[0]
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+                        declare
+                            sOUT_PRM varchar2(2000);
+                            nOPER_RESULT int;
+                        begin
+                            c_pkgconnect.popen;
+                            nOPER_RESULT := t_pkgrunoprutl.fRunOperation( 
+                                  nProcId => %s,
+                                  sOperCode =>  %s,
+                                  sInOperParams => %s,
+                                  sOutOperParams => sOUT_PRM);                 
+                        end;
+                        """, [proc_id, oper_code, oper_params])
+
+    return JsonResponse([], safe=False)
+
+
 def update_tree_record(request):
     param_dict = dict(request.GET)
     sht_id = param_dict.get('sht_id', [''])[0]
@@ -512,12 +536,56 @@ def get_sheet_info_list(sht_id):
 
     return sheet_info
 
+def get_conf_opers(request):
+    param_dict = dict(request.GET)
+    proc_id = param_dict.get('proc_id', [''])[0]
+    rootfl = param_dict.get('rootfl', [''])[0]
 
+    operlist = get_conf_opers_list(proc_id, rootfl)
+
+    return JsonResponse(operlist, safe=False)
+
+
+def get_conf_opers_list(proc_id, rootfl):
+    conf_opers_list = get_sql_result(
+                    """
+                    select o.execdt,
+                    c.njrn as ID, 
+                   o.dscr,
+                   case 
+                     when c.skey is null and exists(select 1 from C_ES_CONF where proc_id = p.id and ID <> c.ID)
+                         then Localize('Все значения, кроме утвержденных ранее')
+                     when c.skey is null and not exists(select 1 from C_ES_CONF where proc_id = p.id and ID <> c.ID)
+                         then Localize('Все значения')
+                     else
+                       c_pkgessheet.fGetConsDscr(c.skey, null) 
+                   end as anls_dscr,
+                   colvir.c_pkgusr.fUsrName(o.tus_id) usr,
+                   c.njrn,
+                   c.ID CONF_ID
+             from  C_ES_CONF c,
+                   T_OPERJRN o, 
+                   T_PROCESS p,
+                   T_SCEN_STD s
+             where o.bop_id = p.bop_id
+               and c.proc_id = p.id
+               and c.njrn = o.njrn
+               and o.noper = s.NORD
+               and (s.code ='CONFIRM' and nvl(%s,'0')='0'
+                    or s.code = 'CONFIRM_ROOT' and ROOTFL = '1')
+               and c.conf_id is null
+               and o.id = p.id
+               and s.id = o.bop_id
+               and p.id = %s
+             order by EXECDT desc 
+            """,[rootfl, proc_id])
+
+    return conf_opers_list
 
 
 def get_sheet_list_plane(request):
 
-    sheet_list = get_sql_result("select b.code||' '|| b.longname book_name, "
+    sheet_list = get_sql_result("select b.code||' '|| b.longname book_name, cmp.year, "
                                "cmp.year cmp_name,v.CODE ver_name,g.longname grp_name, s.LONGNAME sheet_name,    "
                                "s.id sheet_id, "
                                 "b.id book_id, cmp.id cmp_id, v.id ver_id, g.id grp_id , s.proc_id, p.bop_id,  p.nstat,  "
@@ -581,7 +649,9 @@ def get_sheet_list_plane(request):
                  'sheet_path' : sheet_list.get('sheet_path'),
                  'proc_id' : sheet_list.get('proc_id'),
                  'nstat' : sheet_list.get('nstat'),
-                 'bop_id' : sheet_list.get('bop_id')
+                 'bop_id' : sheet_list.get('bop_id'),
+                 'ver_id' : sheet_list.get('bop_id'),
+                 'year' : sheet_list.get('bop_id')
                  }
         sheet_tree.append(sheet)
 
@@ -1056,6 +1126,8 @@ def get_operlist_list(proc_id, bop_id, nstat):
         for column_idx in range(len(refCursor.description)):
             column_name = refCursor.description[column_idx][0].lower()
             row_dict[column_name] = oper[column_idx]
+
+        row_dict['proc_id'] = proc_id
 
         operlist.append(row_dict)
 
