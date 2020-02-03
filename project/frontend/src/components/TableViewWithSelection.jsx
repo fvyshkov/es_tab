@@ -125,6 +125,15 @@ export default class TableViewWithSelection extends Component {
 
     recalc(component, recalcType){
         console.log('recalc', component, recalcType);
+        var httpStr = 'recalc_sheet/?sht_id='+this.state.sheet.id;
+        if (recalcType==='old'){
+            httpStr += '&skey='+ getFilterSkey(this.state.filterNodes);
+        }else if(recalcType==='selected'){
+            alert('Пересчет выделенного диапазона не реализован');
+        }
+        sendRequestPromise(httpStr)
+            .then(()=>notify('Пересчет успешно завершен','success'))
+            .catch(()=>notify('ОШИБКА ПЕРЕСЧЕТА', 'error'));
     }
 
     confirm(){

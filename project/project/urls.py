@@ -47,6 +47,7 @@ urlpatterns = [
     path('operlist/', views.get_operlist),
     path('run_oper/', views.run_oper),
     path('conf_opers/', views.get_conf_opers),
+    path('recalc_sheet/', views.recalc_sheet),
 
 
     path('', include('frontend.urls')),

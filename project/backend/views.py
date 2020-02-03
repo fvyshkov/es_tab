@@ -69,6 +69,18 @@ def upload_file(request):
     return JsonResponse([{'file_id':int(p_id.getvalue())}], safe=False)
 
 
+def recalc_sheet(request):
+    param_dict = dict(request.GET)
+    sht_id = param_dict.get('sht_id', [''])[0]
+    skey = param_dict.get('skey', [''])[0]
+
+    with connection.cursor() as cursor:
+        cursor.execute("""begin c_pkgconnect.popen();
+                              C_PKGESSHEET.pRecalcSheetParallel(P_SHT_ID => %s, P_SKEY => %s, P_CELL_TYPE => '0');
+                            end; """, [ sht_id, skey])
+
+    return JsonResponse([], safe=False)
+
 def get_comments(request):
     param_dict = dict(request.GET)
     if 'ind_id' not in param_dict:
