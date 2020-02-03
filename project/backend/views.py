@@ -81,6 +81,46 @@ def recalc_sheet(request):
 
     return JsonResponse([], safe=False)
 
+def get_conf_list(request):
+    param_dict = dict(request.GET)
+    sht_id = param_dict.get('sht_id', [''])[0]
+
+    conf_list = get_sql_result("""
+                    select c.id,
+                       c.base,
+                       case 
+                         when c.skey is null and exists(select 1 from C_ES_CONF where proc_id = p.id and ID <> c.ID)
+                             then Localize('Все значения кроме утвержденных ранее')
+                         when c.skey is null and not exists(select 1 from C_ES_CONF where proc_id = p.id and ID <> c.ID)
+                             then Localize('Все значения')
+                         else
+                           C_PKGESSHEET.fGetConsDscr(c.skey, null) 
+                       end as flt_desc,
+                       o.execdt,
+                       o.dscr,
+                       colvir.c_pkgusr.fUsrName(o.tus_id) usr,
+                       c.njrn node_key,
+                       c.njrn
+                from  C_ES_CONF c,
+                      colvir.T_OPERJRN o, 
+                      colvir.T_PROCESS p,
+                      colvir.T_SCEN_STD s
+                where o.bop_id = p.bop_id
+                
+                  and c.proc_id(+) = p.id  and c.njrn(+) = o.njrn
+                  
+                  and o.noper = s.NORD
+                  and s.code in ('CONFIRM', 'CONFIRM_ROOT')
+                  and o.id = p.id
+                  and s.id = o.bop_id
+                  and p.id = (select proc_id from c_es_ver_sheet where id= %s )
+                order by o.execdt desc
+    
+    """, [ sht_id])
+
+    return JsonResponse(conf_list, safe=False)
+
+
 def get_comments(request):
     param_dict = dict(request.GET)
     if 'ind_id' not in param_dict:
@@ -990,6 +1030,13 @@ def get_sheet_columns(request):
     elif view_type=='FlowView':
         dop = param_dict.get('dop', [''])[0]
         columns = get_flow_column_list(p_sht_id, dop, p_skey)
+    elif view_type=='ConfView':
+
+        columns = []
+        columns.append({'name': 'Дата и время', 'key': 'execdt'})
+        columns.append({'name': 'Исполнитель', 'key': 'usr'})
+        columns.append({'name': 'Описание', 'key': 'dscr'})
+
     elif len(p_ind_id)>0:
         p_parent_id = param_dict.get('parent_id',[''])[0]
 

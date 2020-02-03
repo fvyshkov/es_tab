@@ -9,6 +9,7 @@ import notify from 'devextreme/ui/notify';
 import {getFilterSkeyByCell, getFilterSkey} from './esUtils.js';
 
 import TableViewComment from './TableViewComment.jsx';
+import TableViewConf from './TableViewConf.jsx';
 
 import TableViewSchedule from './TableViewSchedule.jsx';
 import TableViewFlow from './TableViewFlow.jsx';
@@ -184,6 +185,21 @@ export default class TableViewWithSelection extends Component {
             sendRequestPromise('conf_opers/?proc_id='+this.state.sheet.proc_id+'&rootfl=0')
                 .then((data)=>{this.setState({confirmUndoData: data, showRef: true})});
 
+        }else if (item.code==='CONFIRM_ROOT'){
+            /////
+
+            this.onConfirmCallBack=runOperCallback;
+            this.operItem = item;
+            this.confirm();
+
+        }else if (item.code==='CONFIRM_ROOT_UNDO'){
+            /////
+
+            this.onConfirmCallBack=runOperCallback;
+            this.operItem = item;
+            sendRequestPromise('conf_opers/?proc_id='+this.state.sheet.proc_id+'&rootfl=1')
+                .then((data)=>{this.setState({confirmUndoData: data, showRef: true})});
+
         }else{
             runOperCallback(item,'');
         }
@@ -223,15 +239,9 @@ export default class TableViewWithSelection extends Component {
                                           },
                                           {
                                             id: '1_2',
-                                            name: 'Утверждение по выбранным аналитикам',
-                                            onClick: ()=> this.confirm(),
+                                            name: 'История утверждения',
+                                            onClick: ()=> this.showConfList(),
                                             icon: 'check'
-                                          },
-                                          {
-                                            id: '1_4',
-                                            name: 'Загрузка данных',
-                                            onClick: ()=> this.confirm(),
-                                            icon: 'download'
                                           },
                                           {
                                             id: '1_5',
@@ -376,6 +386,20 @@ showDetailForCell(params){
         }
     }
 
+
+    showConfList(){
+        if (this.props.addElementToLayout){
+            var newLayoutItemID = this.props.getNewLayoutItemID();
+            var detailRender =  <TableViewConf
+                                additionalSheetParams={{sht_id: this.state.sheet.id}}
+                                onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
+                                layoutItemID={newLayoutItemID}
+                                />;
+
+            this.props.addElementToLayout(detailRender);
+        }
+    }
+
     showFlowForRow(params){
         this.showFlow(params, true);
     }
@@ -470,31 +494,12 @@ showDetailForCell(params){
         operParams += ',YEAR=>'+this.state.sheet.year;
         operParams += ',BPFL=>1';
 
-
         var skey = getFilterSkey(this.state.filterNodes);
-        //skey = skey.replace('=>','%');
-        //skey = skey.replace(',','#');
-
         operParams += ',SKEY=>'+skey;
 
         this.onConfirmCallBack(this.operItem, operParams);
         this.setState({confirmPanelVisible: false});
 
-        return;
-
-
-        console.log('saveConfirm!', this.state.confirmData);
-        this.setState({confirmPanelVisible: false});
-        var httpStr = 'sheet_confirm/?sht_id=' + this.state.sheet_id;
-        httpStr += '&skey='+ getFilterSkey(this.state.filterNodes);
-
-        httpStr += '&fileids=' + this.state.confirmData.fileIds;
-        httpStr += '&prim=' + this.state.confirmData.prim;
-
-
-        sendRequestPromise(httpStr)
-            .then(()=> notify('confirm successful'))
-            .catch((data)=> notify(data));
 
     }
 

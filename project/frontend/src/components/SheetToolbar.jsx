@@ -151,7 +151,7 @@ export default class SheetToolbar extends Component {
 
 
                                             displayExpr="name"
-                                            showFirstSubmenuMode={this.showFirstSubmenuModes[0]}
+                                            showFirstSubmenuMode={this.showFirstSubmenuModes[1]}
                                             orientation={'horizontal'}
                                             submenuDirection={'auto'}
                                             hideSubmenuOnMouseLeave={true}
