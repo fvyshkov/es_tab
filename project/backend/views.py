@@ -81,6 +81,46 @@ def recalc_sheet(request):
 
     return JsonResponse([], safe=False)
 
+def get_history(request):
+
+    param_dict = dict(request.GET)
+    sht_id = param_dict.get('sht_id', [''])[0]
+    ind_id = param_dict.get('ind_id', [''])[0]
+    skey = param_dict.get('skey', [''])[0]
+
+
+    connection = get_oracle_connection()
+    cursor = connection.cursor()
+    refCursor = connection.cursor()
+
+
+
+    cursor.execute("""begin c_pkgconnect.popen();
+                           :1 := C_PKGESSHEET.fGetCursorHist(
+                                              p_sht_id=> :2,
+                                              p_ind_id=> :3,
+                                              p_skey=> :4,
+                                              p_cell_type=>'0');
+                        end;""", [refCursor, sht_id, ind_id, skey])
+
+    history_list = []
+
+    row_id = 0
+
+    for row in refCursor:
+        row_dict = {}
+        column_data = []
+        for column_idx in range(len(refCursor.description)):
+            column_name = refCursor.description[column_idx][0].lower()
+            row_dict[column_name] = row[column_idx]
+
+        row_dict['node_key'] = row_id
+        row_id = row_id +1
+
+        history_list.append(row_dict)
+
+    return JsonResponse(history_list, safe=False)
+
 def get_conf_list(request):
     param_dict = dict(request.GET)
     sht_id = param_dict.get('sht_id', [''])[0]
@@ -1036,6 +1076,35 @@ def get_sheet_columns(request):
         columns.append({'name': 'Дата и время', 'key': 'execdt'})
         columns.append({'name': 'Исполнитель', 'key': 'usr'})
         columns.append({'name': 'Описание', 'key': 'dscr'})
+
+    elif view_type=='HistoryView':
+        skey = param_dict.get('skey', [''])[0]
+
+        if skey:
+            columns = []
+        else:
+            columns = get_sql_result(
+                                        """
+                                        select x.id, 'flt_id_' | | x.id key, x.name
+                                        from
+                                        (
+                                        select f.id, c_pkgesbook.fGetSheetFltName(f.id) name, f.npp, f.flt_type
+                                        from C_ES_VER_SHEET_FLT f
+                                        where f.sht_id = %s
+                                           and f.ind_id is null
+                                           and f.SRC_TYPE != 'IND'
+                                        ) x
+                                        order by decode(x.flt_type, 'F', 0, 'H', 1, 'V', 2, 3), x.npp
+                                        """, [p_sht_id])
+
+            columns.append({'name': 'Показатель', 'key': 'ind_name'})
+
+
+        columns.append({'name': 'Значение', 'key': 'text_value'})
+        columns.append({'name': 'Исполнитель', 'key': 'usr_name'})
+        columns.append({'name': 'Дата и время', 'key': 'correctdt'})
+
+
 
     elif len(p_ind_id)>0:
         p_parent_id = param_dict.get('parent_id',[''])[0]

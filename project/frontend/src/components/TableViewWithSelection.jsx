@@ -10,6 +10,7 @@ import {getFilterSkeyByCell, getFilterSkey} from './esUtils.js';
 
 import TableViewComment from './TableViewComment.jsx';
 import TableViewConf from './TableViewConf.jsx';
+import TableViewHistory from './TableViewHistory.jsx';
 
 import TableViewSchedule from './TableViewSchedule.jsx';
 import TableViewFlow from './TableViewFlow.jsx';
@@ -313,6 +314,19 @@ export default class TableViewWithSelection extends Component {
                     }
                 ]
               },
+              {
+                name: 'История изменения значений',
+                subMenu:[
+                    {
+                    name: 'По выбранной записи',
+                    action: this.showHistoryForCell.bind(this, params)
+                    },
+                    {
+                    name: 'Все значения',
+                    action: this.showHistoryForCell.bind(this, params, true)
+                    }
+                ]
+              },
               "separator",
               {
                 name: 'Отчет по расчету значения',
@@ -321,9 +335,25 @@ export default class TableViewWithSelection extends Component {
               ];
     }
 
+    showHistoryForCell(params, showAll=false){
+        if (this.props.addElementToLayout){
+            var newLayoutItemID = this.props.getNewLayoutItemID();
+            var viewRender =  <TableViewHistory
+                                additionalSheetParams={{
+                                                            skey: showAll ? '' : this.getCellSkey(params),
+                                                            sht_id: this.state.sheet_id,
+                                                            ind_id: params.node.data.ind_id
+                                                            }}
+                                onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
+                                layoutItemID={newLayoutItemID}
+                                />;
+
+            this.props.addElementToLayout(viewRender);
+        }
+    }
 
 
-showDetailForCell(params){
+    showDetailForCell(params){
         console.log('showDetailForCell', params);
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
