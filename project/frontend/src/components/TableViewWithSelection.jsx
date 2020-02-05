@@ -605,6 +605,7 @@ export default class TableViewWithSelection extends Component {
 
             <SheetToExcelRptDialog
                 popupVisible={this.state.rptDialogVisible}
+                sheet_id={this.state.sheet_id}
                 onDialogClose={this.onSheetRptDialogClose.bind(this)}
             />
 

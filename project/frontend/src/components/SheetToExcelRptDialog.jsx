@@ -72,11 +72,28 @@ export default class SheetToExcelRptDialog extends React.Component {
                                                             console.log('this.state.row_flt_id', this.state.row_flt_id);
                                                             console.log('this.state.col_flt_id', this.state.col_flt_id);
                                                             console.log('this.state.fltFixedValues', this.state.fltFixedValues);
+                                                            var addSkey = '';
+                                                            for (var fltId in this.state.fltFixedValues){
+                                                                addSkey+= 'FLT_ID_'+fltId+'=>'+this.state.fltFixedValues[fltId];
+                                                            }
+
+                                                            var repParams = {};
+
+                                                            repParams['P_SHT_ID'] = {type:"S", value: this.props.sheet_id};
+                                                            repParams['P_FLT_ID_SHEET'] = {type:"S", value: this.state.sht_flt_id===0 ? '': this.state.sht_flt_id.toString()};
+                                                            repParams['P_FLT_ID_ROW'] = {type:"S", value: this.state.row_flt_id===0 ? '': this.state.row_flt_id.toString()};
+                                                            repParams['P_FLT_ID_COLUMN'] = {type:"S", value: this.state.col_flt_id===0 ? '': this.state.col_flt_id.toString()};
+                                                            repParams['P_ADD_SKEY'] = {type:"S", value: addSkey};
+                                                            repParams['P_IND_MASK'] = {type:"S", value: this.state.indMask};
+                                                            repParams['P_DTLFL'] = {type:"S", value: this.state.detailFl ? '1': '0'};
+                                                            repParams['P_DTLHEADERFL'] = {type:"S", value: this.state.detailHeaderFl ? '1': '0'};
+                                                            repParams['P_INDCODEFL'] = {type:"S", value: this.state.showIndCodesFl ? '1': '0'};
+
 
 
                                                             this.props.onDialogClose();
 
-                                                            //getReport(this.props.reportCode, repParams);
+                                                            getReport('C_ES_SHT_RPT', repParams);
                                                        }
                                     }
                                 },
