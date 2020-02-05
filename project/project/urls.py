@@ -50,6 +50,8 @@ urlpatterns = [
     path('recalc_sheet/', views.recalc_sheet),
     path('get_conf_list/', views.get_conf_list),
     path('get_history/', views.get_history),
+    path('get_flt/', views.get_flt),
+    path('get_flt_items/', views.get_flt_items),
 
 
     path('', include('frontend.urls')),

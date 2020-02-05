@@ -409,14 +409,14 @@ export default class ReGrid extends React.Component {
         console.log('render regrid this.state.gridKey', this.state.gridKey);
         //rowModelType={this.state.rowModelType}
 
-        /*if (this.gridApi && this.props.loading){
+        if (this.gridApi && this.props.loading){
             this.gridApi.showLoadingOverlay();
         }
 
-        if (this.gridApi ){
+        if (this.gridApi && !this.props.loading ){
             this.gridApi.hideOverlay();
         }
-
+/*
         sheet_id={this.props.sheet_id}
         */
 

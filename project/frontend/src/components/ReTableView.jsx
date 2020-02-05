@@ -87,7 +87,7 @@ export default class ReTableView extends Component {
         });
 
         if(!parentNode){
-            this.setState({loading:false});
+            this.setState({loading:true});
         }
         var rowData;
         return this.tableData.loadData(parentNode, reload)

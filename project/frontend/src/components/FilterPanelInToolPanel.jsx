@@ -46,8 +46,6 @@ function mapStateToProps (state, ownProps){
 
     var ownSheetState = state.sheetState[ownProps.agGridReact.props.viewGUID];
 
-    //return { articles: state.articles, gridData: data, loading: state.loadingGuids.includes(ownProps.layoutItemID)};
-    //return {filterList:state.filterList[ownProps.agGridReact.props.sheet_id]};
     if (ownSheetState && ownSheetState.filter){
         return {filterList: ownSheetState.filter};
     }else{

@@ -22,6 +22,8 @@ import CommentPanel from './CommentPanel.jsx';
 import {processTree} from './esUtils.js';
 import {operList} from './operList.js';
 import Reference from './Reference.js';
+import TreeReference from './TreeReference.jsx';
+import SheetToExcelRptDialog from './SheetToExcelRptDialog.jsx';
 
 /*
 import { sendRequest } from './App.js';
@@ -40,6 +42,7 @@ export default class TableViewWithSelection extends Component {
                         confirmUndoData:[],
                         showRef: false,
                         confirmPanelVisible: false,
+                        rptDialogVisible: false,
                         filterNodes: [],
                         confirmData: {
                                     sheet_name: "",
@@ -226,12 +229,6 @@ export default class TableViewWithSelection extends Component {
 
                                                   },
                                                   {
-                                                    id: '1_1_2',
-                                                    name: 'Пересчет выделенного диапазона',
-                                                    icon: 'fieldchooser',
-                                                    onClick: ()=> this.recalc(this,'selected')
-                                                  },
-                                                  {
                                                     id: '1_1_3',
                                                     name: 'Полный пересчет листа',
                                                     icon : 'repeat',
@@ -256,15 +253,30 @@ export default class TableViewWithSelection extends Component {
                                             name: 'Отчеты',
                                             onClick: ()=> this.showReportList(),
                                             icon: 'detailslayout',
-                                            getVisible: ()=> { return this.state.sheet_id ? true: false;}
+                                            getVisible: ()=> { return this.state.sheet_id ? true: true;},
+                                          items: [
+                                          {
+                                            id: '1_6',
+                                            name: 'Выгрузка данных в ексель',
+                                            onClick: ()=> this.showSheetRpt(),
+                                            icon: 'detailslayout',
+                                            getVisible: ()=> { return this.state.sheet_id ? true: true;}
 
                                           }
+                                          ]
+                                          }
+
 
                                           ];
 
         return items.concat(operMenuList);
     }
 
+    showSheetRpt(){
+
+        this.setState({rptDialogVisible: true});
+
+    }
 
 
     onFileValueChanged(e){
@@ -564,6 +576,10 @@ export default class TableViewWithSelection extends Component {
         this.setState({showRef: false, refCode: ''});
     };
 
+    onSheetRptDialogClose(){
+        this.setState({  rptDialogVisible: false});
+    }
+
     render(){
 
         var referComp = this.state.showRef ? <Reference
@@ -580,10 +596,17 @@ export default class TableViewWithSelection extends Component {
                       }}
             /> : null;
 
+
+
         return (
             <React.Fragment>
 
             {referComp}
+
+            <SheetToExcelRptDialog
+                popupVisible={this.state.rptDialogVisible}
+                onDialogClose={this.onSheetRptDialogClose.bind(this)}
+            />
 
             <CommentPanel
                     title={"Утверждение"}

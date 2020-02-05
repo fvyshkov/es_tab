@@ -139,8 +139,8 @@ def get_conf_list(request):
                        o.execdt,
                        o.dscr,
                        colvir.c_pkgusr.fUsrName(o.tus_id) usr,
-                       c.njrn node_key,
-                       c.njrn
+                       o.njrn node_key,
+                       o.njrn
                 from  C_ES_CONF c,
                       colvir.T_OPERJRN o, 
                       colvir.T_PROCESS p,
@@ -154,6 +154,7 @@ def get_conf_list(request):
                   and o.id = p.id
                   and s.id = o.bop_id
                   and p.id = (select proc_id from c_es_ver_sheet where id= %s )
+                  --and o.undofl='0'
                 order by o.execdt desc
     
     """, [ sht_id])
@@ -1234,6 +1235,46 @@ def get_operlist(request):
     operlist = get_operlist_list(proc_id, bop_id, nstat)
 
     return JsonResponse(operlist, safe=False)
+
+def get_flt(request):
+    param_dict = dict(request.GET)
+    sht_id = param_dict.get('sht_id', [''])[0]
+    sht_flt_id = param_dict.get('sht_flt_id', [''])[0]
+    row_flt_id = param_dict.get('row_flt_id', [''])[0]
+    col_flt_id = param_dict.get('col_flt_id', [''])[0]
+
+
+    flt_list = get_sql_result(""" 
+    
+                                select f.id, c_pkgesbook.fGetSheetFltName(f.id) name,
+                                   (
+                                     select c.ent_id
+                                       from C_ES_VER_CON c
+                                      where c.id = f.anl_id
+                                   ) ent_id
+                               from c_es_ver_sheet_flt f
+                             where f.sht_id = %s
+                               and f.flt_type <> 'F'
+                               and f.id <> nvl(%s, 0)
+                               and f.id <> nvl(%s, 0)
+                               and f.id <> nvl(%s, 0) 
+                            order by name
+                                """, [sht_id, sht_flt_id, row_flt_id, col_flt_id])
+
+    return JsonResponse(flt_list, safe=False)
+
+
+def get_flt_items(request):
+    param_dict = dict(request.GET)
+    flt_id = param_dict.get('flt_id', [''])[0]
+
+    flt_items_list = get_sql_result(""" 
+                                        select id, nvl(id_hi,0) parent_id, name
+                                        from table(c_pkgesbook.fGetFilterNodesFull(%s))
+                                        where id<>'#OTHER#'
+                                """, [flt_id])
+
+    return JsonResponse(flt_items_list, safe=False)
 
 def get_operlist_list(proc_id, bop_id, nstat):
     connection = get_oracle_connection()
