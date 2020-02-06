@@ -52,6 +52,7 @@ urlpatterns = [
     path('get_history/', views.get_history),
     path('get_flt/', views.get_flt),
     path('get_flt_items/', views.get_flt_items),
+    path('get_reports/', views.get_reports),
 
 
     path('', include('frontend.urls')),

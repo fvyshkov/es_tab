@@ -1276,6 +1276,80 @@ def get_flt_items(request):
 
     return JsonResponse(flt_items_list, safe=False)
 
+
+def get_reports(request):
+    param_dict = dict(request.GET)
+    src_id = '21732839'
+    task_id = '140007'
+    report_list = get_sql_result(""" 
+                                     select x.*, 
+       C_PkgRptUtl.fGetRptLangs(x.CODE, x.LANGTYPE) as LANGUAGES
+from (
+select
+  r.ID, c.LONGNAME, c.MOD_ID, r.TGR_ID, r.TAS_ID, r.CODE, c.ARCFL,
+  c.CORRECTDT, c.ID_US, c.PRIM, r.DEFFILE, r.DEFTYP, r.SHAREFL, r.RUNQUEUEEXTFL, r.RUN_PROC,
+  r.EMPTYFL, r.REPTYPE, p.NAME as TYPE_NAME, p.CODE as TYPE_CODE,
+  r.POST_PROC, r.LANGTYPE
+from C_CLASS C, CV_PROVAL p,
+ (select
+    rp.ID, rp.TGR_ID, rp.TAS_ID, rp.CODE, rp.DEFFILE, rp.DEFTYP, rp.SHAREFL, rp.RUNQUEUEEXTFL,
+    rp.RUN_PROC, rp.EMPTYFL, rp.REPTYPE, rp.POST_PROC, rp.LANGTYPE
+  from C_RPT rp, C_USRMNURPT t
+  where t.SCR_ID = %s
+    and rp.ID = t.REP_ID
+    and t.USE_ID = P_USEID
+    and rp.ARESTFL = 0
+union
+  select
+    rp.ID, rp.TGR_ID, rp.TAS_ID, rp.CODE, rp.DEFFILE, rp.DEFTYP, rp.SHAREFL, rp.RUNQUEUEEXTFL,
+    rp.RUN_PROC, rp.EMPTYFL, rp.REPTYPE, rp.POST_PROC, rp.LANGTYPE
+  from C_RPT rp
+  where rp.TAS_ID = %s
+    and rp.ARESTFL = 0
+minus
+  select
+    rp.ID, rp.TGR_ID, rp.TAS_ID, rp.CODE, rp.DEFFILE, rp.DEFTYP, rp.SHAREFL, rp.RUNQUEUEEXTFL,
+    rp.RUN_PROC, rp.EMPTYFL, rp.REPTYPE, rp.POST_PROC, rp.LANGTYPE
+  from C_RPT rp, C_TASRPT t
+  where rp.CODE = t.CODE
+    and t.TAS_ID = %s
+    and rp.ARESTFL = 0
+    and t.AVAILCOND IS NOT NULL
+union
+  select
+    rp.ID, rp.TGR_ID, rp.TAS_ID, rp.CODE, rp.DEFFILE, rp.DEFTYP, rp.SHAREFL, rp.RUNQUEUEEXTFL,
+    rp.RUN_PROC, rp.EMPTYFL, rp.REPTYPE, rp.POST_PROC, rp.LANGTYPE
+  from C_RPT rp, C_TASRPT t
+  where rp.CODE = t.CODE
+    and t.TAS_ID = %s
+    and rp.ARESTFL = 0
+    and t.AVAILCOND IS NULL
+union
+  select
+    rp.ID, rp.TGR_ID, rp.TAS_ID, rp.CODE, rp.DEFFILE, rp.DEFTYP, rp.SHAREFL, rp.RUNQUEUEEXTFL,
+    rp.RUN_PROC, rp.EMPTYFL, rp.REPTYPE, rp.POST_PROC, rp.LANGTYPE
+  from C_RPT rp, C_TASRPT t
+  where rp.CODE = t.CODE
+    and t.TAS_ID = %s
+    and rp.ARESTFL = 0
+    and C_PkgRptUtl.fGetRptAvailable(rp.CODE, t.AVAILCOND) = '1'
+    and t.AVAILCOND IS NOT NULL
+  ) r
+where p.TNAME = 'C_RPT'
+  and p.FNAME = 'REPTYPE'
+  and p.CONSTVAL = to_char(r.REPTYPE)
+  and c.CODE = r.CODE
+  and c.ARCFL = '0'  
+  and exists (select 1 from dual where C_PkgGrant.fChkGrnRpt(r.CODE, 1) = 1)
+) x
+where 1=1
+ order by CODE asc 
+ 
+
+                                """, [src_id, task_id, task_id, task_id, task_id])
+
+    return JsonResponse(report_list, safe=False)
+
 def get_operlist_list(proc_id, bop_id, nstat):
     connection = get_oracle_connection()
     cursor = connection.cursor()

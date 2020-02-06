@@ -44,6 +44,8 @@ export default class TableViewWithSelection extends Component {
                         confirmPanelVisible: false,
                         rptDialogVisible: false,
                         filterNodes: [],
+                        showRptList: false,
+                        reportList: [],
                         confirmData: {
                                     sheet_name: "",
                                     flt_dsrc: "",
@@ -210,6 +212,12 @@ export default class TableViewWithSelection extends Component {
 
     }
 
+    showSheetRptList(){
+        sendRequestPromise('get_reports/')
+            .then(response=> {this.setState({reportList: response, showRptList: true})});
+
+    }
+
     getMenuItems(){
 
         var operMenuList = this.operList.getOperMenuList();
@@ -251,15 +259,22 @@ export default class TableViewWithSelection extends Component {
                                           {
                                             id: '1_5',
                                             name: 'Отчеты',
-                                            onClick: ()=> this.showReportList(),
                                             icon: 'detailslayout',
                                             getVisible: ()=> { return this.state.sheet_id ? true: true;},
                                           items: [
                                           {
                                             id: '1_6',
-                                            name: 'Выгрузка данных в ексель',
+                                            name: 'Выгрузка данных в excel',
                                             onClick: ()=> this.showSheetRpt(),
                                             icon: 'detailslayout',
+                                            getVisible: ()=> { return this.state.sheet_id ? true: true;}
+
+                                          },
+                                          {
+                                            id: '1_7',
+                                            name: 'Пользовательские отчеты',
+                                            onClick: ()=> this.showSheetRptList(),
+                                            icon: 'chart',
                                             getVisible: ()=> { return this.state.sheet_id ? true: true;}
 
                                           }
@@ -546,8 +561,10 @@ export default class TableViewWithSelection extends Component {
     }
 
     loadOperList(){
-        this.operList = new operList(this.state.sheet.proc_id, this.state.sheet.bop_id, this.state.sheet.nstat, this.beforeOperRun);
-        this.operList.init();
+        if (this.state.sheet_id){
+            this.operList = new operList(this.state.sheet.proc_id, this.state.sheet.bop_id, this.state.sheet.nstat, this.beforeOperRun);
+            this.operList.init();
+        }
     }
 
     onFilterNodesChange(nodes){
@@ -580,6 +597,18 @@ export default class TableViewWithSelection extends Component {
         this.setState({  rptDialogVisible: false});
     }
 
+    closeRptListReference(row){
+        console.log('closeRptListReference row', row);
+        this.setState({showRptList: false});
+
+        if (row && row.id){
+            var repParams= {};
+
+            repParams['SHT_ID'] = {type:"S", value: this.state.sheet_id.toString()};
+            getReport(row.code, repParams);
+        }
+    }
+
     render(){
 
         var referComp = this.state.showRef ? <Reference
@@ -597,11 +626,26 @@ export default class TableViewWithSelection extends Component {
             /> : null;
 
 
+            var referRptListComp = this.state.showRptList ? <Reference
+                data={this.state.reportList}
+                 onRefHidden={this.closeRptListReference.bind(this)}
+                 keyField={'id'}
+                refdscr={{
+                        title: 'Пользовательские отчеты',
+                        columns: [
+                          {caption: 'Код', field: 'code'},
+                          {caption: 'Наименование', field: 'longname'}
+                        ]
+                      }}
+            /> : null;
+
+
 
         return (
             <React.Fragment>
 
             {referComp}
+            {referRptListComp}
 
             <SheetToExcelRptDialog
                 popupVisible={this.state.rptDialogVisible}
