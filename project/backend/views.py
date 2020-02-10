@@ -35,7 +35,7 @@ def get_file(request):
 def get_report(request):
     from urllib.request import urlopen
     print('rptParams', dict(request.GET).get('params', [''])[0])
-    url = 'http://127.0.0.1:8001/rpt/?params='+ dict(request.GET).get('params', [''])[0]
+    url = 'http://127.0.0.1:60000/rpt/?params='+ dict(request.GET).get('params', [''])[0]
     #{%22DBG%22:%221%22,%20%22RPT_CODE%22:%22ES$RPT_500%22,%22PARAMS%22:{}}'
     report_data = urlopen(url).read()
 
@@ -447,10 +447,75 @@ def add_table_record(request):
 
     return JsonResponse([], safe=False)
 
+
+
+def import_sheet_data(request):
+    param_dict = dict(request.GET)
+    sht_id = param_dict['sht_id'][0]
+    skey = param_dict['skey'][0]
+    del_existed = param_dict['del_existed'][0]
+
+    header_info = get_xml_excel_header_info(request.body)
+    header_top = header_info.get('first_row')
+    header_bottom = header_info.get('last_row')
+
+    print('header_top bottom', header_top, header_bottom)
+
+
+    connection = get_oracle_connection()
+    cursor = connection.cursor()
+    my_clob = cursor.var(cx_Oracle.CLOB)
+    my_clob.setvalue(0, request.body)
+    cursor.execute("""begin c_pkgconnect.popen();
+                                C_PKGESIMP.pImportReqFromXLS(p_xml => :1, 
+                                                            p_sht_id => :2, 
+                                                            p_header_top => :3, 
+                                                            p_header_bottom => :4,
+                                                            p_del_existed_req => :5,
+                                                            p_skey => :6
+                                                            );
+                                commit;                                                            
+                        end;""", [my_clob, sht_id, header_top, header_bottom, del_existed, skey])
+
+    return JsonResponse([], safe=False)
+
+
+def get_xml_excel_header_info(xml_text):
+    from bs4 import BeautifulSoup
+
+    soup = BeautifulSoup(xml_text, features="xml")
+    sheets = soup.find_all('Worksheet')
+    sheet_data = sheets[0]
+
+    colored_background_style_ids = []
+    idx = 0
+    for style in soup.find_all('Style'):
+        idx = idx + 1
+        if style.find('Interior').get('ss:Color'):
+            colored_background_style_ids.append(style['ss:ID'])
+
+    colored_rows = []
+    row_index = 0
+    for row in sheet_data.find_all('Row'):
+        row_has_colored_cells = False
+        row_index = row_index + 1
+        for cell in row.find_all('Cell'):
+            if cell.get('ss:StyleID') in colored_background_style_ids:
+                row_has_colored_cells = True
+
+        if row_has_colored_cells:
+            colored_rows.append(row_index)
+
+    header_info = {}
+    header_info['first_row'] = colored_rows[0]
+    header_info['last_row'] = colored_rows[-1]
+    return header_info
+
+
 def get_sheet_state_update(request):
     param_dict = dict(request.GET)
     data = json.loads(request.body.decode("utf-8"))
-    filter_nodes =  json.dumps(data.get('filterNodes'))
+    sht_id =  json.dumps(data.get('filterNodes'))
     column_states = json.dumps(data.get('columnStates'))
     print('col_states', column_states)
     expanded_ids = json.dumps(data.get('expandedGroupIds'))

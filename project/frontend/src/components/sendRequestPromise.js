@@ -1,7 +1,7 @@
 
 
 export function sendRequestPromise(request_string, method='GET', data){
-    //console.log('request_string', request_string);
+    console.log('data', data, method);
     return new Promise(function(resolve, reject) {
 
         const httpRequest = new XMLHttpRequest();

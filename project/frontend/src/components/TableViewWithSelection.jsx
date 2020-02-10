@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component , useEffect, useRef} from 'react';
 import ReactDOM from "react-dom";
 import TabView from './TabView.jsx';
 import TableView from './TableView.jsx';
@@ -24,12 +24,8 @@ import {operList} from './operList.js';
 import Reference from './Reference.js';
 import TreeReference from './TreeReference.jsx';
 import SheetToExcelRptDialog from './SheetToExcelRptDialog.jsx';
-
-/*
-import { sendRequest } from './App.js';
-import notify from 'devextreme/ui/notify';
-import ColorPanel from './ColorPanel.jsx';
-*/
+import axios from 'axios';
+import { confirm } from 'devextreme/ui/dialog';
 
 export default class TableViewWithSelection extends Component {
 
@@ -55,6 +51,11 @@ export default class TableViewWithSelection extends Component {
                                     fileList:[]
                                   }
                       };
+
+        this.inputOpenFileRef = React.createRef();
+
+        this.onFileUploadButtonClick = this.onFileUploadButtonClick.bind(this);
+
         this.reportDialogParams = [];
         this.operList = new operList();
 
@@ -266,6 +267,14 @@ export default class TableViewWithSelection extends Component {
                                             id: '1_6',
                                             name: 'Выгрузка данных в excel',
                                             onClick: ()=> this.showSheetRpt(),
+                                            icon: 'detailslayout',
+                                            getVisible: ()=> { return this.state.sheet_id ? true: true;}
+
+                                          },
+                                          {
+                                            id: '1_6_1',
+                                            name: 'Загрузка данных из excel',
+                                            onClick: ()=> this.onFileUploadButtonClick(),
                                             icon: 'detailslayout',
                                             getVisible: ()=> { return this.state.sheet_id ? true: true;}
 
@@ -609,7 +618,41 @@ export default class TableViewWithSelection extends Component {
         }
     }
 
+
+    onFileUploadButtonClick () {
+        this.inputOpenFileRef.current.click();
+    };
+
+    onChangeFile(event){
+        event.stopPropagation();
+        event.preventDefault();
+        var file = event.target.files[0];
+
+        var delExistingRecords = '';
+
+        let result = confirm("<i>Удалить имеющиеся записи перед импортом?</i>", "Импорт данных");
+        result.then((dialogResult) => {
+            delExistingRecords = dialogResult ? "1" : "0";
+
+            console.log('delExistingRecords=',delExistingRecords)
+            console.log('file', file);
+
+
+            var httpStr = window.location.origin;
+            httpStr += '/import_sheet_data/?sht_id='+this.state.sheet_id;
+            httpStr += '&skey='+getFilterSkey(this.state.filterNodes);
+            httpStr += '&del_existed='+delExistingRecords;
+
+            axios.post( httpStr, file, {})
+                .then(()=>notify('Импорт успешно завершен','success'));
+
+        });
+
+
+    }
+
     render(){
+
 
         var referComp = this.state.showRef ? <Reference
                 data={this.state.confirmUndoData}
@@ -646,6 +689,9 @@ export default class TableViewWithSelection extends Component {
 
             {referComp}
             {referRptListComp}
+
+
+            <input type='file' id='file' ref={this.inputOpenFileRef} style={{display: 'none'}} onChange={this.onChangeFile.bind(this)}/>
 
             <SheetToExcelRptDialog
                 popupVisible={this.state.rptDialogVisible}
