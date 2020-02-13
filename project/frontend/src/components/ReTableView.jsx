@@ -191,41 +191,18 @@ export default class ReTableView extends Component {
         //при изменении пропса-массива приходится вручную изменить key грида, чтобы он перерендерился
         this.setState({gridKey: this.state.gridKey+1});
 
-
-
-            processTree( this.state.filterNodes['5619']['filter_node_list'], (item)=>{console.log('2it=',item.label, item.checked);}, 'children');
-
         if (this.props.onFilterNodesChange){
             this.props.onFilterNodesChange(this.state.filterNodes);
         }
-
-        console.log('onLoadFilterNodes this.state.filterNodes', this.state.filterNodes);
-        // processTree( this.state.filterNodes['5619']['filter_node_list'], (item)=>{console.log('2it=',item.label, item.checked);}, 'children');
     }
 
 
 
     processViewState(viewState){
-        console.log('OLD processSheetState', viewState);
-
         if (viewState.length>0){
-            /*
-            if (viewState[0].filternodes){
-                var selectedNodes = viewState[0].filternodes;
-                var markedNodes = markSelectedFilterNodes(this.state.filterNodes, selectedNodes);
-                this.setState({filterNodes: markedNodes});
-            }
-            */
-
-
-
-
             this.setState({columnStates: viewState[0].columnstates});
-
             this.setState({expandedGroupIds: viewState[0].expandedgroupids});
-
-
-        }
+       }
     }
 
     saveSheetState(){

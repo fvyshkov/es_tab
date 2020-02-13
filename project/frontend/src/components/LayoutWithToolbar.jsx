@@ -98,6 +98,105 @@ export default class LayoutWithToolbar extends Component {
                       "selected": true
                     };
 
+        var filterNodes2 = {
+  "5631": {
+    "flt_id": 5631,
+    "name": "Плоскость планирования",
+    "filter_node_list": [
+      {
+        "id": "53621",
+        "id_hi": null,
+        "name": "План",
+        "groupfl": "0",
+        "npp": 1000,
+        "nlevel": 0,
+        "flt_id": 5631,
+        "label": "План"
+      }
+    ]
+  },
+  "5632": {
+    "flt_id": 5632,
+    "name": "ЦФО и инвестиции",
+    "filter_node_list": [
+      {
+        "id": "39594",
+        "id_hi": null,
+        "name": "Delta Bank",
+        "groupfl": "1",
+        "npp": 0,
+        "nlevel": 0,
+        "flt_id": 5632,
+        "label": "Delta Bank",
+        "children": [
+          {
+            "id": "39595",
+            "id_hi": "39594",
+            "name": "ГО",
+            "groupfl": "0",
+            "npp": 0,
+            "nlevel": 1,
+            "flt_id": 5632,
+            "label": "ГО"
+          },
+          {
+            "id": "39598",
+            "id_hi": "39594",
+            "name": "Филиалы",
+            "groupfl": "1",
+            "npp": 0,
+            "nlevel": 1,
+            "flt_id": 5632,
+            "label": "Филиалы",
+            "children": [
+              {
+                "id": "39604",
+                "id_hi": "39598",
+                "name": "Алматы",
+                "groupfl": "0",
+                "npp": 0,
+                "nlevel": 2,
+                "flt_id": 5632,
+                "label": "Алматы",
+                "checked": true
+              },
+              {
+                "id": "39608",
+                "id_hi": "39598",
+                "name": "Астана",
+                "groupfl": "0",
+                "npp": 0,
+                "nlevel": 2,
+                "flt_id": 5632,
+                "label": "Астана"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+};
+
+
+    var sheet2 = {
+  "label": "Аренда",
+  "type": "SHEET",
+  "id": "2441",
+  "parent_id": "515_535_465_1077",
+  "hasItems": false,
+  "icon": "detailslayout",
+  "sheet_type": "table",
+  "stype": "R",
+  "sheet_path": "MIS => 2.Бюджет Планирование, контроль, факт => 2017 => 1.0 => Заявочные бюджеты => Аренда",
+  "proc_id": 195049,
+  "nstat": 3,
+  "bop_id": 10922,
+  "ver_id": 10922,
+  "year": 10922,
+  "selected": true
+};
+
         var filterNodes1 = {
   "5618": {
     "flt_id": 5618,
@@ -375,13 +474,15 @@ export default class LayoutWithToolbar extends Component {
                                     h: 4}
 
                              );
-        return;
+     //   return;
         this.addElementToLayout(
                                 <TableViewWithSelection
                                     layoutItemID={"n" + this.state.items.length}
                                     onToolbarCloseClick={this.onToolbarCloseClick.bind(this)}
                                     addElementToLayout={this.addElementToLayout.bind(this)}
                                     getNewLayoutItemID={this.getNewLayoutItemID}
+                                    sheet={sheet2}
+                                    filterNodes={filterNodes2}
                                  />,
                                  { x: 6,
                                     y: 0,
