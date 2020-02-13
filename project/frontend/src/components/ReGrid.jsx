@@ -29,6 +29,7 @@ export default class ReGrid extends React.Component {
 
         this.immutableStore =[];
         this.savedFocusedCell = {};
+        //this.gridReadySend = false;
 
         this.state = {
         gridKey:0,
@@ -167,6 +168,7 @@ export default class ReGrid extends React.Component {
 
 
     refreshGrid(){
+//        this.setState({gridKey: this.state.gridKey+1});
         //setTimeout(function(api){api.purgeServerSideCache()},0, this.gridApi);
         this.loadColumns();
 
@@ -285,8 +287,7 @@ export default class ReGrid extends React.Component {
         this.setState({columnDefs: columns});
         //заставляем грид перерендериться
         //без этого "загадочного" действия в FilterToolPanel почему-то не попадают новые пропсы
-
-        this.setState({gridKey: this.state.gridKey+1});
+        //this.setState({gridKey: this.state.gridKey+1});
 
         this.columnsLoaded = true;
     }
@@ -331,8 +332,11 @@ export default class ReGrid extends React.Component {
             this.loadColumns();
         }
 
-        if (this.props.onGridReady){
+        //console.log('!!! gridReadySend', this.gridReadySend);
+        if (this.props.onGridReady && ! this.gridReadySend){
+            this.gridReadySend = true;
             this.props.onGridReady();
+
         }
     }
 
@@ -422,7 +426,7 @@ export default class ReGrid extends React.Component {
 
         return (
                 <React.Fragment>
-                    <div className ="ag-theme-balham NonDraggableAreaClassName ToolbarViewContent" key={this.state.gridKey} id="myGrid123">
+                    <div className ="ag-theme-balham NonDraggableAreaClassName ToolbarViewContent" key={this.props.gridKey} id="myGrid123">
                         <AgGridReact
                             modules={AllModules}
                             getRowClass={this.getRowClass}

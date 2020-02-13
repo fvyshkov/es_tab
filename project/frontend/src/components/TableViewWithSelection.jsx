@@ -38,6 +38,7 @@ export default class TableViewWithSelection extends Component {
                         confirmUndoData:[],
                         showRef: false,
                         confirmPanelVisible: false,
+
                         rptDialogVisible: false,
                         filterNodes: [],
                         showRptList: false,
@@ -52,6 +53,7 @@ export default class TableViewWithSelection extends Component {
                                   }
                       };
 
+        this.firstFilterNodesRequest = true;
         this.inputOpenFileRef = React.createRef();
 
         this.onFileUploadButtonClick = this.onFileUploadButtonClick.bind(this);
@@ -61,6 +63,8 @@ export default class TableViewWithSelection extends Component {
 
         this.confirm = this.confirm.bind(this);
         this.beforeOperRun = this.beforeOperRun.bind(this);
+        this.downloadSheetData = this.downloadSheetData.bind(this);
+        this.componentDidMount = this.componentDidMount.bind(this);
 
     }
 
@@ -69,11 +73,48 @@ export default class TableViewWithSelection extends Component {
     }
 
 
+    componentDidMount() {
+        console.log('TableViewWithSelection didMount !!!');
+        if (this.props.sheet){
+            /*
+            if (this.props.filterNodes){
+                this.setState({filterNodes:this.props.filterNodes});
+            }
+            */
+            this.setState({
+                            sheet: this.props.sheet,
+                            sheet_id: this.props.sheet.id,
+                            sheet_type: this.props.sheet.sheet_type });
+
+            //this.setState({sheet_id: prm_sheet_id, sheet_type: prm_sheet_type});
+            //this.loadNewSheet(this.props.sheet);
+
+
+
+
+        }
+    }
+
     getFilterData(){
-        return sendRequestPromise('sht_filters/?sht_id='+this.state.sheet_id);
+
+
+        //this.firstFilterNodesRequest = true;
+        console.log('getFilterData this.firstFilterNodesRequest=', this.firstFilterNodesRequest);
+        if (this.props.filterNodes && this.firstFilterNodesRequest){
+            console.log('getFilterData from props', this.props.filterNodes);
+            this.firstFilterNodesRequest = false;
+            return new Promise((resolve, reject)=>{resolve(this.props.filterNodes);})
+            return this.props.filterNodes;
+
+        }else{
+            console.log('getFilterData from REST');
+            return sendRequestPromise('sht_filters/?sht_id='+this.state.sheet_id);
+        }
     }
 
     loadNewSheet(sheet){
+        console.log('sheet=', sheet);
+        console.log('!!! filterNodes=', this.props.filterNodes);
         this.setState({sheet_id: sheet.id, sheet_type: sheet.sheet_type, sheet_path: sheet.sheet_path, sheet: sheet});
         this.sendLoadAll(sheet.id, sheet.sheet_type);
         this.loadOperList();
@@ -219,6 +260,28 @@ export default class TableViewWithSelection extends Component {
 
     }
 
+    downloadSheetData(){
+        var repParams = {};
+
+        repParams['SHT_ID'] = {type:"S", value: this.state.sheet.id};
+        repParams['SKEY'] = {type:"S", value: getFilterSkey(this.state.filterNodes)};
+        //repParams['DOP'] = {type:"S", value: ""};
+        repParams['COL_LIMIT'] = {type:"S", value: "0"};
+
+        console.log('this.state.sheet.stype', this.state.sheet.stype);
+
+        if (this.state.sheet.stype ==='DM' || this.state.sheet.stype === 'MULT_DM' || this.state.sheet.stype === 'R'){
+            getReport('C_ES_DM_EXP_RPT', repParams);
+        }else if (this.state.sheet.stype === 'TURN'){
+            rParams.AddItem('P_SHT_ID', this.props.sheet_id);
+            getReport('C_ES_TURN_EXP_RPT', repParams);
+        }else if (this.state.sheet.stype === 'P'){
+            console.log('TODO');
+        }else{
+            console.log('this type of list is not supported');
+        }
+    }
+
     getMenuItems(){
 
         var operMenuList = this.operList.getOperMenuList();
@@ -258,36 +321,44 @@ export default class TableViewWithSelection extends Component {
                                             getVisible: ()=> { return this.state.sheet_id ? true: false;}
                                           },
                                           {
-                                            id: '1_5',
-                                            name: 'Отчеты',
-                                            icon: 'detailslayout',
-                                            getVisible: ()=> { return this.state.sheet_id ? true: true;},
-                                          items: [
-                                          {
-                                            id: '1_6',
-                                            name: 'Выгрузка данных в excel',
-                                            onClick: ()=> this.showSheetRpt(),
-                                            icon: 'detailslayout',
-                                            getVisible: ()=> { return this.state.sheet_id ? true: true;}
-
-                                          },
-                                          {
-                                            id: '1_6_1',
-                                            name: 'Загрузка данных из excel',
-                                            onClick: ()=> this.onFileUploadButtonClick(),
-                                            icon: 'detailslayout',
-                                            getVisible: ()=> { return this.state.sheet_id ? true: true;}
-
-                                          },
-                                          {
                                             id: '1_7',
                                             name: 'Пользовательские отчеты',
                                             onClick: ()=> this.showSheetRptList(),
                                             icon: 'chart',
                                             getVisible: ()=> { return this.state.sheet_id ? true: true;}
 
-                                          }
-                                          ]
+                                          },
+                                          {
+                                            id: '1_5',
+                                            name: 'Данные листа',
+                                            icon: 'detailslayout',
+                                            getVisible: ()=> { return this.state.sheet_id ? true: true;},
+                                                  items: [
+                                                              {
+                                                                id: '1_5_1',
+                                                                name: 'Выгрузка данных в excel',
+                                                                onClick: ()=> this.showSheetRpt(),
+                                                                icon: 'detailslayout',
+                                                                getVisible: ()=> { return this.state.sheet_id ? true: true;}
+
+                                                              },
+                                                              {
+                                                                id: '1_5_3',
+                                                                name: 'Генерация формы для сбора данных',
+                                                                onClick: ()=> this.downloadSheetData(),
+                                                                icon: 'download',
+                                                                getVisible: ()=> { return this.state.sheet_id ? true: true;}
+
+                                                              },
+                                                              {
+                                                                id: '1_5_4',
+                                                                name: 'Импорт данных',
+                                                                onClick: ()=> this.onFileUploadButtonClick(),
+                                                                icon: 'upload',
+                                                                getVisible: ()=> { return this.state.sheet_id ? true: true;}
+
+                                                              }
+                                                  ]
                                           }
 
 

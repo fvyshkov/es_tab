@@ -12,6 +12,8 @@ import { sendRequest } from './App.js';
 import { getReport } from './getReport.js';
 import { sendRequestPromise } from './sendRequestPromise.js';
 import {TableData} from './tableData.js';
+import {getFilterSkeyByCell, getFilterSkey} from './esUtils.js';
+
 
 
 
@@ -24,6 +26,7 @@ export default class ReTableView extends Component {
                         colorPanelVisible: false,
                         selectedFilterNodes: {},
                         filterNodes: {},
+                        gridKey: 0,
                         forceGridReload: false,
                         columnStates: [],
                         expandedGroupIds : [],
@@ -61,6 +64,10 @@ export default class ReTableView extends Component {
         if (this.props.sendLoadAll){
             this.props.sendLoadAll(this.loadAll.bind(this));
         }
+
+        if (this.props.filterNodes){
+            this.setState({filterNodes:this.props.filterNodes});
+        }
     }
 
     sendRefreshGrid(){
@@ -72,6 +79,10 @@ export default class ReTableView extends Component {
     }
 
     loadData(parentNode, reload = false){
+        //при изменении пропса-массива приходится вручную изменить key грида, чтобы он перерендерился
+        this.setState({ gridKey: this.state.gridKey+1});
+
+            console.log('reTableView LOADDATA this.getFilterSkey()', this.getFilterSkey(), '2', getFilterSkey(this.props.filterNodes));
         this.tableData.setRequestString(()=>{
 
             let httpStr = this.props.getDataRequestString();
@@ -97,12 +108,32 @@ export default class ReTableView extends Component {
                 console.log('rowData.length', this.state.rowData.length);
 
             })
-            .then(()=> this.sendRefreshData())
+            .then(()=> {
+                            console.log('loadData sendRefreshData');
+                            this.sendRefreshData();
+
+                            })
             .then(()=>{this.setState({loading:false})});
         //console.log('loadData', rowData);
     }
 
+
+    checkFilterNodes(filterNodesList){
+        console.log('checkFilterNodes', filterNodesList);
+        for (var i = 0 ; i< filterNodesList.length; i++){
+                                            var flt = filterNodesList[i];
+                                            console.log('flt', flt);
+                                            processTree(flt['filter_node_list'], (item)=>{
+                                                                                            if (item.label=='ГО'){
+                                                                                                console.log('!!!label=', item.label, item.checked);
+                                                                                            }
+                                                                                         },'children');
+                                        }
+
+    }
+
     loadAll(prm_sheet_id, prm_sheet_type){
+        console.log('loadAll!!! ');
 
         if (this.state.sheet_id){
             this.sendBeforeCloseToGrid();
@@ -124,9 +155,12 @@ export default class ReTableView extends Component {
                             }
                       })
             //обрабатываем пришедшие данные
-            .then(filterNodesList=>{tabView.onLoadFilterNodes(filterNodesList);})
+            .then(filterNodesList=>{
+                                        tabView.onLoadFilterNodes(filterNodesList);
+                                    })
             //запрашиваем состояние колонок, списки открытых нод
             .then(()=>{
+
                             if (tabView.props.getViewUserPreferences){
                                 return tabView.props.getViewUserPreferences();
                             }else{
@@ -134,9 +168,13 @@ export default class ReTableView extends Component {
                             }
                       })
             //обрабатываем пришедшие данные
-            .then(viewState=>{tabView.processViewState(viewState);})
-            .then(()=>this.loadData({},true))
-            //шлем указание гриду - там загрузятся столцы
+            .then(viewState=>{
+                tabView.processViewState(viewState);
+                })
+            .then(()=>{
+                        this.loadData({},true);
+                      })
+            //шлем указание гриду - там загрузятся столбцы
             .then(()=>{tabView.sendRefreshGrid()});
 
     }
@@ -150,22 +188,34 @@ export default class ReTableView extends Component {
         });
 
         this.setState({filterNodes: newFilterNodes});
+        //при изменении пропса-массива приходится вручную изменить key грида, чтобы он перерендерился
+        this.setState({gridKey: this.state.gridKey+1});
+
+
+
+            processTree( this.state.filterNodes['5619']['filter_node_list'], (item)=>{console.log('2it=',item.label, item.checked);}, 'children');
 
         if (this.props.onFilterNodesChange){
             this.props.onFilterNodesChange(this.state.filterNodes);
         }
+
+        console.log('onLoadFilterNodes this.state.filterNodes', this.state.filterNodes);
+        // processTree( this.state.filterNodes['5619']['filter_node_list'], (item)=>{console.log('2it=',item.label, item.checked);}, 'children');
     }
 
 
 
     processViewState(viewState){
         console.log('OLD processSheetState', viewState);
+
         if (viewState.length>0){
+            /*
             if (viewState[0].filternodes){
                 var selectedNodes = viewState[0].filternodes;
                 var markedNodes = markSelectedFilterNodes(this.state.filterNodes, selectedNodes);
                 this.setState({filterNodes: markedNodes});
             }
+            */
 
 
 
@@ -231,6 +281,7 @@ export default class ReTableView extends Component {
 
 
     onToolbarRefreshClick(){
+        console.log('onToolbarRefreshClick');
          this.gripApi.setRowData([]);
          this.loadData({}, true);
          this.sendRefreshGrid();
@@ -367,6 +418,10 @@ export default class ReTableView extends Component {
 
 
     onGridReady(){
+        console.log('onGridReady!!!', this.state.filterNodes);
+
+        this.setState({gridKey: this.state.gridKey+1});
+        this.isGridReady = true;
         this.loadData({}, true);
     }
 
@@ -404,6 +459,7 @@ export default class ReTableView extends Component {
 
                             <ReGrid
                                 rowData={this.state.rowData}
+                                gridKey={this.state.gridKey}
                                 getContextMenuItems={this.props.getContextMenuItems}
                                 getColumnsListRequestString={this.getColumnsListRequestString.bind(this)}
                                 sendRefreshGrid={click => this.sendRefreshGrid = click}

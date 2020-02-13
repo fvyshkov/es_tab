@@ -21,11 +21,12 @@ export class TableData {
 
 
     loadData(parentNode, reload = false){
+
         if (reload){
             this.rowData = [];
             this.loadedNodes =[];
         }
-
+        console.log('beginning loadData', this.rowData.length);
 
         var parentNodeKey = '';
         if (parentNode && parentNode.data){
@@ -78,6 +79,7 @@ export class TableData {
                         }
                     }
                 );
+                console.log('before return this.rowData', this.rowData.length);
                 return this.rowData;
             });
 
