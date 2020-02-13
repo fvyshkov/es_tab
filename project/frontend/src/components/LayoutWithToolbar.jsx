@@ -458,6 +458,9 @@ export default class LayoutWithToolbar extends Component {
 };
 
 
+
+
+
         this.addElementToLayout(
                                 <TableViewWithSelection
                                     layoutItemID={"n" + this.state.items.length}
@@ -520,6 +523,7 @@ export default class LayoutWithToolbar extends Component {
               })
         });
     }
+
 
 
     render(){

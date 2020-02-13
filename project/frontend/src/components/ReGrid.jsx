@@ -18,6 +18,7 @@ import TableViewComment from './TableViewComment.jsx';
 import SheetCellTooltip from './SheetCellTooltip.jsx';
 import CommentImg from '../images/chat.png';
 import {Spinner} from './spin.js';
+import {someChartModel} from './testData.js';
 
 LicenseManager.setLicenseKey("Evaluation_License_Not_For_Production_29_December_2019__MTU3NzU3NzYwMDAwMA==a3a7a7e770dea1c09a39018caf2c839c");
 
@@ -117,6 +118,8 @@ export default class ReGrid extends React.Component {
     refreshData(){
         console.log('refreshData(){');
         this.gridApi.setRowData(this.props.rowData);
+
+
     }
 
     componentDidMount() {
@@ -390,6 +393,24 @@ export default class ReGrid extends React.Component {
     }
 
     sendDeleteRecord(){
+        var chartModel = someChartModel;
+
+        console.log('chartModel', chartModel);
+        //return
+
+        var options = chartModel.chartOptions;
+        var createRangeChartParams = {
+          chartContainer: document.querySelector("#myChart"),
+          cellRange: chartModel.cellRange,
+          chartType: chartModel.chartType,
+          chartPalette: chartModel.chartPalette,
+          processChartOptions: function() {
+            return options;
+          }
+        };
+        var currentChartRef = this.gridApi.createRangeChart(createRangeChartParams);
+
+        /*
        this.savedFocusedCell = this.gridApi.getFocusedCell();
        var req_id = this.gridApi.getDisplayedRowAtIndex(this.savedFocusedCell.rowIndex).data.id;
        this.savedFocusedCell.rowIndex -= 1;
@@ -398,7 +419,7 @@ export default class ReGrid extends React.Component {
                         'POST',
                         {});
        this.gridApi.purgeServerSideCache();
-
+        */
     }
 
     getRowClass(params) {
