@@ -808,6 +808,7 @@ export default class TableViewWithSelection extends Component {
                     additionalToolbarItem={()=>{return(
                                                         <SheetSelectDropDown
                                                             onSelectNewSheet={this.loadNewSheet.bind(this)}
+                                                            sheet={this.props.sheet}
                                                             />
                                                         );
                                                 }
