@@ -91,6 +91,10 @@ export default class AddRemoveLayout extends React.PureComponent {
   onLayoutChange(layout) {
     //this.props.onLayoutChange(layout);
     this.setState({ layout: layout });
+    //console.log('onLayoutChange=', layout);
+    if (this.props.onLayoutChange){
+        this.props.onLayoutChange(layout);
+    }
   }
 
   onRemoveItem(i) {

@@ -18,7 +18,7 @@ import TableViewComment from './TableViewComment.jsx';
 import SheetCellTooltip from './SheetCellTooltip.jsx';
 import CommentImg from '../images/chat.png';
 import {Spinner} from './spin.js';
-import {someChartModel} from './testData.js';
+import {someChartModel, someChartModel2} from './testData.js';
 
 LicenseManager.setLicenseKey("Evaluation_License_Not_For_Production_29_December_2019__MTU3NzU3NzYwMDAwMA==a3a7a7e770dea1c09a39018caf2c839c");
 
@@ -31,6 +31,8 @@ export default class ReGrid extends React.Component {
         this.immutableStore =[];
         this.savedFocusedCell = {};
         //this.gridReadySend = false;
+
+        this.chartProcessingIndex = 0;
 
         this.state = {
         gridKey:0,
@@ -122,10 +124,18 @@ export default class ReGrid extends React.Component {
 
     }
 
+    loadCharts(charts){
+        //loadCharts(charts);
+    }
+
     componentDidMount() {
         console.log('REGRID MOUNT');
         if (this.props.sendRefreshGrid){
             this.props.sendRefreshGrid(this.refreshGrid);
+        }
+
+        if (this.props.sendLoadChartsToGrid){
+            this.props.sendLoadChartsToGrid(this.сreateCharts.bind(this));
         }
 
          if (this.props.sendRefreshData){
@@ -392,7 +402,50 @@ export default class ReGrid extends React.Component {
         }
     }
 
+
+    сreateCharts(charts){
+
+        charts.forEach((value, index, array)=>{
+            console.log('value, index, array', value, index, array);
+            var chartModel = value.chartModel;
+            var options = chartModel.chartOptions;
+            var createRangeChartParams = {
+              chartContainer: document.querySelector("#myChart"),
+              cellRange: chartModel.cellRange,
+              chartType: chartModel.chartType,
+              chartPalette: chartModel.chartPalette,
+              processChartOptions: function() {
+                return options;
+              }
+            };
+
+            //не нашел способа передать layout в createChartContainer
+            //потому использована переменная класса...
+            this.predefinedLayoutForChart = value.layout;
+            try{
+                var currentChartRef = this.gridApi.createRangeChart(createRangeChartParams);
+            }finally{
+                this.predefinedLayoutForChart = null;
+            }
+        });
+
+    }
+
     sendDeleteRecord(){
+       // console.log(' this.gridApi.getChartModels()',  this.gridApi.getChartModels());
+       // return;
+        var chartsData=[{chartModel: someChartModel,
+                  layout: { x: 4,   y: 0,
+                            w: 3,   h: 3}
+                },
+                {chartModel: someChartModel2,
+                  layout: { x: 0,   y: 4,
+                            w: 2,   h: 2}
+                }
+
+                ];
+        this.сreateCharts(chartsData);
+        return;
         var chartModel = someChartModel;
 
         console.log('chartModel', chartModel);
@@ -400,11 +453,13 @@ export default class ReGrid extends React.Component {
 
         var options = chartModel.chartOptions;
         var createRangeChartParams = {
-          chartContainer: document.querySelector("#myChart"),
+            myOwnField: 'test',
+          chartContainer: document.querySelector("#myChart1"),
           cellRange: chartModel.cellRange,
           chartType: chartModel.chartType,
           chartPalette: chartModel.chartPalette,
           processChartOptions: function() {
+            options['testField']='test';
             return options;
           }
         };
@@ -441,10 +496,6 @@ export default class ReGrid extends React.Component {
         if (this.gridApi && !this.props.loading ){
             this.gridApi.hideOverlay();
         }
-/*
-        sheet_id={this.props.sheet_id}
-        */
-
         return (
                 <React.Fragment>
                     <div className ="ag-theme-balham NonDraggableAreaClassName ToolbarViewContent" key={this.props.gridKey} id="myGrid123">
@@ -503,14 +554,23 @@ export default class ReGrid extends React.Component {
   }
 
     createChartContainer(chartRef) {
+        console.log('createChartContainer', chartRef);
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
+
+            var layout = null;
+
+            if (this.predefinedLayoutForChart){
+                layout = this.predefinedLayoutForChart;
+            }
             this.props.addElementToLayout(<ToolbarView
                                                 layoutItemID={newLayoutItemID}
                                                 addElementToLayout={this.props.addElementToLayout}
                                                 onToolbarCloseClick={this.props.onToolbarCloseClick}
                                                 getNewLayoutItemID={this.props.getNewLayoutItemID}
-                                            />);
+                                            />,
+                                            layout
+                                            );
             document.querySelector("#content_"+newLayoutItemID).appendChild(chartRef.chartElement);
         }
     }

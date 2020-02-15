@@ -11,6 +11,8 @@ import TableView from './TableView.jsx';
 import TableViewWithSelection from './TableViewWithSelection.jsx';
 import { AgGridReact } from "@ag-grid-community/react";
 import {processTree} from './esUtils.js';
+import {someChartModel, someChartModel2} from './testData.js';
+
 
 export default class LayoutWithToolbar extends Component {
 
@@ -19,12 +21,14 @@ export default class LayoutWithToolbar extends Component {
     constructor(props) {
         super(props);
 
+        this.layoutForSave = [];
         this.state={
                     items:[]
                     };
         this.addElementToLayout = this.addElementToLayout.bind(this);
         this.getNewLayoutItemID = this.getNewLayoutItemID.bind(this);
         this.openPatternLayout = this.openPatternLayout.bind(this);
+        this.savePatternLayout = this.savePatternLayout.bind(this);
     }
 
 
@@ -38,6 +42,7 @@ export default class LayoutWithToolbar extends Component {
                                                             onToolbarCloseClick={this.onToolbarCloseClick.bind(this)}
                                                             addElementToLayout={this.addElementToLayout.bind(this)}
                                                             getNewLayoutItemID={this.getNewLayoutItemID}
+                                                            onLayoutContentChange={this.onLayoutContentChange.bind(this)}
                                                          />
                                                     );
                         }
@@ -58,8 +63,36 @@ export default class LayoutWithToolbar extends Component {
         }
     }
 
+    savePatternLayoutButtonOptions = {
+        icon: 'save',
+        onClick: () => {
+            this.savePatternLayout();
+        }
+    }
+
+    savePatternLayout(){
+        console.log('savePatternLayout', this.layoutForSave);
+        this.savedLayout = this.layoutForSave;
+    }
 
     openPatternLayout(){
+        this.savedLayout.forEach((layoutItem)=>{
+            this.addElementToLayout(
+                                <TableViewWithSelection
+                                    layoutItemID={"n" + this.state.items.length}
+                                    onToolbarCloseClick={this.onToolbarCloseClick.bind(this)}
+                                    addElementToLayout={this.addElementToLayout.bind(this)}
+                                    getNewLayoutItemID={this.getNewLayoutItemID}
+                                    sheet={layoutItem.sheet}
+                                    filterNodes={layoutItem.filterNodes}
+                                    chartsData={layoutItem.chartsData}
+                                 />,
+                                 layoutItem.layout
+                             );
+        });
+
+
+        return;
         /*откроем конкретную послеГагим набором аналитик
             4) график по ЗК
             5) Кредиты
@@ -158,7 +191,7 @@ export default class LayoutWithToolbar extends Component {
                 "nlevel": 2,
                 "flt_id": 5632,
                 "label": "Алматы",
-                "checked": true
+                "checked": false
               },
               {
                 "id": "39608",
@@ -477,7 +510,16 @@ export default class LayoutWithToolbar extends Component {
                                     h: 4}
 
                              );
-     //   return;
+        var chartsData=[{chartModel: someChartModel,
+                  layout: { x: 4,   y: 0,
+                            w: 3,   h: 3}
+                },
+                {chartModel: someChartModel2,
+                  layout: { x: 0,   y: 4,
+                            w: 2,   h: 2}
+                }
+
+                ];
         this.addElementToLayout(
                                 <TableViewWithSelection
                                     layoutItemID={"n" + this.state.items.length}
@@ -486,6 +528,7 @@ export default class LayoutWithToolbar extends Component {
                                     getNewLayoutItemID={this.getNewLayoutItemID}
                                     sheet={sheet2}
                                     filterNodes={filterNodes2}
+                                    chartsData={chartsData}
                                  />,
                                  { x: 6,
                                     y: 0,
@@ -495,6 +538,20 @@ export default class LayoutWithToolbar extends Component {
 
     }
 
+    onLayoutContentChange(contentChangeParams){
+        console.log('onLayoutChange [Content]', contentChangeParams);
+        this.layoutForSave.forEach((layoutItem)=>{
+            if (layoutItem.itemId == contentChangeParams.itemId){
+                for (var paramItem in contentChangeParams.changeParams){
+                    console.log('onLayoutChange paramItem['+paramItem+']=', contentChangeParams.changeParams[paramItem]);
+                    layoutItem[paramItem] = contentChangeParams.changeParams[paramItem];
+                }
+            }
+        });
+
+        console.log('=onLayoutChange=this.layoutForSave=',this.layoutForSave);
+
+    }
 
 
     onToolbarCloseClick(itemID){
@@ -524,7 +581,41 @@ export default class LayoutWithToolbar extends Component {
         });
     }
 
+    onLayoutChange(layout){
+        console.log('onLayoutChange(layout){', layout);
+        //layoutForSave={itemId, layout, type,  sheet, filterNodes}
+        layout.forEach((layoutItem)=>{
+            var forSaveItem = this.layoutForSave.find((forSaveItem)=>{ return forSaveItem.itemId == layoutItem.i  });
+            if (forSaveItem){
+                console.log('FIND  this.layoutForSave');
+                forSaveItem.layout = {x: layoutItem.x, y: layoutItem.y, h: layoutItem.h, w: layoutItem.w};
+            }else{
+                console.log('are going to add to this.layoutForSave');
+                this.layoutForSave.push({
+                    itemId: layoutItem.i,
+                    x: layoutItem.x,
+                    y: layoutItem.y,
+                    h: layoutItem.h,
+                    w: layoutItem.w
+                });
+            }
 
+
+        });
+
+        console.log('this.layoutForSave', this.layoutForSave);
+        var cleanedLayout = this.layoutForSave.filter(
+            (forSaveItem)=>{
+
+                return layout.find((layoutItem)=>{return layoutItem.i==forSaveItem.itemId;
+                        });
+            });
+
+        this.layoutForSave = [];
+        this.layoutForSave = cleanedLayout;
+        console.log('this.layoutForSave cleanedLayout', this.layoutForSave);
+
+    }
 
     render(){
         return (
@@ -541,10 +632,17 @@ export default class LayoutWithToolbar extends Component {
 
                     <Item location={'before'}
                     widget={'dxButton'}
+                    options={this.savePatternLayoutButtonOptions} />
+
+                    <Item location={'before'}
+                    widget={'dxButton'}
                     options={this.openPatternLayoutButtonOptions} />
+
+
                 </Toolbar>
                 <AddRemoveLayout
                     items={this.state.items}
+                    onLayoutChange={this.onLayoutChange.bind(this)}
                  />
             </div>
             </React.Fragment>

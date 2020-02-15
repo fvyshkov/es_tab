@@ -17,7 +17,6 @@ import {getFilterSkeyByCell, getFilterSkey} from './esUtils.js';
 
 
 
-
 export default class ReTableView extends Component {
     constructor(props) {
         super(props);
@@ -42,6 +41,7 @@ export default class ReTableView extends Component {
                       };
 
         this.reportDialogParams = [];
+        this.isFirstLoadData = true;
 
 
         this.onToolbarPreferencesClick = this.onToolbarPreferencesClick.bind(this);
@@ -52,6 +52,7 @@ export default class ReTableView extends Component {
         this.onLoadFilterNodes = this.onLoadFilterNodes.bind(this);
         this.componentDidMount = this.componentDidMount.bind(this);
         this.loadData = this.loadData.bind(this);
+        this.afterFirstLoadData = this.afterFirstLoadData.bind(this);
 
         this.tableData = new TableData(()=>{}, this.props.getRowNodeId);
 
@@ -113,8 +114,21 @@ export default class ReTableView extends Component {
                             this.sendRefreshData();
 
                             })
-            .then(()=>{this.setState({loading:false})});
+            .then(()=>{this.setState({loading:false})})
+            .then(()=>{
+                if (this.isFirstLoadData){
+                    this.afterFirstLoadData();
+                }
+            });
         //console.log('loadData', rowData);
+    }
+
+    afterFirstLoadData(){
+        console.log('onFirstLoadData!!!=');
+        if (this.props.chartsData){
+            this.sendLoadChartsToGrid(this.props.chartsData);
+        }
+        this.isFirstLoadData = false;
     }
 
 
@@ -402,6 +416,9 @@ export default class ReTableView extends Component {
         this.loadData({}, true);
     }
 
+    sendLoadChartsToGrid(){
+    }
+
     render(){
 
         return (
@@ -440,6 +457,7 @@ export default class ReTableView extends Component {
                                 getContextMenuItems={this.props.getContextMenuItems}
                                 getColumnsListRequestString={this.getColumnsListRequestString.bind(this)}
                                 sendRefreshGrid={click => this.sendRefreshGrid = click}
+                                sendLoadChartsToGrid={click => this.sendLoadChartsToGrid = click}
                                 sendBeforeCloseToGrid={click => this.sendBeforeCloseToGrid = click}
                                 sendUndoToGrid={click => this.sendUndoToGrid = click}
                                 skey={this.getFilterSkey}

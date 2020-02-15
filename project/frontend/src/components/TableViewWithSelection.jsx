@@ -118,6 +118,14 @@ export default class TableViewWithSelection extends Component {
         this.setState({sheet_id: sheet.id, sheet_type: sheet.sheet_type, sheet_path: sheet.sheet_path, sheet: sheet});
         this.sendLoadAll(sheet.id, sheet.sheet_type);
         this.loadOperList();
+
+        if (this.props.onLayoutContentChange){
+            this.props.onLayoutContentChange({
+                                                type: 'loadNewSheet',
+                                                itemId: this.props.layoutItemID,
+                                                changeParams: {sheet: sheet}
+                                             });
+        }
     }
 
     getViewUserPreferences(){
@@ -653,6 +661,17 @@ export default class TableViewWithSelection extends Component {
 
         console.log('onFilterNodesChange', getFilterSkey(nodes));
 
+
+        if (this.props.onLayoutContentChange){
+            this.props.onLayoutContentChange({
+                                                type: 'onFilterNodesChange',
+                                                itemId: this.props.layoutItemID,
+                                                changeParams: {filterNodes: nodes}
+                                             });
+        }
+
+        
+
     }
 
 
@@ -721,6 +740,8 @@ export default class TableViewWithSelection extends Component {
 
 
     }
+
+
 
     render(){
 
