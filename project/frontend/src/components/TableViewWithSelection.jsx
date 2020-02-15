@@ -650,9 +650,18 @@ export default class TableViewWithSelection extends Component {
 
     loadOperList(){
         if (this.state.sheet_id){
-            this.operList = new operList(this.state.sheet.proc_id, this.state.sheet.bop_id, this.state.sheet.nstat, this.beforeOperRun);
+            this.operList = new operList(
+                                            this.state.sheet.proc_id,
+                                            this.state.sheet.bop_id,
+                                            this.state.sheet.nstat,
+                                            this.beforeOperRun
+                                        );
             this.operList.init();
         }
+    }
+
+    onChartsLayoutChange(){
+
     }
 
     onFilterNodesChange(nodes){
@@ -670,7 +679,7 @@ export default class TableViewWithSelection extends Component {
                                              });
         }
 
-        
+
 
     }
 

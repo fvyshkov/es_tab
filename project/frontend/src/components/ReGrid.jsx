@@ -32,6 +32,7 @@ export default class ReGrid extends React.Component {
         this.savedFocusedCell = {};
         //this.gridReadySend = false;
 
+        this.chartsMap = {};
         this.chartProcessingIndex = 0;
 
         this.state = {
@@ -128,11 +129,62 @@ export default class ReGrid extends React.Component {
         //loadCharts(charts);
     }
 
+    onLayoutBeforeSave(){
+        console.log('onLayoutBeforeSave', this.props.doBeforeSaveLayout);
+        if (this.props.doBeforeSaveLayout){
+
+            var chartModels  =   this.gridApi.getChartModels();
+
+            var chartParams = chartModels.map((model)=>{
+                var layouts = this.props.getLayoutForSave();
+                var chartLayoutId = this.chartsMap[model.chartId];
+
+                var layoutsFiltered = layouts.filter((layout)=>{
+                    return layout.itemId == chartLayoutId;
+                });
+
+                var layout = null;
+
+                if (layoutsFiltered.length==1){
+                    layout = layoutsFiltered[0];
+                }
+
+                return {
+                        chartModel: model,
+                        layout: layout,
+                        parentLayoutId: this.props.layoutItemID,
+                        chartLayoutId: chartLayoutId
+                       };
+            });
+        console.log('layoutForSave', this.props.getLayoutForSave());
+        console.log('chartsMap', this.chartsMap);
+        console.log('chartParams', chartParams);
+/*
+var chartsData=[{chartModel: someChartModel,
+                  layout: { x: 4,   y: 0,
+                            w: 3,   h: 3}
+                },
+                {chartModel: someChartModel2,
+                  layout: { x: 0,   y: 4,
+                            w: 2,   h: 2}
+                }
+
+                ];
+*/
+            this.props.doBeforeSaveLayout(chartParams);
+        }
+    }
+
     componentDidMount() {
         console.log('REGRID MOUNT');
         if (this.props.sendRefreshGrid){
             this.props.sendRefreshGrid(this.refreshGrid);
         }
+
+        if (this.props.sendLayoutBeforeSave){
+            this.props.sendLayoutBeforeSave(this.onLayoutBeforeSave.bind(this));
+        }
+
 
         if (this.props.sendLoadChartsToGrid){
             this.props.sendLoadChartsToGrid(this.сreateCharts.bind(this));
@@ -431,9 +483,15 @@ export default class ReGrid extends React.Component {
 
     }
 
+    onProcessChartOptions(params){
+        console.log('onProcessChartOptions', params);
+    }
+
     sendDeleteRecord(){
-       // console.log(' this.gridApi.getChartModels()',  this.gridApi.getChartModels());
-       // return;
+        console.log(' this.gridApi.getChartModels()',  this.gridApi.getChartModels());
+        console.log('layoutForSave', this.props.getLayoutForSave());
+        console.log('chartsMap', this.chartsMap);
+        return;
         var chartsData=[{chartModel: someChartModel,
                   layout: { x: 4,   y: 0,
                             w: 3,   h: 3}
@@ -544,6 +602,7 @@ export default class ReGrid extends React.Component {
                             undoRedoCellEditingLimit={100}
                             enableCellChangeFlash={true}
                             onCellFocused={this.onCellFocused.bind(this)}
+                            onProcessChartOptions={this.onProcessChartOptions.bind(this)}
                           />
 
                       </div>
@@ -554,7 +613,9 @@ export default class ReGrid extends React.Component {
   }
 
     createChartContainer(chartRef) {
-        console.log('createChartContainer', chartRef);
+        //console.log('createChartContainer', chartRef.__agComponent);
+
+        console.log('createChartContainer chartId=', chartRef.chartElement.__agComponent.model.chartId);
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
 
@@ -563,6 +624,13 @@ export default class ReGrid extends React.Component {
             if (this.predefinedLayoutForChart){
                 layout = this.predefinedLayoutForChart;
             }
+            //layoutItemID={newLayoutItemID}
+            if (this.props.onAddChart){
+                this.props.onAddChart({layoutItemID: newLayoutItemID, chartId: chartRef.chartElement.__agComponent.model.chartId});
+            }
+
+            this.chartsMap[chartRef.chartElement.__agComponent.model.chartId] = newLayoutItemID;
+
             this.props.addElementToLayout(<ToolbarView
                                                 layoutItemID={newLayoutItemID}
                                                 addElementToLayout={this.props.addElementToLayout}

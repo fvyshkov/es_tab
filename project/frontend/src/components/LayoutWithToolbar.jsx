@@ -43,6 +43,9 @@ export default class LayoutWithToolbar extends Component {
                                                             addElementToLayout={this.addElementToLayout.bind(this)}
                                                             getNewLayoutItemID={this.getNewLayoutItemID}
                                                             onLayoutContentChange={this.onLayoutContentChange.bind(this)}
+                                                            getLayoutForSave={()=>{return this.layoutForSave}}
+                                                            sendLayoutBeforeSave={click => this.sendLayoutBeforeSave = click}
+                                                            doBeforeSaveLayout={this.doBeforeSaveLayout.bind(this)}
                                                          />
                                                     );
                         }
@@ -63,6 +66,10 @@ export default class LayoutWithToolbar extends Component {
         }
     }
 
+
+    sendLayoutBeforeSave(){
+    }
+
     savePatternLayoutButtonOptions = {
         icon: 'save',
         onClick: () => {
@@ -71,8 +78,33 @@ export default class LayoutWithToolbar extends Component {
     }
 
     savePatternLayout(){
-        console.log('savePatternLayout', this.layoutForSave);
+        console.log('savePatternLayout 1', this.layoutForSave);
+        this.sendLayoutBeforeSave();
+
+        console.log('savePatternLayout 2', this.layoutForSave);
         this.savedLayout = this.layoutForSave;
+    }
+
+    doBeforeSaveLayout(charts){
+        console.log('doBeforeSaveLayout(params)', charts);
+        this.layoutForSave.forEach((layout)=>{
+            var layoutChartsData = [];
+            charts.forEach((chart)=>{
+                if (chart.parentLayoutId == layout.itemId){
+                    layoutChartsData.push(chart);
+                }
+            });
+            layout['chartsData'] = layoutChartsData;
+        });
+
+        this.layoutForSave = this.layoutForSave.filter((layout)=>{
+            var isChart = charts.find((chart)=>{
+                return chart.chartLayoutId == layout.itemId;
+            });
+            return !isChart;
+        });
+
+
     }
 
     openPatternLayout(){
@@ -83,6 +115,8 @@ export default class LayoutWithToolbar extends Component {
                                     onToolbarCloseClick={this.onToolbarCloseClick.bind(this)}
                                     addElementToLayout={this.addElementToLayout.bind(this)}
                                     getNewLayoutItemID={this.getNewLayoutItemID}
+                                    onLayoutContentChange={this.onLayoutContentChange.bind(this)}
+                                    doBeforeSaveLayout={this.doBeforeSaveLayout.bind(this)}
                                     sheet={layoutItem.sheet}
                                     filterNodes={layoutItem.filterNodes}
                                     chartsData={layoutItem.chartsData}
