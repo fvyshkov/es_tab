@@ -61,13 +61,20 @@ export default class ReTableView extends Component {
 
 
     componentDidMount(){
-        console.log('RETABLE MOUNT');
         if (this.props.sendLoadAll){
             this.props.sendLoadAll(this.loadAll.bind(this));
         }
 
         if (this.props.filterNodes){
             this.setState({filterNodes:this.props.filterNodes});
+        }
+
+        if (this.props.onLayoutContentChange && this.props.sheet){
+            this.props.onLayoutContentChange({
+                                                type: 'loadNewSheet',
+                                                itemId: this.props.layoutItemID,
+                                                changeParams: {sheet: this.props.sheet}
+                                             });
         }
     }
 
@@ -83,7 +90,7 @@ export default class ReTableView extends Component {
         //при изменении пропса-массива приходится вручную изменить key грида, чтобы он перерендерился
         this.setState({ gridKey: this.state.gridKey+1});
 
-            console.log('reTableView LOADDATA this.getFilterSkey()', this.getFilterSkey(), '2', getFilterSkey(this.props.filterNodes));
+
         this.tableData.setRequestString(()=>{
 
             let httpStr = this.props.getDataRequestString();
@@ -104,13 +111,13 @@ export default class ReTableView extends Component {
         var rowData;
         return this.tableData.loadData(parentNode, reload)
             .then((data)=>{
-                console.log('loadData', data);
+
                 this.setState({rowData: data});
-                console.log('rowData.length', this.state.rowData.length);
+
 
             })
             .then(()=> {
-                            console.log('loadData sendRefreshData');
+
                             this.sendRefreshData();
 
                             })
@@ -124,7 +131,6 @@ export default class ReTableView extends Component {
     }
 
     afterFirstLoadData(){
-        console.log('onFirstLoadData!!!=');
         if (this.props.chartsData){
             this.sendLoadChartsToGrid(this.props.chartsData);
         }
@@ -132,22 +138,9 @@ export default class ReTableView extends Component {
     }
 
 
-    checkFilterNodes(filterNodesList){
-        console.log('checkFilterNodes', filterNodesList);
-        for (var i = 0 ; i< filterNodesList.length; i++){
-                                            var flt = filterNodesList[i];
-                                            console.log('flt', flt);
-                                            processTree(flt['filter_node_list'], (item)=>{
-                                                                                            if (item.label=='ГО'){
-                                                                                                console.log('!!!label=', item.label, item.checked);
-                                                                                            }
-                                                                                         },'children');
-                                        }
 
-    }
 
     loadAll(prm_sheet_id, prm_sheet_type){
-        console.log('loadAll!!! ');
 
         if (this.state.sheet_id){
             this.sendBeforeCloseToGrid();
@@ -232,7 +225,6 @@ export default class ReTableView extends Component {
 
 
     onFilterPanelChange(selectedNodes, allNodes, filterID){
-        console.log('onFilterPanelChange selectedNodes', selectedNodes);
         this.state.filterNodes[filterID].filter_node_list = allNodes;
         this.setState({filterNodes : this.state.filterNodes});
 
@@ -272,7 +264,6 @@ export default class ReTableView extends Component {
 
 
     onToolbarRefreshClick(){
-        console.log('onToolbarRefreshClick');
          this.gripApi.setRowData([]);
          this.loadData({}, true);
          this.sendRefreshGrid();
@@ -331,9 +322,7 @@ export default class ReTableView extends Component {
     }
 
     onInsertCallback(){
-        console.log('onInsertCallback');
         if (this.props.onInsertCallback){
-            console.log('onInsertCallback 2');
             this.props.onInsertCallback(this);
         }
 
@@ -354,7 +343,6 @@ export default class ReTableView extends Component {
     }
 
     onGetGridApi(params){
-        console.log('TableView this.props.onGetGridApi', this.props.onGetGridApi);
         if (this.props.onGetGridApi){
             this.props.onGetGridApi(params);
         }
@@ -409,11 +397,9 @@ export default class ReTableView extends Component {
 
 
     onGridReady(){
-        console.log('onGridReady!!!', this.state.filterNodes);
-
         this.setState({gridKey: this.state.gridKey+1});
-        this.isGridReady = true;
         this.loadData({}, true);
+
     }
 
     sendLoadChartsToGrid(){

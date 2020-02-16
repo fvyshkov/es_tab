@@ -42,7 +42,7 @@ class FilterPanelInToolPanel extends Component {
 
 
 function mapStateToProps (state, ownProps){
-    console.log('FilterPanelInToolPanel mapStateToProps viewGUID=', ownProps.agGridReact.props.viewGUID, state.sheetState[ownProps.agGridReact.props.viewGUID] );
+  //  console.log('FilterPanelInToolPanel mapStateToProps viewGUID=', ownProps.agGridReact.props.viewGUID, state.sheetState[ownProps.agGridReact.props.viewGUID] );
 
     var ownSheetState = state.sheetState[ownProps.agGridReact.props.viewGUID];
 

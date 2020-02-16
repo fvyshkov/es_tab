@@ -53,7 +53,6 @@ export default class ReportDialog extends React.Component {
 
                                                             }
 
-                                                            console.log('reportFULLParams', repParams);
                                                             getReport(this.props.reportCode, repParams);
                                                        }
                                     }
@@ -108,7 +107,6 @@ export default class ReportDialog extends React.Component {
         this.formData[param.dataField] = param.value;
     });
 
-    console.log('formData', this.formData);
 
     return (
             <div id="form-demo">

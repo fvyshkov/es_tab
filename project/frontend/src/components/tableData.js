@@ -26,7 +26,6 @@ export class TableData {
             this.rowData = [];
             this.loadedNodes =[];
         }
-        console.log('beginning loadData', this.rowData.length);
 
         var parentNodeKey = '';
         if (parentNode && parentNode.data){
@@ -38,7 +37,6 @@ export class TableData {
 
         return this.getTabData(parentNode)
             .then((data)=>{
-                console.log('chain parent node', parentNodeKey);
                 //удаляем фиктивную ноду
                 this.rowData = this.rowData.filter(e => e.node_key !== parentNodeKey + '_dummy_child');
 
@@ -79,7 +77,6 @@ export class TableData {
                         }
                     }
                 );
-                console.log('before return this.rowData', this.rowData.length);
                 return this.rowData;
             });
 
@@ -104,7 +101,6 @@ export class TableData {
             parentNode.data.hie_path.forEach(el=>{pathToExpandedNode += el+','});
             httpStr += '&group_keys='+pathToExpandedNode;
         }
-        console.log('getTabData (send request)');
         return sendRequestPromise(httpStr);
 
     }

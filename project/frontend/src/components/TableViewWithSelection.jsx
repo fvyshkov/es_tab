@@ -74,7 +74,6 @@ export default class TableViewWithSelection extends Component {
 
 
     componentDidMount() {
-        console.log('TableViewWithSelection didMount !!!');
         if (this.props.sheet){
             /*
             if (this.props.filterNodes){
@@ -93,28 +92,31 @@ export default class TableViewWithSelection extends Component {
 
 
         }
+        console.log('DIDMOUNT this.props.filterNodes', this.props.filterNodes, this.props.sheet);
+        if (this.props.onLayoutContentChange && this.props.filterNodes){
+            this.props.onLayoutContentChange({
+                                                type: 'onFilterNodesChange',
+                                                itemId: this.props.layoutItemID,
+                                                changeParams: {filterNodes: this.props.filterNodes, sheet: this.props.sheet}
+                                             });
+        }
     }
 
     getFilterData(){
 
 
         //this.firstFilterNodesRequest = true;
-        console.log('getFilterData this.firstFilterNodesRequest=', this.firstFilterNodesRequest);
         if (this.props.filterNodes && this.firstFilterNodesRequest){
-            console.log('getFilterData from props', this.props.filterNodes);
             this.firstFilterNodesRequest = false;
             return new Promise((resolve, reject)=>{resolve(this.props.filterNodes);})
             return this.props.filterNodes;
 
         }else{
-            console.log('getFilterData from REST');
             return sendRequestPromise('sht_filters/?sht_id='+this.state.sheet_id);
         }
     }
 
     loadNewSheet(sheet){
-        console.log('sheet=', sheet);
-        console.log('!!! filterNodes=', this.props.filterNodes);
         this.setState({sheet_id: sheet.id, sheet_type: sheet.sheet_type, sheet_path: sheet.sheet_path, sheet: sheet});
         this.sendLoadAll(sheet.id, sheet.sheet_type);
         this.loadOperList();
@@ -162,8 +164,6 @@ export default class TableViewWithSelection extends Component {
     }
 
     onInsertCallback(){
-        //this.loadNewSheet(2434, 'tree');
-        console.log('ins test', this);
         if (this.state.sheet_id){
                 sendRequest('insert_record/?sht_id='+this.state.sheet_id+'&skey='+this.getFilterSkey(),
                             this.sendInsertRecord,
@@ -181,7 +181,6 @@ export default class TableViewWithSelection extends Component {
     }
 
     recalc(component, recalcType){
-        console.log('recalc', component, recalcType);
         var httpStr = 'recalc_sheet/?sht_id='+this.state.sheet.id;
         if (recalcType==='old'){
             httpStr += '&skey='+ getFilterSkey(this.state.filterNodes);
@@ -196,13 +195,11 @@ export default class TableViewWithSelection extends Component {
     confirm(){
         var filterDscr='';
 
-        console.log('confirm', this.state.filterNodes);
 
         for (var filterId in this.state.filterNodes){
             processTree(this.state.filterNodes[filterId]['filter_node_list'],
                         (item) =>
                         {
-                               console.log('item', item);
                                if (item.checked){
                                     filterDscr += this.state.filterNodes[filterId].name + ' = ' + item.name+'\n';
                                }
@@ -210,8 +207,6 @@ export default class TableViewWithSelection extends Component {
                         'children'
             );
         }
-
-        console.log('confirm filterDscr', filterDscr);
 
         this.setState({confirmData: {
                                     sheet_name: this.state.sheet_path,
@@ -228,7 +223,6 @@ export default class TableViewWithSelection extends Component {
     }
 
     beforeOperRun(item, runOperCallback){
-        console.log('beforeOperRun', item);
         if (item.code==='CONFIRM'){
             this.onConfirmCallBack=runOperCallback;
             this.operItem = item;
@@ -276,7 +270,6 @@ export default class TableViewWithSelection extends Component {
         //repParams['DOP'] = {type:"S", value: ""};
         repParams['COL_LIMIT'] = {type:"S", value: "0"};
 
-        console.log('this.state.sheet.stype', this.state.sheet.stype);
 
         if (this.state.sheet.stype ==='DM' || this.state.sheet.stype === 'MULT_DM' || this.state.sheet.stype === 'R'){
             getReport('C_ES_DM_EXP_RPT', repParams);
@@ -383,7 +376,6 @@ export default class TableViewWithSelection extends Component {
 
 
     onFileValueChanged(e){
-        console.log('onFileValueChanged', e);
         this.state.confirmData.fileList = e.previousValue;
         this.setState({confirmData: this.state.confirmData});
 
@@ -469,10 +461,8 @@ export default class TableViewWithSelection extends Component {
 
 
     showDetailForCell(params){
-        console.log('showDetailForCell', params);
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
-            console.log('newLayoutItemID=', newLayoutItemID);
             var detailRender =  <ReTableView
                                 additionalSheetParams={{
                                                             parent_id:params.node.data.id,
@@ -499,7 +489,6 @@ export default class TableViewWithSelection extends Component {
 
     showCalcReport(params){
 
-        console.log('report this.state.sheet_id', this.state.sheet_id);
         this.reportDialogParams = [
             //то что должен установить пользователь
             {dataField:"SHOW_PF", label:"Потоки платежей", editorType:"dxCheckBox", value:false, visible: true},
@@ -517,10 +506,8 @@ export default class TableViewWithSelection extends Component {
     }
 
     showScheduleForRow(params){
-        console.log('showDetailForCell req_id', params.node.data.id);
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
-            console.log('newLayoutItemID=', newLayoutItemID);
             var detailRender =  <TableViewSchedule
                                 additionalSheetParams={{sht_id: this.state.sheet_id, req_id:params.node.data.id, dop: params.node.data.dop}}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
@@ -554,10 +541,8 @@ export default class TableViewWithSelection extends Component {
     }
 
     showFlow(params, oneRow){
-        console.log('showFlowForRow req_id', params.node.data.id);
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
-            console.log('newLayoutItemID=', newLayoutItemID);
 
             var dopString = '';
 
@@ -584,7 +569,7 @@ export default class TableViewWithSelection extends Component {
     }
 
     showCommentForCell(params){
-        console.log('showCommentForCell new ', params);
+
         var columnData = getColumnData(params);
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
@@ -601,8 +586,6 @@ export default class TableViewWithSelection extends Component {
             skey = getFilterSkeyByCell(params);
             skey += columnData.key;
 
-            console.log('showCommentForCell=', columnData);
-            console.log('showCommentForCell(params)', params);
 
             var additionalParams = {
                                     viewType: 'CommentView',
@@ -665,10 +648,8 @@ export default class TableViewWithSelection extends Component {
     }
 
     onFilterNodesChange(nodes){
-        console.log('onFilterNodesChange', nodes);
         this.setState({filterNodes: nodes});
 
-        console.log('onFilterNodesChange', getFilterSkey(nodes));
 
 
         if (this.props.onLayoutContentChange){
@@ -695,7 +676,6 @@ export default class TableViewWithSelection extends Component {
 
 
     closeReference(row) {
-      console.log('closeReference ', row);
 
         this.onConfirmCallBack(this.operItem, 'NJRN=>'+row.njrn+',ROOTFL=>0,BPFL=>1');
         this.setState({showRef: false, refCode: ''});
@@ -706,7 +686,6 @@ export default class TableViewWithSelection extends Component {
     }
 
     closeRptListReference(row){
-        console.log('closeRptListReference row', row);
         this.setState({showRptList: false});
 
         if (row && row.id){
@@ -733,8 +712,6 @@ export default class TableViewWithSelection extends Component {
         result.then((dialogResult) => {
             delExistingRecords = dialogResult ? "1" : "0";
 
-            console.log('delExistingRecords=',delExistingRecords)
-            console.log('file', file);
 
 
             var httpStr = window.location.origin;

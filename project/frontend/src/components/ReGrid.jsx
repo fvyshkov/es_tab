@@ -105,6 +105,7 @@ export default class ReGrid extends React.Component {
         this.onGridStateChange = this.onGridStateChange.bind(this);
         this.sendDeleteRecord = this.sendDeleteRecord.bind(this);
         this.sendUndoToGrid = this.sendUndoToGrid.bind(this);
+        this.onLayoutBeforeSave = this.onLayoutBeforeSave.bind(this);
 
 
 
@@ -119,27 +120,21 @@ export default class ReGrid extends React.Component {
 
 
     refreshData(){
-        console.log('refreshData(){');
         this.gridApi.setRowData(this.props.rowData);
-
-
     }
 
     loadCharts(charts){
-        //loadCharts(charts);
     }
 
     onLayoutBeforeSave(){
-        console.log('onLayoutBeforeSave', this.props.doBeforeSaveLayout);
+        console.log('onLayoutBeforeSave chartModels BEFORE', this.gridApi.getChartModels());
         if (this.props.doBeforeSaveLayout){
 
             var chartModels  =   this.gridApi.getChartModels();
-
+            console.log('onLayoutBeforeSave chartModels', chartModels);
             var chartParams = chartModels.map((model)=>{
                 var layouts = this.props.getLayoutForSave();
-                console.log('layouts',layouts);
                 var chartLayoutId = this.chartsMap[model.chartId];
-
                 var layoutsFiltered = layouts.filter((layout)=>{
                     return layout.itemId == chartLayoutId;
                 });
@@ -157,27 +152,12 @@ export default class ReGrid extends React.Component {
                         chartLayoutId: chartLayoutId
                        };
             });
-        console.log('layoutForSave', this.props.getLayoutForSave());
-        console.log('chartsMap', this.chartsMap);
-        console.log('chartParams', chartParams);
-/*
-var chartsData=[{chartModel: someChartModel,
-                  layout: { x: 4,   y: 0,
-                            w: 3,   h: 3}
-                },
-                {chartModel: someChartModel2,
-                  layout: { x: 0,   y: 4,
-                            w: 2,   h: 2}
-                }
 
-                ];
-*/
             this.props.doBeforeSaveLayout(chartParams);
         }
     }
 
     componentDidMount() {
-        console.log('REGRID MOUNT');
         if (this.props.sendRefreshGrid){
             this.props.sendRefreshGrid(this.refreshGrid);
         }
@@ -222,7 +202,6 @@ var chartsData=[{chartModel: someChartModel,
     }
 
     sendUndoToGrid(){
-        console.log('this.gridApi', this.gridApi);
         this.gridApi.undoCellEditing();
     }
 
@@ -241,7 +220,6 @@ var chartsData=[{chartModel: someChartModel,
     }
 
     processColumnsData(columnList){
-        console.log('processColumnsData', columnList);
         for (var i=0; i < columnList.length; i++){
             if (columnList[i].refer_data){
                 referStore.setData(columnList[i].key, JSON.stringify(columnList[i].refer_data));
@@ -260,7 +238,6 @@ var chartsData=[{chartModel: someChartModel,
             if (currentValue.atr_type==="N")
                 cellChartDataType = "series";
 
-            console.log('BEFORE INNER inner', currentValue.node_key);
 
             return {
                             field:currentValue.key,
@@ -445,7 +422,6 @@ var chartsData=[{chartModel: someChartModel,
 
     sendInsertRecord(){
         this.savedFocusedCell = this.gridApi.getFocusedCell();
-        console.log('sendInsertRecord');
         this.gridApi.purgeServerSideCache();
     }
 
@@ -459,7 +435,6 @@ var chartsData=[{chartModel: someChartModel,
     сreateCharts(charts){
 
         charts.forEach((value, index, array)=>{
-            console.log('value, index, array', value, index, array);
             var chartModel = value.chartModel;
             var options = chartModel.chartOptions;
             var createRangeChartParams = {
@@ -477,6 +452,7 @@ var chartsData=[{chartModel: someChartModel,
             this.predefinedLayoutForChart = value.layout;
             try{
                 var currentChartRef = this.gridApi.createRangeChart(createRangeChartParams);
+                console.log('create saved chart', this.gridApi.getChartModels());
             }finally{
                 this.predefinedLayoutForChart = null;
             }
@@ -485,7 +461,6 @@ var chartsData=[{chartModel: someChartModel,
     }
 
     onProcessChartOptions(params){
-        console.log('onProcessChartOptions', params);
     }
 
     sendDeleteRecord(){
@@ -507,8 +482,6 @@ var chartsData=[{chartModel: someChartModel,
         return;
         var chartModel = someChartModel;
 
-        console.log('chartModel', chartModel);
-        //return
 
         var options = chartModel.chartOptions;
         var createRangeChartParams = {
@@ -545,8 +518,6 @@ var chartsData=[{chartModel: someChartModel,
 
 
   render() {
-        console.log('render regrid this.state.gridKey', this.state.gridKey);
-        //rowModelType={this.state.rowModelType}
 
         if (this.gridApi && this.props.loading){
             this.gridApi.showLoadingOverlay();
@@ -616,7 +587,6 @@ var chartsData=[{chartModel: someChartModel,
     createChartContainer(chartRef) {
         //console.log('createChartContainer', chartRef.__agComponent);
 
-        console.log('createChartContainer chartId=', chartRef.chartElement.__agComponent.model.chartId);
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
 

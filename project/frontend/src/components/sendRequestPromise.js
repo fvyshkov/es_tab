@@ -1,7 +1,6 @@
 
 
 export function sendRequestPromise(request_string, method='GET', data){
-    console.log('data', data, method);
     return new Promise(function(resolve, reject) {
 
         const httpRequest = new XMLHttpRequest();
@@ -16,7 +15,7 @@ export function sendRequestPromise(request_string, method='GET', data){
             if (httpRequest.readyState === 4){
                 if (httpRequest.status === 200) {
                     var respObj = JSON.parse(httpRequest.responseText);
-                    console.log('respObj', respObj);
+
 
                     resolve(respObj);
                 }else{

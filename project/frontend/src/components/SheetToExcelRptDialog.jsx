@@ -64,15 +64,7 @@ export default class SheetToExcelRptDialog extends React.Component {
                                                             //а то render опять перепишет this.formData
                                                             var localFormData = Object.assign({}, this.formData);
 
-                                                            console.log('this.state.detailFl', this.state.detailFl);
-                                                            console.log('this.state.detailFl', this.state.detailHeaderFl);
-                                                            console.log('this.state.detailFl', this.state.showIndCodesFl);
-                                                            console.log('this.state.indMask', this.state.indMask);
-                                                            console.log('this.state.sht_flt_id', this.state.sht_flt_id);
-                                                            console.log('this.state.row_flt_id', this.state.row_flt_id);
-                                                            console.log('this.state.col_flt_id', this.state.col_flt_id);
-                                                            console.log('this.state.fltFixedValues', this.state.fltFixedValues);
-                                                            var addSkey = '';
+                                                           var addSkey = '';
                                                             for (var fltId in this.state.fltFixedValues){
                                                                 addSkey+= 'FLT_ID_'+fltId+'=>'+this.state.fltFixedValues[fltId];
                                                             }

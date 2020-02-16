@@ -73,9 +73,7 @@ export default class SheetSelectDropDown extends Component {
         sendRequestPromise('sheet_list/')
             .then(respObj=> this.onLoadSheetSuccess(respObj))
             .then(()=>{
-                        console.log('loadSheetList', this.props.sheet);
                         if (this.props.sheet){
-
                             this.setState({ treeBoxValue: this.props.sheet.label});
                         }
 

@@ -121,12 +121,12 @@ export default class SheetToolbar extends Component {
                                 if (this.props.getMenuItems){
 
                                     menuItems = this.props.getMenuItems();
-                                    console.log('this.props.getMenuItems', this.props.getMenuItems);
+
                                 }
 
                                 processTree(menuItems, (item)=>{
                                     if (item.getDisabled){
-                                        console.log('item.getDisabled!=', item.getDisabled());
+
                                         item['disabled'] = item.getDisabled();
                                     }
 

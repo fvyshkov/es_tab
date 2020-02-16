@@ -5,7 +5,6 @@ import ButtonImg from '../images/icons/ref.png';
 class RefTextBox extends React.Component {
     constructor(props) {
         super(props);
-        console.log(props);
         this.refButton = {
           icon: ButtonImg,
           type: 'default',

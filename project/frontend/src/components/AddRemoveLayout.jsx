@@ -98,7 +98,6 @@ export default class AddRemoveLayout extends React.PureComponent {
   }
 
   onRemoveItem(i) {
-    console.log("removing", i);
     this.setState({ items: _.reject(this.state.items, { i: i }) });
   }
 

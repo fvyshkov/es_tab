@@ -85,16 +85,16 @@ export class operList{
 
 
     init(){
-        var httpStr = 'operlist/?proc_id=' + this.proc_id;
-        httpStr += '&bop_id=' + this.bop_id;
-        httpStr += '&nstat=' + this.nstat;
+        if (this.proc_id){
+            var httpStr = 'operlist/?proc_id=' + this.proc_id;
+            httpStr += '&bop_id=' + this.bop_id;
+            httpStr += '&nstat=' + this.nstat;
 
-        console.log('INIT');
-        sendRequestPromise(httpStr)
-            .then((operList)=> {
-                this.itemsList = operList;
-                //resolve(operList);
-            });
+            sendRequestPromise(httpStr)
+                .then((operList)=> {
+                    this.itemsList = operList;
+                });
+        }
 
     }
 

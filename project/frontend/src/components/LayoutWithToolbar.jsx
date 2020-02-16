@@ -82,15 +82,14 @@ export default class LayoutWithToolbar extends Component {
     }
 
     savePatternLayout(){
-        console.log('savePatternLayout 1', this.layoutForSave);
+        console.log('savePatternLayout this.layoutForSave=1=', this.layoutForSave);
         this.sendLayoutBeforeSave();
-
-        console.log('savePatternLayout 2', this.layoutForSave);
+        console.log('savePatternLayout this.layoutForSave=2=', this.layoutForSave);
         this.savedLayout = this.layoutForSave;
     }
 
     doBeforeSaveLayout(charts){
-        console.log('doBeforeSaveLayout(params)', charts);
+        console.log('doBeforeSaveLayout charts', charts);
         this.layoutForSave.forEach((layout)=>{
             var layoutChartsData = [];
             charts.forEach((chart)=>{
@@ -112,6 +111,7 @@ export default class LayoutWithToolbar extends Component {
     }
 
     openPatternLayout(){
+        this.layoutForSave = this.savedLayout;
         this.savedLayout.forEach((layoutItem)=>{
             this.addElementToLayout(
                                 <TableViewWithSelection
@@ -121,6 +121,8 @@ export default class LayoutWithToolbar extends Component {
                                     getNewLayoutItemID={this.getNewLayoutItemID}
                                     onLayoutContentChange={this.onLayoutContentChange.bind(this)}
                                     doBeforeSaveLayout={this.doBeforeSaveLayout.bind(this)}
+                                    getLayoutForSave={this.getLayoutForSave.bind(this)}
+                                    sendLayoutBeforeSave={click => this.sendLayoutBeforeSave = click}
                                     sheet={layoutItem.sheet}
                                     filterNodes={layoutItem.filterNodes}
                                     chartsData={layoutItem.chartsData}
@@ -130,8 +132,10 @@ export default class LayoutWithToolbar extends Component {
         });
 
 
+
+
         return;
-        /*откроем конкретную послеГагим набором аналитик
+        /*откроем конкретный набором аналитик
             4) график по ЗК
             5) Кредиты
             6) Потоки по кредитм
@@ -577,17 +581,19 @@ export default class LayoutWithToolbar extends Component {
     }
 
     onLayoutContentChange(contentChangeParams){
-        console.log('onLayoutChange [Content]', contentChangeParams);
+        console.log('LAYOUT onLayoutContentChange', contentChangeParams);
+        console.log('LAYOUT onLayoutContentChange', contentChangeParams.itemId);
+        console.log('LAYOUT onLayoutContentChange this.layoutForSave', this.layoutForSave);
         this.layoutForSave.forEach((layoutItem)=>{
+            console.log('forEach layoutItem', layoutItem);
             if (layoutItem.itemId == contentChangeParams.itemId){
                 for (var paramItem in contentChangeParams.changeParams){
-                    console.log('onLayoutChange paramItem['+paramItem+']=', contentChangeParams.changeParams[paramItem]);
+                    console.log('paramItem', paramItem);
                     layoutItem[paramItem] = contentChangeParams.changeParams[paramItem];
                 }
             }
         });
 
-        console.log('=onLayoutChange=this.layoutForSave=',this.layoutForSave);
 
     }
 
@@ -620,15 +626,12 @@ export default class LayoutWithToolbar extends Component {
     }
 
     onLayoutChange(layout){
-        console.log('onLayoutChange(layout){', layout);
         //layoutForSave={itemId, layout, type,  sheet, filterNodes}
         layout.forEach((layoutItem)=>{
             var forSaveItem = this.layoutForSave.find((forSaveItem)=>{ return forSaveItem.itemId == layoutItem.i  });
             if (forSaveItem){
-                console.log('FIND  this.layoutForSave');
                 forSaveItem.layout = {x: layoutItem.x, y: layoutItem.y, h: layoutItem.h, w: layoutItem.w};
             }else{
-                console.log('are going to add to this.layoutForSave');
                 this.layoutForSave.push({
                     itemId: layoutItem.i,
                     x: layoutItem.x,
@@ -641,7 +644,6 @@ export default class LayoutWithToolbar extends Component {
 
         });
 
-        console.log('this.layoutForSave', this.layoutForSave);
         var cleanedLayout = this.layoutForSave.filter(
             (forSaveItem)=>{
 
@@ -651,7 +653,7 @@ export default class LayoutWithToolbar extends Component {
 
         this.layoutForSave = [];
         this.layoutForSave = cleanedLayout;
-        console.log('this.layoutForSave cleanedLayout', this.layoutForSave);
+
 
     }
 
