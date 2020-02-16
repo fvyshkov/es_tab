@@ -43,12 +43,16 @@ export default class LayoutWithToolbar extends Component {
                                                             addElementToLayout={this.addElementToLayout.bind(this)}
                                                             getNewLayoutItemID={this.getNewLayoutItemID}
                                                             onLayoutContentChange={this.onLayoutContentChange.bind(this)}
-                                                            getLayoutForSave={()=>{return this.layoutForSave}}
+                                                            getLayoutForSave={this.getLayoutForSave.bind(this)}
                                                             sendLayoutBeforeSave={click => this.sendLayoutBeforeSave = click}
                                                             doBeforeSaveLayout={this.doBeforeSaveLayout.bind(this)}
                                                          />
                                                     );
                         }
+    }
+
+    getLayoutForSave(){
+        return this.layoutForSave;
     }
 
     closeButtonOptions = {
@@ -96,7 +100,7 @@ export default class LayoutWithToolbar extends Component {
             });
             layout['chartsData'] = layoutChartsData;
         });
-
+        //удалим графики из списка сохраняемых виджетов
         this.layoutForSave = this.layoutForSave.filter((layout)=>{
             var isChart = charts.find((chart)=>{
                 return chart.chartLayoutId == layout.itemId;

@@ -137,6 +137,7 @@ export default class ReGrid extends React.Component {
 
             var chartParams = chartModels.map((model)=>{
                 var layouts = this.props.getLayoutForSave();
+                console.log('layouts',layouts);
                 var chartLayoutId = this.chartsMap[model.chartId];
 
                 var layoutsFiltered = layouts.filter((layout)=>{
@@ -146,7 +147,7 @@ export default class ReGrid extends React.Component {
                 var layout = null;
 
                 if (layoutsFiltered.length==1){
-                    layout = layoutsFiltered[0];
+                    layout = layoutsFiltered[0].layout;
                 }
 
                 return {
