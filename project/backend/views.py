@@ -551,6 +551,11 @@ def get_sheet_state_update(request):
 def get_layouts(request):
 
     layout_list = get_sql_result("select * from c_es_layout where id_us = p_idus order by longname",[])
+    for layout in layout_list:
+        test = layout.get('layout').read()
+        d = json.loads(test)
+        print('test', d)
+        layout['layout'] = d
 
     return JsonResponse(layout_list, safe=False)
 
@@ -561,25 +566,26 @@ def update_layout(request):
     layout =  json.dumps(data)
     layout_id = param_dict.get('layout_id', [''])[0]
     longname = param_dict.get('longname', [''])[0]
+    print('params id=[', layout_id, "]")
+    #layout = "test"
 
-
-
+    #return JsonResponse([], safe=False)
     with connection.cursor() as cursor:
         cursor.execute("""
                             begin
-                                c_pkgconnect.popen;
+                                c_pkgconnect.popen();
                                 
                                 update  c_es_layout
                                 set     longname = %s,
                                         layout = %s
                                 where   id = %s;
                                 
-                                if sql%notfound then
+                                if sql%%notfound then
                                     insert into c_es_layout(longname, layout)
-                                    values(%s, %s) 
+                                    values( %s , %s);
                                 end if;
                             end;
-                        """,[longname, layout, layout_id, longname, layout])
+                        """, [longname, layout, layout_id, longname, layout])
 
     return JsonResponse([], safe=False)
 
