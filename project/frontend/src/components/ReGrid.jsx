@@ -469,7 +469,7 @@ export default class ReGrid extends React.Component {
     processChartOptions(params){
         //console.log('processChartOptions', params);
         if (!params.options.title.text){
-            params.options.title.text = this.getChartTitle();
+            params.options.title.text = this.getDefaultChartTitle();
             if (params.options.title.text){
                 params.options.title.enabled = true;
             }
