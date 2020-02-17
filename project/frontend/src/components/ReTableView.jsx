@@ -473,6 +473,7 @@ export default class ReTableView extends Component {
                                 loading={this.state.loading}
                                 getRowNodeId={this.props.getRowNodeId}
                                 onGridReady={this.onGridReady.bind(this)}
+                                getChartTitle={this.props.getChartTitle}
                                 {...this.props}
                                 />
 

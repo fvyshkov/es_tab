@@ -433,7 +433,7 @@ export default class ReGrid extends React.Component {
 
 
     сreateCharts(charts){
-
+        var chartTitle = this.getChartTitle();
         charts.forEach((value, index, array)=>{
             var chartModel = value.chartModel;
             var options = chartModel.chartOptions;
@@ -443,6 +443,10 @@ export default class ReGrid extends React.Component {
               chartType: chartModel.chartType,
               chartPalette: chartModel.chartPalette,
               processChartOptions: function() {
+                if (chartTitle){
+                    options.title.text = chartTitle;
+                    options.title.enabled = true;
+                }
                 return options;
               }
             };
@@ -460,42 +464,20 @@ export default class ReGrid extends React.Component {
 
     }
 
-    onProcessChartOptions(params){
+    processChartOptions(params){
+        //console.log('processChartOptions', params);
+        params.options.title.text = this.getChartTitle();
+        if (params.options.title.text){
+            params.options.title.enabled = true;
+        }
+        return params.options;
     }
 
     sendDeleteRecord(){
         console.log(' this.gridApi.getChartModels()',  this.gridApi.getChartModels());
         console.log('layoutForSave', this.props.getLayoutForSave());
         console.log('chartsMap', this.chartsMap);
-        return;
-        var chartsData=[{chartModel: someChartModel,
-                  layout: { x: 4,   y: 0,
-                            w: 3,   h: 3}
-                },
-                {chartModel: someChartModel2,
-                  layout: { x: 0,   y: 4,
-                            w: 2,   h: 2}
-                }
 
-                ];
-        this.сreateCharts(chartsData);
-        return;
-        var chartModel = someChartModel;
-
-
-        var options = chartModel.chartOptions;
-        var createRangeChartParams = {
-            myOwnField: 'test',
-          chartContainer: document.querySelector("#myChart1"),
-          cellRange: chartModel.cellRange,
-          chartType: chartModel.chartType,
-          chartPalette: chartModel.chartPalette,
-          processChartOptions: function() {
-            options['testField']='test';
-            return options;
-          }
-        };
-        var currentChartRef = this.gridApi.createRangeChart(createRangeChartParams);
 
         /*
        this.savedFocusedCell = this.gridApi.getFocusedCell();
@@ -507,6 +489,14 @@ export default class ReGrid extends React.Component {
                         {});
        this.gridApi.purgeServerSideCache();
         */
+    }
+
+    getChartTitle(){
+        if (this.props.getChartTitle){
+            return this.props.getChartTitle();
+        }else{
+            return null;
+        }
     }
 
     getRowClass(params) {
@@ -549,7 +539,7 @@ export default class ReGrid extends React.Component {
                             onModelUpdated={this.onModelUpdated}
                             onRowDataChanged={this.onRowDataChanged}
                             onRowDataUpdated={this.onRowDataUpdated}
-                            processChartOptions={this.state.processChartOptions}
+                            processChartOptions={this.processChartOptions.bind(this)}
                             onFirstDataRendered={this.onFirstDataRendered.bind(this)}
                             enableRangeSelection={true}
                             enableCharts={true}
@@ -574,7 +564,6 @@ export default class ReGrid extends React.Component {
                             undoRedoCellEditingLimit={100}
                             enableCellChangeFlash={true}
                             onCellFocused={this.onCellFocused.bind(this)}
-                            onProcessChartOptions={this.onProcessChartOptions.bind(this)}
                           />
 
                       </div>

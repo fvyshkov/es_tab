@@ -812,6 +812,7 @@ export default class TableViewWithSelection extends Component {
                     getMenuItems={this.getMenuItems.bind(this)}
                     onFilterNodesChange={this.onFilterNodesChange.bind(this)}
                     onTopMenuClick={this.onTopMenuClick.bind(this)}
+                    getChartTitle={()=>{return this.state.sheet.label;}}
                     additionalToolbarItem={()=>{return(
                                                         <SheetSelectDropDown
                                                             onSelectNewSheet={this.loadNewSheet.bind(this)}
