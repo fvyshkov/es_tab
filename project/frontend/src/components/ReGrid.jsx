@@ -433,7 +433,7 @@ export default class ReGrid extends React.Component {
 
 
     сreateCharts(charts){
-        var chartTitle = this.getChartTitle();
+        var chartTitle = this.getDefaultChartTitle();
         charts.forEach((value, index, array)=>{
             var chartModel = value.chartModel;
             var options = chartModel.chartOptions;
@@ -444,8 +444,10 @@ export default class ReGrid extends React.Component {
               chartPalette: chartModel.chartPalette,
               processChartOptions: function() {
                 if (chartTitle){
-                    options.title.text = chartTitle;
-                    options.title.enabled = true;
+                    if (!options.title.text){
+                        options.title.text = chartTitle;
+                        options.title.enabled = true;
+                    }
                 }
                 return options;
               }
@@ -466,9 +468,11 @@ export default class ReGrid extends React.Component {
 
     processChartOptions(params){
         //console.log('processChartOptions', params);
-        params.options.title.text = this.getChartTitle();
-        if (params.options.title.text){
-            params.options.title.enabled = true;
+        if (!params.options.title.text){
+            params.options.title.text = this.getChartTitle();
+            if (params.options.title.text){
+                params.options.title.enabled = true;
+            }
         }
         return params.options;
     }
@@ -491,7 +495,7 @@ export default class ReGrid extends React.Component {
         */
     }
 
-    getChartTitle(){
+    getDefaultChartTitle(){
         if (this.props.getChartTitle){
             return this.props.getChartTitle();
         }else{
