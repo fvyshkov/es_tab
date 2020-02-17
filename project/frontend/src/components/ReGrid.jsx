@@ -57,6 +57,13 @@ export default class ReGrid extends React.Component {
                                 iconKey: 'columns',
                                 toolPanel: 'agColumnsToolPanel',
                             },
+                            {
+                                id: "filters",
+                                labelDefault: "Фильтры",
+                                labelKey: "filters",
+                                iconKey: "filter",
+                                toolPanel: "agFiltersToolPanel"
+                              },
                             ...this.props.addToolPanels
                         ],
                         position: 'left'
@@ -80,7 +87,8 @@ export default class ReGrid extends React.Component {
           defaultColDef: {
             width: 240,
             resizable: true,
-            filter: false
+            filter: true,
+            sortable: true
           },
           rowModelType: "serverSide",
           isServerSideGroup: function(dataItem) {
@@ -235,8 +243,13 @@ export default class ReGrid extends React.Component {
                 columnCellEditor = "treeReferEditor";
 
             var cellChartDataType = "category";
-            if (currentValue.atr_type==="N")
+            //var columnFilter = "agTextColumnFilter";
+            var columnFilter = true;
+
+            if (currentValue.atr_type==="N"){
                 cellChartDataType = "series";
+                columnFilter = "agNumberColumnFilter";
+            }
 
 
             return {
@@ -264,7 +277,7 @@ export default class ReGrid extends React.Component {
                             ind_id_hi: currentValue.ind_id_hi,
                             atr_type:currentValue.atr_type,
                             chartDataType : cellChartDataType,
-                            filter:false,
+                            filter:columnFilter,
                             cellEditor: columnCellEditor,
                             tooltipComponentParams: (params)=>{return {columnData: getColumnData(params)};},
                             tooltipComponent: "sheetCellTooltip",
@@ -568,6 +581,59 @@ export default class ReGrid extends React.Component {
                             undoRedoCellEditingLimit={100}
                             enableCellChangeFlash={true}
                             onCellFocused={this.onCellFocused.bind(this)}
+                            localeText={{
+                                                // for filter panel
+                                                page: 'daPage',
+                                                more: 'daMore',
+                                                to: 'daTo',
+                                                of: 'из',
+                                                next: 'daNexten',
+                                                last: 'daLasten',
+                                                first: 'daFirsten',
+                                                previous: 'daPreviousen',
+                                                loadingOoo: 'daLoading...',
+
+                                                // for set filter
+                                                selectAll: 'Выбрать все',
+                                                searchOoo: 'Поиск...',
+                                                blanks: 'Пусто',
+
+                                                // for number filter and text filter
+                                             //   filterOoo: 'daFilter...',
+                                                applyFilter: 'Применить фильтр...',
+                                                equals: 'равно',
+                                                notEqual: 'не равно',
+
+                                                // for number filter
+                                                lessThan: 'меньше',
+                                                greaterThan: 'больше',
+                                                lessThanOrEqual: 'меньше или равно',
+                                                greaterThanOrEqual: 'больше или равно',
+                                                inRange: 'между',
+
+                                                // for text filter
+                                                contains: 'содержит',
+                                                notContains: 'не содержит',
+                                                startsWith: 'начинается с',
+                                                endsWith: 'заканчивается на',
+
+                                                // filter conditions
+                                                andCondition: 'И',
+                                                orCondition: 'ИЛИ',
+
+                                                // enterprise menu aggregation and status bar
+                                                 sum: 'Сумма',
+                                                    min: 'Минимум',
+                                                    max: 'Максимум',
+                                                    none: 'Пусто',
+                                                    count: 'Количество',
+                                                    average: 'Среднее',
+                                                    filteredRows: 'Фильтрация',
+                                                    selectedRows: 'Выбрано',
+                                                    totalRows: 'Всего строк',
+                                                    totalAndFilteredRows: 'Строк'
+                                            }}
+
                           />
 
                       </div>

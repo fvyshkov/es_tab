@@ -1259,6 +1259,10 @@ def get_sheet_details_columns_list(p_sht_id, p_skey, p_ind_id):
 def get_sheet_columns_list(sheet_type, sht_id, skey):
     if sheet_type=='TREE':
         columns = get_sql_result('select * from table(C_PKGESsheet.fGetColumns(%s, %s))', [sht_id, skey])
+        for column in columns:
+            column['atr_type'] = 'N' #в целях эксперимента, конечно это не всегда так
+
+
         group_column = {'idx': 0, 'key': 'name', 'name': 'Показатель', 'editfl': 0, 'rowgroupfl': 1}
         columns.insert(0, group_column)
         return columns
