@@ -86,6 +86,9 @@ export default class LayoutWithToolbar extends Component {
         this.sendLayoutBeforeSave();
         console.log('savePatternLayout this.layoutForSave=2=', this.layoutForSave);
         this.savedLayout = this.layoutForSave;
+
+        sendRequestPromise('save_layout', 'POST', this.layoutForSave)
+            .then(()=>notify('Рабочий стол сохранен','success'));
     }
 
     doBeforeSaveLayout(charts){

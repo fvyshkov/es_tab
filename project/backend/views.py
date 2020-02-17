@@ -547,30 +547,57 @@ def get_sheet_state_update(request):
                                 sht_id])
 
     return JsonResponse([], safe=False)
-"""
-        cursor.execute("begin UPDATE c_es_ver_sheet_usr_state s "
-                       "SET s.id_us = p_idus, "
-                       "s.filternodes = %s, "
-                       "s.columnstates = %s, "
-                       "s.expandedgroupids = %s"
-                       "where sht_id= %s; "
-                       ""
-                       " if sql%notfound then "
-                       " insert into c_es_ver_sheet_usr_state(id_us, filternodes, columnstates, expandedgroupids, sht_id ) "
-                       " values (p_idus, %s, %s, %s, %s); "
-                       " end; ",
-                       [filternodes,
-                        columnstates,
-                        expandedgroupids,
-                        sht_id,
 
-                        filternodes,
-                        columnstates,
-                        expandedgroupids,
-                        sht_id
-                        ])
+def get_layouts(request):
 
-"""
+    layout_list = get_sql_result("select * from c_es_layout where id_us = p_idus order by longname",[])
+
+    return JsonResponse(layout_list, safe=False)
+
+def update_layout(request):
+    param_dict = dict(request.GET)
+    data = json.loads(request.body.decode("utf-8"))
+    #layout =  json.dumps(data.get('filterNodes'))
+    layout =  json.dumps(data)
+    layout_id = param_dict.get('layout_id', [''])[0]
+    longname = param_dict.get('longname', [''])[0]
+
+
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+                            begin
+                                c_pkgconnect.popen;
+                                
+                                update  c_es_layout
+                                set     longname = %s,
+                                        layout = %s
+                                where   id = %s;
+                                
+                                if sql%notfound then
+                                    insert into c_es_layout(longname, layout)
+                                    values(%s, %s) 
+                                end if;
+                            end;
+                        """,[longname, layout, layout_id, longname, layout])
+
+    return JsonResponse([], safe=False)
+
+
+def delete_layout(request):
+    param_dict = dict(request.GET)
+    layout_id = param_dict.get('layout_id', [''])[0]
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+                            begin
+                                c_pkgconnect.popen;
+                                delete  c_es_layout
+                                where   id = %s;
+                            end;
+                        """, [layout_id])
+
+    return JsonResponse([], safe=False)
 
 
 def get_sheet_info_update(request):
