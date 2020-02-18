@@ -12,7 +12,7 @@ class Reference extends React.Component {
       this.onRefHidden = this.onRefHidden.bind(this);
       this.onSelectionChanged = this.onSelectionChanged.bind(this);
       this.onOk = this.onOk.bind(this);
-      this.row = null
+      this.row = null;
     };
 
     componentDidMount() {
@@ -24,25 +24,28 @@ class Reference extends React.Component {
     }
 
     onRefHidden() {
-      console.log('ref hidden');
-      this.props.onRefHidden();
+        console.log('ref hidden');
+        this.props.onRefHidden();
     }
 
     onSelectionChanged(sel) {
-      console.log('SelectionChanged');
-      const data = sel.selectedRowsData[0];
-      this.row = data;
+        console.log('SelectionChanged');
+        const data = sel.selectedRowsData[0];
+        this.row = data;
     }
 
     onOk(e) {
-      console.log('ok pressed')
-      this.props.onRefHidden(this.row);
+        console.log('ok pressed', this.row);
+        this.props.onRefHidden(this.row);
     }
 
     render () {
       console.log('ref render ' + this.props.refCode);
       this.data = this.props.data;//getRefData(this.props.refCode);
       let refdscr = this.props.refdscr;//getRefDscr(this.props.refCode)
+      if (!this.row && this.data.length>0){
+        this.row = this.data[0];
+      }
       let columns = refdscr ? refdscr.columns : [];
       return(
       <Popup

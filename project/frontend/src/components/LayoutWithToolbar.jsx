@@ -137,6 +137,9 @@ export default class LayoutWithToolbar extends Component {
     }
 
     openPatternLayout(layout){
+        //сначала удалим все что есть
+        this.setState({items:[]});
+
         this.layoutForSave = layout;
         this.savedLayout = layout;
 
