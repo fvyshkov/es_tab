@@ -89,7 +89,8 @@ export default class ReTableView extends Component {
     loadData(parentNode, reload = false){
         //при изменении пропса-массива приходится вручную изменить key грида, чтобы он перерендерился
         if (reload){
-            this.setState({ gridKey: this.state.gridKey+1});
+            this.setState({ gridKey: this.state.gridKey+1, rowData: null});
+
         }
 
         this.tableData.setRequestString(()=>{

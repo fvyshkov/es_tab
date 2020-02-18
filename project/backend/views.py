@@ -515,13 +515,12 @@ def get_xml_excel_header_info(xml_text):
 def get_sheet_state_update(request):
     param_dict = dict(request.GET)
     data = json.loads(request.body.decode("utf-8"))
-    sht_id =  json.dumps(data.get('filterNodes'))
+    filter_nodes =  json.dumps(data.get('filterNodes'))
+
     column_states = json.dumps(data.get('columnStates'))
-    print('col_states', column_states)
     expanded_ids = json.dumps(data.get('expandedGroupIds'))
 
-
-    sht_id = param_dict['sht_id'][0]
+    sht_id = param_dict.get('sht_id', [''])[0]
 
 
 

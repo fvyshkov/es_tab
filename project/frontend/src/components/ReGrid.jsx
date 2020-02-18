@@ -591,7 +591,7 @@ export default class ReGrid extends React.Component {
                                                 last: 'daLasten',
                                                 first: 'daFirsten',
                                                 previous: 'daPreviousen',
-                                                loadingOoo: 'daLoading...',
+                                                loadingOoo: 'Загрузка данных...',
 
                                                 // for set filter
                                                 selectAll: 'Выбрать все',
