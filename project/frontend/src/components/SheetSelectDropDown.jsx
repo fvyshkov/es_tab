@@ -83,7 +83,6 @@ export default class SheetSelectDropDown extends Component {
 
    treeViewRender() {
         return (
-            <div className="SheetTree">
                 <TreeView
                     dataSource={this.state.sheetList}
                     keyExpr={'id'}
@@ -101,7 +100,6 @@ export default class SheetSelectDropDown extends Component {
                     searchExpr = {["label"]}
                     width={400}
                 />
-            </div>
         );
   }
 
