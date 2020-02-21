@@ -269,6 +269,26 @@ def delete_table_record(request):
 
     return JsonResponse([], safe=False)
 
+
+def get_dm_dops(request):
+    param_dict = dict(request.GET)
+    sht_id = param_dict.get('sht_id', [''])[0]
+
+    dop_list = get_sql_result("""
+                    select to_char(x.doper, 'dd.mm.yy') doper, 
+                               x.execdt, 
+                               x.correctdt,
+                               x.user_name, 
+                               x.confirmfl, 
+                               to_char(x.doper, 'yyyy') as YOPER, 
+                               x.doper as DTOPER
+                          from table(c_pkgesdm.fGetDMDates(%s)) x
+                         order by x.DOPER desc 
+                        """,
+                        [sht_id])
+
+    return JsonResponse(dop_list, safe=False)
+
 def delete_comment(request):
     param_dict = dict(request.GET)
     proc_id = param_dict.get('proc_id', [''])[0]
@@ -952,6 +972,21 @@ class Skey(object):
 
         return ''
 
+    def get_value_by_name(self, prm_name):
+        if len(self.value)==0:
+            return ''
+        skey_array=self.value.split(',')
+
+        for item in skey_array:
+            if item:
+                curr_key = item.split("=>",1)[0]
+                curr_val = item.split("=>",1)[1]
+                if curr_key == prm_name:
+                    return curr_val
+
+        return ''
+
+
 def get_sheet_nodes(request):
     param_dict = dict(request.GET)
     p_sht_id = ''
@@ -1281,8 +1316,26 @@ def get_sht_filters(request):
         filter_list = get_sql_result('select f.id flt_id, c_pkgesbook.fGetSheetFltName(f.id) name'
                                      ' from c_es_ver_sheet_flt f where sht_id = %s',
                                        [sht_id])
+
+
+
         for filter in filter_list:
             filter['filter_node_list'] = get_filter_node_list(filter.get('flt_id'))
+
+        sheet_stype = param_dict.get('stype', [''])[0]
+        if sheet_stype=='DM' or sheet_stype=='MULTY_DM':
+            dop_flt = {}
+            dop_flt['flt_id'] = "DOP"
+            dop_flt['name'] = "Дата загрузки"
+            dop_flt['filter_node_list'] = get_sql_result("""
+                                                            select to_char(d.doper, 'dd.mm.yy') id, to_char(d.doper, 'dd.mm.yy') label, 'DOP' flt_id 
+                                                            from table(c_pkgesdm.fGetDMDates(%s)) d
+                                                            order by d.DOPER desc 
+                                                        """,[sht_id])
+
+
+
+            filter_list.append(dop_flt)
 
         return JsonResponse( filter_list, safe=False)
 
@@ -1483,10 +1536,14 @@ def get_anl_table_rows(sht_id, skey):
     cursor = connection.cursor()
     refCursor =  connection.cursor()
 
+    dop = Skey(skey).get_flt_value('DOP')
+    skey_cleaned = skey.replace("FLT_ID_DOP=>"+dop+",","")
+
+
     try:
         cursor.execute("""begin c_pkgconnect.popen();
-                        :1 := c_pkgesreq.fGetCursor( :2, :3,null,5000,''); 
-                    end;""", [refCursor, sht_id, skey])
+                        :1 := c_pkgesreq.fGetCursor( :2, :3,:4,5000,''); 
+                    end;""", [refCursor, sht_id, skey_cleaned, dop])
     except:
         print("get_anl_table_rows ERROR")
         return []

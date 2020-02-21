@@ -112,7 +112,7 @@ export default class TableViewWithSelection extends Component {
             return this.props.filterNodes;
 
         }else{
-            return sendRequestPromise('sht_filters/?sht_id='+this.state.sheet_id);
+            return sendRequestPromise('sht_filters/?sht_id='+this.state.sheet_id+'&stype='+this.state.sheet.stype);
         }
     }
 
