@@ -26,6 +26,7 @@ import TreeReference from './TreeReference.jsx';
 import SheetToExcelRptDialog from './SheetToExcelRptDialog.jsx';
 import axios from 'axios';
 import { confirm } from 'devextreme/ui/dialog';
+import SimpleDialog from './SimpleDialog.jsx';
 
 export default class TableViewWithSelection extends Component {
 
@@ -38,6 +39,10 @@ export default class TableViewWithSelection extends Component {
                         confirmUndoData:[],
                         showRef: false,
                         confirmPanelVisible: false,
+                        loadDMDialogVisible: false,
+
+                        loadUndoData: [],
+                        showLoadUndoRef: false,
 
                         rptDialogVisible: false,
                         filterNodes: [],
@@ -53,6 +58,8 @@ export default class TableViewWithSelection extends Component {
                                   }
                       };
 
+        this.loadDmParams = [];
+
         this.firstFilterNodesRequest = true;
         this.inputOpenFileRef = React.createRef();
 
@@ -65,7 +72,7 @@ export default class TableViewWithSelection extends Component {
         this.beforeOperRun = this.beforeOperRun.bind(this);
         this.downloadSheetData = this.downloadSheetData.bind(this);
         this.componentDidMount = this.componentDidMount.bind(this);
-
+        this.afterOperRun = this.afterOperRun.bind(this);
     }
 
 
@@ -235,12 +242,41 @@ export default class TableViewWithSelection extends Component {
             sendRequestPromise('conf_opers/?proc_id='+this.state.sheet.proc_id+'&rootfl=0')
                 .then((data)=>{this.setState({confirmUndoData: data, showRef: true})});
 
-        }else if (item.code==='CONFIRM_ROOT'){
+        }else if (item.code==='CONFIRM_UNDO'){
             /////
 
             this.onConfirmCallBack=runOperCallback;
             this.operItem = item;
-            this.confirm();
+            sendRequestPromise('conf_opers/?proc_id='+this.state.sheet.proc_id+'&rootfl=0')
+                .then((data)=>{this.setState({confirmUndoData: data, showRef: true})});
+
+        }else if (item.code==='LOAD_DM_UNDO'){
+            /////
+
+            this.operItem = item;
+            this.operItem['runOperCallback'] = runOperCallback;
+
+            sendRequestPromise('get_dm_dops/?sht_id='+this.state.sheet.id)
+                .then((data)=>{
+                    console.log('loadUndoData=>', data);
+                    this.setState({loadUndoData: data, showLoadUndoRef: true})
+                });
+
+        }else if (item.code==='LOAD_DM'){
+            /////
+            this.onConfirmCallBack=runOperCallback;
+            this.operItem = item;
+            this.operItem['runOperCallback'] = runOperCallback;
+            var dop = new Date();
+            dop = new Date(dop.getFullYear(), dop.getMonth() + 1, 0);
+            /*
+            var dopString = dop.getDate().toString().padStart(2,'0')  + '.' +
+                                (dop.getMonth()+1).toString().padStart(2,'0') + '.' +
+                                dop.getFullYear();
+            */
+            this.loadDmParams =  [{dataField:"DOP", editorType: "dxDateBox" , label:"Дата загрузки", value: dop,  visible: true}];
+            this.setState({loadDMDialogVisible:true})
+
 
         }else if (item.code==='CONFIRM_ROOT_UNDO'){
             /////
@@ -260,6 +296,16 @@ export default class TableViewWithSelection extends Component {
         sendRequestPromise('get_reports/')
             .then(response=> {this.setState({reportList: response, showRptList: true})});
 
+    }
+
+    runLoadDM(){
+        //console.log('runLoadDM(){', this.loadDmParams);
+        var dop = this.loadDmParams[0].value;
+        var dopString = dop.getDate().toString().padStart(2,'0')  + '.' +
+                                (dop.getMonth()+1).toString().padStart(2,'0') + '.' +
+                                dop.getFullYear();
+
+        this.operItem.runOperCallback(this.operItem,'DOP=>'+dopString);
     }
 
     downloadSheetData(){
@@ -637,10 +683,15 @@ export default class TableViewWithSelection extends Component {
                                             this.state.sheet.proc_id,
                                             this.state.sheet.bop_id,
                                             this.state.sheet.nstat,
-                                            this.beforeOperRun
+                                            this.beforeOperRun,
+                                            this.afterOperRun
                                         );
             this.operList.init();
         }
+    }
+
+    afterOperRun(){
+        console.log('afterOperRun callback');
     }
 
     onChartsLayoutChange(){
@@ -746,6 +797,23 @@ export default class TableViewWithSelection extends Component {
                       }}
             /> : null;
 
+        console.log('RENDER this.state.loadUndoData=', this.state.loadUndoData);
+
+        var referLoadUndoComp = this.state.showLoadUndoRef ? <Reference
+                data={this.state.loadUndoData}
+                 onRefHidden={(params)=>{
+                            this.operItem.runOperCallback(this.operItem, 'DOP=>'+ params.dop);
+                            this.setState({showLoadUndoRef: false, refCode: ''});
+                    }}
+                keyField={'dop_key'}
+                refdscr={{
+                        title: 'Отмена загрузки данных',
+                        columns: [
+                          {caption: 'Дата загрузки', field: 'dop'}
+                        ]
+                      }}
+            /> : null;
+
 
             var referRptListComp = this.state.showRptList ? <Reference
                 data={this.state.reportList}
@@ -767,6 +835,7 @@ export default class TableViewWithSelection extends Component {
 
             {referComp}
             {referRptListComp}
+            {referLoadUndoComp}
 
 
             <input type='file' id='file' ref={this.inputOpenFileRef} style={{display: 'none'}} onChange={this.onChangeFile.bind(this)}/>
@@ -776,6 +845,16 @@ export default class TableViewWithSelection extends Component {
                 sheet_id={this.state.sheet_id}
                 onDialogClose={this.onSheetRptDialogClose.bind(this)}
             />
+
+            <SimpleDialog
+                    dialogParams={ this.loadDmParams}
+                    popupVisible={this.state.loadDMDialogVisible}
+                    title={"Загрузка данных на дату"}
+                    onDialogClose={()=>{this.setState({loadDMDialogVisible:false});}}
+                    onDialogConfirm={this.runLoadDM.bind(this)}
+                    width={400}
+                    height={200}
+                />
 
             <CommentPanel
                     title={"Утверждение"}

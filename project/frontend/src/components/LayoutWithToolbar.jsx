@@ -299,6 +299,7 @@ export default class LayoutWithToolbar extends Component {
                 />
 
 
+
                 <AddRemoveLayout
                     items={this.state.items}
                     onLayoutChange={this.onLayoutChange.bind(this)}

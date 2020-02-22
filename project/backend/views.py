@@ -275,7 +275,8 @@ def get_dm_dops(request):
     sht_id = param_dict.get('sht_id', [''])[0]
 
     dop_list = get_sql_result("""
-                    select to_char(x.doper, 'dd.mm.yy') doper, 
+                    select      to_char(x.doper, 'dd.mm.yy') dop,
+                                to_char(x.doper, 'ddmmyy') dop_key,
                                x.execdt, 
                                x.correctdt,
                                x.user_name, 

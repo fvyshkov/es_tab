@@ -3,14 +3,15 @@ import notify from 'devextreme/ui/notify';
 
 export class operList{
 
-    constructor(proc_id, bop_id, nstat, callbackBeforeOperRun){
+    constructor(proc_id, bop_id, nstat, callbackBeforeOperRun, callbackAfterOperRun){
         this.proc_id = proc_id;
         this.bop_id = bop_id;
         this.nstat = nstat;
         this.itemsList = [];
         this.operMenuList=[];
         this.callbackBeforeOperRun = callbackBeforeOperRun;
-
+        this.callbackAfterOperRun = callbackAfterOperRun;
+        console.log('CONSTRUCTOR callbackAfterOperRun', callbackAfterOperRun);
     }
 
     runOper(item){
@@ -21,9 +22,6 @@ export class operList{
             this.callbackBeforeOperRun(item, this.runOperCallback);
 
         }
-/*
-
-            */
     }
 
     runOperCallback(item, userParams){
@@ -37,9 +35,15 @@ export class operList{
         }
 
         sendRequestPromise(httpStr)
-            .then(()=>notify('Операция "'+item.name+'" успешно завершена'))
+            .then(()=>{
+                console.log('RUNOPER callbackAfterOperRun', this.callbackAfterOperRun);
+                if (this.callbackAfterOperRun){
+                    this.callbackAfterOperRun();
+                }
+            })
+            .then(()=>notify('Операция "'+item.name+'" успешно завершена'));
             //перечитаем список операций
-            .then(()=>this.init());
+            //.then(()=>this.init());
     }
 
     operMenuItemRender(item){
