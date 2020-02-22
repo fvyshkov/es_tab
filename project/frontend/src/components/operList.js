@@ -15,7 +15,7 @@ export class operList{
     }
 
     runOper(item){
-        notify(item.longname+'='+item.name);
+        //notify(item.longname+'='+item.name);
 
 
         if (this.callbackBeforeOperRun){
@@ -25,7 +25,8 @@ export class operList{
     }
 
     runOperCallback(item, userParams){
-        console.log('runOperCallback', item, userParams);
+        console.log('runOperCallback1', item, userParams, 'this.callbackAfterOperRun', this.callbackAfterOperRun);
+        console.log('runOperCallback2', this);
         //return;
         var httpStr = 'run_oper/?proc_id=' + item.proc_id;
         httpStr += '&oper_code=' + item.code;
@@ -89,6 +90,7 @@ export class operList{
 
 
     init(){
+        console.log('operList init START', this);
         if (this.proc_id){
             var httpStr = 'operlist/?proc_id=' + this.proc_id;
             httpStr += '&bop_id=' + this.bop_id;
@@ -99,7 +101,7 @@ export class operList{
                     this.itemsList = operList;
                 });
         }
-
+        console.log('operList init   END', this);
     }
 
 }

@@ -65,6 +65,12 @@ export default class ReTableView extends Component {
             this.props.sendLoadAll(this.loadAll.bind(this));
         }
 
+        if (this.props.sendNewFilterNodes){
+            this.props.sendNewFilterNodes(this.onLoadFilterNodes.bind(this));
+        }
+
+
+
         if (this.props.filterNodes){
             this.setState({filterNodes:this.props.filterNodes});
         }

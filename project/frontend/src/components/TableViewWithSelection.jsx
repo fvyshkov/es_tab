@@ -254,7 +254,7 @@ export default class TableViewWithSelection extends Component {
             /////
 
             this.operItem = item;
-            this.operItem['runOperCallback'] = runOperCallback;
+            this.operList.operServerCallback = runOperCallback;
 
             sendRequestPromise('get_dm_dops/?sht_id='+this.state.sheet.id)
                 .then((data)=>{
@@ -264,9 +264,9 @@ export default class TableViewWithSelection extends Component {
 
         }else if (item.code==='LOAD_DM'){
             /////
-            this.onConfirmCallBack=runOperCallback;
+            //this.onConfirmCallBack=runOperCallback;
             this.operItem = item;
-            this.operItem['runOperCallback'] = runOperCallback;
+            this.operList.operServerCallback = runOperCallback;
             var dop = new Date();
             dop = new Date(dop.getFullYear(), dop.getMonth() + 1, 0);
             /*
@@ -298,14 +298,14 @@ export default class TableViewWithSelection extends Component {
 
     }
 
-    runLoadDM(){
-        //console.log('runLoadDM(){', this.loadDmParams);
-        var dop = this.loadDmParams[0].value;
+    runLoadDM(params){
+        console.log('runLoadDM() loadDmParams', params);
+        var dop = params.DOP.value;
         var dopString = dop.getDate().toString().padStart(2,'0')  + '.' +
                                 (dop.getMonth()+1).toString().padStart(2,'0') + '.' +
                                 dop.getFullYear();
 
-        this.operItem.runOperCallback(this.operItem,'DOP=>'+dopString);
+        this.operList.operServerCallback(this.operItem,'DOP=>'+dopString);
     }
 
     downloadSheetData(){
@@ -692,6 +692,14 @@ export default class TableViewWithSelection extends Component {
 
     afterOperRun(){
         console.log('afterOperRun callback');
+        //перегрузим фильтры не трогая ничего больше
+        sendRequestPromise('sht_filters/?sht_id='+this.state.sheet.id+'&stype='+this.state.sheet.stype)
+            .then((data)=>{
+                //this.setState({filterNodes: data})
+                console.log('afterOperRun', data);
+                this.sendNewFilterNodes(data);
+            });
+
     }
 
     onChartsLayoutChange(){
@@ -778,6 +786,9 @@ export default class TableViewWithSelection extends Component {
 
     }
 
+    sendNewFilterNodes(){
+
+    }
 
 
     render(){
@@ -802,7 +813,7 @@ export default class TableViewWithSelection extends Component {
         var referLoadUndoComp = this.state.showLoadUndoRef ? <Reference
                 data={this.state.loadUndoData}
                  onRefHidden={(params)=>{
-                            this.operItem.runOperCallback(this.operItem, 'DOP=>'+ params.dop);
+                            this.operList.operServerCallback(this.operItem, 'DOP=>'+ params.dop);
                             this.setState({showLoadUndoRef: false, refCode: ''});
                     }}
                 keyField={'dop_key'}
@@ -847,7 +858,7 @@ export default class TableViewWithSelection extends Component {
             />
 
             <SimpleDialog
-                    dialogParams={ this.loadDmParams}
+                    dialogParams={this.loadDmParams}
                     popupVisible={this.state.loadDMDialogVisible}
                     title={"Загрузка данных на дату"}
                     onDialogClose={()=>{this.setState({loadDMDialogVisible:false});}}
@@ -890,6 +901,7 @@ export default class TableViewWithSelection extends Component {
                     getRowNodeId={(data)=>{return data.node_key;}}
                     getMenuItems={this.getMenuItems.bind(this)}
                     onFilterNodesChange={this.onFilterNodesChange.bind(this)}
+                    sendNewFilterNodes={click => this.sendNewFilterNodes = click}
                     onTopMenuClick={this.onTopMenuClick.bind(this)}
                     getChartTitle={()=>{return this.state.sheet.label;}}
                     additionalToolbarItem={()=>{return(
