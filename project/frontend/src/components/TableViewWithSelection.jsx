@@ -854,8 +854,11 @@ export default class TableViewWithSelection extends Component {
                 data={this.state.loadDmDates}
                   onRefHidden={(params)=>{
                             console.log('paymentsCreate TODO', params.dop);
-                            sendRequestPromise('create_payments/?sht_id='+this.state.sheet.id+'&dop='+params.dop)
-                                .then(()=>notify('Потоки успешно сформированы'));
+                            sendRequestPromise('create_payments/?sht_id='+this.state.sheet.id+
+                                            '&dop='+params.dop+
+                                            '&skey='+getFilterSkey(this.state.filterNodes))
+                                .then(()=>notify('Потоки успешно сформированы','success'))
+                                .catch((error)=>notify('Ошибка при формировании потоков '+error, 'error'));
                             this.setState({createPaymentsVisible: false, refCode: ''});
                     }}
                 keyField={'dop_key'}

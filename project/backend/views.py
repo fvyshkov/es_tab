@@ -273,7 +273,23 @@ def create_payments(request):
     param_dict = dict(request.GET)
     sht_id = param_dict.get('sht_id', [''])[0]
     dop = param_dict.get('dop', [''])[0]
-    print('create_payments TODO', sht_id, dop)
+    skey = param_dict.get('skey', [''])[0]
+    print('create_payments', sht_id, dop, skey)
+    with connection.cursor() as cursor:
+        cursor.execute("""
+                            declare
+                                sMsg varchar2(4000);
+                            begin
+                                c_pkgconnect.popen();
+                                smsg := c_pkgesreg.fGetPaymentFlowsGenMsg(%s, %s, %s);
+                                if  length(smsg)>0 then
+                                    raise_application_error(-20000, smsg);
+                                else
+                                    C_PKGESDM.PPROCESSSHD(p_sht_id =>  %s, p_skey => %s ,p_dop => %s);
+                                end if;
+                            end;
+                        """, [sht_id, skey, dop, sht_id, skey, dop])
+
     return JsonResponse([], safe=False)
 
 def get_dm_dops(request):
