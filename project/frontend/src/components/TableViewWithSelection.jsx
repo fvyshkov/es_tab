@@ -40,7 +40,8 @@ export default class TableViewWithSelection extends Component {
                         showRef: false,
                         confirmPanelVisible: false,
                         loadDMDialogVisible: false,
-
+                        createPaymentsVisible: false,
+                        loadDmDates: [],
                         loadUndoData: [],
                         showLoadUndoRef: false,
 
@@ -329,6 +330,12 @@ export default class TableViewWithSelection extends Component {
         }
     }
 
+    createPayments(){
+        sendRequestPromise('get_dm_dops/?sht_id='+this.state.sheet.id)
+            .then (dates=>{this.setState({loadDmDates: dates, createPaymentsVisible: true});});
+
+    }
+
     getMenuItems(){
 
         var operMenuList = this.operList.getOperMenuList();
@@ -363,9 +370,12 @@ export default class TableViewWithSelection extends Component {
                                           {
                                             id: '1_5',
                                             name: 'Сформировать потоки по графикам',
-                                            onClick: ()=> this.confirm(),
+                                            onClick: ()=> this.createPayments(),
                                             icon: 'datafield',
-                                            getVisible: ()=> { return this.state.sheet_id ? true: false;}
+                                            getVisible: ()=> { return this.state.sheet.stype == 'MULT_DM'
+                                                                       ||
+                                                                       this.state.sheet.stype == 'DM' ;
+                                                                }
                                           },
                                           {
                                             id: '1_7',
@@ -840,6 +850,24 @@ export default class TableViewWithSelection extends Component {
             /> : null;
 
 
+            var referPaymentsCreateComp = this.state.createPaymentsVisible ? <Reference
+                data={this.state.loadDmDates}
+                  onRefHidden={(params)=>{
+                            console.log('paymentsCreate TODO', params.dop);
+                            sendRequestPromise('create_payments/?sht_id='+this.state.sheet.id+'&dop='+params.dop)
+                                .then(()=>notify('Потоки успешно сформированы'));
+                            this.setState({createPaymentsVisible: false, refCode: ''});
+                    }}
+                keyField={'dop_key'}
+                refdscr={{
+                        title: 'Сформировать потоки по дате',
+                        columns: [
+                          {caption: 'Дата загрузки', field: 'dop'}
+                        ]
+                      }}
+            /> : null;
+
+
 
         return (
             <React.Fragment>
@@ -847,6 +875,7 @@ export default class TableViewWithSelection extends Component {
             {referComp}
             {referRptListComp}
             {referLoadUndoComp}
+            {referPaymentsCreateComp}
 
 
             <input type='file' id='file' ref={this.inputOpenFileRef} style={{display: 'none'}} onChange={this.onChangeFile.bind(this)}/>

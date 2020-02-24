@@ -269,6 +269,12 @@ def delete_table_record(request):
 
     return JsonResponse([], safe=False)
 
+def create_payments(request):
+    param_dict = dict(request.GET)
+    sht_id = param_dict.get('sht_id', [''])[0]
+    dop = param_dict.get('dop', [''])[0]
+    print('create_payments TODO', sht_id, dop)
+    return JsonResponse([], safe=False)
 
 def get_dm_dops(request):
     param_dict = dict(request.GET)
