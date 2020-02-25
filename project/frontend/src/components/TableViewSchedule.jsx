@@ -41,7 +41,7 @@ export default class TableViewSchedule extends Component {
 
     getColumnsListRequestString(){
         var httpStr;
-        httpStr = "sht_columns/?viewType=ScheduleView";
+        httpStr = "sht_columns/?viewType=ScheduleView&sht_id="+this.props.additionalSheetParams.sht_id;
         return httpStr;
     }
 

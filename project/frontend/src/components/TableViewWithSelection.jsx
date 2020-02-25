@@ -157,10 +157,9 @@ export default class TableViewWithSelection extends Component {
     }
 
     getColumnsListRequestString(){
-
         var httpStr = "sht_columns/?";
-        if (this.state.sheet_id){
-            httpStr +='sht_id='+this.state.sheet_id;
+        if (this.state.sheet.id){
+            httpStr +='sht_id='+this.state.sheet.id;
         }
 
         return httpStr;
