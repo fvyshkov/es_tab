@@ -1,7 +1,5 @@
 import React, { Component , useEffect, useRef} from 'react';
 import ReactDOM from "react-dom";
-import TabView from './TabView.jsx';
-import TableView from './TableView.jsx';
 import ReTableView from './ReTableView.jsx';
 import SheetSelectDropDown from './SheetSelectDropDown.jsx';
 import { sendRequestPromise } from './sendRequestPromise.js';

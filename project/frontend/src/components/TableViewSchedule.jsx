@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import TableView from './TableView.jsx';
 import ReTableView from './ReTableView.jsx';
 import commentDatasource from './commentDatasource.js';
 import CommentPanel from './CommentPanel.jsx';
@@ -46,6 +45,7 @@ export default class TableViewSchedule extends Component {
     }
 
     getDataRequestString(){
+        //console.log('getDataRequestString this.props.additionalSheetParams', this.props.additionalSheetParams.sht_id);
         var httpStr = 'get_schedule/?viewType=ScheduleView';
         return httpStr;
     }
@@ -72,5 +72,7 @@ export default class TableViewSchedule extends Component {
         );
     }
 }
+
+//
 
 

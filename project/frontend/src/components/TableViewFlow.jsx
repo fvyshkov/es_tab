@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import TableView from './TableView.jsx';
 import ReTableView from './ReTableView.jsx';
 import CommentPanel from './CommentPanel.jsx';
 import {sendRequest} from './App.js';
@@ -39,7 +38,11 @@ export default class TableViewFlow extends Component {
     }
 
     getColumnsListRequestString(){
-        var httpStr = "sht_columns/?viewType=FlowView";
+        console.log('this.props.additionalSheetParams=',this.props.additionalSheetParams);
+        var httpStr = "sht_columns/?viewType=FlowView&sht_id="+this.props.additionalSheetParams.sht_id+
+            "&dop="+this.props.additionalSheetParams.dop+
+            "&skey="+this.props.additionalSheetParams.skey;
+
         return httpStr;
     }
 

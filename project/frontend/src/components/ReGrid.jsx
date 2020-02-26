@@ -9,7 +9,6 @@ import { sendRequest } from './App.js';
 import { sendRequestPromise } from './sendRequestPromise.js';
 import FilterPanelInToolPanel from "./FilterPanelInToolPanel.jsx";
 import {LicenseManager} from "@ag-grid-enterprise/core";
-import TableView from './TableView.jsx';
 import ReTableView from './ReTableView.jsx';
 import ToolbarView from './ToolbarView.jsx';
 import sheetDatasource from './sheetDatasource';

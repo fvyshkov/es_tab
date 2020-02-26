@@ -7,7 +7,6 @@ import 'devextreme/dist/css/dx.light.css';
 import notify from 'devextreme/ui/notify';
 import { sendRequest } from './App.js';
 import AddRemoveLayout from './AddRemoveLayout.jsx';
-import TableView from './TableView.jsx';
 import TableViewWithSelection from './TableViewWithSelection.jsx';
 import { AgGridReact } from "@ag-grid-community/react";
 import {processTree} from './esUtils.js';
@@ -52,7 +51,9 @@ export default class LayoutWithToolbar extends Component {
                                                             getLayoutForSave={this.getLayoutForSave.bind(this)}
                                                             sendLayoutBeforeSave={click => this.sendLayoutBeforeSave = click}
                                                             doBeforeSaveLayout={this.doBeforeSaveLayout.bind(this)}
-                                                         />
+                                                         />,
+                                                         null,
+                                                         "TableViewWithSelection"
                                                     );
                         }
     }
@@ -101,17 +102,7 @@ export default class LayoutWithToolbar extends Component {
         ];
 
         this.setState({addLayoutDialogVisible:true});
-        /*
-        return;
 
-        console.log('savePatternLayout this.layoutForSave=1=', this.layoutForSave);
-        this.sendLayoutBeforeSave();
-        console.log('savePatternLayout this.layoutForSave=2=', this.layoutForSave);
-        this.savedLayout = this.layoutForSave;
-
-        sendRequestPromise('save_layout', 'POST', this.layoutForSave)
-            .then(()=>notify('Рабочий стол сохранен','success'));
-        */
     }
 
     doBeforeSaveLayout(charts){
@@ -137,6 +128,8 @@ export default class LayoutWithToolbar extends Component {
     }
 
     openPatternLayout(layout){
+        console.log("this.layoutForSave", this.layoutForSave);
+        return;
         //сначала удалим все что есть
         this.setState({items:[]});
 
@@ -144,7 +137,8 @@ export default class LayoutWithToolbar extends Component {
         this.savedLayout = layout;
 
         this.savedLayout.forEach((layoutItem)=>{
-            this.addElementToLayout(
+            if (layoutItem.elementType=="TableViewWithSelection"){
+                this.addElementToLayout(
                                 <TableViewWithSelection
                                     layoutItemID={"n" + this.state.items.length}
                                     onToolbarCloseClick={this.onToolbarCloseClick.bind(this)}
@@ -158,8 +152,12 @@ export default class LayoutWithToolbar extends Component {
                                     filterNodes={layoutItem.filterNodes}
                                     chartsData={layoutItem.chartsData}
                                  />,
-                                 layoutItem.layout
+                                 layoutItem.layout,
+                                layoutItem.elementType
                              );
+            }else{
+                console.log("layoutItem.elementType", layoutItem.elementType);
+            }
         });
     }
 
@@ -184,7 +182,7 @@ export default class LayoutWithToolbar extends Component {
         return 'n' + this.state.items.length;
     }
 
-    addElementToLayout(elementRenderer, layout){
+    addElementToLayout(elementRenderer, layout, elementType){
         var actualLayout = layout
         if (!layout){
             actualLayout = { x: 0,
@@ -197,6 +195,7 @@ export default class LayoutWithToolbar extends Component {
           // Add a new item. It must have a unique key!
               items: this.state.items.concat({
                 i: "n" + this.state.items.length,
+                elementType: elementType,
                 ...actualLayout,
                 renderItem:elementRenderer
               })
@@ -204,6 +203,7 @@ export default class LayoutWithToolbar extends Component {
     }
 
     onLayoutChange(layout){
+        console.log('onLayoutChange(layout)', layout);
         //layoutForSave={itemId, layout, type,  sheet, filterNodes}
         layout.forEach((layoutItem)=>{
             var forSaveItem = this.layoutForSave.find((forSaveItem)=>{ return forSaveItem.itemId == layoutItem.i  });

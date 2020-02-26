@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import TableView from './TableView.jsx';
 import ReTableView from './ReTableView.jsx';
 import CommentPanel from './CommentPanel.jsx';
 import {sendRequest} from './App.js';
