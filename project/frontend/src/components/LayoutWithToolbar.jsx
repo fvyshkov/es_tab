@@ -7,8 +7,16 @@ import 'devextreme/dist/css/dx.light.css';
 import notify from 'devextreme/ui/notify';
 import { sendRequest } from './App.js';
 import AddRemoveLayout from './AddRemoveLayout.jsx';
+
 import TableViewWithSelection from './TableViewWithSelection.jsx';
 import TableViewFlow from './TableViewFlow.jsx';
+import TableViewComment from './TableViewComment.jsx';
+import TableViewConf from './TableViewConf.jsx';
+import TableViewHistory from './TableViewHistory.jsx';
+import TableViewSchedule from './TableViewSchedule.jsx';
+import ReTableView from './ReTableView.jsx';
+
+
 import { AgGridReact } from "@ag-grid-community/react";
 import {processTree} from './esUtils.js';
 import SimpleDialog from './SimpleDialog.jsx';
@@ -18,7 +26,12 @@ import Reference from './Reference.js';
 
 const layoutComponents = {
     TableViewWithSelection: TableViewWithSelection,
-    TableViewFlow: TableViewFlow
+    TableViewFlow: TableViewFlow,
+    TableViewComment: TableViewComment,
+    TableViewConf: TableViewConf,
+    TableViewHistory: TableViewHistory,
+    TableViewSchedule: TableViewSchedule,
+    ReTableView: ReTableView
 };
 
 

@@ -88,14 +88,18 @@ export default class AddRemoveLayout extends React.PureComponent {
     });
   }
 
-  onLayoutChange(layout) {
-    //this.props.onLayoutChange(layout);
-    this.setState({ layout: layout });
-    //console.log('onLayoutChange=', layout);
-    if (this.props.onLayoutChange){
-        this.props.onLayoutChange(layout);
+    onLayoutChange(layout) {
+        console.log("onLayoutChange low");
+        return;
+        console.log("items ", this.state.items);
+        console.log("layout", layout);
+
+        this.setState({ layout: layout });
+
+        if (this.props.onLayoutChange){
+            this.props.onLayoutChange(layout);
+        }
     }
-  }
 
   onRemoveItem(i) {
     this.setState({ items: _.reject(this.state.items, { i: i }) });

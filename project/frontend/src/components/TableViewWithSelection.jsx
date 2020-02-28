@@ -498,17 +498,20 @@ export default class TableViewWithSelection extends Component {
     showHistoryForCell(params, showAll=false){
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
-            var viewRender =  <TableViewHistory
-                                additionalSheetParams={{
+
+            const formParams = {additionalSheetParams:{
                                                             skey: showAll ? '' : this.getCellSkey(params),
                                                             sht_id: this.state.sheet_id,
                                                             ind_id: params.node.data.ind_id
-                                                            }}
+                                                            }};
+
+            var viewRender =  <TableViewHistory
+                                additionalSheetParams={formParams.additionalSheetParams}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
                                 layoutItemID={newLayoutItemID}
                                 />;
 
-            this.props.addElementToLayout(viewRender);
+            this.props.addElementToLayout(viewRender, null, "TableViewHistory", formParams);
         }
     }
 
@@ -516,17 +519,20 @@ export default class TableViewWithSelection extends Component {
     showDetailForCell(params){
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
-            var detailRender =  <ReTableView
-                                additionalSheetParams={{
+
+            const formParams = {additionalSheetParams:{
                                                             parent_id:params.node.data.id,
                                                             ind_id:params.column.colDef.ind_id,
                                                             sht_id: this.state.sheet_id
-                                                            }}
+                                                            }};
+
+            var detailRender =  <ReTableView
+                                additionalSheetParams={formParams.additionalSheetParams}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
                                 layoutItemID={newLayoutItemID}
                                 />;
 
-            this.props.addElementToLayout(detailRender);
+            this.props.addElementToLayout(detailRender, null, "ReTableView", formParams);
         }
     }
 
@@ -561,13 +567,15 @@ export default class TableViewWithSelection extends Component {
     showScheduleForRow(params){
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
+
+            const formParams = {additionalSheetParams:{sht_id: this.state.sheet_id, req_id:params.node.data.id, dop: params.node.data.dop}};
             var detailRender =  <TableViewSchedule
-                                additionalSheetParams={{sht_id: this.state.sheet_id, req_id:params.node.data.id, dop: params.node.data.dop}}
+                                additionalSheetParams={formParams.additionalSheetParams}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
                                 layoutItemID={newLayoutItemID}
                                 />;
 
-            this.props.addElementToLayout(detailRender);
+            this.props.addElementToLayout(detailRender, null, "TableViewSchedule", formParams);
         }
     }
 
@@ -575,13 +583,15 @@ export default class TableViewWithSelection extends Component {
     showConfList(){
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
+
+
             var detailRender =  <TableViewConf
                                 additionalSheetParams={{sht_id: this.state.sheet.id}}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
                                 layoutItemID={newLayoutItemID}
                                 />;
 
-            this.props.addElementToLayout(detailRender);
+            this.props.addElementToLayout(detailRender, null, "TableViewConf", {additionalSheetParams:{sht_id: this.state.sheet.id}});
         }
     }
 
@@ -664,7 +674,7 @@ export default class TableViewWithSelection extends Component {
                                 layoutItemID={newLayoutItemID}
                                 />;
 
-            this.props.addElementToLayout(detailRender, null, formParams);
+            this.props.addElementToLayout(detailRender, null, "TableViewComment", formParams);
         }
     }
 
