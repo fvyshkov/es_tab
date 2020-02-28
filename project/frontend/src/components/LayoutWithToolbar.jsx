@@ -8,12 +8,19 @@ import notify from 'devextreme/ui/notify';
 import { sendRequest } from './App.js';
 import AddRemoveLayout from './AddRemoveLayout.jsx';
 import TableViewWithSelection from './TableViewWithSelection.jsx';
+import TableViewFlow from './TableViewFlow.jsx';
 import { AgGridReact } from "@ag-grid-community/react";
 import {processTree} from './esUtils.js';
 import SimpleDialog from './SimpleDialog.jsx';
 import {someChartModel, someChartModel2} from './testData.js';
 import { sendRequestPromise } from './sendRequestPromise.js';
 import Reference from './Reference.js';
+
+const layoutComponents = {
+    TableViewWithSelection: TableViewWithSelection,
+    TableViewFlow: TableViewFlow
+};
+
 
 export default class LayoutWithToolbar extends Component {
 
@@ -129,17 +136,21 @@ export default class LayoutWithToolbar extends Component {
 
     openPatternLayout(layout){
         console.log("this.layoutForSave", this.layoutForSave);
-        return;
+        //return;
         //сначала удалим все что есть
         this.setState({items:[]});
 
         this.layoutForSave = layout;
         this.savedLayout = layout;
 
+
+
         this.savedLayout.forEach((layoutItem)=>{
-            if (layoutItem.elementType=="TableViewWithSelection"){
+            if (layoutItem.elementType in layoutComponents){
+                const Component = layoutComponents[layoutItem.elementType];
+
                 this.addElementToLayout(
-                                <TableViewWithSelection
+                                <Component
                                     layoutItemID={"n" + this.state.items.length}
                                     onToolbarCloseClick={this.onToolbarCloseClick.bind(this)}
                                     addElementToLayout={this.addElementToLayout.bind(this)}
@@ -151,12 +162,15 @@ export default class LayoutWithToolbar extends Component {
                                     sheet={layoutItem.sheet}
                                     filterNodes={layoutItem.filterNodes}
                                     chartsData={layoutItem.chartsData}
+                                    {...layoutItem.formParams}
                                  />,
                                  layoutItem.layout,
-                                layoutItem.elementType
+                                layoutItem.elementType,
+                                layoutItem.formParams
                              );
+
             }else{
-                console.log("layoutItem.elementType", layoutItem.elementType);
+                console.log("NO such elementtype  layoutItem.elementType", layoutItem.elementType);
             }
         });
     }
@@ -182,7 +196,8 @@ export default class LayoutWithToolbar extends Component {
         return 'n' + this.state.items.length;
     }
 
-    addElementToLayout(elementRenderer, layout, elementType){
+    addElementToLayout(elementRenderer, layout, elementType, formParams){
+        console.log("addElementToLayout elementType", elementType);
         var actualLayout = layout
         if (!layout){
             actualLayout = { x: 0,
@@ -197,27 +212,47 @@ export default class LayoutWithToolbar extends Component {
                 i: "n" + this.state.items.length,
                 elementType: elementType,
                 ...actualLayout,
-                renderItem:elementRenderer
+                renderItem:elementRenderer,
+                formParams: formParams
               })
         });
     }
 
     onLayoutChange(layout){
         console.log('onLayoutChange(layout)', layout);
+        console.log('onLayoutChange(items)', this.state.items);
+
         //layoutForSave={itemId, layout, type,  sheet, filterNodes}
         layout.forEach((layoutItem)=>{
             var forSaveItem = this.layoutForSave.find((forSaveItem)=>{ return forSaveItem.itemId == layoutItem.i  });
+
+            var itemData = this.state.items.find((item)=>{ return item.i == layoutItem.i});
+
             if (forSaveItem){
                 forSaveItem.layout = {x: layoutItem.x, y: layoutItem.y, h: layoutItem.h, w: layoutItem.w};
+
+                forSaveItem.elementType = itemData.elementType;
+                if (itemData.formParams){
+                    forSaveItem.formParams = itemData.formParams;
+                }
+
             }else{
                 this.layoutForSave.push({
                     itemId: layoutItem.i,
+                    layout : {x: layoutItem.x, y: layoutItem.y, h: layoutItem.h, w: layoutItem.w},
+                    elementType: itemData.elementType,
+                    formParams : itemData.formParams
+                    /*
                     x: layoutItem.x,
                     y: layoutItem.y,
                     h: layoutItem.h,
                     w: layoutItem.w
+                    */
                 });
             }
+
+
+
 
 
         });
@@ -232,7 +267,7 @@ export default class LayoutWithToolbar extends Component {
         this.layoutForSave = [];
         this.layoutForSave = cleanedLayout;
 
-
+        console.log('this.layoutForSave', this.layoutForSave);
     }
 
     addLayout(params){

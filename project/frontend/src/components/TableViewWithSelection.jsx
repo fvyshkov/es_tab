@@ -607,17 +607,21 @@ export default class TableViewWithSelection extends Component {
 
             }
 
-            var detailRender =  <TableViewFlow
-                                additionalSheetParams={{
+
+            var formParams = {additionalSheetParams:{
                                                         sht_id: this.state.sheet_id,
                                                         req_id: oneRow ? params.node.data.id : '',
                                                         dop: dopString,
-                                                        skey: getFilterSkeyByCell(params)}}
+                                                        skey: getFilterSkeyByCell(params)}
+                                 };
+
+            var detailRender =  <TableViewFlow
+                                additionalSheetParams={formParams.additionalSheetParams}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
                                 layoutItemID={newLayoutItemID}
                                 />;
 
-            this.props.addElementToLayout(detailRender);
+            this.props.addElementToLayout(detailRender, null, "TableViewFlow", formParams);
         }
     }
 
@@ -652,13 +656,15 @@ export default class TableViewWithSelection extends Component {
                 additionalParams['req_id'] = columnData.req_id;
             }
 
+            var formParams = {additionalSheetParams:{additionalParams}};
+
             var detailRender =  <TableViewComment
                                 additionalSheetParams={additionalParams}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
                                 layoutItemID={newLayoutItemID}
                                 />;
 
-            this.props.addElementToLayout(detailRender);
+            this.props.addElementToLayout(detailRender, null, formParams);
         }
     }
 
