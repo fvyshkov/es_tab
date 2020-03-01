@@ -79,31 +79,32 @@ export default class TableViewWithSelection extends Component {
     }
 
 
+
     componentDidMount() {
+
         if (this.props.sheet){
-            /*
-            if (this.props.filterNodes){
-                this.setState({filterNodes:this.props.filterNodes});
-            }
-            */
             this.setState({
                             sheet: this.props.sheet,
                             sheet_id: this.props.sheet.id,
                             sheet_type: this.props.sheet.sheet_type });
-
-            //this.setState({sheet_id: prm_sheet_id, sheet_type: prm_sheet_type});
-            //this.loadNewSheet(this.props.sheet);
-
-
-
-
         }
-        console.log('DIDMOUNT this.props.filterNodes', this.props.filterNodes, this.props.sheet);
+
+        console.log('DIDMOUNT this.props.filterNodes', this.props.layoutItemID);
+
         if (this.props.onLayoutContentChange && this.props.filterNodes){
             this.props.onLayoutContentChange({
                                                 type: 'onFilterNodesChange',
                                                 itemId: this.props.layoutItemID,
-                                                changeParams: {filterNodes: this.props.filterNodes, sheet: this.props.sheet}
+                                                changeParams: {filterNodes: this.props.filterNodes}
+                                             });
+        }
+
+        if (this.props.onLayoutContentChange && this.props.sheet){
+
+            this.props.onLayoutContentChange({
+                                                type: 'onFilterNodesChange',
+                                                itemId: this.props.layoutItemID,
+                                                changeParams: {sheet: this.props.sheet}
                                              });
         }
     }
@@ -783,6 +784,15 @@ export default class TableViewWithSelection extends Component {
         this.inputOpenFileRef.current.click();
     };
 
+    sendTest(){
+        console.log('xxx');
+        this.sendLayoutBeforeSave();
+    }
+
+    sendLayoutBeforeSave(){
+
+    }
+
     onChangeFile(event){
         event.stopPropagation();
         event.preventDefault();
@@ -949,6 +959,7 @@ export default class TableViewWithSelection extends Component {
                     sendNewFilterNodes={click => this.sendNewFilterNodes = click}
                     onTopMenuClick={this.onTopMenuClick.bind(this)}
                     getChartTitle={()=>{return this.state.sheet.label;}}
+                    sendLayoutBeforeSave={click => this.sendLayoutBeforeSave = click}
                     additionalToolbarItem={()=>{return(
                                                         <SheetSelectDropDown
                                                             onSelectNewSheet={this.loadNewSheet.bind(this)}

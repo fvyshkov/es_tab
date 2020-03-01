@@ -160,7 +160,7 @@ export default class ReGrid extends React.Component {
                        };
             });
 
-            this.props.doBeforeSaveLayout(chartParams);
+            this.props.doBeforeSaveLayout(this.props.layoutItemID, chartParams);
         }
     }
 
@@ -170,6 +170,7 @@ export default class ReGrid extends React.Component {
         }
 
         if (this.props.sendLayoutBeforeSave){
+            console.log('bind onLayoutBeforeSave');
             this.props.sendLayoutBeforeSave(this.onLayoutBeforeSave.bind(this));
         }
 

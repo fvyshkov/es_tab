@@ -61,19 +61,24 @@ export default class LayoutWithToolbar extends Component {
         elementAttr: {"id": "add_layout_sheet_item"},
         icon: 'plus',
         onClick: () => {
+                            var refer = React.createRef();
+                            console.log('refer created=', refer);
                             this.addElementToLayout(
-                                                        <TableViewWithSelection
+                                                        <TableViewWithSelection ref={refer}
                                                             layoutItemID={"n" + this.state.items.length}
                                                             onToolbarCloseClick={this.onToolbarCloseClick.bind(this)}
                                                             addElementToLayout={this.addElementToLayout.bind(this)}
                                                             getNewLayoutItemID={this.getNewLayoutItemID}
                                                             onLayoutContentChange={this.onLayoutContentChange.bind(this)}
                                                             getLayoutForSave={this.getLayoutForSave.bind(this)}
-                                                            sendLayoutBeforeSave={click => this.sendLayoutBeforeSave = click}
                                                             doBeforeSaveLayout={this.doBeforeSaveLayout.bind(this)}
+                                                            sendTest={click => this.sendTest = click}
+
                                                          />,
                                                          null,
-                                                         "TableViewWithSelection"
+                                                         "TableViewWithSelection",
+                                                         null,
+                                                         refer
                                                     );
                         }
     }
@@ -93,9 +98,13 @@ export default class LayoutWithToolbar extends Component {
     openPatternLayoutButtonOptions = {
         icon: 'columnfield',
         onClick: () => {
-            sendRequestPromise('get_layouts/')
-                .then((layouts)=>{
-                    this.setState({layoutsList:layouts, showLayoutsRefer:true});
+
+
+
+                //return;
+                sendRequestPromise('get_layouts/')
+                    .then((layouts)=>{
+                        this.setState({layoutsList:layouts, showLayoutsRefer:true});
                 });
 
         }
@@ -114,7 +123,13 @@ export default class LayoutWithToolbar extends Component {
 
     savePatternLayout(){
 
-        this.sendLayoutBeforeSave();
+        this.state.items.forEach((item)=>{
+            console.log('savePatternLayout item ', item);
+            if (item.refer && item.refer.current && item.refer.current.sendTest){
+                item.refer.current.sendLayoutBeforeSave();
+            }
+        });
+        //this.sendLayoutBeforeSave();
         this.savedLayout = this.layoutForSave;
 
         this.addLayoutParams = [
@@ -125,30 +140,31 @@ export default class LayoutWithToolbar extends Component {
 
     }
 
-    doBeforeSaveLayout(charts){
+    doBeforeSaveLayout(parentLayoutId, charts){
         console.log('doBeforeSaveLayout charts', charts);
         this.layoutForSave.forEach((layout)=>{
-            var layoutChartsData = [];
-            charts.forEach((chart)=>{
-                if (chart.parentLayoutId == layout.itemId){
-                    layoutChartsData.push(chart);
-                }
-            });
-            layout['chartsData'] = layoutChartsData;
+            if (layout.itemId == parentLayoutId){
+                layout['chartsData'] = charts;
+            }
         });
         //удалим графики из списка сохраняемых виджетов
+        /*
         this.layoutForSave = this.layoutForSave.filter((layout)=>{
             var isChart = charts.find((chart)=>{
                 return chart.chartLayoutId == layout.itemId;
             });
             return !isChart;
         });
-
-
+        */
+        console.log("doBeforeSaveLayout this.layoutForSave", this.layoutForSave);
     }
 
+    //sendTest(){}
+
     openPatternLayout(layout){
+
         console.log("this.layoutForSave", this.layoutForSave);
+        console.log("this.savedLayout", layout);
         //return;
         //сначала удалим все что есть
         this.setState({items:[]});
@@ -156,14 +172,23 @@ export default class LayoutWithToolbar extends Component {
         this.layoutForSave = layout;
         this.savedLayout = layout;
 
-
+        console.log("this.savedLayout", layout);
 
         this.savedLayout.forEach((layoutItem)=>{
             if (layoutItem.elementType in layoutComponents){
                 const Component = layoutComponents[layoutItem.elementType];
 
+                var refer = {};
+
+                if (layoutItem.elementType == "TableViewWithSelection"){
+                    refer = React.createRef();
+                }
+
+                console.log("SHEET=", layoutItem.sheet);
+
                 this.addElementToLayout(
                                 <Component
+                                    ref={refer}
                                     layoutItemID={"n" + this.state.items.length}
                                     onToolbarCloseClick={this.onToolbarCloseClick.bind(this)}
                                     addElementToLayout={this.addElementToLayout.bind(this)}
@@ -171,15 +196,15 @@ export default class LayoutWithToolbar extends Component {
                                     onLayoutContentChange={this.onLayoutContentChange.bind(this)}
                                     doBeforeSaveLayout={this.doBeforeSaveLayout.bind(this)}
                                     getLayoutForSave={this.getLayoutForSave.bind(this)}
-                                    sendLayoutBeforeSave={click => this.sendLayoutBeforeSave = click}
                                     sheet={layoutItem.sheet}
                                     filterNodes={layoutItem.filterNodes}
                                     chartsData={layoutItem.chartsData}
                                     {...layoutItem.formParams}
                                  />,
-                                 layoutItem.layout,
+                                layoutItem.layout,
                                 layoutItem.elementType,
-                                layoutItem.formParams
+                                layoutItem.formParams,
+                                refer
                              );
 
             }else{
@@ -189,13 +214,26 @@ export default class LayoutWithToolbar extends Component {
     }
 
     onLayoutContentChange(contentChangeParams){
+        console.log('onLayoutContentChange 1 this.layoutForSave', this.layoutForSave);
+        console.log('onLayoutContentChange 11 contentChangeParams', contentChangeParams);
+
+        var foundItem = false;
         this.layoutForSave.forEach((layoutItem)=>{
             if (layoutItem.itemId == contentChangeParams.itemId){
+                foundItem = true;
                 for (var paramItem in contentChangeParams.changeParams){
                     layoutItem[paramItem] = contentChangeParams.changeParams[paramItem];
                 }
             }
         });
+
+        if (!foundItem){
+            this.layoutForSave.push({itemId:contentChangeParams.itemId});
+            for (var paramItem in contentChangeParams.changeParams){
+                this.layoutForSave[this.layoutForSave.length-1][paramItem] = contentChangeParams.changeParams[paramItem];
+            }
+        }
+        console.log('onLayoutContentChange 2 this.layoutForSave', this.layoutForSave);
 
 
     }
@@ -209,8 +247,10 @@ export default class LayoutWithToolbar extends Component {
         return 'n' + this.state.items.length;
     }
 
-    addElementToLayout(elementRenderer, layout, elementType, formParams){
-        console.log("addElementToLayout elementType", elementType);
+    addElementToLayout(elementRenderer, layout, elementType, formParams, refer){
+
+        console.log("addElementToLayout refer", refer);
+
         var actualLayout = layout
         if (!layout){
             actualLayout = { x: 0,
@@ -219,6 +259,7 @@ export default class LayoutWithToolbar extends Component {
                             h: 3};
         }
 
+
         this.setState({
           // Add a new item. It must have a unique key!
               items: this.state.items.concat({
@@ -226,12 +267,14 @@ export default class LayoutWithToolbar extends Component {
                 elementType: elementType,
                 ...actualLayout,
                 renderItem:elementRenderer,
-                formParams: formParams
+                formParams: formParams,
+                refer: refer
               })
         });
     }
 
     onLayoutChange(layout){
+        console.log('onLayoutChange 01 ', this.layoutForSave);
         console.log('onLayoutChange(layout)', layout);
         console.log('onLayoutChange(items)', this.state.items);
 
@@ -255,12 +298,6 @@ export default class LayoutWithToolbar extends Component {
                     layout : {x: layoutItem.x, y: layoutItem.y, h: layoutItem.h, w: layoutItem.w},
                     elementType: itemData.elementType,
                     formParams : itemData.formParams
-                    /*
-                    x: layoutItem.x,
-                    y: layoutItem.y,
-                    h: layoutItem.h,
-                    w: layoutItem.w
-                    */
                 });
             }
 
@@ -270,16 +307,25 @@ export default class LayoutWithToolbar extends Component {
 
         });
 
+        console.log('onLayoutChange 021 ', this.layoutForSave);
+        console.log('onLayoutChange 022 ', layout);
+        console.log('onLayoutChange 022 layout.length ', layout.length, "this.layoutForSave.length", this.layoutForSave.length);
+
         var cleanedLayout = this.layoutForSave.filter(
             (forSaveItem)=>{
-
+                return layout.find((layoutItem)=>{return layoutItem.i == forSaveItem.itemId;
+                        });
+            });
+        console.log('onLayoutChange 022 cleanedLayout ', cleanedLayout);
+        //this.layoutForSave = [];
+        //this.layoutForSave = cleanedLayout;
+        this.layoutForSave = this.layoutForSave.filter(
+            (forSaveItem)=>{
                 return layout.find((layoutItem)=>{return layoutItem.i==forSaveItem.itemId;
                         });
             });
 
-        this.layoutForSave = [];
-        this.layoutForSave = cleanedLayout;
-
+        console.log('onLayoutChange 03 ', this.layoutForSave);
         console.log('this.layoutForSave', this.layoutForSave);
     }
 
