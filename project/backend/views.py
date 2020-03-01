@@ -633,19 +633,23 @@ def update_layout(request):
 
 
 def delete_layout(request):
-    param_dict = dict(request.GET)
-    layout_id = param_dict.get('layout_id', [''])[0]
+    data = json.loads(request.body.decode("utf-8"))
+    print('delete layoput', data)
+    for layout in data.get("ids"):
+        print("id=", layout['id'])
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                                begin
+                                    c_pkgconnect.popen();
 
-    with connection.cursor() as cursor:
-        cursor.execute("""
-                            begin
-                                c_pkgconnect.popen;
-                                delete  c_es_layout
-                                where   id = %s;
-                            end;
-                        """, [layout_id])
+                                    delete  c_es_layout
+                                    where   id = %s;
+                                end;
+                            """, [layout['id']])
 
     return JsonResponse([], safe=False)
+
+
 
 
 def get_sheet_info_update(request):

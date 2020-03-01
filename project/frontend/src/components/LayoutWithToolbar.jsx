@@ -336,9 +336,29 @@ export default class LayoutWithToolbar extends Component {
     }
 
     closeLayoutsReference(params){
+
         this.setState({showLayoutsRefer:false});
-        //console.log('restore layout', obj);
-        this.openPatternLayout(params.layout);
+        if (params){
+            this.openPatternLayout(params.layout);
+        }
+    }
+
+    deleteLayout(params){
+        //console.log("deleteLayout", params);
+        var ids = params.map(row=> {return {id: row.id}});
+
+        sendRequestPromise('delete_layout/', 'POST', {ids:ids})
+            .then(()=>{
+
+                var layoutsFiltered = this.state.layoutsList.filter((layout)=>{
+                    var deletedId = ids.find((deletedLayout)=>{ return deletedLayout.id ==layout.id  });
+                    return !deletedId;
+                });
+                //console.log("2 this.state.layoutsList.length", this.state.layoutsList.length);
+
+                this.setState({layoutsList:layoutsFiltered});
+            })
+            .catch(()=>{console.log("delete layout error!!!")});
     }
 
     render(){
@@ -347,6 +367,7 @@ export default class LayoutWithToolbar extends Component {
                 data={this.state.layoutsList}
                  onRefHidden={this.closeLayoutsReference.bind(this)}
                  keyField={'id'}
+                 onDeleteItem={this.deleteLayout.bind(this)}
                  refdscr={{
                         title: 'Рабочие столы',
                         columns: [

@@ -13,6 +13,8 @@ class Reference extends React.Component {
       this.onSelectionChanged = this.onSelectionChanged.bind(this);
       this.onOk = this.onOk.bind(this);
       this.row = null;
+
+      this.selectedRows = [];
     };
 
     componentDidMount() {
@@ -32,6 +34,11 @@ class Reference extends React.Component {
         console.log('SelectionChanged');
         const data = sel.selectedRowsData[0];
         this.row = data;
+        this.selectedRows = sel.selectedRowsData;
+    }
+
+    onDeleteItem(){
+        this.props.onDeleteItem(this.selectedRows);
     }
 
     onOk(e) {
@@ -65,9 +72,10 @@ class Reference extends React.Component {
               defaultSelectedRowKeys={[1]}
               showBorders={true}
               height={250}
+              noDataText={"Нет данных"}
               onSelectionChanged={this.onSelectionChanged}
             >
-              <Selection mode="single" />
+              <Selection mode="multiple" showCheckBoxesMode="none" />
               {columns.map((column) => <Column key={column.field} dataField={column.field} caption={column.caption} />)}
               <Sorting mode="none" />
               <Scrolling mode="virtual" />
@@ -82,6 +90,16 @@ class Reference extends React.Component {
                 text = "Закрыть"
                 type = "success"
               />
+              {this.props.onDeleteItem ? (
+                <Button
+                    text = ""
+                    icon="clear"
+                    type = "normal"
+                    onClick={this.onDeleteItem.bind(this)}
+                />
+                ) : null
+              }
+
             </div>
       </Popup>
       );
