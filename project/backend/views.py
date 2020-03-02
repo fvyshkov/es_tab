@@ -618,8 +618,7 @@ def update_layout(request):
                                 c_pkgconnect.popen();
                                 
                                 update  c_es_layout
-                                set     longname = %s,
-                                        layout = %s
+                                set     layout = %s
                                 where   id = %s;
                                 
                                 if sql%%notfound then
@@ -627,7 +626,7 @@ def update_layout(request):
                                     values( %s , %s);
                                 end if;
                             end;
-                        """, [longname, layout, layout_id, longname, layout])
+                        """, [layout, layout_id, longname, layout])
 
     return JsonResponse([], safe=False)
 

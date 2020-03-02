@@ -104,7 +104,7 @@ export default class LayoutWithToolbar extends Component {
                 //return;
                 sendRequestPromise('get_layouts/')
                     .then((layouts)=>{
-                        this.setState({layoutsList:layouts, showLayoutsRefer:true});
+                        this.setState({layoutsList:layouts, showLayoutsRefer:true,  layoutsReferenceMode: 'openLayout'});
                 });
 
         }
@@ -115,33 +115,47 @@ export default class LayoutWithToolbar extends Component {
     }
 
     savePatternLayoutButtonOptions = {
-        icon: 'save',
+        //icon: 'save',
+        text: "Сохранить новый рабочий стол",
         onClick: () => {
-            this.savePatternLayout();
+            this.savePatternLayout(true);
         }
     }
 
-    savePatternLayout(){
+    savePatternLayoutReplaceButtonOptions = {
+        //icon: 'save',
+        text: "Сохранить вместо...",
+        onClick: () => {
+            this.savePatternLayout(false);
+        }
+    }
+
+    savePatternLayout(saveAsNew){
 
         this.state.items.forEach((item)=>{
-            console.log('savePatternLayout item ', item);
             if (item.refer && item.refer.current && item.refer.current.sendTest){
                 item.refer.current.sendLayoutBeforeSave();
             }
         });
-        //this.sendLayoutBeforeSave();
         this.savedLayout = this.layoutForSave;
+
 
         this.addLayoutParams = [
             {dataField:"LONGNAME", label:"Наименование", value: "Рабочий стол",  visible: true}
         ];
 
-        this.setState({addLayoutDialogVisible:true});
+        if (saveAsNew){
+            this.setState({addLayoutDialogVisible:true});
+        }else{
+            sendRequestPromise('get_layouts/')
+                    .then((layouts)=>{
+                        this.setState({layoutsList:layouts, showLayoutsRefer:true,  layoutsReferenceMode: 'saveLayout'});
+                });
+        }
 
     }
 
     doBeforeSaveLayout(parentLayoutId, charts){
-        console.log('doBeforeSaveLayout charts', charts);
         this.layoutForSave.forEach((layout)=>{
             if (layout.itemId == parentLayoutId){
                 layout['chartsData'] = charts;
@@ -156,10 +170,9 @@ export default class LayoutWithToolbar extends Component {
             return !isChart;
         });
         */
-        console.log("doBeforeSaveLayout this.layoutForSave", this.layoutForSave);
+        //console.log("doBeforeSaveLayout this.layoutForSave", this.layoutForSave);
     }
 
-    //sendTest(){}
 
     openPatternLayout(layout){
 
@@ -330,8 +343,19 @@ export default class LayoutWithToolbar extends Component {
     }
 
     addLayout(params){
+
         console.log('addLayout', params);
-        sendRequestPromise('update_layout/?longname='+params.LONGNAME.value+'&layout_id=0', 'POST', this.layoutForSave)
+
+        var httpStr =  'update_layout/?dummy=1';
+        if (params.layoutId){
+            httpStr += '&layout_id='+ params.layoutId;
+        }
+
+        if (params.LONGNAME){
+            httpStr += '&longname='+ params.LONGNAME.value;
+        }
+
+        sendRequestPromise(httpStr, 'POST', this.layoutForSave)
             .then(()=>{notify('Рабочий стол сохранен', 'success')});
     }
 
@@ -339,7 +363,12 @@ export default class LayoutWithToolbar extends Component {
 
         this.setState({showLayoutsRefer:false});
         if (params){
-            this.openPatternLayout(params.layout);
+            if (this.state.layoutsReferenceMode=='openLayout'){
+                this.openPatternLayout(params.layout);
+            }else if (this.state.layoutsReferenceMode=='saveLayout'){
+
+                this.addLayout({layoutId: params.id});
+            }
         }
     }
 
@@ -378,6 +407,8 @@ export default class LayoutWithToolbar extends Component {
             /> : null;
 
 
+
+
         return (
             <React.Fragment>
             <div className='Wrapper'>
@@ -390,13 +421,21 @@ export default class LayoutWithToolbar extends Component {
                     widget={'dxButton'}
                     options={this.closeButtonOptions} />
 
-                    <Item location={'before'}
+
+
+                    <Item location={'after'}
+                    widget={'dxButton'}
+                    options={this.openPatternLayoutButtonOptions} />
+
+                    <Item
+                    locateInMenu="always"
                     widget={'dxButton'}
                     options={this.savePatternLayoutButtonOptions} />
 
-                    <Item location={'before'}
+                    <Item
+                    locateInMenu="always"
                     widget={'dxButton'}
-                    options={this.openPatternLayoutButtonOptions} />
+                    options={this.savePatternLayoutReplaceButtonOptions} />
 
 
                 </Toolbar>
