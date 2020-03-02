@@ -117,8 +117,7 @@ export default class ReTableView extends Component {
         }
 
         if (reload){
-            const dummy_key="dummy_0";
-            this.setState({rowData: [{node_key: dummy_key, hie_path: [dummy_key], name: "DUMMY"}]});
+            this.setDummyRow();
         }
 
         return this.tableData.loadData(parentNode, reload)
@@ -136,6 +135,11 @@ export default class ReTableView extends Component {
                     this.afterFirstLoadData();
                 }
             });
+    }
+
+    setDummyRow(){
+        const dummy_key="dummy_0";
+        this.setState({rowData: [{node_key: dummy_key, hie_path: [dummy_key], name: "DUMMY"}]});
     }
 
     afterFirstLoadData(){
@@ -162,6 +166,9 @@ export default class ReTableView extends Component {
         let emptyPromise = new Promise((resolve, reject)=>{resolve('success');});
 
         emptyPromise
+            .then(()=>{
+                this.setDummyRow();
+            })
             .then(()=>{
                             if (tabView.props.getFilterData){
                                 return tabView.props.getFilterData();
