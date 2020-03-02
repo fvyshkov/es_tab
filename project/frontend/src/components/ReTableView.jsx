@@ -96,7 +96,6 @@ export default class ReTableView extends Component {
         //при изменении пропса-массива приходится вручную изменить key грида, чтобы он перерендерился
         if (reload){
             this.setState({ gridKey: this.state.gridKey+1, rowData: null});
-
         }
 
         this.tableData.setRequestString(()=>{
@@ -116,26 +115,27 @@ export default class ReTableView extends Component {
         if(!parentNode){
             this.setState({loading:true});
         }
-        var rowData;
+
+        if (reload){
+            const dummy_key="dummy_0";
+            this.setState({rowData: [{node_key: dummy_key, hie_path: [dummy_key], name: "DUMMY"}]});
+        }
+
         return this.tableData.loadData(parentNode, reload)
             .then((data)=>{
-
                 this.setState({rowData: data});
-
-
             })
             .then(()=> {
-
-                            this.sendRefreshData();
-
-                            })
-            .then(()=>{this.setState({loading:false})})
+                this.sendRefreshData();
+            })
+            .then(()=>{
+                this.setState({loading:false})
+            })
             .then(()=>{
                 if (this.isFirstLoadData){
                     this.afterFirstLoadData();
                 }
             });
-        //console.log('loadData', rowData);
     }
 
     afterFirstLoadData(){

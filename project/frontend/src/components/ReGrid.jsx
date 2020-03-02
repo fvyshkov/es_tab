@@ -261,9 +261,7 @@ export default class ReGrid extends React.Component {
                             cellRendererParams: {
                                                 innerRenderer: function(params) {
                                                     if (params.data.node_key.includes('dummy')){
-                                                        var element = document.createElement("span");
-                                                        var spinner =  new Spinner({scale: .4, speed: 1.3}).spin(element);
-                                                        return element;
+                                                        return getSpinner();
                                                     }else{
                                                         return params.data.name;
                                                     }
@@ -702,6 +700,11 @@ export default class ReGrid extends React.Component {
 
 }
 
+function getSpinner(){
+    var element = document.createElement("span");
+    var spinner =  new Spinner({scale: .4, speed: 1.3}).spin(element);
+    return element;
+}
 
 function gridCellRenderer(params){
     var displayValue;
@@ -743,6 +746,17 @@ function gridCellRenderer(params){
         return eList;
     }
 
+    console.log('params', params);
+    console.log('params.data', params.data);
+    console.log('params.data.node_key', params.data.node_key);
+    console.log('params.data.node_key', (typeof params.data.node_key));
+    const node_key = params.data.node_key;
+    if ( (typeof node_key)=="string" && node_key.includes('dummy')){
+        return getSpinner();
+    }
+
+
+
 
     if (columnData && columnData.commentfl===1){
         var imageElement = document.createElement("img");
@@ -757,6 +771,8 @@ function gridCellRenderer(params){
     return element;
 
 }
+
+
 
 function getReferValueById(field, item_id){
     var referData = JSON.parse(referStore.getData(field));
