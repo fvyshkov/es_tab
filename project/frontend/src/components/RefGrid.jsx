@@ -51,6 +51,8 @@ const testData = [
 const dataSource = {
   load: function(loadOptions) {
     console.log('load');
+    return null;
+    /*
     let parentIdsParam = loadOptions.parentIds;
     let url = `getref/?CODE=${dataSource['refCode']}`;
 
@@ -64,16 +66,8 @@ const dataSource = {
       }else{
         url += `&PARAMS={"ID_HI":${null}}`;
       }
-    }
-/*
-    return fetch(url)
-        .then(response => {
-            var resp = response.json();
-            console.log('resp', resp);
-            return resp;
 
-        });
-*/
+    }
     return sendRequestPromise(url)
     //return fetch(url)
       .then(response => {
@@ -86,6 +80,7 @@ const dataSource = {
       });
 
      // .catch(() => { throw 'Ошибка загрузки данных справочника'; });
+     */
   }
 
 };
@@ -122,7 +117,7 @@ class RefGrid extends React.Component {
         if (dataSource['keyvalues']){
             url += '&KEYVALUES=' + dataSource['keyvalues'];
         }
-
+        /*
         if (dataSource['istree']) {
           if(parentIdsParam){
             url += `&PARAMS={"ID_HI":${parentIdsParam[0]||null}}`;
@@ -130,6 +125,7 @@ class RefGrid extends React.Component {
             url += `&PARAMS={"ID_HI":${null}}`;
           }
         }
+        */
 
 
         sendRequestPromise(url)
@@ -149,7 +145,7 @@ class RefGrid extends React.Component {
     }
 
     hasChildren(obj) {
-      return obj['GROUPFL']==='1';
+      return obj['groupfl']==='1';
     };
 
     contentReady(obj) {

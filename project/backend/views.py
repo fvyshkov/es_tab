@@ -1458,7 +1458,8 @@ def getref(request):
 
     ref_code = param_dict.get('CODE', [''])[0]
     ref_keyvalues = param_dict.get('KEYVALUES', [''])[0]
-    ref_params = json.loads(param_dict.get('PARAMS', [''])[0])
+    #ref_params = json.loads(param_dict.get('PARAMS', [''])[0])
+    ref_params = {}
 
 
 
@@ -1479,9 +1480,15 @@ def getref(request):
 
     print("key_values_dict", key_values_dict)
 
+    #key_values_dict2 = {"ID":"8748"}
 
     if ref_code=="TfrmShtFltNodeRef":
-        ref_data = get_sql_result("select * from table(c_pkgesbook.fGetFilterNodes(:ID,:ID_HI,'1'))",key_values_dict)
+        ref_data = get_sql_result("""
+                                    select t.* 
+                                    from table(c_pkgesbook.fGetFilterNodesFull(:ID)) t, 
+                                            C_ES_VER_SHEET_FLT_HIE h
+                                    where h.id = :ID and h.id_node = t.id
+                                  """,key_values_dict)
 
     for row in ref_data:
         if not row['id_hi']:
