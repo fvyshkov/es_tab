@@ -27,6 +27,7 @@ export default class SimpleDialog extends React.Component {
             referVisible: false,
             testPopupVisible: false,
             referFieldName: "",
+            formData: {},
             //refdscr: {},
             refCode: '',
             //minColWidth: 300,
@@ -55,7 +56,7 @@ export default class SimpleDialog extends React.Component {
                                         text: "OK",
                                         onClick: ()=> {
                                                             //а то render опять перепишет this.formData
-                                                            var localFormData = Object.assign({}, this.formData);
+                                                            var localFormData = Object.assign({}, this.state.formData);
                                                             this.props.onDialogClose();
 
                                                             var dialogParams = {};
@@ -100,7 +101,7 @@ export default class SimpleDialog extends React.Component {
             const currentDialogParam = this.props.dialogParams.filter(param=> param.dataField == this.state.referFieldName);
             console.log("currentDialogParam[0]", currentDialogParam[0]);
             if (currentDialogParam.length>0){
-                this.formData[this.state.referFieldName] = row[currentDialogParam[0].parentfield];
+                this.state.formData[this.state.referFieldName] = row[currentDialogParam[0].parentfield];
             }
         }
         this.setState({referVisible: false, refCode: ''});
@@ -113,10 +114,10 @@ export default class SimpleDialog extends React.Component {
     componentDidMount(){
         console.log('simpledialog componentDidMount');
 
-        this.formData = {};
+        this.state.formData = {};
 
         this.props.dialogParams.forEach(param=>{
-            this.formData[param.dataField] = param.value;
+            this.state.formData[param.dataField] = param.value;
         });
 
         if (this.props.width){
@@ -126,15 +127,15 @@ export default class SimpleDialog extends React.Component {
 
     setVal(e, f) {
         console.log("setVal e,f", e,f);
-        //this.setState(prevState => ({data:{...prevState.data}}), ()=>(this.state.data[f]=e.value));
-        this.formData[f] = e.value;
+        this.setState(prevState => ({formData:{...prevState.formData}}), ()=>(this.state.formData[f]=e.value));
+        //this.state.formData[f] = e.value;
     }
 
     renderRef (data) {
         console.log('renderRef data=', data);
         return (
             <RefTextBox
-                value={this.formData[data.dataField]}
+                value={this.state.formData[data.dataField]}
                 onValueChanged={(e)=>this.setVal(e, data.dataField)}
                 refdscr={this.refdscr}
                 onRefButtonClick={this.onRefButtonClick}
@@ -262,7 +263,7 @@ export default class SimpleDialog extends React.Component {
                     <Form
                         onContentReady={null}
                         colCount={1}
-                        formData={this.formData}>
+                        formData={this.state.formData}>
                         {itemList}
 
                     </Form>
