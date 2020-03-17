@@ -41,10 +41,14 @@ export default class TreeReference extends React.Component {
     }
 
     render () {
+      console.log('ref render 0');
       console.log('ref render ' + this.props.refCode);
       this.data = this.props.data;//getRefData(this.props.refCode);
       let refdscr = this.props.refdscr;//getRefDscr(this.props.refCode)
       let columns = refdscr ? refdscr.columns : [];
+
+
+
       return(
       <Popup
         visible={true}

@@ -8,13 +8,16 @@ class RefTextBox extends React.Component {
         this.refButton = {
           icon: ButtonImg,
           type: 'default',
-          onClick: () => { this.onRefButtonClick(this.props.refCode) }
+          onClick: () => {
+            this.onRefButtonClick(this.props.refCode, this.props.keyvalues)
+
+          }
          };
     };
 
 
-    onRefButtonClick(refcode) {
-      this.props.onRefButtonClick(refcode);
+    onRefButtonClick(refcode, keyvalues) {
+      this.props.onRefButtonClick(refcode, keyvalues, this.props.fieldName);
     };
 
     render () {

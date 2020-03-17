@@ -59,6 +59,9 @@ urlpatterns = [
     path('delete_layout/', views.delete_layout),
     path('get_dm_dops/', views.get_dm_dops),
     path('create_payments/', views.create_payments),
+    path('get_report_params/', views.get_report_params),
+    path('get_ref_dscr/', views.get_ref_dscr),
+    path('getref/', views.getref),
 
 
     path('', include('frontend.urls')),

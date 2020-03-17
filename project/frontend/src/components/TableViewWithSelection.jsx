@@ -25,6 +25,9 @@ import SheetToExcelRptDialog from './SheetToExcelRptDialog.jsx';
 import axios from 'axios';
 import { confirm } from 'devextreme/ui/dialog';
 import SimpleDialog from './SimpleDialog.jsx';
+import Refer from './Refer.jsx';
+
+
 
 export default class TableViewWithSelection extends Component {
 
@@ -43,9 +46,15 @@ export default class TableViewWithSelection extends Component {
                         loadUndoData: [],
                         showLoadUndoRef: false,
 
+                        userReportParamsVisible: false,
+                        userReportParams: [],
                         rptDialogVisible: false,
                         filterNodes: [],
                         showRptList: false,
+                        reportParamReferVisible:false,
+                        reportParamReferDscr: {},
+                        reportParamReferRefCode : '',
+                        userReportCode: "",
                         reportList: [],
                         confirmData: {
                                     sheet_name: "",
@@ -58,6 +67,8 @@ export default class TableViewWithSelection extends Component {
                       };
 
         this.loadDmParams = [];
+
+        this.userReportParams = [];
 
         this.firstFilterNodesRequest = true;
         this.inputOpenFileRef = React.createRef();
@@ -72,6 +83,8 @@ export default class TableViewWithSelection extends Component {
         this.downloadSheetData = this.downloadSheetData.bind(this);
         this.componentDidMount = this.componentDidMount.bind(this);
         this.afterOperRun = this.afterOperRun.bind(this);
+        this.closeUserReportDialog = this.closeUserReportDialog.bind(this);
+
     }
 
 
@@ -294,7 +307,6 @@ export default class TableViewWithSelection extends Component {
     showSheetRptList(){
         sendRequestPromise('get_reports/')
             .then(response=> {this.setState({reportList: response, showRptList: true})});
-
     }
 
     runLoadDM(params){
@@ -305,6 +317,15 @@ export default class TableViewWithSelection extends Component {
                                 dop.getFullYear();
 
         this.operList.operServerCallback(this.operItem,'DOP=>'+dopString);
+    }
+
+
+    runUserReport(params){
+        console.log('runUserReport', this.state.userReportCode, params);
+        getReport(this.state.userReportCode, params);
+
+
+        //this.operList.operServerCallback(this.operItem,'DOP=>'+dopString);
     }
 
     downloadSheetData(){
@@ -423,6 +444,7 @@ export default class TableViewWithSelection extends Component {
     }
 
     showSheetRpt(){
+
 
         this.setState({rptDialogVisible: true});
 
@@ -774,8 +796,40 @@ export default class TableViewWithSelection extends Component {
         if (row && row.id){
             var repParams= {};
 
-            repParams['SHT_ID'] = {type:"S", value: this.state.sheet_id.toString()};
-            getReport(row.code, repParams);
+            sendRequestPromise('get_report_params/?rpt_code='+row.code)
+                .then((params)=>{
+                    if (params.length==0){
+                        repParams['SHT_ID'] = {type:"S", value: this.state.sheet_id.toString()};
+                        getReport(row.code, repParams);
+                    }else{
+                        //var rptDialogParams = params.map((param)=>{
+                        var rptDialogParams = params.map((param)=>{
+                            return {
+                                        dataField: param.name,
+                                        //editorType: "dxDateBox" ,
+                                        label: param.captionr,
+                                        keyvalues: param.keyvalues,
+                                        value: "",
+                                        refCode: param.refname,
+                                        parentfield: param.parentfield.toLowerCase(),
+                                        visible: true
+                                    }
+                        });
+
+                        console.log("rptDialogParams", rptDialogParams);
+                        console.log("closeRptListReference this", this);
+
+                        this.setState({
+                            userReportCode: row.code,
+                            userReportParams: rptDialogParams,
+                            userReportParamsVisible: true
+
+                        });
+
+                    }
+                });
+
+
         }
     }
 
@@ -784,10 +838,6 @@ export default class TableViewWithSelection extends Component {
         this.inputOpenFileRef.current.click();
     };
 
-    sendTest(){
-        console.log('xxx');
-        this.sendLayoutBeforeSave();
-    }
 
     sendLayoutBeforeSave(){
 
@@ -824,6 +874,21 @@ export default class TableViewWithSelection extends Component {
     }
 
 
+    closeUserReportDialog(){
+        console.log("1");
+        this.setState({userReportParamsVisible:false});
+        console.log("2");
+    }
+
+
+    showReportParamRefer(refdscr, refcode){
+        console.log("1 showReportParamRefer", refdscr);
+        this.setState({userReportParamsVisible:false});
+
+        console.log("2 showReportParamRefer", refdscr);
+        this.setState({reportParamReferVisible:true, reportParamReferDscr: refdscr, reportParamReferRefCode : refcode});
+    }
+
     render(){
 
 
@@ -858,6 +923,7 @@ export default class TableViewWithSelection extends Component {
                       }}
             /> : null;
 
+            console.log('2 RENDER this.state.loadUndoData=', this.state.loadUndoData);
 
             var referRptListComp = this.state.showRptList ? <Reference
                 data={this.state.reportList}
@@ -894,6 +960,16 @@ export default class TableViewWithSelection extends Component {
             /> : null;
 
 
+//this.setState({reportParamReferVisible:true, reportParamReferDscr: refdscr, reportParamReferRefCode : refcode});
+            let reportParamReferComp = this.state.reportParamReferVisible ?
+                    (<Refer
+                    refCode={this.state.reportParamReferRefCode}
+                    onRefHidden={this.closeReportParamReference}
+                    refdscr={this.state.reportParamReferDscr}
+                    />) : null;
+
+                console.log('10 RENDER this.state.loadUndoData=', this.state.loadUndoData);
+
 
         return (
             <React.Fragment>
@@ -902,6 +978,7 @@ export default class TableViewWithSelection extends Component {
             {referRptListComp}
             {referLoadUndoComp}
             {referPaymentsCreateComp}
+            {reportParamReferComp}
 
 
             <input type='file' id='file' ref={this.inputOpenFileRef} style={{display: 'none'}} onChange={this.onChangeFile.bind(this)}/>
@@ -920,6 +997,18 @@ export default class TableViewWithSelection extends Component {
                     onDialogConfirm={this.runLoadDM.bind(this)}
                     width={400}
                     height={200}
+
+                />
+
+            <SimpleDialog
+                    dialogParams={this.state.userReportParams}
+                    popupVisible={this.state.userReportParamsVisible}
+                    title={"Параметры отчета"}
+                    onDialogClose={this.closeUserReportDialog.bind(this)}
+                    onDialogConfirm={this.runUserReport.bind(this)}
+                    showRefer={this.showReportParamRefer.bind(this)}
+                    width={600}
+                    height={400}
                 />
 
             <CommentPanel

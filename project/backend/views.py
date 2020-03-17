@@ -34,9 +34,12 @@ def get_file(request):
 
 def get_report(request):
     from urllib.request import urlopen
+    from urllib.parse import quote
+
     print('rptParams', dict(request.GET).get('params', [''])[0])
-    url = 'http://127.0.0.1:60000/rpt/?params='+ dict(request.GET).get('params', [''])[0]
-    #{%22DBG%22:%221%22,%20%22RPT_CODE%22:%22ES$RPT_500%22,%22PARAMS%22:{}}'
+    url = 'http://127.0.0.1:60000/rpt/?params='+ quote(dict(request.GET).get('params', [''])[0])
+
+
     report_data = urlopen(url).read()
 
 
@@ -772,6 +775,37 @@ def get_sheet_info_list(sht_id):
 
     return sheet_info
 
+
+def get_report_params(request):
+    param_dict = dict(request.GET)
+    rpt_code = param_dict.get('rpt_code', [''])[0]
+
+    params_list = get_sql_result("""
+                            select *
+                            from C_RPTPRM p
+                            where p.rpt_code =%s
+                                """, [rpt_code])
+
+    return JsonResponse(params_list, safe=False)
+
+def get_ref_dscr(request):
+    param_dict = dict(request.GET)
+    ref_code = param_dict.get('ref_code', [''])[0]
+
+    ref_dscr_list = []
+    ref_dscr = {
+                'title': 'Аналитики',
+                'istree': True,
+                'columns': [
+                    {'caption': 'Наименование', 'field': 'name'}
+                ]
+                }
+    ref_dscr_list.append(ref_dscr)
+
+
+
+    return JsonResponse(ref_dscr_list, safe=False)
+
 def get_conf_opers(request):
     param_dict = dict(request.GET)
     proc_id = param_dict.get('proc_id', [''])[0]
@@ -1415,6 +1449,47 @@ def get_operlist(request):
     operlist = get_operlist_list(proc_id, bop_id, nstat)
 
     return JsonResponse(operlist, safe=False)
+
+def getref(request):
+
+    param_dict = dict(request.GET)
+
+    print("param_dict", param_dict)
+
+    ref_code = param_dict.get('CODE', [''])[0]
+    ref_keyvalues = param_dict.get('KEYVALUES', [''])[0]
+    ref_params = json.loads(param_dict.get('PARAMS', [''])[0])
+
+
+
+    key_values_dict = {}
+
+    print("ref_keyvalues", ref_keyvalues)
+    #print("key_values_list", key_values_list)
+
+    if ref_keyvalues:
+        key_values_list = ref_keyvalues.split(',')
+        for key_record in key_values_list:
+            key_values_dict[key_record.split('=>')[1]] = key_record.split('=>')[0].strip("'")
+
+
+    for param in ref_params:
+        if param != 'KEYVALUES':
+            key_values_dict[param] = ref_params[param]
+
+    print("key_values_dict", key_values_dict)
+
+
+    if ref_code=="TfrmShtFltNodeRef":
+        ref_data = get_sql_result("select * from table(c_pkgesbook.fGetFilterNodes(:ID,:ID_HI,'1'))",key_values_dict)
+
+    for row in ref_data:
+        if not row['id_hi']:
+            row['id_hi']='0'
+
+    print("ref_data",ref_data)
+
+    return JsonResponse(ref_data, safe=False)
 
 def get_flt(request):
     param_dict = dict(request.GET)

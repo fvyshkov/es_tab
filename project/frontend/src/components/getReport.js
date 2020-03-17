@@ -2,6 +2,8 @@
 export function getReport(reportCode, params){
     var requestParams={DBG: "1", RPT_CODE: reportCode, PARAMS: params}
     var httpStr = window.location.origin + '/get_report/?params='+ JSON.stringify(requestParams);
+    //console.log(httpStr);
+    //return;
     downloadFile(httpStr);
 }
 
