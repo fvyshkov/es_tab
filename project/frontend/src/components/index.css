@@ -152,6 +152,26 @@ background-color: #d9ff96;
 
 }
 
+.number-cell{
+    text-align: right;
+    float: right;
+}
+
+.text-cell{
+    text-align: left;
+    float: left;
+    margin-left: 5px;
+}
+
+.image-in-cell{
+    float: left;
+    margin-top: 5px;
+}
+
+.cell-wrapper{
+
+}
+
 .ag-cell-range-selected{
     border-color: #0091EA !important;
     border-width: 2px !important;

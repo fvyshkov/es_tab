@@ -727,7 +727,9 @@ function gridCellRenderer(params){
         displayValue = '';
     }
 
-    var element = document.createElement("span");
+
+
+
 
     var columnData = getColumnData(params);
 
@@ -746,28 +748,37 @@ function gridCellRenderer(params){
         return eList;
     }
 
-    console.log('params', params);
-    console.log('params.data', params.data);
-    console.log('params.data.node_key', params.data.node_key);
-    console.log('params.data.node_key', (typeof params.data.node_key));
-    const node_key = params.data.node_key;
     if ( (typeof node_key)=="string" && node_key.includes('dummy')){
         return getSpinner();
     }
 
 
 
+    var element = document.createElement("div");
+
 
     if (columnData && columnData.commentfl===1){
         var imageElement = document.createElement("img");
         imageElement.setAttribute("width" , "16px");
         imageElement.setAttribute("height" , "16px");
+        imageElement.setAttribute("class" , "image-in-cell");
 
         imageElement.src = CommentImg;
         element.appendChild(imageElement);
     }
 
-    element.appendChild(document.createTextNode(displayValue));
+
+    element.setAttribute("class" , "cell-wrapper");
+    var innerElementForNumber = document.createElement("div");
+    if (params.colDef.atr_type==="N" ){
+        innerElementForNumber.setAttribute("class" , "number-cell");
+    }else{
+        innerElementForNumber.setAttribute("class" , "text-cell");
+    }
+    innerElementForNumber.appendChild(document.createTextNode(displayValue));
+    element.appendChild(innerElementForNumber);
+
+
     return element;
 
 }
