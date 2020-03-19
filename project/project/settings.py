@@ -81,10 +81,10 @@ DATABASES = {
     #ANLDWDEMO4=1.1.1.84, DWAPPDEV=1.1.1.32, DWRL3MGR = 1.1.1.84 //1.1.1.56/ANLDWRL4   //1.1.1.36/TRYBUY
     'default': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': 'TRYBUY',
+        'NAME': 'ANLDWDEMO4',
         'USER': 'colvir',
         'PASSWORD': 'colvir',
-        'HOST': '1.1.1.36',
+        'HOST': '1.1.1.84',
         'PORT': '1521',
     }
 }

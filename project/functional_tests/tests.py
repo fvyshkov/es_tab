@@ -43,22 +43,30 @@ class NewVisitorTest(SimpleTestCase):
         sheet = self.browser.find_element_by_xpath(sheet_xpath)
         sheet.click()
 
-        cell_xpath = "//span[text()='250.00']"
-        self.wait_for_element_by_xpath(cell_xpath)
-        cell = self.browser.find_element_by_xpath(cell_xpath)
+        cell = self.find_cell_by_value("250.00")
 
-        actions = ActionChains(self.browser);
-        actions.context_click(cell).perform();
+        actions = ActionChains(self.browser)
+        actions.context_click(cell).perform()
 
         menu_dtl_path = "//span[@class='ag-menu-option-text' and contains(text(),'етализация')]"
 
+        print("ищем пункт контекстного меню 'детализация'")
+
         self.wait_for_element_by_xpath(menu_dtl_path)
+
+        print("НАШЛИ пункт контекстного меню 'детализация'")
         self.browser.find_element_by_xpath(menu_dtl_path).click()
 
-        detail_row_xpath= "//span[text()='Ежедневник формата А5']"
-        self.wait_for_element_by_xpath(detail_row_xpath)
+        time.sleep(5)
 
-    def test_open_multy_sheet_with_filter_and_tree_expanding(self):
+        detail_row_xpath= "//span[text()='Ежедневник формата А5']"
+
+        self.find_cell_by_value("Ежедневник формата А5")
+        #self.wait_for_element_by_xpath(detail_row_xpath)
+
+
+    def t_est_open_multy_sheet_with_filter_and_tree_expanding(self):
+
         self.browser.get(self.live_server_url)
         add_sheet_button_id = 'add_layout_sheet_item'
         self.wait_for_element_by_id(add_sheet_button_id)
@@ -81,7 +89,6 @@ class NewVisitorTest(SimpleTestCase):
         sheet = self.browser.find_element_by_xpath(sheet_xpath)
         sheet.click()
 
-        #time.sleep(3)
         #ждем загрузки данных
         btn_xpath = "//span[text()='ГО']"
         self.wait_for_element_by_xpath(btn_xpath)
@@ -131,6 +138,21 @@ class NewVisitorTest(SimpleTestCase):
                 if time.time() - start_time > MAX_WAIT:
                     raise e
                 time.sleep(0.5)
+
+
+    def cell_xpath_by_value(self, cell_value):
+        return "//div[text()='{}']".format(cell_value)
+
+    def find_cell_by_value(self, cell_value):
+        print("Ищем клетку с текстом ", cell_value)
+
+        cell_xpath =  "//div[text()='{}']".format(cell_value)
+
+        self.wait_for_element_by_xpath(cell_xpath)
+        cell = self.browser.find_element_by_xpath(cell_xpath)
+        self.browser.execute_script("arguments[0].scrollIntoView();", cell)
+        print("Нашли клетку с текстом ", cell_value)
+        return cell
 
     def wait_for_element_by_class_name(self, class_name):
         start_time = time.time()

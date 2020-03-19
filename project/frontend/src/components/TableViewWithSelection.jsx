@@ -553,6 +553,8 @@ export default class TableViewWithSelection extends Component {
                                 additionalSheetParams={formParams.additionalSheetParams}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
                                 layoutItemID={newLayoutItemID}
+                                getRowNodeId={(data)=>{console.log("getRowNodeId data", data); return data.node_key;}}
+                                getDataRequestString={this.getDataRequestString.bind(this)}
                                 />;
 
             this.props.addElementToLayout(detailRender, null, "ReTableView", formParams);
