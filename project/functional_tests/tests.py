@@ -35,7 +35,8 @@ class NewVisitorTest(SimpleTestCase):
         sheet_select = self.browser.find_element_by_id(sheet_select_id)
         sheet_select.click()
 
-        self.open_sheet_list_node("TEST TEST")
+        #self.open_sheet_list_node("TEST TEST")
+        self.open_sheet_list_node("2.Бюджет Планирование, контроль, факт")
         self.open_sheet_list_node("2017")
         self.open_sheet_list_node("1.0")
         self.open_sheet_list_node("Заявочные бюджеты")
@@ -45,23 +46,20 @@ class NewVisitorTest(SimpleTestCase):
         sheet = self.browser.find_element_by_xpath(sheet_xpath)
         sheet.click()
 
-        div_loaded_xpath = "//div[@class='isLoaded']"
-        self.wait_for_element_by_xpath(div_loaded_xpath)
-        div_loaded = self.browser.find_element_by_xpath(div_loaded_xpath)
-        print("div_loaded", div_loaded)
-        print("div_loaded.get_attribute(isLoaded)", div_loaded.get_attribute("isLoaded"))
-        while div_loaded.get_attribute("isLoaded") != "1":
-            print("not loaded")
-            time.sleep(.5)
-
-        print("LOADED")
-
-        #self.sheet_flt_panel_is_opened()
-        self.open_sheet_flt_panel()
+        self.wait_for_sheet_loaded()
 
 
 
-        #cell = self.find_cell_by_value("250.00")
+        filters = {
+            "Плоскость планирования": "План",
+            "ЦФО и инвестиции": "ГО"
+        }
+
+        self.setup_sheet_filters(filters)
+
+        self.refresh_sheet()
+
+
 
         time.sleep(5)
         return
@@ -95,6 +93,44 @@ class NewVisitorTest(SimpleTestCase):
         self.find_cell_by_value("Ежедневник формата А5")
         #self.wait_for_element_by_xpath(detail_row_xpath)
 
+
+    def setup_sheet_filters(self, filters):
+
+        self.open_sheet_flt_panel()
+
+        for filter in filters:
+            #здесь еще нужно будет добавить очистку фильтра, если что-то уже указано
+            print(filter, '=', filters[filter])
+            #вводим текст для поиска значения аналитики (чтобы не искать по иерархии)
+            flt_search_xpath = "//div[text()='{}']/parent::*//input[@class='search']".format(
+                filter)
+            self.wait_for_element_by_xpath(flt_search_xpath)
+            flt_search = self.browser.find_element_by_xpath(flt_search_xpath)
+            flt_search.send_keys(filters[filter])
+            #почему-то приходится еще и кнопку нажать
+            flt_arrow_xpath = "//div[text()='{}']/parent::*//a[@role='button']".format(
+                filter)
+            self.wait_for_element_by_xpath(flt_arrow_xpath)
+            dep_arrow = self.browser.find_element_by_xpath(flt_arrow_xpath)
+            dep_arrow.click()
+            #и наконец кликаем нужное
+            flt_value_xpath = "//label[@title='{}']//input[@class='radio-item']".format(filters[filter])
+            self.wait_for_element_by_xpath(flt_value_xpath)
+            flt_value = self.browser.find_element_by_xpath(flt_value_xpath)
+            flt_value.click()
+
+    def wait_for_sheet_loaded(self):
+        div_loaded_xpath = "//div[@class='isLoaded']"
+        self.wait_for_element_by_xpath(div_loaded_xpath)
+        div_loaded = self.browser.find_element_by_xpath(div_loaded_xpath)
+
+        i = 0
+        while div_loaded.get_attribute("isLoaded") != "1":
+            print("waiting for loaded")
+            i += 1
+            if i > 10:
+                raise NameError('Лист не грузится')
+            time.sleep(.5)
 
     def open_sheet_list_node(self, node_label):
         #при открытом справочнмке листов ищем и открываем ноду с названием
@@ -137,6 +173,9 @@ class NewVisitorTest(SimpleTestCase):
         print('btn', btn.text)
         btn.click()
 
+
+
+
         dep_arrow_xpath = "//a[@id='rdts2_trigger']"
         self.wait_for_element_by_xpath(dep_arrow_xpath)
         dep_arrow = self.browser.find_element_by_xpath(dep_arrow_xpath)
@@ -147,10 +186,7 @@ class NewVisitorTest(SimpleTestCase):
         the_dep = self.browser.find_element_by_xpath(the_dep_xpath)
         the_dep.click()
 
-        refresh_xpath = "//div[@aria-label='refresh']"
-        self.wait_for_element_by_xpath(refresh_xpath)
-        refresh = self.browser.find_element_by_xpath(refresh_xpath)
-        refresh.click()
+        self.refresh_sheet()
 
         self.expand_tree_node('1. Активы')
         self.expand_tree_node('1.1. Кредиты')
@@ -159,6 +195,11 @@ class NewVisitorTest(SimpleTestCase):
         self.wait_for_element_by_xpath(ind_xpath)
         ind = self.browser.find_element_by_xpath(ind_xpath)
 
+    def refresh_sheet(self):
+        refresh_xpath = "//div[@aria-label='refresh']"
+        self.wait_for_element_by_xpath(refresh_xpath)
+        refresh = self.browser.find_element_by_xpath(refresh_xpath)
+        refresh.click()
 
     def sheet_flt_panel_is_opened(self):
         panel = self.browser.find_element_by_xpath("//div[@class='filterPanel']")
