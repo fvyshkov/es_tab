@@ -99,7 +99,7 @@ export default class FilterPanel extends Component {
 
 
         return (
-            <div>
+            <div class="filterPanel">
                 {filterRenderItems}
             </div>
         );

@@ -29,6 +29,7 @@ export default class ReTableView extends Component {
                         forceGridReload: false,
                         columnStates: [],
                         expandedGroupIds : [],
+                        isLoaded: 0,
                         addToolPanels: [
                                 {
                                 id: "sheetFilters",
@@ -128,7 +129,8 @@ export default class ReTableView extends Component {
                 this.sendRefreshData();
             })
             .then(()=>{
-                this.setState({loading:false})
+                this.setState({loading:false});
+                this.setState({isLoaded:1});
             })
             .then(()=>{
                 if (this.isFirstLoadData){
@@ -153,6 +155,7 @@ export default class ReTableView extends Component {
 
 
     loadAll(prm_sheet_id, prm_sheet_type){
+        this.setState({isLoaded:0});
 
         if (this.state.sheet_id){
             this.sendBeforeCloseToGrid();
@@ -197,7 +200,8 @@ export default class ReTableView extends Component {
                         this.loadData({},true);
                       })
             //шлем указание гриду - там загрузятся столбцы
-            .then(()=>{tabView.sendRefreshGrid()});
+            .then(()=>{tabView.sendRefreshGrid()})
+            .then(()=>{this.setState({isLoaded:1})});
 
     }
 
@@ -280,6 +284,7 @@ export default class ReTableView extends Component {
 
     onToolbarRefreshClick(){
          this.gripApi.setRowData([]);
+         this.setState({isLoaded:0});
          this.loadData({}, true);
          this.sendRefreshGrid();
         //
@@ -425,6 +430,7 @@ export default class ReTableView extends Component {
         return (
             <React.Fragment>
 
+                <div class="isLoaded" isLoaded={this.state.isLoaded} />
 
                 <ColorPanel
                     popupVisible={this.state.colorPanelVisible}

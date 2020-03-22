@@ -7,6 +7,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.action_chains import ActionChains
 
+TEST = "1.Бюджет Годовой"
+
 MAX_WAIT = 10
 
 
@@ -21,6 +23,7 @@ class NewVisitorTest(SimpleTestCase):
         self.browser.quit()
 
     def test_open_detail(self):
+
         self.browser.get(self.live_server_url)
         add_sheet_button_id = 'add_layout_sheet_item'
         self.wait_for_element_by_id(add_sheet_button_id)
@@ -32,9 +35,37 @@ class NewVisitorTest(SimpleTestCase):
         sheet_select = self.browser.find_element_by_id(sheet_select_id)
         sheet_select.click()
 
-        input_box_xpath = "//div[@class='dx-texteditor-input-container']/input[@class='dx-texteditor-input']"
-        sheet_book_xpath = "//span[text()='1.Бюджет Годовой']"
-        self.wait_for_element_by_xpath(sheet_book_xpath)
+        self.open_sheet_list_node("TEST TEST")
+        self.open_sheet_list_node("2017")
+        self.open_sheet_list_node("1.0")
+        self.open_sheet_list_node("Заявочные бюджеты")
+
+        sheet_xpath = "//span[text()='Аренда']"
+        self.wait_for_element_by_xpath(sheet_xpath)
+        sheet = self.browser.find_element_by_xpath(sheet_xpath)
+        sheet.click()
+
+        div_loaded_xpath = "//div[@class='isLoaded']"
+        self.wait_for_element_by_xpath(div_loaded_xpath)
+        div_loaded = self.browser.find_element_by_xpath(div_loaded_xpath)
+        print("div_loaded", div_loaded)
+        print("div_loaded.get_attribute(isLoaded)", div_loaded.get_attribute("isLoaded"))
+        while div_loaded.get_attribute("isLoaded") != "1":
+            print("not loaded")
+            time.sleep(.5)
+
+        print("LOADED")
+
+        #self.sheet_flt_panel_is_opened()
+        self.open_sheet_flt_panel()
+
+
+
+        #cell = self.find_cell_by_value("250.00")
+
+        time.sleep(5)
+        return
+
         input_box_list = self.browser.find_elements_by_xpath(input_box_xpath)
         input_box_list[1].send_keys('заявка на бронирование')
 
@@ -64,6 +95,13 @@ class NewVisitorTest(SimpleTestCase):
         self.find_cell_by_value("Ежедневник формата А5")
         #self.wait_for_element_by_xpath(detail_row_xpath)
 
+
+    def open_sheet_list_node(self, node_label):
+        #при открытом справочнмке листов ищем и открываем ноду с названием
+        node_arrow_xpath = "//li[@aria-label='{}']//div[@class='dx-treeview-toggle-item-visibility']".format(node_label)
+        self.wait_for_element_by_xpath(node_arrow_xpath)
+        node_arrow = self.browser.find_element_by_xpath(node_arrow_xpath)
+        node_arrow.click()
 
     def t_est_open_multy_sheet_with_filter_and_tree_expanding(self):
 
@@ -120,6 +158,21 @@ class NewVisitorTest(SimpleTestCase):
         ind_xpath = "//span[text()='1.1.1. Основной долг']"
         self.wait_for_element_by_xpath(ind_xpath)
         ind = self.browser.find_element_by_xpath(ind_xpath)
+
+
+    def sheet_flt_panel_is_opened(self):
+        panel = self.browser.find_element_by_xpath("//div[@class='filterPanel']")
+        return panel.is_displayed()
+
+    def open_sheet_flt_panel(self):
+        panel_is_opened =  self.sheet_flt_panel_is_opened()
+        print("panel_is_opened", panel_is_opened)
+        if not panel_is_opened:
+            btn_xpath = "//button[span[text()='Аналитики']]"
+            self.wait_for_element_by_xpath(btn_xpath)
+            btn = self.browser.find_element_by_xpath(btn_xpath)
+            print("brtn", btn)
+            btn.click()
 
     def expand_tree_node(self, node_name):
         cell_xpath = "//span[text()='"+ node_name +"']"
