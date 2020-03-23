@@ -35,8 +35,8 @@ class NewVisitorTest(SimpleTestCase):
         sheet_select = self.browser.find_element_by_id(sheet_select_id)
         sheet_select.click()
 
-        #self.open_sheet_list_node("TEST TEST")
-        self.open_sheet_list_node("2.Бюджет Планирование, контроль, факт")
+        self.open_sheet_list_node("TEST TEST")
+        #self.open_sheet_list_node("2.Бюджет Планирование, контроль, факт")
         self.open_sheet_list_node("2017")
         self.open_sheet_list_node("1.0")
         self.open_sheet_list_node("Заявочные бюджеты")

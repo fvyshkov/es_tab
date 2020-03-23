@@ -97,10 +97,7 @@ export default class TableViewComment extends Component {
     }
 
     onDeleteCallback(){
-        console.log('delete ', this.state.focusedCell);
-        this.savedFocusedCell = this.state.focusedCell;
-        var data = this.gridApi.getDisplayedRowAtIndex(this.savedFocusedCell.rowIndex).data;
-        sendRequest('delete_comment/?proc_id=' + data.proc_id + '&njrn=' + data.njrn,()=> {this.gridApi.purgeServerSideCache();},'POST',{});
+        sendRequestPromise('delete_comment/?proc_id=' + data.proc_id + '&njrn=' + data.njrn,'POST',{});
     }
 
     onGetGridApi(gridApi){

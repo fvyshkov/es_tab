@@ -381,7 +381,7 @@ export default class ReGrid extends React.Component {
     onGridReady = params => {
         this.gridApi = params.api;
         this.gridColumnApi = params.columnApi;
-        this.props.onGetGridApi(this.gridApi);
+        this.props.onGetGridApiLow(this.gridApi);
         if (this.props.additionalSheetParams && !this.columnsLoaded){
             this.loadColumns();
         }
@@ -489,21 +489,18 @@ export default class ReGrid extends React.Component {
     }
 
     sendDeleteRecord(){
-        console.log(' this.gridApi.getChartModels()',  this.gridApi.getChartModels());
-        console.log('layoutForSave', this.props.getLayoutForSave());
-        console.log('chartsMap', this.chartsMap);
+        this.savedFocusedCell = this.gridApi.getFocusedCell();
+        var req_id = this.gridApi.getDisplayedRowAtIndex(this.savedFocusedCell.rowIndex).data.id;
+        var dataForDelete = [this.gridApi.getDisplayedRowAtIndex(this.savedFocusedCell.rowIndex).data];
 
+        var res = this.gridApi.updateRowData({ remove: dataForDelete });
 
         /*
-       this.savedFocusedCell = this.gridApi.getFocusedCell();
-       var req_id = this.gridApi.getDisplayedRowAtIndex(this.savedFocusedCell.rowIndex).data.id;
-       this.savedFocusedCell.rowIndex -= 1;
-       sendRequest('delete_record/?req_id='+req_id,
-                        ()=> {},
-                        'POST',
-                        {});
-       this.gridApi.purgeServerSideCache();
-        */
+        sendRequestPromise('delete_record/?req_id='+req_id,'POST',{})
+            .then(()=>{
+                var res = this.gridApi.updateRowData({ remove: dataForDelete });
+            });
+            */
     }
 
     getDefaultChartTitle(){

@@ -184,10 +184,12 @@ export default class TableViewWithSelection extends Component {
 
     onInsertCallback(){
         if (this.state.sheet_id){
-                sendRequest('insert_record/?sht_id='+this.state.sheet_id+'&skey='+this.getFilterSkey(),
-                            this.sendInsertRecord,
-                            'POST',
-                            {});
+            sendRequestPromise('insert_record/?sht_id='+this.state.sheet_id+'&skey='+ getFilterSkey(this.state.filterNodes),'POST',{})
+                .then((newRow)=>{
+                    console.log('after insert on server this.gridApi', this.gridApi );
+                    this.gridApi.updateRowData({ add: newRow });
+
+                });
         }
     }
 
@@ -883,6 +885,22 @@ export default class TableViewWithSelection extends Component {
     }
 
 
+    onGetGridApi(gridApi){
+        this.gridApi = gridApi;
+        console.log('tableViewWithSelection onGetGridApi', this.gridApi);
+    }
+
+
+    onDeleteCallback(){
+
+        var dataForDelete = this.gridApi.getDisplayedRowAtIndex(this.gridApi.getFocusedCell().rowIndex).data;
+        var req_id = dataForDelete.id;
+        //var dataForDelete = [this.gridApi.getDisplayedRowAtIndex(this.savedFocusedCell.rowIndex).data];
+        //console.log("dataForDelete req_id", req_id);
+        sendRequestPromise('delete_record/?req_id='+req_id,'POST',{})
+            .then(()=>{this.sendDeleteRecord()});
+    }
+
     showReportParamRefer(refdscr, refcode){
         console.log("1 showReportParamRefer", refdscr);
         this.setState({userReportParamsVisible:false});
@@ -1051,6 +1069,9 @@ export default class TableViewWithSelection extends Component {
                     onTopMenuClick={this.onTopMenuClick.bind(this)}
                     getChartTitle={()=>{return this.state.sheet.label;}}
                     sendLayoutBeforeSave={click => this.sendLayoutBeforeSave = click}
+                    onDeleteCallback={this.onDeleteCallback.bind(this)}
+                    onGetGridApi={this.onGetGridApi.bind(this)}
+                    sendDeleteRecord={click => this.sendDeleteRecord = click}
                     additionalToolbarItem={()=>{return(
                                                         <SheetSelectDropDown
                                                             onSelectNewSheet={this.loadNewSheet.bind(this)}

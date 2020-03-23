@@ -490,7 +490,7 @@ def add_table_record(request):
                         ind_id,
                         dop,
                         parent_id])
-
+    print('req_id', req_id)
     return JsonResponse([], safe=False)
 
 

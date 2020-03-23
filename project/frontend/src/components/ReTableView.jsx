@@ -332,9 +332,10 @@ export default class ReTableView extends Component {
     onDeleteCallback(){
         if (this.props.onDeleteCallback){
             this.props.onDeleteCallback();
-        }else{
-            this.sendDeleteRecord();
         }
+
+        this.gridApi.updateRowData({ remove: [this.gridApi.getDisplayedRowAtIndex(this.gridApi.getFocusedCell().rowIndex).data] });
+
     }
 
     sendDeleteRecord(){
@@ -343,8 +344,11 @@ export default class ReTableView extends Component {
 
     onInsertCallback(){
         if (this.props.onInsertCallback){
-            this.props.onInsertCallback(this);
+            this.props.onInsertCallback();
         }
+        //console.log("onInsertCallback", this.gridApi);
+       // this.gridApi.updateRowData({ add: [{id:0}] });
+
 
     }
 
@@ -362,7 +366,7 @@ export default class ReTableView extends Component {
         }
     }
 
-    onGetGridApi(params){
+    onGetGridApiLow(params){
         if (this.props.onGetGridApi){
             this.props.onGetGridApi(params);
         }
@@ -486,7 +490,7 @@ export default class ReTableView extends Component {
                                 additionalSheetParams={this.props.additionalSheetParams}
                                 getDatasource={this.props.getDatasource}
                                 onCellFocused={this.onCellFocused.bind(this)}
-                                onGetGridApi={this.onGetGridApi.bind(this)}
+                                onGetGridApiLow={this.onGetGridApiLow.bind(this)}
                                 addToolPanels={this.state.addToolPanels}
                                 onCellValueChanged={this.props.onCellValueChanged}
                                 processNodeExpanding={this.processNodeExpanding.bind(this)}
