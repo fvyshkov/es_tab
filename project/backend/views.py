@@ -472,6 +472,7 @@ def add_table_record(request):
     dop = param_dict.get('dop', [''])[0]
     ind_id = param_dict.get('ind_id', [''])[0]
 
+    req_id = get_sql_result("select C_ES_VER_SHEET_REQ_KEY.nextval new_id from dual",[])[0].get("new_id")
 
 
     with connection.cursor() as cursor:
@@ -490,8 +491,12 @@ def add_table_record(request):
                         ind_id,
                         dop,
                         parent_id])
-    print('req_id', req_id)
-    return JsonResponse([], safe=False)
+
+    #нужно переделать на извлечение одной записи, а не всех по ключу с дальнейшим отбором!
+    rows = get_anl_table_rows(sht_id,skey)
+    for row in rows:
+        if row.get('id')==req_id:
+            return JsonResponse([row], safe=False)
 
 
 
@@ -1710,7 +1715,7 @@ def get_anl_table_rows(sht_id, skey):
 
         row_dict['node_key'] = row_dict['id']
         row_dict['column_data'] = column_data
-        #row_dict['hie_path'] = [row_dict['node_key']]
+        row_dict['hie_path'] = [row_dict['node_key']]
         ref_cursor.append(row_dict)
 
 

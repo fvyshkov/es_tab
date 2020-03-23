@@ -185,10 +185,8 @@ export default class TableViewWithSelection extends Component {
     onInsertCallback(){
         if (this.state.sheet_id){
             sendRequestPromise('insert_record/?sht_id='+this.state.sheet_id+'&skey='+ getFilterSkey(this.state.filterNodes),'POST',{})
-                .then((newRow)=>{
-                    console.log('after insert on server this.gridApi', this.gridApi );
-                    this.gridApi.updateRowData({ add: newRow });
-
+                .then((newRows)=>{
+                    this.gridApi.updateRowData({ add: newRows });
                 });
         }
     }
