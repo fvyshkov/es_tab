@@ -19,7 +19,7 @@ class NewVisitorTest(SimpleTestCase):
         self.live_server_url = 'http://127.0.0.1:8000/'
 
     def tearDown(self):
-        #time.sleep(5)
+        time.sleep(5)
         self.browser.quit()
 
     def test_open_detail(self):
@@ -36,7 +36,6 @@ class NewVisitorTest(SimpleTestCase):
         sheet_select.click()
 
         self.open_sheet_list_node("TEST TEST")
-        #self.open_sheet_list_node("2.Бюджет Планирование, контроль, факт")
         self.open_sheet_list_node("2017")
         self.open_sheet_list_node("1.0")
         self.open_sheet_list_node("Заявочные бюджеты")
@@ -56,12 +55,26 @@ class NewVisitorTest(SimpleTestCase):
         }
 
         self.setup_sheet_filters(filters)
-
         self.refresh_sheet()
+        self.wait_for_sheet_loaded()
+
+        #self.sheet_insert()
 
 
+        while self.sheet_delete_first()>0:
+            print("delete one")
 
-        time.sleep(5)
+        self.sheet_insert()
+        self.sheet_insert()
+        self.sheet_insert()
+        self.sheet_insert()
+
+        self.update_cell(0,"Арендодатель", "ООО тест 1")
+        self.update_cell(1,"Арендодатель", "ООО тест 2")
+        self.update_cell(2,"Арендодатель", "ООО тест 3")
+        self.update_cell(3,"Арендодатель", "ООО тест 4")
+
+
         return
 
         input_box_list = self.browser.find_elements_by_xpath(input_box_xpath)
@@ -93,6 +106,68 @@ class NewVisitorTest(SimpleTestCase):
         self.find_cell_by_value("Ежедневник формата А5")
         #self.wait_for_element_by_xpath(detail_row_xpath)
 
+    def update_cell(self, row_index, column_name, cell_value):
+        cell = self.find_cell(row_index, column_name)
+        selected = False
+        while not selected:
+            try:
+                cell.click()
+                selected = True
+            except:
+                time.sleep(.1)
+                cell = self.find_cell(row_index, column_name)
+
+        cell.send_keys(cell_value)
+        cell.send_keys(Keys.ENTER)
+        cell.send_keys(Keys.ARROW_RIGHT)
+
+    def row_count(self):
+        self.wait_for_sheet_loaded()
+        row_xpath = "//div[contains(@class,'ag-row') and @row-index]"
+        return len(self.browser.find_elements_by_xpath(row_xpath))
+
+    def find_cell(self, row_index, column_name):
+        header_cell_xpath = "//div[contains(@class,'ag-header-cell')]//span[@class='ag-header-cell-text' and text()='{}']/ancestor::div[contains(@class,'ag-header-cell') and @col-id]".format(column_name)
+        header_cell = self.browser.find_element_by_xpath(header_cell_xpath)
+        print("col-id", header_cell.get_attribute("col-id"))
+        cell_xpath = "//div[contains(@class,'ag-row') and @row-index='{}']//div[contains(@class,'ag-cell') and @col-id='{}']".format(str(row_index), header_cell.get_attribute("col-id"))
+        self.wait_for_element_by_xpath(cell_xpath)
+        return self.browser.find_element_by_xpath(cell_xpath)
+
+
+    def sheet_delete_first(self):
+        cells_xpath = "//div[contains(@class, 'ag-row')]//div[contains(@class, 'ag-cell')]"
+        cells = self.browser.find_elements_by_xpath(cells_xpath)
+        if len(cells) > 0:
+            selected = False
+            while not selected:
+                try:
+                    cells[0].click()
+                    selected = True
+                except:
+                    time.sleep(.1)
+                    cells = self.browser.find_elements_by_xpath(cells_xpath)
+                    print("wait for cell")
+
+
+            sheet_delete = self.browser.find_element_by_id("view_delete")
+            sheet_delete.click()
+
+            return 1
+
+        return 0
+
+
+    def sheet_insert(self):
+        """
+        add_sheet_button_id = 'view_insert'
+        self.wait_for_element_by_id(add_sheet_button_id)
+        add_sheet_button = self.browser.find_element_by_id(add_sheet_button_id)
+        add_sheet_button.send_keys(Keys.ENTER)
+        return
+        """
+        sheet_insert = self.browser.find_element_by_id("view_insert")
+        sheet_insert.click()
 
     def setup_sheet_filters(self, filters):
 

@@ -104,6 +104,10 @@ export default class TableViewWithSelection extends Component {
 
         console.log('DIDMOUNT this.props.filterNodes', this.props.layoutItemID);
 
+        if (this.props.filterNodes){
+            this.setState({filterNodes: this.props.filterNodes});
+        }
+
         if (this.props.onLayoutContentChange && this.props.filterNodes){
             this.props.onLayoutContentChange({
                                                 type: 'onFilterNodesChange',
@@ -181,7 +185,6 @@ export default class TableViewWithSelection extends Component {
         var httpStr = 'sht_state_update/?sht_id='+this.state.sheet_id;
         sendRequestPromise(httpStr,'POST', viewState);
     }
-
     onInsertCallback(){
         if (this.state.sheet_id){
             sendRequestPromise('insert_record/?sht_id='+this.state.sheet_id+'&skey='+ getFilterSkey(this.state.filterNodes),'POST',{})

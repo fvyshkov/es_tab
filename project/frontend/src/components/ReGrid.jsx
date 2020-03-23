@@ -489,18 +489,7 @@ export default class ReGrid extends React.Component {
     }
 
     sendDeleteRecord(){
-        this.savedFocusedCell = this.gridApi.getFocusedCell();
-        var req_id = this.gridApi.getDisplayedRowAtIndex(this.savedFocusedCell.rowIndex).data.id;
-        var dataForDelete = [this.gridApi.getDisplayedRowAtIndex(this.savedFocusedCell.rowIndex).data];
-
-        var res = this.gridApi.updateRowData({ remove: dataForDelete });
-
-        /*
-        sendRequestPromise('delete_record/?req_id='+req_id,'POST',{})
-            .then(()=>{
-                var res = this.gridApi.updateRowData({ remove: dataForDelete });
-            });
-            */
+        this.gridApi.updateRowData({ remove: [this.gridApi.getDisplayedRowAtIndex(this.gridApi.getFocusedCell().rowIndex).data] });
     }
 
     getDefaultChartTitle(){

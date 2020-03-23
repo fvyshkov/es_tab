@@ -73,7 +73,7 @@ export default class ReTableView extends Component {
 
 
         if (this.props.filterNodes){
-            this.setState({filterNodes:this.props.filterNodes});
+            this.setState({filterNodes: this.props.filterNodes});
         }
 
         if (this.props.onLayoutContentChange && this.props.sheet){
@@ -334,7 +334,7 @@ export default class ReTableView extends Component {
             this.props.onDeleteCallback();
         }
 
-        this.gridApi.updateRowData({ remove: [this.gridApi.getDisplayedRowAtIndex(this.gridApi.getFocusedCell().rowIndex).data] });
+        //this.gridApi.updateRowData({ remove: [this.gridApi.getDisplayedRowAtIndex(this.gridApi.getFocusedCell().rowIndex).data] });
 
     }
 
@@ -346,8 +346,6 @@ export default class ReTableView extends Component {
         if (this.props.onInsertCallback){
             this.props.onInsertCallback();
         }
-        //console.log("onInsertCallback", this.gridApi);
-       // this.gridApi.updateRowData({ add: [{id:0}] });
 
 
     }

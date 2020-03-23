@@ -42,6 +42,7 @@ export default class SheetToolbar extends Component {
     }
 
     insertButtonOptions = {
+        elementAttr: {"id": "view_insert"},
         icon: 'plus',
         onClick: (e) => {
             //console.log('insertButtonOptions.onClick');
@@ -50,6 +51,7 @@ export default class SheetToolbar extends Component {
     }
 
     deleteButtonOptions = {
+        elementAttr: {"id": "view_delete"},
         icon: 'minus',
         onClick: (e) => {
             this.props.onDeleteCallback();
@@ -58,6 +60,7 @@ export default class SheetToolbar extends Component {
 
 
     closeButtonOptions = {
+        elementAttr: {"id": "view_close"},
         icon: 'close',
         onClick: (e) => {
             this.props.onCloseCallback();
@@ -65,6 +68,7 @@ export default class SheetToolbar extends Component {
     }
 
     saveButtonOptions = {
+        elementAttr: {"id": "view_save"},
         icon: 'save',
         onClick: () => {
             this.props.onSaveCallback();
@@ -72,6 +76,7 @@ export default class SheetToolbar extends Component {
     }
 
     colorButtonOptions = {
+        elementAttr: {"id": "view_color"},
         icon: 'palette',
         onClick: () => {
             this.props.onPreferencesCallback();
@@ -91,6 +96,7 @@ export default class SheetToolbar extends Component {
                     widget={'dxButton'}
                     options={
                             {icon: 'plus',
+                            elementAttr: {"id": "view_insert"},
                             onClick: (e) => {this.props.onInsertCallback();}}
                     }/>
 
@@ -102,6 +108,7 @@ export default class SheetToolbar extends Component {
                     widget={'dxButton'}
                     options={{
                                 icon: 'undo',
+                                elementAttr: {"id": "view_undo"},
                                 onClick: () => {
                                     this.props.onUndoCallback();
                                 }
