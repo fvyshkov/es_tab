@@ -17,6 +17,7 @@ class NewVisitorTest(SimpleTestCase):
     def setUp(self):
         self.browser = webdriver.Firefox()
         self.live_server_url = 'http://127.0.0.1:8000/'
+        self.browser.get(self.live_server_url)
 
     def tearDown(self):
         time.sleep(5)
@@ -24,30 +25,10 @@ class NewVisitorTest(SimpleTestCase):
 
     def test_open_detail(self):
 
-        self.browser.get(self.live_server_url)
-        add_sheet_button_id = 'add_layout_sheet_item'
-        self.wait_for_element_by_id(add_sheet_button_id)
-        add_sheet_button = self.browser.find_element_by_id(add_sheet_button_id)
-        add_sheet_button.send_keys(Keys.ENTER)
 
-        sheet_select_id = "sheet_select_dropdown"
-        self.wait_for_element_by_id("sheet_select_dropdown")
-        sheet_select = self.browser.find_element_by_id(sheet_select_id)
-        sheet_select.click()
-
-        self.open_sheet_list_node("TEST TEST")
-        self.open_sheet_list_node("2017")
-        self.open_sheet_list_node("1.0")
-        self.open_sheet_list_node("Заявочные бюджеты")
-
-        sheet_xpath = "//span[text()='Аренда']"
-        self.wait_for_element_by_xpath(sheet_xpath)
-        sheet = self.browser.find_element_by_xpath(sheet_xpath)
-        sheet.click()
-
+        path=["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
+        self.open_sheet(path)
         self.wait_for_sheet_loaded()
-
-
 
         filters = {
             "Плоскость планирования": "План",
@@ -58,23 +39,16 @@ class NewVisitorTest(SimpleTestCase):
         self.refresh_sheet()
         self.wait_for_sheet_loaded()
 
-        #self.sheet_insert()
+        while self.row_count()>0:
+            self.sheet_delete_first()
 
+        row_count=10
 
-        while self.sheet_delete_first()>0:
-            print("delete one")
+        for i in range(0,row_count-1):
+            self.sheet_insert()
+            self.update_cell(i, "Арендодатель", "ООО тест "+str(i+1))
 
-        self.sheet_insert()
-        self.sheet_insert()
-        self.sheet_insert()
-        self.sheet_insert()
-
-        self.update_cell(0,"Арендодатель", "ООО тест 1")
-        self.update_cell(1,"Арендодатель", "ООО тест 2")
-        self.update_cell(2,"Арендодатель", "ООО тест 3")
-        self.update_cell(3,"Арендодатель", "ООО тест 4")
-
-
+        self.assertEqual(self.row_count(), row_count)
         return
 
         input_box_list = self.browser.find_elements_by_xpath(input_box_xpath)
@@ -106,6 +80,28 @@ class NewVisitorTest(SimpleTestCase):
         self.find_cell_by_value("Ежедневник формата А5")
         #self.wait_for_element_by_xpath(detail_row_xpath)
 
+    def open_sheet(self, path):
+        #открыли виджет
+        add_sheet_button_id = 'add_layout_sheet_item'
+        self.wait_for_element_by_id(add_sheet_button_id)
+        add_sheet_button = self.browser.find_element_by_id(add_sheet_button_id)
+        add_sheet_button.send_keys(Keys.ENTER)
+        #справочник листов
+        sheet_select_id = "sheet_select_dropdown"
+        self.wait_for_element_by_id("sheet_select_dropdown")
+        sheet_select = self.browser.find_element_by_id(sheet_select_id)
+        sheet_select.click()
+
+        sheet_name = path[-1]
+        for node in path:
+            if node!=sheet_name:
+                self.open_sheet_list_node(node)
+
+        sheet_xpath = "//span[text()='{}']".format(sheet_name)
+        self.wait_for_element_by_xpath(sheet_xpath)
+        sheet = self.browser.find_element_by_xpath(sheet_xpath)
+        sheet.click()
+
     def update_cell(self, row_index, column_name, cell_value):
         cell = self.find_cell(row_index, column_name)
         selected = False
@@ -124,7 +120,14 @@ class NewVisitorTest(SimpleTestCase):
     def row_count(self):
         self.wait_for_sheet_loaded()
         row_xpath = "//div[contains(@class,'ag-row') and @row-index]"
-        return len(self.browser.find_elements_by_xpath(row_xpath))
+        row_count = 0
+        for row in self.browser.find_elements_by_xpath(row_xpath):
+            print("row.get_attribute(row_index)", row.get_attribute("row-index"))
+            index = int(row.get_attribute("row-index"))
+            if index+1>row_count:
+                row_count = index+1
+
+        return row_count
 
     def find_cell(self, row_index, column_name):
         header_cell_xpath = "//div[contains(@class,'ag-header-cell')]//span[@class='ag-header-cell-text' and text()='{}']/ancestor::div[contains(@class,'ag-header-cell') and @col-id]".format(column_name)
@@ -203,7 +206,7 @@ class NewVisitorTest(SimpleTestCase):
         while div_loaded.get_attribute("isLoaded") != "1":
             print("waiting for loaded")
             i += 1
-            if i > 10:
+            if i > 20:
                 raise NameError('Лист не грузится')
             time.sleep(.5)
 
