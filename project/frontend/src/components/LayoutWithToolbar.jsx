@@ -88,6 +88,7 @@ export default class LayoutWithToolbar extends Component {
     }
 
     closeButtonOptions = {
+        elementAttr: {"id": "close_all_layout_items"},
         icon: 'close',
         onClick: () => {
             this.setState({items:[]});
@@ -96,6 +97,7 @@ export default class LayoutWithToolbar extends Component {
 
 
     openPatternLayoutButtonOptions = {
+        elementAttr: {"id": "open_desktop"},
         icon: 'columnfield',
         onClick: () => {
 
@@ -115,7 +117,7 @@ export default class LayoutWithToolbar extends Component {
     }
 
     savePatternLayoutButtonOptions = {
-        //icon: 'save',
+        elementAttr: {"id": "save_desktop_new"},
         text: "Сохранить новый рабочий стол",
         onClick: () => {
             this.savePatternLayout(true);
@@ -123,7 +125,7 @@ export default class LayoutWithToolbar extends Component {
     }
 
     savePatternLayoutReplaceButtonOptions = {
-        //icon: 'save',
+        elementAttr: {"id": "save_desktop_replace"},
         text: "Сохранить вместо...",
         onClick: () => {
             this.savePatternLayout(false);

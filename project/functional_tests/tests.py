@@ -9,7 +9,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 TEST = "1.Бюджет Годовой"
 
-MAX_WAIT = 30
+MAX_WAIT = 10
 
 
 class NewVisitorTest(SimpleTestCase):
@@ -23,7 +23,7 @@ class NewVisitorTest(SimpleTestCase):
         time.sleep(5)
         self.browser.quit()
 
-    def _test_open_table_sheet(self):
+    def _test_open_table_sheet_add_records(self):
         """
         Самый первый "настоящий" тест
         Открываем виджет
@@ -47,7 +47,8 @@ class NewVisitorTest(SimpleTestCase):
         self.assertEqual(self.row_count(), row_count)
 
 
-    def test_open_table_sheet(self):
+
+    def _test_open_table_sheet_recalc(self):
         """
         Открываем виджет
         Выбираем лист path=["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
@@ -100,6 +101,76 @@ class NewVisitorTest(SimpleTestCase):
         except:
             self.browser.quit()
             raise
+
+    def test_save_desktop(self):
+        """
+        Самый первый "настоящий" тест
+        Открываем виджет
+        Выбираем лист path=["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
+        Устанавливаем значения аналитик
+        Если есть записи - удаляем их одну за другой
+        Добавляем 10 записей, вводим при этом тестовые знгачения для поля "арендатор"
+        Проверяем, что в статус-баре отобразилось именно 10 записей
+        """
+        path = ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
+        filters = {"Плоскость планирования": "План", "ЦФО и инвестиции": "ГО"}
+        self.prepare_table_sheet(path, filters)
+
+        self.save_desktop("TEST_001")
+
+    def save_desktop(self, desktop_name):
+        self.open_desktop_replace()
+        desktop_row_xpath = "//tr[@role='gridcell' and text()='{}']".format(desktop_name)
+        try:
+            self.wait_for_element_by_id(desktop_row_xpath)
+            self.browser.find_element_by_xpath(desktop_row_xpath).click()
+
+            select_button_xpath = "//span[@class='dx-button-text' and text()='Выбрать']"
+            self.wait_for_element_by_id(select_button_xpath)
+            self.browser.find_element_by_xpath(select_button_xpath).click()
+        except:
+            close_button_xpath = "//span[@class='dx-button-text' and text()='Закрыть']"
+            self.wait_for_element_by_xpath(close_button_xpath)
+            self.browser.find_element_by_xpath(close_button_xpath).click()
+            time.sleep(1)
+            self.save_new_desktop(desktop_name)
+
+
+    def save_new_desktop(self, desktop_name):
+        print("save_new_desktop")
+        self.open_additional_menu()
+        button_id = 'save_desktop_new'
+        self.wait_for_element_by_id(button_id)
+        button = self.browser.find_element_by_id(button_id)
+        button.send_keys(Keys.ENTER)
+
+        input_xpath = "//input[@name='LONGNAME']"
+        self.wait_for_element_by_xpath(input_xpath)
+        self.browser.find_element_by_xpath(input_xpath).send_keys(desktop_name)
+
+        select_button_xpath = "//span[@class='dx-button-text' and text()='OK']"
+        self.wait_for_element_by_xpath(select_button_xpath)
+        self.browser.find_element_by_xpath(select_button_xpath).click()
+
+    def open_additional_menu(self):
+        menu_xpath = "//span[text()='Сохранить новый рабочий стол']"
+        try:
+            self.browser.find_element_by_xpath(menu_xpath)
+            return
+        except:
+            button_xpath = "//div[@class='dx-button-content']//i[contains(@class, 'dx-icon-overflow')]"
+            self.wait_for_element_by_xpath(button_xpath)
+            button = self.browser.find_element_by_xpath(button_xpath)
+            button.click()
+        
+
+    def open_desktop_replace(self):
+        self.open_additional_menu()
+        button_id = 'save_desktop_replace'
+        self.wait_for_element_by_id(button_id)
+        button = self.browser.find_element_by_id(button_id)
+        button.send_keys(Keys.ENTER)
+
 
     def prepare_table_sheet(self, path, filters):
         """
