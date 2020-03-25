@@ -351,17 +351,23 @@ def update_table_record(request):
     req_id = param_dict.get('req_id', [''])[0]
     value = param_dict.get('value', [''])[0]
     with connection.cursor() as cursor:
-        cursor.execute("begin c_pkgconnect.popen(); "
-                       " c_pkgesreq.pAddReqVal( "
-                       "                p_col_id => %s, "
-                       "p_req_id => %s, "
-                       "p_val => %s ); " 
-                       " end; ",
-                       [col_id,
-                        req_id,
-                        value])
+        cursor.execute("""
+                        begin c_pkgconnect.popen(); 
+                        c_pkgesreq.pAddReqVal( 
+                                       p_col_id => %s, 
+                       p_req_id => %s, 
+                       p_val => %s );
+                       
+                       c_pkgesreq.pRecalcReq(%s);
+                       
+                        end; """,
+                       [col_id, req_id, value, req_id])
 
-    return JsonResponse([], safe=False)
+    # нужно переделать на извлечение одной записи, а не всех по ключу с дальнейшим отбором!
+    row = get_anl_table_row_by_id(req_id)
+    return JsonResponse([row], safe=False)
+
+    #return JsonResponse([], safe=False)
 
 def sheet_confirm(request):
     param_dict = dict(request.GET)
@@ -492,11 +498,9 @@ def add_table_record(request):
                         dop,
                         parent_id])
 
-    #нужно переделать на извлечение одной записи, а не всех по ключу с дальнейшим отбором!
-    rows = get_anl_table_rows(sht_id,skey)
-    for row in rows:
-        if row.get('id')==req_id:
-            return JsonResponse([row], safe=False)
+    row = get_anl_table_row_by_id(req_id)
+    return JsonResponse([row], safe=False)
+
 
 
 
@@ -1643,6 +1647,19 @@ def get_operlist_list(proc_id, bop_id, nstat):
 
     return operlist
 
+def get_anl_table_row_by_id(id):
+    #пока некрасиво получим все записи по ключу, поскольку пока нет серверной части, чтобы получить одну запись со всеми колонками
+    row = get_sql_result("select sht_id, skey from c_es_ver_sheet_req where id= %s", [id])
+    if len(row)==0:
+        return {}
+    else:
+        rows = get_anl_table_rows(row[0].get('sht_id'), row[0].get('skey'))
+        for row in rows:
+            print('id', row.get('id'), '=ID', id)
+            if str(row.get('id')) == str(id):
+                return row
+
+
 def get_anl_table_rows(sht_id, skey):
     print('sht_id=',sht_id, 'sk', skey)
     connection = get_oracle_connection()
@@ -1955,14 +1972,14 @@ def get_anl_detail_table_rows(sht_id, skey, ind_id, parent_id):
 
 def get_sql_result(sql, params):
     with connection.cursor() as cursor:
-        cursor.execute('call c_pkgconnect.popen();' );
-        cursor.execute(sql, params);
-        return dict_fetch_all(cursor);
+        cursor.execute('call c_pkgconnect.popen();' )
+        cursor.execute(sql, params)
+        return dict_fetch_all(cursor)
 
 def run_sql(sql, params):
     with connection.cursor() as cursor:
-        cursor.execute('call c_pkgconnect.popen();' );
-        cursor.execute(sql, params);
+        cursor.execute('call c_pkgconnect.popen();' )
+        cursor.execute(sql, params)
 
 
 def dict_fetch_all(cursor):

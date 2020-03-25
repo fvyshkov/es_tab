@@ -87,14 +87,15 @@ class NewVisitorTest(SimpleTestCase):
 
             cell1 = self.find_cell(0, "Ежемесячные расходы")
 
-            #пока не умеем зажав шифт выделить пароизвольную клетку (из-за необходимости перейти в начало грида для поиска клетки)
+            #пока не умеем зажав шифт ткнуть в  произвольную клетку (из-за необходимости перейти в начало грида для поиска клетки)
+            #поэтому такое неаккуратное выделение области стрелками
             ActionChains(self.browser).click(cell1).perform()
             ActionChains(self.browser).key_down(Keys.SHIFT).perform()
             ActionChains(self.browser).send_keys(Keys.ARROW_DOWN).perform()
             ActionChains(self.browser).send_keys(Keys.ARROW_DOWN).perform()
             ActionChains(self.browser).key_up(Keys.SHIFT).perform()
 
-            self.assertEqual(self.status_panel_value("Сумма"),"850.00")
+            self.assertEqual(float(self.status_bar_value("Сумма")),850)
 
         except:
             self.browser.quit()
@@ -184,21 +185,19 @@ class NewVisitorTest(SimpleTestCase):
             item = self.browser.find_element_by_xpath(selected_item_xpath)
             item.click()
         else:
-            #time.sleep(.3)
-            #cell.send_keys(Keys.ENTER)
             cell.send_keys(cell_value)
             cell.send_keys(Keys.ENTER)
 
 
     def row_count(self):
-        return int(self.status_panel_value("Строк"))
+        return int(self.status_bar_value("Строк"))
 
-    def status_panel_value(self, name):
+    def status_bar_value(self, name):
         self.wait_for_sheet_loaded()
-        xpath = "//div[contains(@class,'ag-status-panel-total-and-filtered-row-count')]\
+        xpath = "//div[contains(@class,'ag-status-bar')]\
                                     //span[@ref='eLabel' and text()='{}']\
                                     /parent::*/span[@ref='eValue']".format(name)
-        return int(self.browser.find_element_by_xpath(xpath).text)
+        return self.browser.find_element_by_xpath(xpath).text
 
     def focus_on_first_cell(self):
         first_cell_xpath = "//div[@class='cell-wrapper']/parent::*"

@@ -168,7 +168,17 @@ export default class TableViewWithSelection extends Component {
                         , 'POST',{});
 
         }else{
-            sendRequestPromise('update_record/?req_id='+params.data.id+'&value='+params.value+'&col_id='+params.column.colDef.ind_id, 'POST',{});
+            sendRequestPromise('update_record/?req_id='+params.data.id+'&value='+params.value+'&col_id='+params.column.colDef.ind_id, 'POST',{})
+                .then((data)=>{
+                    var rowNode = this.gridApi.getRowNode(params.data.id);
+                    var data_test = data[0];
+                    var columns = data[0]['column_data'];
+                    for (var i=0; i< columns.length; i++){
+                        console.log('column', columns[i])
+                        data_test[columns[i]['key']] = columns[i]['sql_value']
+                    }
+                    rowNode.setData(data_test);
+                });
         }
     }
 
@@ -189,7 +199,18 @@ export default class TableViewWithSelection extends Component {
         if (this.state.sheet_id){
             sendRequestPromise('insert_record/?sht_id='+this.state.sheet_id+'&skey='+ getFilterSkey(this.state.filterNodes),'POST',{})
                 .then((newRows)=>{
+
                     this.gridApi.updateRowData({ add: newRows });
+
+                    var rowNode = this.gridApi.getRowNode(newRows[0].id);
+                    var data_test = newRows[0];
+                    var columns = newRows[0]['column_data'];
+                    for (var i=0; i< columns.length; i++){
+                        console.log('column', columns[i])
+                        data_test[columns[i]['key']] = columns[i]['sql_value']
+                    }
+                    rowNode.setData(data_test);
+
                 });
         }
     }
