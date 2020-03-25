@@ -9,7 +9,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 TEST = "1.Бюджет Годовой"
 
-MAX_WAIT = 10
+MAX_WAIT = 30
 
 
 class NewVisitorTest(SimpleTestCase):
@@ -23,34 +23,101 @@ class NewVisitorTest(SimpleTestCase):
         time.sleep(5)
         self.browser.quit()
 
-    def test_open_detail(self):
-
-
+    def _test_open_table_sheet(self):
+        """
+        Самый первый "настоящий" тест
+        Открываем виджет
+        Выбираем лист path=["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
+        Устанавливаем значения аналитик
+        Если есть записи - удаляем их одну за другой
+        Добавляем 10 записей, вводим при этом тестовые знгачения для поля "арендатор"
+        Проверяем, что в статус-баре отобразилось именно 10 записей
+        """
         path=["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
-        self.open_sheet(path)
-        self.wait_for_sheet_loaded()
-
-        filters = {
-            "Плоскость планирования": "План",
-            "ЦФО и инвестиции": "ГО"
-        }
-
-        self.setup_sheet_filters(filters)
-        self.refresh_sheet()
-        self.wait_for_sheet_loaded()
-
-        while self.row_count()>0:
-            self.sheet_delete_first()
+        filters = {"Плоскость планирования": "План","ЦФО и инвестиции": "ГО"}
+        self.prepare_table_sheet(path, filters)
 
         row_count=10
 
-        for i in range(0,row_count-1):
+        for i in range(0,row_count):
+            print("i", i)
             self.sheet_insert()
             self.update_cell(i, "Арендодатель", "ООО тест "+str(i+1))
 
         self.assertEqual(self.row_count(), row_count)
-        return
 
+
+    def test_open_table_sheet(self):
+        """
+        Открываем виджет
+        Выбираем лист path=["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
+        Устанавливаем значения аналитик
+        Если есть записи - удаляем их одну за другой
+
+        Вводим 3 записи, получаем такие значения
+        класс, площадь  цена        стоимость   ежемесячно
+        Класс А	1.00	4 300.00	4 300.00	358.33
+        Класс Б	1.00	3 900.00	3 900.00	325.00
+        Класс С	1.00	2 000.00	2 000.00	166.67
+
+        Пока проверяем только сумму по "ежемесячно"!
+        """
+        try:
+            path = ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
+            filters = {"Плоскость планирования": "План", "ЦФО и инвестиции": "ГО"}
+            self.prepare_table_sheet(path, filters)
+
+            self.sheet_insert()
+            self.update_cell(0, "Арендодатель", "ООО тест 1")
+            self.update_cell(0, "Класс", "Класс А")
+            self.update_cell(0, "Площадь, кв.м.", "1")
+
+
+            self.sheet_insert()
+            self.update_cell(1, "Арендодатель", "ООО тест 2")
+            self.update_cell(1, "Класс", "Класс Б")
+            self.update_cell(1, "Площадь, кв.м.", "1")
+
+            self.sheet_insert()
+            self.update_cell(2, "Арендодатель", "ООО тест 3")
+            self.update_cell(2, "Класс", "Класс С")
+            self.update_cell(2, "Площадь, кв.м.", "1")
+
+
+
+            cell1 = self.find_cell(0, "Ежемесячные расходы")
+
+            #пока не умеем зажав шифт выделить пароизвольную клетку (из-за необходимости перейти в начало грида для поиска клетки)
+            ActionChains(self.browser).click(cell1).perform()
+            ActionChains(self.browser).key_down(Keys.SHIFT).perform()
+            ActionChains(self.browser).send_keys(Keys.ARROW_DOWN).perform()
+            ActionChains(self.browser).send_keys(Keys.ARROW_DOWN).perform()
+            ActionChains(self.browser).key_up(Keys.SHIFT).perform()
+
+            self.assertEqual(self.status_panel_value("Сумма"),"850.00")
+
+        except:
+            self.browser.quit()
+            raise
+
+    def prepare_table_sheet(self, path, filters):
+        """
+        Открываем виджет
+        Выбираем лист path
+        Устанавливаем значения аналитик filters
+        Если есть записи - удаляем их одну за другой
+        """
+        self.open_sheet(path)
+
+        self.setup_sheet_filters(filters)
+        self.refresh_sheet()
+
+
+        while self.row_count()>0:
+            self.sheet_delete_first()
+
+
+        """
         input_box_list = self.browser.find_elements_by_xpath(input_box_xpath)
         input_box_list[1].send_keys('заявка на бронирование')
 
@@ -79,6 +146,7 @@ class NewVisitorTest(SimpleTestCase):
 
         self.find_cell_by_value("Ежедневник формата А5")
         #self.wait_for_element_by_xpath(detail_row_xpath)
+        """
 
     def open_sheet(self, path):
         #открыли виджет
@@ -101,9 +169,85 @@ class NewVisitorTest(SimpleTestCase):
         self.wait_for_element_by_xpath(sheet_xpath)
         sheet = self.browser.find_element_by_xpath(sheet_xpath)
         sheet.click()
+        self.wait_for_sheet_loaded()
+        print("Открыли лист, путь", path)
 
     def update_cell(self, row_index, column_name, cell_value):
         cell = self.find_cell(row_index, column_name)
+        cell_is_refer = self.cell_is_refer(cell)
+        cell = self.find_cell(row_index, column_name)
+
+        if cell_is_refer:
+            cell.send_keys(Keys.ENTER)
+            selected_item_xpath="//div[contains(@class,'dx-item')]//span[text()='{}']".format(cell_value)
+            self.wait_for_element_by_xpath(selected_item_xpath)
+            item = self.browser.find_element_by_xpath(selected_item_xpath)
+            item.click()
+        else:
+            #time.sleep(.3)
+            #cell.send_keys(Keys.ENTER)
+            cell.send_keys(cell_value)
+            cell.send_keys(Keys.ENTER)
+
+
+    def row_count(self):
+        return int(self.status_panel_value("Строк"))
+
+    def status_panel_value(self, name):
+        self.wait_for_sheet_loaded()
+        xpath = "//div[contains(@class,'ag-status-panel-total-and-filtered-row-count')]\
+                                    //span[@ref='eLabel' and text()='{}']\
+                                    /parent::*/span[@ref='eValue']".format(name)
+        return int(self.browser.find_element_by_xpath(xpath).text)
+
+    def focus_on_first_cell(self):
+        first_cell_xpath = "//div[@class='cell-wrapper']/parent::*"
+        self.wait_for_element_by_xpath(first_cell_xpath)
+        cell = self.browser.find_element_by_xpath(first_cell_xpath)
+        selected = False
+        while not selected:
+            try:
+                cell.click()
+                selected = True
+            except:
+                print("waiting for first cell")
+                time.sleep(.1)
+
+                self.wait_for_element_by_xpath(first_cell_xpath)
+                cell = self.browser.find_element_by_xpath(first_cell_xpath)
+
+        for i in range(0,20):
+            ActionChains(self.browser).key_down(Keys.ARROW_LEFT).perform()
+
+    def find_cell(self, row_index, column_name):
+
+        # скроллим грид пока не найдем соответствующую колонку
+        header_cell_xpath = "//span[@class='ag-header-cell-text' and text()='{}' and @role='columnheader']".format(column_name)
+        column_found = False
+        self.focus_on_first_cell()
+
+        while not column_found:
+            try:
+                span = self.browser.find_element_by_xpath(header_cell_xpath)
+                column_found = True
+            except:
+                ActionChains(self.browser).key_down(Keys.ARROW_RIGHT).perform()
+                time.sleep(.1)
+                print("looking fo column {}".format(column_name))
+
+
+
+
+
+        header_cell_xpath = "//div[contains(@class,'ag-header-cell')]//span[@class='ag-header-cell-text' and text()='{}' and @role='columnheader']//ancestor::div[contains(@class,'ag-header-cell') and contains(@col-id,'C')]".format(column_name)
+        self.wait_for_element_by_xpath(header_cell_xpath)
+        header_cell = self.browser.find_element_by_xpath(header_cell_xpath)
+        print("col-id", header_cell.get_attribute("col-id"))
+        cell_xpath = "//div[contains(@class,'ag-row') and @row-index='{}']//div[contains(@class,'ag-cell') and @col-id='{}']".format(str(row_index), header_cell.get_attribute("col-id"))
+
+        self.wait_for_element_by_xpath(cell_xpath)
+        cell = self.browser.find_element_by_xpath(cell_xpath)
+
         selected = False
         while not selected:
             try:
@@ -111,31 +255,18 @@ class NewVisitorTest(SimpleTestCase):
                 selected = True
             except:
                 time.sleep(.1)
-                cell = self.find_cell(row_index, column_name)
+                self.wait_for_element_by_xpath(cell_xpath)
+                cell = self.browser.find_element_by_xpath(cell_xpath)
+                #cell = self.find_cell(row_index, column_name)
 
-        cell.send_keys(cell_value)
-        cell.send_keys(Keys.ENTER)
-        cell.send_keys(Keys.ARROW_RIGHT)
+        return cell
 
-    def row_count(self):
-        self.wait_for_sheet_loaded()
-        row_xpath = "//div[contains(@class,'ag-row') and @row-index]"
-        row_count = 0
-        for row in self.browser.find_elements_by_xpath(row_xpath):
-            print("row.get_attribute(row_index)", row.get_attribute("row-index"))
-            index = int(row.get_attribute("row-index"))
-            if index+1>row_count:
-                row_count = index+1
-
-        return row_count
-
-    def find_cell(self, row_index, column_name):
-        header_cell_xpath = "//div[contains(@class,'ag-header-cell')]//span[@class='ag-header-cell-text' and text()='{}']/ancestor::div[contains(@class,'ag-header-cell') and @col-id]".format(column_name)
-        header_cell = self.browser.find_element_by_xpath(header_cell_xpath)
-        print("col-id", header_cell.get_attribute("col-id"))
-        cell_xpath = "//div[contains(@class,'ag-row') and @row-index='{}']//div[contains(@class,'ag-cell') and @col-id='{}']".format(str(row_index), header_cell.get_attribute("col-id"))
-        self.wait_for_element_by_xpath(cell_xpath)
-        return self.browser.find_element_by_xpath(cell_xpath)
+    def cell_is_refer(self, cell):
+        try:
+            if cell.find_element_by_xpath(".//div[@class='text-cell' and @refer='1']"):
+                return True
+        except:
+            return False
 
 
     def sheet_delete_first(self):
@@ -162,18 +293,11 @@ class NewVisitorTest(SimpleTestCase):
 
 
     def sheet_insert(self):
-        """
-        add_sheet_button_id = 'view_insert'
-        self.wait_for_element_by_id(add_sheet_button_id)
-        add_sheet_button = self.browser.find_element_by_id(add_sheet_button_id)
-        add_sheet_button.send_keys(Keys.ENTER)
-        return
-        """
         sheet_insert = self.browser.find_element_by_id("view_insert")
         sheet_insert.click()
 
     def setup_sheet_filters(self, filters):
-
+        print("Устанавливаем аналитики", filters)
         self.open_sheet_flt_panel()
 
         for filter in filters:
@@ -278,6 +402,7 @@ class NewVisitorTest(SimpleTestCase):
         self.wait_for_element_by_xpath(refresh_xpath)
         refresh = self.browser.find_element_by_xpath(refresh_xpath)
         refresh.click()
+        self.wait_for_sheet_loaded()
 
     def sheet_flt_panel_is_opened(self):
         panel = self.browser.find_element_by_xpath("//div[@class='filterPanel']")

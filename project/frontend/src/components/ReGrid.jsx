@@ -755,14 +755,17 @@ function gridCellRenderer(params){
 
 
     element.setAttribute("class" , "cell-wrapper");
-    var innerElementForNumber = document.createElement("div");
+    var innerElementForCell = document.createElement("div");
     if (params.colDef.atr_type==="N" ){
-        innerElementForNumber.setAttribute("class" , "number-cell");
+        innerElementForCell.setAttribute("class" , "number-cell");
     }else{
-        innerElementForNumber.setAttribute("class" , "text-cell");
+        innerElementForCell.setAttribute("class" , "text-cell");
+        if (params.colDef.ent_id){
+            innerElementForCell.setAttribute("refer" , "1");
+        }
     }
-    innerElementForNumber.appendChild(document.createTextNode(displayValue));
-    element.appendChild(innerElementForNumber);
+    innerElementForCell.appendChild(document.createTextNode(displayValue));
+    element.appendChild(innerElementForCell);
 
 
     return element;
