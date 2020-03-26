@@ -582,6 +582,9 @@ export default class ReGrid extends React.Component {
                                                 searchOoo: 'Поиск...',
                                                 blanks: 'Пусто',
 
+
+                                                noRowsToShow: 'Нет записей',
+
                                                 // for number filter and text filter
                                              //   filterOoo: 'daFilter...',
                                                 applyFilter: 'Применить фильтр...',

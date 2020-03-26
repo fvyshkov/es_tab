@@ -117,24 +117,50 @@ class NewVisitorTest(SimpleTestCase):
         self.prepare_table_sheet(path, filters)
 
         self.save_desktop("TEST_001")
+        time.sleep(1)
+        self.delete_desktop("TEST_001")
 
     def save_desktop(self, desktop_name):
+        """
+        Ищем десктоп с таким же названием,
+            если нашли - переписываем,
+            иначе создаем новый
+        """
         self.open_desktop_replace()
-        desktop_row_xpath = "//tr[@role='gridcell' and text()='{}']".format(desktop_name)
+        desktop_row_xpath = "//td[@role='gridcell' and text()='{}']".format(desktop_name)
         try:
-            self.wait_for_element_by_id(desktop_row_xpath)
             self.browser.find_element_by_xpath(desktop_row_xpath).click()
-
             select_button_xpath = "//span[@class='dx-button-text' and text()='Выбрать']"
-            self.wait_for_element_by_id(select_button_xpath)
-            self.browser.find_element_by_xpath(select_button_xpath).click()
+            self.wait_for_element_by_xpath(select_button_xpath)
+            select_button = self.browser.find_element_by_xpath(select_button_xpath)
+            print("select_button", select_button.text)
+            select_button.click()
         except:
-            close_button_xpath = "//span[@class='dx-button-text' and text()='Закрыть']"
+            close_button_xpath = "//div[@role='button' and @aria-label='Закрыть']"
             self.wait_for_element_by_xpath(close_button_xpath)
-            self.browser.find_element_by_xpath(close_button_xpath).click()
-            time.sleep(1)
+            close_btn = self.browser.find_element_by_xpath(close_button_xpath)
+            print("close_btn", close_btn.text)
+            #close_btn.click()
+            self.browser.execute_script("arguments[0].click();", close_btn)
+
             self.save_new_desktop(desktop_name)
 
+
+    def delete_desktop(self, desktop_name):
+        self.open_desktop_replace()
+        desktop_row_xpath = "//td[@role='gridcell' and text()='{}']".format(desktop_name)
+        try:
+            self.browser.find_element_by_xpath(desktop_row_xpath).click()
+            delete_button_xpath = "//i[contains(@class, 'dx-icon-clear')]/parent::*/parent::*"
+            self.wait_for_element_by_xpath(delete_button_xpath)
+            delete_button = self.browser.find_element_by_xpath(delete_button_xpath)
+            delete_button.click()
+        except:
+            pass
+
+        close_button_xpath = "//span[@class='dx-button-text' and text()='Закрыть']/parent::*/parent::*"
+        self.wait_for_element_by_xpath(close_button_xpath)
+        self.browser.find_element_by_xpath(close_button_xpath).click()
 
     def save_new_desktop(self, desktop_name):
         print("save_new_desktop")
@@ -142,7 +168,7 @@ class NewVisitorTest(SimpleTestCase):
         button_id = 'save_desktop_new'
         self.wait_for_element_by_id(button_id)
         button = self.browser.find_element_by_id(button_id)
-        button.send_keys(Keys.ENTER)
+        button.click()
 
         input_xpath = "//input[@name='LONGNAME']"
         self.wait_for_element_by_xpath(input_xpath)
@@ -153,6 +179,13 @@ class NewVisitorTest(SimpleTestCase):
         self.browser.find_element_by_xpath(select_button_xpath).click()
 
     def open_additional_menu(self):
+        button_xpath = "//div[@class='dx-button-content']//i[contains(@class, 'dx-icon-overflow')]"
+        self.wait_for_element_by_xpath(button_xpath)
+        button = self.browser.find_element_by_xpath(button_xpath)
+        button.click()
+
+        return
+
         menu_xpath = "//span[text()='Сохранить новый рабочий стол']"
         try:
             self.browser.find_element_by_xpath(menu_xpath)
@@ -169,7 +202,8 @@ class NewVisitorTest(SimpleTestCase):
         button_id = 'save_desktop_replace'
         self.wait_for_element_by_id(button_id)
         button = self.browser.find_element_by_id(button_id)
-        button.send_keys(Keys.ENTER)
+        button.click()
+        self.wait_for_element_by_xpath("//div[text()='Рабочие столы']")
 
 
     def prepare_table_sheet(self, path, filters):

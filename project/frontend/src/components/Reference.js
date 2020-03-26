@@ -89,6 +89,7 @@ class Reference extends React.Component {
               <Button
                 text = "Закрыть"
                 type = "success"
+                onClick = {this.onRefHidden}
               />
               {this.props.onDeleteItem ? (
                 <Button

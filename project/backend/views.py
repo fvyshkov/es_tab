@@ -611,6 +611,7 @@ def get_layouts(request):
         print('test', d)
         layout['layout'] = d
 
+
     return JsonResponse(layout_list, safe=False)
 
 def update_layout(request):
