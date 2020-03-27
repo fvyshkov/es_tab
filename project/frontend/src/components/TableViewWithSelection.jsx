@@ -543,6 +543,7 @@ export default class TableViewWithSelection extends Component {
               ];
     }
 
+
     showHistoryForCell(params, showAll=false){
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
@@ -563,6 +564,22 @@ export default class TableViewWithSelection extends Component {
         }
     }
 
+    updateParentCallback(req_id){
+        console.log("updateParentCallback!!!", req_id);
+        sendRequestPromise('update_record/?req_id='+req_id, 'POST',{})
+                .then((data)=>{
+                    var rowNode = this.gridApi.getRowNode(req_id);
+                    console.log();
+                    var data_test = data[0];
+                    var columns = data[0]['column_data'];
+                    for (var i=0; i< columns.length; i++){
+                        console.log('column', columns[i])
+                        data_test[columns[i]['key']] = columns[i]['sql_value']
+                    }
+                    rowNode.setData(data_test);
+                });
+    }
+
 
     showDetailForCell(params){
         if (this.props.addElementToLayout){
@@ -580,6 +597,7 @@ export default class TableViewWithSelection extends Component {
                                 layoutItemID={newLayoutItemID}
                                 getRowNodeId={(data)=>{console.log("getRowNodeId data", data); return data.node_key;}}
                                 getDataRequestString={this.getDataRequestString.bind(this)}
+                                updateParentCallback={this.updateParentCallback.bind(this)}
                                 />;
 
             this.props.addElementToLayout(detailRender, null, "TableViewDetail", formParams);

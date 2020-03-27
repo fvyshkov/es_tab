@@ -350,18 +350,29 @@ def update_table_record(request):
     col_id = param_dict.get('col_id', [''])[0]
     req_id = param_dict.get('req_id', [''])[0]
     value = param_dict.get('value', [''])[0]
-    with connection.cursor() as cursor:
-        cursor.execute("""
-                        begin c_pkgconnect.popen(); 
-                        c_pkgesreq.pAddReqVal( 
-                                       p_col_id => %s, 
-                       p_req_id => %s, 
-                       p_val => %s );
-                       
-                       c_pkgesreq.pRecalcReq(%s);
-                       
-                        end; """,
-                       [col_id, req_id, value, req_id])
+
+    if col_id:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                            begin c_pkgconnect.popen(); 
+                            c_pkgesreq.pAddReqVal( 
+                                           p_col_id => %s, 
+                           p_req_id => %s, 
+                           p_val => %s );
+                           
+                           c_pkgesreq.pRecalcReq(%s);
+                           
+                            end; """,
+                           [col_id, req_id, value, req_id])
+    else:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                        begin 
+                            c_pkgconnect.popen(); 
+                            c_pkgesreq.pRecalcReq(%s);
+                        end; 
+                        """,
+                       [req_id])
 
     # нужно переделать на извлечение одной записи, а не всех по ключу с дальнейшим отбором!
     row = get_anl_table_row_by_id(req_id)

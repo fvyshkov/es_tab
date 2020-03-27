@@ -37,6 +37,10 @@ export default class TableViewDetail extends Component {
                 }
                 rowNode.setData(data_test);
 
+                if (this.props.updateParentCallback){
+                    this.props.updateParentCallback(this.props.additionalSheetParams.parent_id);
+                }
+
             });
     }
 
@@ -54,7 +58,12 @@ export default class TableViewDetail extends Component {
         var req_id = dataForDelete.id;
         console.log("dataForDelete req_id", req_id);
         sendRequestPromise('delete_record/?req_id='+req_id,'POST',{})
-            .then(()=>{this.sendDeleteRecord()});
+            .then(()=>{this.sendDeleteRecord()})
+            .then(()=>{
+                if (this.props.updateParentCallback){
+                    this.props.updateParentCallback(this.props.additionalSheetParams.parent_id);
+                }
+            });
     }
 
     onGetGridApi(gridApi){
@@ -96,12 +105,14 @@ export default class TableViewDetail extends Component {
                 var data_test = data[0];
                 var columns = data[0]['column_data'];
                 for (var i=0; i< columns.length; i++){
-                    console.log('column', columns[i])
                     data_test[columns[i]['key']] = columns[i]['sql_value']
                 }
                 rowNode.setData(data_test);
             });
 
+        if (this.props.updateParentCallback){
+            this.props.updateParentCallback(this.props.additionalSheetParams.parent_id);
+        }
     }
 
     render() {
