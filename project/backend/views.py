@@ -482,21 +482,25 @@ def add_table_record(request):
 
 
     with connection.cursor() as cursor:
-        cursor.execute("begin c_pkgconnect.popen(); "
-                       " c_pkgesreq.paddreq( "
-                       "                p_id=> %s, "
-                       "p_sht_id => %s, "
-                       "p_skey => %s , "
-                       "p_ind_id => %s, "
-                       "p_dop => %s , "
-                       "p_parent_id => %s); "
-                       " end; ",
+        cursor.execute("""begin c_pkgconnect.popen(); 
+                            c_pkgesreq.paddreq( 
+                                       p_id=> %s, 
+                                       p_sht_id => %s, 
+                                       p_skey => %s , 
+                                       p_ind_id => %s, 
+                                       p_dop => %s , 
+                                       p_parent_id => %s); 
+                       
+                            c_pkgesreq.pRecalcReq(%s);
+                       end;
+                       """,
                        [req_id,
                         sht_id,
                         skey,
                         ind_id,
                         dop,
-                        parent_id])
+                        parent_id,
+                        req_id])
 
     row = get_anl_table_row_by_id(req_id)
     return JsonResponse([row], safe=False)
@@ -1007,7 +1011,7 @@ class Skey(object):
         self.value = skey
 
     def process(self):
-        if len(self.value)==0:
+        if not self.value or len(self.value)==0:
             return ''
         skey_array=self.value.split(',')
         skey_dict ={}
@@ -1650,11 +1654,18 @@ def get_operlist_list(proc_id, bop_id, nstat):
 
 def get_anl_table_row_by_id(id):
     #пока некрасиво получим все записи по ключу, поскольку пока нет серверной части, чтобы получить одну запись со всеми колонками
-    row = get_sql_result("select sht_id, skey from c_es_ver_sheet_req where id= %s", [id])
+    row = get_sql_result("select sht_id, skey, parent_id, ind_id from c_es_ver_sheet_req where id= %s", [id])
     if len(row)==0:
         return {}
     else:
-        rows = get_anl_table_rows(row[0].get('sht_id'), row[0].get('skey'))
+        parent_id = row[0].get('parent_id', '')
+
+        if not parent_id:
+            skey = row[0].get('skey', '')
+            rows = get_anl_table_rows(row[0].get('sht_id'), skey)
+        else:
+            rows = get_anl_detail_table_rows(row[0].get('sht_id',''), '', row[0].get('ind_id',''), parent_id)
+
         for row in rows:
             print('id', row.get('id'), '=ID', id)
             if str(row.get('id')) == str(id):
@@ -1668,9 +1679,13 @@ def get_anl_table_rows(sht_id, skey):
     refCursor =  connection.cursor()
 
     dop = Skey(skey).get_flt_value('DOP')
-    skey_cleaned = skey.replace("FLT_ID_DOP=>"+dop+",","")
+    if skey:
+        skey_cleaned = skey.replace("FLT_ID_DOP=>"+dop+",","")
+    else:
+        skey_cleaned = ''
 
 
+    print("1111=", sht_id, skey_cleaned, dop)
     try:
         cursor.execute("""begin c_pkgconnect.popen();
                         :1 := c_pkgesreq.fGetCursor( :2, :3,:4,5000,''); 
@@ -1965,7 +1980,7 @@ def get_anl_detail_table_rows(sht_id, skey, ind_id, parent_id):
 
         row_dict['node_key'] = row_dict['id']
         row_dict['column_data'] = column_data
-        #row_dict['hie_path'] = [row_dict['node_key']]
+        row_dict['hie_path'] = [row_dict['node_key']]
 
         ref_cursor.append(row_dict)
 

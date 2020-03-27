@@ -8,6 +8,21 @@ export function processTree(treeList, callbackForItem, childrenFieldName = 'item
     }
 }
 
+export function processAdditionalParams(additionalSheetParams){
+    var httpStr = '';
+
+    if (additionalSheetParams){
+        for (var paramName in additionalSheetParams){
+            //console.log();
+            if (Object.prototype.hasOwnProperty.call(additionalSheetParams, paramName)){
+                httpStr += '&'+paramName+'='+ additionalSheetParams[paramName];
+            }
+        }
+
+    }
+
+    return httpStr;
+}
 
 export function getFilterSkeyByCell(params){
     if (params.context.getFilterSkey){

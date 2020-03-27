@@ -12,6 +12,7 @@ import TableViewHistory from './TableViewHistory.jsx';
 
 import TableViewSchedule from './TableViewSchedule.jsx';
 import TableViewFlow from './TableViewFlow.jsx';
+import TableViewDetail from './TableViewDetail.jsx';
 
 import ReportDialog from './ReportDialog.jsx';
 import { getReport } from './getReport.js';
@@ -573,7 +574,7 @@ export default class TableViewWithSelection extends Component {
                                                             sht_id: this.state.sheet_id
                                                             }};
 
-            var detailRender =  <ReTableView
+            var detailRender =  <TableViewDetail
                                 additionalSheetParams={formParams.additionalSheetParams}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
                                 layoutItemID={newLayoutItemID}
@@ -581,7 +582,7 @@ export default class TableViewWithSelection extends Component {
                                 getDataRequestString={this.getDataRequestString.bind(this)}
                                 />;
 
-            this.props.addElementToLayout(detailRender, null, "ReTableView", formParams);
+            this.props.addElementToLayout(detailRender, null, "TableViewDetail", formParams);
         }
     }
 
