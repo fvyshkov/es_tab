@@ -131,6 +131,11 @@ export default class TableViewDetail extends Component {
                     onGetGridApi={this.onGetGridApi.bind(this)}
                     sendDeleteRecord={click => this.sendDeleteRecord = click}
                     onCellValueChanged={this.onCellValueChanged.bind(this)}
+                    additionalToolbarItem={()=>{return(
+                                                        <div className="toolbar-label">Детализация</div>
+                                                        );
+                                                }
+                                          }
                 />
             </div>
         );
