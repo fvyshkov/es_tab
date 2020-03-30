@@ -102,15 +102,47 @@ class NewVisitorTest(SimpleTestCase):
             self.browser.quit()
             raise
 
-    def test_save_desktop(self):
+    def test_detail(self):
         """
-        Самый первый "настоящий" тест
-        Открываем виджет
-        Выбираем лист path=["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
+        Открываем лист path=["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Детализация"]
         Устанавливаем значения аналитик
         Если есть записи - удаляем их одну за другой
-        Добавляем 10 записей, вводим при этом тестовые знгачения для поля "арендатор"
-        Проверяем, что в статус-баре отобразилось именно 10 записей
+
+        Вводим 1 записи, открываем деталь, вводим суммы, проверяем сумму наверху
+
+        """
+        try:
+            path = ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Детализация"]
+            filters = {"ЦФО и инвестиции": "ГО"}
+            self.prepare_table_sheet(path, filters)
+
+            self.sheet_insert()
+            self.update_cell(0, "Номер", "100500")
+
+
+            cell = self.find_cell(0, "Сумма")
+
+            ActionChains(self.browser).context_click(cell).perform()
+
+            menu_dtl_path = "//span[@class='ag-menu-option-text' and contains(text(),'етализация')]"
+
+            print("ищем пункт контекстного меню 'детализация'")
+
+            self.wait_for_element_by_xpath(menu_dtl_path)
+
+            print("НАШЛИ пункт контекстного меню 'детализация'")
+            self.browser.find_element_by_xpath(menu_dtl_path).click()
+
+
+
+        except:
+            self.browser.quit()
+            raise
+
+
+    def _test_save_desktop(self):
+        """
+        пока не тест, а заготовка - открываем лист, сохранячем десктоп, удаляем десктоп
         """
         path = ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
         filters = {"Плоскость планирования": "План", "ЦФО и инвестиции": "ГО"}
@@ -205,6 +237,11 @@ class NewVisitorTest(SimpleTestCase):
         button.click()
         self.wait_for_element_by_xpath("//div[text()='Рабочие столы']")
 
+    def find_layout_by_type(self, layout_item_type):
+        xpath = "div[layoutItemType='{}' and contains(@class, 'LayoutItem')]".format(layout_item_type)
+        self.wait_for_element_by_xpath(xpath)
+        layout = self.browser.find_element_by_xpath(xpath)
+        return layout
 
     def prepare_table_sheet(self, path, filters):
         """

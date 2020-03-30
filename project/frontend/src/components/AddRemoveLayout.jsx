@@ -47,7 +47,7 @@ export default class AddRemoveLayout extends React.PureComponent {
     //const i = el.add ? "+" : el.i;
     const i = el.i;
     return (
-      <div key={i} data-grid={el} className="LayoutItem">
+      <div key={i} data-grid={el} className="LayoutItem" layoutItemType={el.elementType}>
         {el.renderItem}
       </div>
     );
