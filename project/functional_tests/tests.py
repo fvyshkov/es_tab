@@ -104,12 +104,16 @@ class NewVisitorTest(SimpleTestCase):
 
     def test_detail(self):
         """
+        Детализация
+
         Открываем лист path=["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Детализация"]
         Устанавливаем значения аналитик
         Если есть записи - удаляем их одну за другой
 
-        Вводим 1 записи, открываем деталь, вводим суммы, проверяем сумму наверху
+        Вводим 2 записи, открываем детализацию для записи №1, вводим суммы, проверяем сумму наверху
+        Проверяем сумму (нулевую) и на второй записи, для которой не вводили детали
 
+        Проверяем рабрту формулу в детализации
         """
         try:
             path = ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Детализация"]
@@ -128,8 +132,8 @@ class NewVisitorTest(SimpleTestCase):
 
             detail_layout = Layout(self.browser, "TableViewDetail")
 
-            #sheet_layout.sheet_insert()
-            #sheet_layout.update_cell(1, "Номер", "100500")
+            sheet_layout.sheet_insert()
+            sheet_layout.update_cell(1, "Номер", "100501")
 
             detail_layout.sheet_insert()
             detail_layout.update_cell(0, "Наименование", "Деталь 1")
@@ -142,7 +146,24 @@ class NewVisitorTest(SimpleTestCase):
             detail_layout.sheet_insert()
             detail_layout.update_cell(2, "Наименование", "Деталь 3")
             detail_layout.update_cell(2, "Сумма детали", "3")
-            time.sleep(1)
+
+            #эту строку надо переделать на ожидание загрузки листа (но сначала нужно реализовать)
+            time.sleep(3)
+            #проверки
+            #1. сумма по записи 1 = 6
+            sum_cell = sheet_layout.find_cell(0, "Сумма")
+            sum_text = sum_cell.find_element_by_xpath(".//div[@class='cell-wrapper']/div").text
+            self.assertEqual(float(sum_text), 6)
+
+            #2. сумма по записи 2 = 0
+            sum_cell = sheet_layout.find_cell(1, "Сумма")
+            sum_text = sum_cell.find_element_by_xpath(".//div[@class='cell-wrapper']/div").text
+            self.assertEqual(float(sum_text), 0)
+
+            #3. формула по детализации
+            cell = detail_layout.find_cell(2, "Сумма формула")
+            text = cell.find_element_by_xpath(".//div[@class='cell-wrapper']/div").text
+            self.assertEqual(text, "сумма*2=6.00")
 
         except:
             self.browser.quit()
@@ -218,6 +239,8 @@ class NewVisitorTest(SimpleTestCase):
         select_button_xpath = "//span[@class='dx-button-text' and text()='OK']"
         self.wait_for_element_by_xpath(select_button_xpath)
         self.browser.find_element_by_xpath(select_button_xpath).click()
+
+
 
     def open_additional_menu(self):
         button_xpath = "//div[@class='dx-button-content']//i[contains(@class, 'dx-icon-overflow')]"
