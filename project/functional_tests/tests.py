@@ -48,7 +48,7 @@ class NewVisitorTest(SimpleTestCase):
 
 
 
-    def test_open_table_sheet_recalc(self):
+    def _test_open_table_sheet_recalc(self):
         """
         Открываем виджет
         Выбираем лист path=["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
@@ -102,7 +102,7 @@ class NewVisitorTest(SimpleTestCase):
             self.browser.quit()
             raise
 
-    def test_detail(self):
+    def _test_detail(self):
         """
         Детализация
 
@@ -123,8 +123,8 @@ class NewVisitorTest(SimpleTestCase):
             sheet_layout = Layout(self.browser, "TableViewWithSelection")
             sheet_layout.sheet_insert()
             sheet_layout.update_cell(0, "Номер", "100500")
-            cell = sheet_layout.find_cell(0, "Сумма")
 
+            cell = sheet_layout.find_cell(0, "Сумма")
             ActionChains(self.browser).context_click(cell).perform()
             menu_dtl_path = "//span[@class='ag-menu-option-text' and contains(text(),'етализация')]"
             self.wait_for_element_by_xpath(menu_dtl_path)
@@ -166,11 +166,51 @@ class NewVisitorTest(SimpleTestCase):
             text = cell.find_element_by_xpath(".//div[@class='cell-wrapper']/div").text
             self.assertEqual(text, "сумма*2=6.00")
 
+
+
         except:
             self.browser.quit()
             raise
 
-    def test_expression(self):
+    def test_detail_context_menu(self):
+        """
+        Детализация
+
+        Открываем лист path=["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Детализация"]
+        Устанавливаем значения аналитик
+        Если есть записи - удаляем их одну за другой
+
+        Вводим 1 записи, проверяем отсутствие контекстного меню "детализация" на клетке ручного ввода
+        """
+        try:
+            path = ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Детализация"]
+            filters = {"ЦФО и инвестиции": "ГО"}
+            self.prepare_table_sheet(path, filters)
+
+            sheet_layout = Layout(self.browser, "TableViewWithSelection")
+            sheet_layout.sheet_insert()
+            sheet_layout.update_cell(0, "Номер", "100500")
+
+
+
+            #проверки
+            #нет "детализации" в контекстном меню
+            cell = sheet_layout.find_cell(0, "Описание")
+            ActionChains(self.browser).context_click(cell).perform()
+            menu_dtl_path = "//span[@class='ag-menu-option-text' and contains(text(),'етализация')]"
+            try:
+                self.wait_for_element_by_xpath(menu_dtl_path)
+                raise NameError('Опция "детализация" на клетке без детализации')
+            except (AssertionError, WebDriverException) as e:
+                pass
+
+
+        except:
+            self.browser.quit()
+            raise
+
+
+    def _test_expression(self):
         """
         Открываем лист path=["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Детализация"]
         Устанавливаем значения аналитик

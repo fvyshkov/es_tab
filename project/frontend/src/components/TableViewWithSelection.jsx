@@ -501,11 +501,24 @@ export default class TableViewWithSelection extends Component {
 
     getContextMenuItems(params){
 
+        console.log("params.column.colDef", params.column.colDef);
 
-        return  [{
+        var menuItems = [];
+
+        if (params.column.colDef.detailfl==1){
+            menuItems.push({
                 name: 'Детализация <b>[' + params.column.colDef.headerName+']</b>',
                 action: this.showDetailForCell.bind(this, params)
-              },
+              });
+        }
+
+        //console.log('params.column.colDef.headerName.detailfl 2', params.column.colDef.headerName.detailfl);
+
+
+        menuItems = menuItems.concat(
+            [
+
+                ,
               {
                 name: 'Комментарии по значению',
                 action: this.showCommentForCell.bind(this, params)
@@ -545,7 +558,9 @@ export default class TableViewWithSelection extends Component {
                 name: 'Отчет по расчету значения',
                 action: this.showCalcReport.bind(this, params)
               }
-              ];
+              ]);
+
+              return menuItems;
     }
 
 

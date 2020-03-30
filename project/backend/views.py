@@ -1386,9 +1386,18 @@ def get_sheet_columns_list(sheet_type, sht_id, skey):
         columns.insert(0, group_column)
         return columns
     else:
-        return get_sql_result('select c.idx, c.code key, c.longname name, c.editfl, c.ent_id, atr_type,'
-                              ' c.ind_id, c.ind_id_hi '
-                                 'from table(C_PKGESreq.fGetColumns(%s,%s)) c', [skey,sht_id])
+        return get_sql_result("""select c.idx, c.code key, c.longname name, c.editfl, c.ent_id, atr_type,
+                               c.ind_id, c.ind_id_hi,
+                               (
+                               select sign(count(*))
+                                from C_ES_DEC_TBL_RULE r,
+                                     C_ES_VER_SHEET_IND_TBL t 
+                                where t.ind_id = c.ind_id and t.tbl_type='R'
+                                and   r.row_id = t.tbl_id
+                                and   r.rule_type='D'
+                                ) detailfl 
+                                from table(C_PKGESreq.fGetColumns(%s,%s)) c
+                                """, [skey,sht_id])
 
 
 

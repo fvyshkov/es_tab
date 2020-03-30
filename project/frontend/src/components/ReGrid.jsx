@@ -255,7 +255,7 @@ export default class ReGrid extends React.Component {
             return {
                             field:currentValue.key,
                             headerName:currentValue.name,
-
+                            detailfl: currentValue.detailfl,
                             showRowGroup: (currentValue.rowgroupfl===1),
                             cellRenderer: (currentValue.rowgroupfl===1) ? 'agGroupCellRenderer' : gridCellRenderer ,
                             cellRendererParams: {
