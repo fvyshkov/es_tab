@@ -147,8 +147,9 @@ class NewVisitorTest(SimpleTestCase):
             detail_layout.update_cell(2, "Наименование", "Деталь 3")
             detail_layout.update_cell(2, "Сумма детали", "3")
 
-            #эту строку надо переделать на ожидание загрузки листа (но сначала нужно реализовать)
-            time.sleep(3)
+            sheet_layout.wait_for_loaded()
+            detail_layout.wait_for_loaded()
+
             #проверки
             #1. сумма по записи 1 = 6
             sum_cell = sheet_layout.find_cell(0, "Сумма")
@@ -869,3 +870,16 @@ class Layout(object):
                 return True
         except:
             return False
+
+
+    def wait_for_loaded(self):
+        div_loaded_xpath = ".//div[@class='isLoaded']"
+        div_loaded = self.wait_for_element_by_xpath(div_loaded_xpath)
+
+        i = 0
+        while div_loaded.get_attribute("isLoaded") != "1":
+            print("waiting for loaded")
+            i += 1
+            if i > 20:
+                raise NameError('Лист не грузится')
+            time.sleep(.5)

@@ -160,6 +160,8 @@ export default class TableViewWithSelection extends Component {
     }
 
     onCellValueChanged(params){
+
+
         if (this.state.sheet_type==='tree'){
             sendRequestPromise('update_tree_record/?sht_id='+this.state.sheet_id+
                                 '&skey='+getFilterSkeyByCell(params)+
@@ -169,6 +171,7 @@ export default class TableViewWithSelection extends Component {
                         , 'POST',{});
 
         }else{
+            this.setState({isLoaded:0});
             sendRequestPromise('update_record/?req_id='+params.data.id+'&value='+params.value+'&col_id='+params.column.colDef.ind_id, 'POST',{})
                 .then((data)=>{
                     var rowNode = this.gridApi.getRowNode(params.data.id);
@@ -179,6 +182,8 @@ export default class TableViewWithSelection extends Component {
                         data_test[columns[i]['key']] = columns[i]['sql_value']
                     }
                     rowNode.setData(data_test);
+
+                    this.setState({isLoaded:1});
                 });
         }
     }
@@ -566,6 +571,8 @@ export default class TableViewWithSelection extends Component {
 
     updateParentCallback(req_id){
         console.log("updateParentCallback!!!", req_id);
+        this.setState({isLoaded:0});
+
         sendRequestPromise('update_record/?req_id='+req_id, 'POST',{})
                 .then((data)=>{
                     var rowNode = this.gridApi.getRowNode(req_id);
@@ -576,7 +583,11 @@ export default class TableViewWithSelection extends Component {
                         console.log('column', columns[i])
                         data_test[columns[i]['key']] = columns[i]['sql_value']
                     }
+
                     rowNode.setData(data_test);
+
+                    this.setState({isLoaded:1});
+
                 });
     }
 

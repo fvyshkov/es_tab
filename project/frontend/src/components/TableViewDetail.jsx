@@ -98,6 +98,7 @@ export default class TableViewDetail extends Component {
 
         //var httpStr = 'update_record/?dummy=1'+ processAdditionalParams(this.props.additionalSheetParams);
         console.log("onCellValueChanged params", params);
+        this.setState({isLoaded:0});
 
         sendRequestPromise('update_record/?req_id='+params.data.id+'&value='+params.value+'&col_id='+params.column.colDef.ind_id, 'POST',{})
             .then((data)=>{
@@ -108,6 +109,8 @@ export default class TableViewDetail extends Component {
                     data_test[columns[i]['key']] = columns[i]['sql_value']
                 }
                 rowNode.setData(data_test);
+
+                this.setState({isLoaded:1});
             });
 
         if (this.props.updateParentCallback){
