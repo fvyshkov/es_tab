@@ -48,7 +48,7 @@ class NewVisitorTest(SimpleTestCase):
 
 
 
-    def _test_open_table_sheet_recalc(self):
+    def test_open_table_sheet_recalc(self):
         """
         Открываем виджет
         Выбираем лист path=["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
@@ -113,7 +113,7 @@ class NewVisitorTest(SimpleTestCase):
         Вводим 2 записи, открываем детализацию для записи №1, вводим суммы, проверяем сумму наверху
         Проверяем сумму (нулевую) и на второй записи, для которой не вводили детали
 
-        Проверяем рабрту формулу в детализации
+        Проверяем работу формулу в детализации
         """
         try:
             path = ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Детализация"]
@@ -170,6 +170,36 @@ class NewVisitorTest(SimpleTestCase):
             self.browser.quit()
             raise
 
+    def test_expression(self):
+        """
+        Открываем лист path=["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Детализация"]
+        Устанавливаем значения аналитик
+        Если есть записи - удаляем их одну за другой
+
+        Вводим запись, проверяем работу формулы
+        """
+        try:
+            path = ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Детализация"]
+            filters = {"ЦФО и инвестиции": "ГО"}
+            self.prepare_table_sheet(path, filters)
+
+            sheet_layout = Layout(self.browser, "TableViewWithSelection")
+            sheet_layout.sheet_insert()
+            sheet_layout.update_cell(0, "Номер", "100500")
+            sheet_layout.update_cell(0, "Описание", "Работа формулы")
+
+            sheet_layout.wait_for_loaded()
+
+            #проверки
+
+            sum_cell = sheet_layout.find_cell(0, "Формула")
+            sum_text = sum_cell.find_element_by_xpath(".//div[@class='cell-wrapper']/div").text
+            self.assertTrue('Запись №100500 описание = "Работа формулы", коррекция' in sum_text)
+
+
+        except:
+            self.browser.quit()
+            raise
 
     def _test_save_desktop(self):
         """
