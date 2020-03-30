@@ -116,24 +116,33 @@ class NewVisitorTest(SimpleTestCase):
             filters = {"ЦФО и инвестиции": "ГО"}
             self.prepare_table_sheet(path, filters)
 
-            self.sheet_insert()
-            self.update_cell(0, "Номер", "100500")
-
-
-            cell = self.find_cell(0, "Сумма")
+            sheet_layout = Layout(self.browser, "TableViewWithSelection")
+            sheet_layout.sheet_insert()
+            sheet_layout.update_cell(0, "Номер", "100500")
+            cell = sheet_layout.find_cell(0, "Сумма")
 
             ActionChains(self.browser).context_click(cell).perform()
-
             menu_dtl_path = "//span[@class='ag-menu-option-text' and contains(text(),'етализация')]"
-
-            print("ищем пункт контекстного меню 'детализация'")
-
             self.wait_for_element_by_xpath(menu_dtl_path)
-
-            print("НАШЛИ пункт контекстного меню 'детализация'")
             self.browser.find_element_by_xpath(menu_dtl_path).click()
 
+            detail_layout = Layout(self.browser, "TableViewDetail")
 
+            #sheet_layout.sheet_insert()
+            #sheet_layout.update_cell(1, "Номер", "100500")
+
+            detail_layout.sheet_insert()
+            detail_layout.update_cell(0, "Наименование", "Деталь 1")
+            detail_layout.update_cell(0, "Сумма детали", "1")
+
+            detail_layout.sheet_insert()
+            detail_layout.update_cell(1, "Наименование", "Деталь 2")
+            detail_layout.update_cell(1, "Сумма детали", "2")
+
+            detail_layout.sheet_insert()
+            detail_layout.update_cell(2, "Наименование", "Деталь 3")
+            detail_layout.update_cell(2, "Сумма детали", "3")
+            time.sleep(1)
 
         except:
             self.browser.quit()
@@ -238,7 +247,7 @@ class NewVisitorTest(SimpleTestCase):
         self.wait_for_element_by_xpath("//div[text()='Рабочие столы']")
 
     def find_layout_by_type(self, layout_item_type):
-        xpath = "div[layoutItemType='{}' and contains(@class, 'LayoutItem')]".format(layout_item_type)
+        xpath = "div[layoutitemtype='{}' and contains(@class, 'LayoutItem')]".format(layout_item_type)
         self.wait_for_element_by_xpath(xpath)
         layout = self.browser.find_element_by_xpath(xpath)
         return layout
@@ -734,3 +743,106 @@ class NewVisitorTest(SimpleTestCase):
             delta=10
         )
 """
+
+
+class Layout(object):
+
+
+    def __init__(self, browser, layout_type):
+        self.browser = browser
+        xpath = "//div[@layoutitemtype='{}' and contains(@class, 'LayoutItem')]".format(layout_type)
+        self.layout = self.browser.find_element_by_xpath(xpath)
+
+
+    def wait_for_element_by_xpath(self, xpath):
+        start_time = time.time()
+        while True:
+            try:
+                element = self.layout.find_element_by_xpath(xpath)
+                return element
+            except (AssertionError, WebDriverException) as e:
+                if time.time() - start_time > MAX_WAIT:
+                    raise e
+                time.sleep(0.2)
+
+    def find_cell(self, row_index, column_name):
+
+        # скроллим грид пока не найдем соответствующую колонку
+        header_cell_xpath = ".//span[@class='ag-header-cell-text' and text()='{}' and @role='columnheader']".format(column_name)
+        column_found = False
+        self.focus_on_first_cell()
+
+        while not column_found:
+            try:
+                span = self.layout.find_element_by_xpath(header_cell_xpath)
+                column_found = True
+            except:
+                ActionChains(self.browser).key_down(Keys.ARROW_RIGHT).perform()
+                time.sleep(.1)
+                print("looking fo column {}".format(column_name))
+
+
+
+
+
+        header_cell_xpath = ".//div[contains(@class,'ag-header-cell')]//span[@class='ag-header-cell-text' and text()='{}' and @role='columnheader']//ancestor::div[contains(@class,'ag-header-cell') and contains(@col-id,'C')]".format(column_name)
+        header_cell = self.wait_for_element_by_xpath(header_cell_xpath)
+        print("col-id", header_cell.get_attribute("col-id"))
+        cell_xpath = ".//div[contains(@class,'ag-row') and @row-index='{}']//div[contains(@class,'ag-cell') and @col-id='{}']".format(str(row_index), header_cell.get_attribute("col-id"))
+
+        cell = self.wait_for_element_by_xpath(cell_xpath)
+
+        selected = False
+        while not selected:
+            try:
+                cell.click()
+                selected = True
+            except:
+                time.sleep(.1)
+                cell = self.wait_for_element_by_xpath(cell_xpath)
+
+        return cell
+
+
+    def focus_on_first_cell(self):
+        first_cell_xpath = ".//div[@class='cell-wrapper']/parent::*"
+        cell = self.wait_for_element_by_xpath(first_cell_xpath)
+        selected = False
+        while not selected:
+            try:
+                cell.click()
+                selected = True
+            except:
+                print("waiting for first cell")
+                time.sleep(.1)
+
+                cell = self.wait_for_element_by_xpath(first_cell_xpath)
+
+        for i in range(0,20):
+            ActionChains(self.browser).key_down(Keys.ARROW_LEFT).perform()
+
+    def sheet_insert(self):
+        insert_btn = self.layout.find_element_by_id("view_insert")
+        insert_btn.click()
+
+
+    def update_cell(self, row_index, column_name, cell_value):
+        cell = self.find_cell(row_index, column_name)
+        cell_is_refer = self.cell_is_refer(cell)
+        cell = self.find_cell(row_index, column_name)
+
+        if cell_is_refer:
+            cell.send_keys(Keys.ENTER)
+            selected_item_xpath=".//div[contains(@class,'dx-item')]//span[text()='{}']".format(cell_value)
+            item = self.wait_for_element_by_xpath(selected_item_xpath)
+            item.click()
+        else:
+            cell.send_keys(cell_value)
+            cell.send_keys(Keys.ENTER)
+
+    def cell_is_refer(self, cell):
+        try:
+            if cell.find_element_by_xpath(".//div[@class='text-cell' and @refer='1']"):
+                return True
+        except:
+            return False
