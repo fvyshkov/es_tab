@@ -354,16 +354,45 @@ def update_table_record(request):
     if col_id:
         with connection.cursor() as cursor:
             cursor.execute("""
-                            begin c_pkgconnect.popen(); 
-                            c_pkgesreq.pAddReqVal( 
-                                           p_col_id => %s, 
-                           p_req_id => %s, 
-                           p_val => %s );
+                            declare
+                                i int;
+                                ncol_id number(10) := %s;
+                                nreq_id number(10) := %s;
+                                sval varchar2(250) := %s;
+                                scalc_value varchar2(250);
+                                nent_id number(10);
+                            begin 
+                                c_pkgconnect.popen(); 
+                                
+                                select ent_id
+                                into nent_id
+                                from c_es_ver_sheet_ind
+                                where id = ncol_id;
+                                
+                                if nent_id is not null then
+                                    begin
+                                        select id into scalc_value
+                                        from    c_es_ent_item
+                                        where ent_id = nent_id and longname = sval;
+                                        
+                                    exception
+                                        when no_data_found then
+                                            null;
+                                    end;
+                                else
+                                   scalc_value := sval; 
+                                end if;
+                                
+                                c_pkgesreq.pAddReqVal( 
+                                           p_col_id => ncol_id, 
+                                           p_req_id => nreq_id, 
+                                           p_val => scalc_value 
+                                           );
                            
-                           c_pkgesreq.pRecalcReq(%s);
+                                c_pkgesreq.pRecalcReq(nreq_id);
                            
                             end; """,
-                           [col_id, req_id, value, req_id])
+                           [col_id, req_id, value])
     else:
         with connection.cursor() as cursor:
             cursor.execute("""
@@ -1704,8 +1733,6 @@ def get_anl_table_rows(sht_id, skey):
     else:
         skey_cleaned = ''
 
-
-    print("1111=", sht_id, skey_cleaned, dop)
     try:
         cursor.execute("""begin c_pkgconnect.popen();
                         :1 := c_pkgesreq.fGetCursor( :2, :3,:4,5000,''); 
@@ -1724,7 +1751,16 @@ def get_anl_table_rows(sht_id, skey):
     color_filter = sheet_info[0].get('color_filter_hex')
 
     columns = get_sheet_columns_list('TABLE', sht_id, skey)
+
+    refer_items = get_sql_result("""
+                                select t. *, i.ENT_ID 
+                                from c_es_ver_sheet_ind i, table(C_PKGESent.fGetColComboMain(i.id, i.IND_MAIN_ID)) t
+                                where i.SHT_ID  = %s
+                                """,
+                                 [sht_id])
+
     for row in refCursor:
+
         row_dict = {}
         column_data = []
         for column_idx in range(len(refCursor.description)):
@@ -1738,11 +1774,14 @@ def get_anl_table_rows(sht_id, skey):
             column_name = refCursor.description[column_idx][0].lower()
             row_dict[column_name] = row[column_idx]
             if any([True for column in columns if column['key'] == column_name.upper()]):
+
                 column_list = [column for column in columns if column['key'] == column_name.upper()]
                 if len(column_list)>0:
+
                     cell['ent_id'] = column_list[0].get('ent_id')
                     cell['atr_type'] = column_list[0].get('atr_type')
                     cell['editfl'] = column_list[0].get('editfl')
+                    cell['name'] = column_list[0].get('name')
 
                     if column_name.upper().startswith('FLT'):
                         cell['brush.color'] = color_filter
@@ -1759,7 +1798,12 @@ def get_anl_table_rows(sht_id, skey):
 
 
                 cell['key'] = column_name.upper()
-                cell['sql_value'] = row[column_idx]
+                if cell['editfl']==1 and cell['ent_id'] and row[column_idx]:
+                    selected_refer_items = [item for item in refer_items if item['ent_id'] == cell['ent_id'] and item['id'] == row[column_idx]]
+                    if len(selected_refer_items)>0:
+                        cell['sql_value'] = selected_refer_items[0].get("name")
+                else:
+                    cell['sql_value'] = row[column_idx]
 
 
                 column_data.append(cell)

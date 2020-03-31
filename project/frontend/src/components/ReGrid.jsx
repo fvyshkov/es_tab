@@ -697,9 +697,8 @@ function getSpinner(){
 
 function gridCellRenderer(params){
     var displayValue;
-    if (params.colDef.ent_id){
-        displayValue = getReferValueById(params.colDef.field, params.value);
-    }else if (params.colDef.atr_type==="N" ){
+
+    if (params.colDef.atr_type==="N" ){
         if (params.value){
             var num = parseFloat(Math.round(parseFloat(params.value) * 100) / 100).toFixed(2);
             var parts = num.split(".");

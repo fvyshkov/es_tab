@@ -48,7 +48,7 @@ export default class TreeReferEditor extends Component {
 
     getValue() {
         if (this.state.selectedItemData){
-            return this.state.selectedItemData.id;
+            return this.state.selectedItemData.name;
          }else{
             return null;
          }
