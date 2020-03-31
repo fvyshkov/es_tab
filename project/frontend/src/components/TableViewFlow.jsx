@@ -66,6 +66,7 @@ export default class TableViewFlow extends Component {
                     onCellFocused={this.onCellFocused.bind(this)}
                     onGetGridApi={this.onGetGridApi.bind(this)}
                     getColumnsListRequestString={this.getColumnsListRequestString.bind(this)}
+                    additionalToolbarItem={()=>{return(<div className="toolbar-label">Потоки платежей</div>);}}
 
                 />
             </div>

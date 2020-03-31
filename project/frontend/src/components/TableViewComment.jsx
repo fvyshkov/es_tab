@@ -142,6 +142,7 @@ export default class TableViewComment extends Component {
                     getDataRequestString={this.getDataRequestString.bind(this)}
                     getRowNodeId={(data)=>{return data.com_id;}}
                     getMenuItems={this.getMenuItems}
+                    additionalToolbarItem={()=>{return(<div className="toolbar-label">Комментарии по значению</div>);}}
 
                 />
             </div>

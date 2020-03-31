@@ -66,6 +66,7 @@ export default class TableViewSchedule extends Component {
                     onCellFocused={this.onCellFocused.bind(this)}
                     onGetGridApi={this.onGetGridApi.bind(this)}
                     getColumnsListRequestString={this.getColumnsListRequestString.bind(this)}
+                    additionalToolbarItem={()=>{return(<div className="toolbar-label">Графики</div>);}}
 
                 />
             </div>

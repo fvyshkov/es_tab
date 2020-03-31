@@ -62,6 +62,7 @@ export default class TableViewHistory extends Component {
                     onCellFocused={this.onCellFocused.bind(this)}
                     onGetGridApi={this.onGetGridApi.bind(this)}
                     getColumnsListRequestString={this.getColumnsListRequestString.bind(this)}
+                    additionalToolbarItem={()=>{return(<div className="toolbar-label">История изменения значений</div>);}}
 
                 />
             </div>
