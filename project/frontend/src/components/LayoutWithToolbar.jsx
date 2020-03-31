@@ -126,7 +126,7 @@ export default class LayoutWithToolbar extends Component {
 
     savePatternLayoutReplaceButtonOptions = {
         elementAttr: {"id": "save_desktop_replace"},
-        text: "Сохранить вместо...",
+        text: "Сохранить как...",
         onClick: () => {
             this.savePatternLayout(false);
         }
