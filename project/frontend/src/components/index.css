@@ -169,6 +169,21 @@ background-color: #d9ff96;
     margin-top: 5px;
 }
 
+.cell-button-span{
+    float: right;
+    /*
+    margin-top: 4px;
+    margin-right: 1px;
+    height: 16px;
+    width: 16px;
+    */
+}
+
+.cell-clear-button{
+    height: 16px;
+    width: 16px;
+}
+
 .cell-wrapper{
 
 }

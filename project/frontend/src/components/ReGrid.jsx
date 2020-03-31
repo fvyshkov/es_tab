@@ -755,6 +755,17 @@ function gridCellRenderer(params){
         element.appendChild(imageElement);
     }
 
+    if (columnData && columnData.ent_id && columnData.editfl==1){
+        var buttonElement = document.createElement("div");
+        buttonElement.innerHTML = '<span class="cell-button-span"><i class="dx-icon-clear"></i></span>';
+        var eButton = buttonElement.querySelector('.dx-icon-clear');
+        var eventListener = function(clickEventParams) {
+            params.setValue('');
+        };
+        eButton.addEventListener('click', eventListener);
+        element.appendChild(buttonElement);
+    }
+
 
     element.setAttribute("class" , "cell-wrapper");
     var innerElementForCell = document.createElement("div");
