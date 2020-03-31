@@ -135,12 +135,15 @@ export default class LayoutWithToolbar extends Component {
     savePatternLayout(saveAsNew){
 
         this.state.items.forEach((item)=>{
-            if (item.refer && item.refer.current && item.refer.current.sendTest){
+            console.log("item.refer", item.refer);
+            if (item.refer && item.refer.current && item.refer.current.sendLayoutBeforeSave){
+                console.log("item.refer", item.refer);
                 item.refer.current.sendLayoutBeforeSave();
             }
         });
-        this.savedLayout = this.layoutForSave;
 
+        this.savedLayout = this.layoutForSave;
+        console.log("savePatternLayout this.savedLayout", this.savedLayout);
 
         this.addLayoutParams = [
             {dataField:"LONGNAME", label:"Наименование", value: "Рабочий стол",  visible: true}
@@ -158,21 +161,19 @@ export default class LayoutWithToolbar extends Component {
     }
 
     doBeforeSaveLayout(parentLayoutId, charts){
+        console.log("doBeforeSaveLayout", parentLayoutId, charts);
         this.layoutForSave.forEach((layout)=>{
             if (layout.itemId == parentLayoutId){
-                layout['chartsData'] = charts;
+                layout['chartsData'] = [];
+                for (var chartIndex in charts){
+                    console.log('chart', charts[chartIndex]);
+                    var chart = charts[chartIndex];
+                    if (this.layoutForSave.find(element=> element.itemId == chart.chartLayoutId)){
+                        layout['chartsData'].push(chart);
+                    }
+                }
             }
         });
-        //удалим графики из списка сохраняемых виджетов
-        /*
-        this.layoutForSave = this.layoutForSave.filter((layout)=>{
-            var isChart = charts.find((chart)=>{
-                return chart.chartLayoutId == layout.itemId;
-            });
-            return !isChart;
-        });
-        */
-        //console.log("doBeforeSaveLayout this.layoutForSave", this.layoutForSave);
     }
 
 

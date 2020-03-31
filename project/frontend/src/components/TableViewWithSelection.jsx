@@ -512,9 +512,6 @@ export default class TableViewWithSelection extends Component {
               });
         }
 
-        //console.log('params.column.colDef.headerName.detailfl 2', params.column.colDef.headerName.detailfl);
-
-
         menuItems = menuItems.concat(
             [
 
