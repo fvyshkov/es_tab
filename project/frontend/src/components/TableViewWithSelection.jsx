@@ -201,8 +201,11 @@ export default class TableViewWithSelection extends Component {
         var httpStr = 'sht_state_update/?sht_id='+this.state.sheet_id;
         sendRequestPromise(httpStr,'POST', viewState);
     }
+
     onInsertCallback(){
         if (this.state.sheet_id){
+            this.setState({isLoaded:0});
+
             sendRequestPromise('insert_record/?sht_id='+this.state.sheet_id+'&skey='+ getFilterSkey(this.state.filterNodes),'POST',{})
                 .then((newRows)=>{
 
@@ -216,6 +219,8 @@ export default class TableViewWithSelection extends Component {
                         data_test[columns[i]['key']] = columns[i]['sql_value']
                     }
                     rowNode.setData(data_test);
+
+                    this.setState({isLoaded:1});
 
                 });
         }

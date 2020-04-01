@@ -66,27 +66,27 @@ class NewVisitorTest(SimpleTestCase):
         try:
             path = ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
             filters = {"Плоскость планирования": "План", "ЦФО и инвестиции": "ГО"}
-            self.prepare_table_sheet(path, filters)
+            sheet_layout = self.prepare_table_sheet(path, filters)
 
-            self.sheet_insert()
-            self.update_cell(0, "Арендодатель", "ООО тест 1")
-            self.update_cell(0, "Класс", "Класс А")
-            self.update_cell(0, "Площадь, кв.м.", "1")
-
-
-            self.sheet_insert()
-            self.update_cell(1, "Арендодатель", "ООО тест 2")
-            self.update_cell(1, "Класс", "Класс Б")
-            self.update_cell(1, "Площадь, кв.м.", "1")
-
-            self.sheet_insert()
-            self.update_cell(2, "Арендодатель", "ООО тест 3")
-            self.update_cell(2, "Класс", "Класс С")
-            self.update_cell(2, "Площадь, кв.м.", "1")
+            sheet_layout.sheet_insert()
+            sheet_layout.update_cell(0, "Арендодатель", "ООО тест 1")
+            sheet_layout.update_cell(0, "Класс", "Класс А")
+            sheet_layout.update_cell(0, "Площадь, кв.м.", "1")
 
 
+            sheet_layout.sheet_insert()
+            sheet_layout.update_cell(1, "Арендодатель", "ООО тест 2")
+            sheet_layout.update_cell(1, "Класс", "Класс Б")
+            sheet_layout.update_cell(1, "Площадь, кв.м.", "1")
 
-            cell1 = self.find_cell(0, "Ежемесячные расходы")
+            sheet_layout.sheet_insert()
+            sheet_layout.update_cell(2, "Арендодатель", "ООО тест 3")
+            sheet_layout.update_cell(2, "Класс", "Класс С")
+            sheet_layout.update_cell(2, "Площадь, кв.м.", "1")
+
+
+
+            cell1 = sheet_layout.find_cell(0, "Ежемесячные расходы")
 
             #пока не умеем зажав шифт ткнуть в  произвольную клетку (из-за необходимости перейти в начало грида для поиска клетки)
             #поэтому такое неаккуратное выделение области стрелками
@@ -96,7 +96,7 @@ class NewVisitorTest(SimpleTestCase):
             ActionChains(self.browser).send_keys(Keys.ARROW_DOWN).perform()
             ActionChains(self.browser).key_up(Keys.SHIFT).perform()
 
-            self.assertEqual(float(self.status_bar_value("Сумма")),850)
+            self.assertEqual(float(sheet_layout.status_bar_value("Сумма")),850)
 
         except:
             self.browser.quit()
@@ -104,24 +104,32 @@ class NewVisitorTest(SimpleTestCase):
 
     def test_multi_sheet(self):
         """
+        Тестирование самих инструментов тестирования
+        открываем два листа ЗК, чистим, создаем записи в них, проверяем количество
         """
         try:
             path = ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Детализация"]
             filters = {"ЦФО и инвестиции": "ГО"}
-            self.prepare_table_sheet(path, filters)
-
-            sheet_layout1 = Layout(self.browser, "TableViewWithSelection")
-            sheet_layout1.sheet_insert()
+            sheet_layout1 = self.prepare_table_sheet(path, filters)
 
             path = ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
             filters = {"Плоскость планирования": "План", "ЦФО и инвестиции": "ГО"}
-            self.prepare_table_sheet(path, filters)
 
-            sheet_layout2 = Layout(self.browser, "TableViewWithSelection")
-            sheet_layout2.sheet_insert()
-            sheet_layout2.sheet_insert()
+            sheet_layout2 = self.prepare_table_sheet(path, filters)
 
-            time.sleep(5)
+            sheet_layout1.sheet_insert()
+            sheet_layout2.sheet_insert()
+            sheet_layout1.sheet_insert()
+            sheet_layout2.sheet_insert()
+            sheet_layout1.sheet_insert()
+            sheet_layout2.sheet_insert()
+            sheet_layout1.sheet_insert()
+
+            sheet_layout1.wait_for_loaded()
+            sheet_layout2.wait_for_loaded()
+
+            self.assertEqual(sheet_layout1.row_count(), 4)
+            self.assertEqual(sheet_layout2.row_count(), 3)
         except:
             self.browser.quit()
             raise
@@ -379,45 +387,12 @@ class NewVisitorTest(SimpleTestCase):
         возвращаем Layout для данного виджета
         """
         sheet_layout = self.open_sheet(path)
-
         sheet_layout.setup_sheet_filters(filters)
         sheet_layout.refresh_sheet()
-
-
         while sheet_layout.row_count()>0:
             sheet_layout.sheet_delete_first()
-
-
-        """
-        input_box_list = self.browser.find_elements_by_xpath(input_box_xpath)
-        input_box_list[1].send_keys('заявка на бронирование')
-
-        sheet_xpath = "//span[text()='Заявка на бронирование']"
-        self.wait_for_element_by_xpath(sheet_xpath)
-        sheet = self.browser.find_element_by_xpath(sheet_xpath)
-        sheet.click()
-
-        cell = self.find_cell_by_value("250.00")
-
-        actions = ActionChains(self.browser)
-        actions.context_click(cell).perform()
-
-        menu_dtl_path = "//span[@class='ag-menu-option-text' and contains(text(),'етализация')]"
-
-        print("ищем пункт контекстного меню 'детализация'")
-
-        self.wait_for_element_by_xpath(menu_dtl_path)
-
-        print("НАШЛИ пункт контекстного меню 'детализация'")
-        self.browser.find_element_by_xpath(menu_dtl_path).click()
-
-        time.sleep(5)
-
-        detail_row_xpath= "//span[text()='Ежедневник формата А5']"
-
-        self.find_cell_by_value("Ежедневник формата А5")
-        #self.wait_for_element_by_xpath(detail_row_xpath)
-        """
+            time.sleep(.3)
+        return sheet_layout
 
     def open_sheet(self, path):
         #открыли виджет
@@ -431,17 +406,28 @@ class NewVisitorTest(SimpleTestCase):
         #справочник листов
         sheet_select_id = "sheet_select_dropdown"
         sheet_select = sheet_layout.wait_for_element_by_id(sheet_select_id)
-        #sheet_select = self.browser.find_element_by_id(sheet_select_id)
         sheet_select.click()
+
+        first_node_xpath = "//li[@aria-label='{}' ]/div[contains(@class,'dx-item')]".format(
+            path[0])
+        self.wait_for_element_by_xpath(first_node_xpath)
+
+        focused = False
+        while not focused:
+            try:
+                self.browser.find_element_by_xpath("//li[@role='treeitem' and contains(@class, 'dx-state-focused')]//div[contains(@class,'dx-item')]")
+                focused = True
+            except:
+                ActionChains(self.browser).send_keys(Keys.TAB).perform()
+                time.sleep(.2)
+
+
 
         sheet_name = path[-1]
         for node in path:
             if node!=sheet_name:
-                #time.sleep(1)
                 self.open_sheet_list_node(node)
-                #time.sleep(1)
 
-        time.sleep(1)
         sheet_xpath = "//span[text()='{}']".format(sheet_name)
         sheet = sheet_layout.wait_for_element_by_xpath(sheet_xpath)
 
@@ -462,9 +448,6 @@ class NewVisitorTest(SimpleTestCase):
             except:
                 pass
                 print("Unexpected error:", sys.exc_info()[1])
-        #self.browser.execute_script("arguments[0].scrollIntoView();", sheet)
-        #sheet = self.browser.find_element_by_xpath(sheet_xpath)
-
 
         sheet_layout.wait_for_loaded()
         print("Открыли лист, путь", path)
@@ -588,10 +571,11 @@ class NewVisitorTest(SimpleTestCase):
 
         return 0
 
-
+    """
     def sheet_insert(self):
         sheet_insert = self.browser.find_element_by_id("view_insert")
         sheet_insert.click()
+
 
     def setup_sheet_filters(self, filters):
         print("Устанавливаем аналитики", filters)
@@ -630,13 +614,21 @@ class NewVisitorTest(SimpleTestCase):
             if i > 20:
                 raise NameError('Лист не грузится')
             time.sleep(.5)
+    """
 
     def open_sheet_list_node(self, node_label):
-        #при открытом справочнмке листов ищем и открываем ноду с названием
-        node_arrow_xpath = "//li[@aria-label='{}']//div[@class='dx-treeview-toggle-item-visibility']".format(node_label)
-        self.wait_for_element_by_xpath(node_arrow_xpath)
-        node_arrow = self.browser.find_element_by_xpath(node_arrow_xpath)
-        node_arrow.click()
+        focused_node_xpath = "//li[@aria-label='{}' and @role='treeitem' and contains(@class, 'dx-state-focused')]//div[contains(@class,'dx-item')]".format(
+            node_label)
+        while True:
+            try:
+                self.browser.find_element_by_xpath(focused_node_xpath)
+                print("FOUND", focused_node_xpath)
+                ActionChains(self.browser).send_keys(Keys.ARROW_RIGHT).perform()
+                return
+            except:
+                print("wait before arrow down", focused_node_xpath)
+                time.sleep(.3)
+                ActionChains(self.browser).send_keys(Keys.ARROW_DOWN).perform()
 
     def _test_open_multy_sheet_with_filter_and_tree_expanding(self):
 
@@ -694,6 +686,7 @@ class NewVisitorTest(SimpleTestCase):
         self.wait_for_element_by_xpath(ind_xpath)
         ind = self.browser.find_element_by_xpath(ind_xpath)
 
+    """
     def refresh_sheet(self):
         refresh_xpath = "//div[@aria-label='refresh']"
         self.wait_for_element_by_xpath(refresh_xpath)
@@ -713,6 +706,7 @@ class NewVisitorTest(SimpleTestCase):
             self.wait_for_element_by_xpath(btn_xpath)
             btn = self.browser.find_element_by_xpath(btn_xpath)
             btn.click()
+    """
 
     def expand_tree_node(self, node_name):
         cell_xpath = "//span[text()='"+ node_name +"']"
@@ -769,128 +763,6 @@ class NewVisitorTest(SimpleTestCase):
                 if time.time() - start_time > MAX_WAIT:
                     raise e
                 time.sleep(0.5)
-"""
-
-
-    def wait_for_row_in_list_table(self, row_text):
-        start_time = time.time()
-        while True:
-            try:
-                table = self.browser.find_element_by_id('id_list_table')
-                rows = table.find_elements_by_tag_name('tr')
-                self.assertIn(row_text, [row.text for row in rows])
-                return
-            except (AssertionError, WebDriverException) as e:
-                if time.time() - start_time > MAX_WAIT:
-                    raise e
-                time.sleep(0.5)
-                
-    def test_can_start_a_list_for_one_user(self):
-        # Edith has heard about a cool new online to-do app. She goes
-        # to check out its homepage
-        self.browser.get(self.live_server_url)
-
-        # She notices the page title and header mention to-do lists
-        self.assertIn('To-Do', self.browser.title)
-        header_text = self.browser.find_element_by_tag_name('h1').text
-        self.assertIn('To-Do', header_text)
-
-        # She is invited to enter a to-do item straight away
-        inputbox = self.browser.find_element_by_id('id_new_item')
-        self.assertEqual(
-            inputbox.get_attribute('placeholder'),
-            'Enter a to-do item'
-        )
-        # She types "Buy peacock feathers" into a text box (Edith's hobby is tying
-        # fly-fishing lures)
-        inputbox.send_keys('Buy peacock feathers')
-
-        # When she hits enter, the page updates, and now the page lists
-        # "1: Buy peacock feathers" as an item in a to-do list
-        inputbox.send_keys(Keys.ENTER)
-        self.wait_for_row_in_list_table('1: Buy peacock feathers')
-
-        # There is still a text box inviting her to add another item. She
-        # enters "Use peacock feathers to make a fly" (Edith is very methodical)
-        inputbox = self.browser.find_element_by_id('id_new_item')
-        inputbox.send_keys('Use peacock feathers to make a fly')
-        inputbox.send_keys(Keys.ENTER)
-
-        # The page updates again, and now shows both items on her list
-        self.wait_for_row_in_list_table('2: Use peacock feathers to make a fly')
-        self.wait_for_row_in_list_table('1: Buy peacock feathers')
-
-        # Satisfied, she goes back to sleep
-
-    def test_multiple_users_can_start_lists_at_different_urls(self):
-        # Edith starts a new to-do list
-        self.browser.get(self.live_server_url)
-        inputbox = self.browser.find_element_by_id('id_new_item')
-        inputbox.send_keys('Buy peacock feathers')
-        inputbox.send_keys(Keys.ENTER)
-        self.wait_for_row_in_list_table('1: Buy peacock feathers')
-
-        # She notices that her list has a unique URL
-        edith_list_url = self.browser.current_url
-        self.assertRegex(edith_list_url, '/lists/.+')
-
-        # Now a new user, Francis, comes along to the site.
-
-        ## We use a new browser session to make sure that no information
-        ## of Edith's is coming through from cookies etc.
-        self.browser.quit()
-        self.browser = webdriver.Firefox()
-
-        # Francis visits the home page. There is no sign of Edith's list
-        self.browser.get(self.live_server_url)
-        page_text = self.browser.find_element_by_tag_name('body').text
-        self.assertNotIn('Buy peacock feathers', page_text)
-        self.assertNotIn('make a fly', page_text)
-
-        # Francis starts a new list by entering a new item. He is less
-        # interesting than Edith...
-        inputbox = self.browser.find_element_by_id('id_new_item')
-        inputbox.send_keys('Buy milk')
-        inputbox.send_keys(Keys.ENTER)
-        self.wait_for_row_in_list_table('1: Buy milk')
-
-        # Francis gets his own unique URL
-        francis_list_url = self.browser.current_url
-        self.assertRegex(francis_list_url, '/lists/.+')
-        self.assertNotEqual(francis_list_url, edith_list_url)
-
-        # Again, there is no trace of Edith's list
-        page_text = self.browser.find_element_by_tag_name('body').text
-        self.assertNotIn('Buy peacock feathers', page_text)
-        self.assertIn('Buy milk', page_text)
-
-        # Satsifed, they both go back to sleep
-
-    def test_layout_and_styling(self):
-        # Edith goes to the home page
-        self.browser.get(self.live_server_url)
-        self.browser.set_window_size(1024, 768)
-
-        # She notices the input box is nicely centered
-        inputbox = self.browser.find_element_by_id('id_new_item')
-        self.assertAlmostEqual(
-            inputbox.location['x'] + inputbox.size['width'] / 2,
-            512,
-            delta=10
-        )
-
-        # She starts a new list and sees the input is nicely centered there too
-        inputbox.send_keys('testing')
-        inputbox.send_keys(Keys.ENTER)
-        self.wait_for_row_in_list_table('1: testing')
-        inputbox = self.browser.find_element_by_id('id_new_item')
-        self.assertAlmostEqual(
-            inputbox.location['x'] + inputbox.size['width'] / 2,
-            512,
-            delta=10
-        )
-"""
-
 
 class Layout(object):
 
@@ -989,10 +861,6 @@ class Layout(object):
         for i in range(0,20):
             ActionChains(self.browser).key_down(Keys.ARROW_LEFT).perform()
 
-    def sheet_insert(self):
-        insert_btn = self.layout.find_element_by_id("view_insert")
-        insert_btn.click()
-
 
     def update_cell(self, row_index, column_name, cell_value):
         cell = self.find_cell(row_index, column_name)
@@ -1017,6 +885,8 @@ class Layout(object):
 
 
     def wait_for_loaded(self):
+        #чуть-чуть подлождем, а то есть вероятность что флаг  isLoaded=0 не успеет сброситься
+        time.sleep(1)
         div_loaded_xpath = ".//div[@class='isLoaded']"
         div_loaded = self.wait_for_element_by_xpath(div_loaded_xpath)
 
@@ -1105,3 +975,7 @@ class Layout(object):
             return 1
 
         return 0
+
+    def sheet_insert(self):
+        insert_btn = self.layout.find_element_by_id("view_insert")
+        insert_btn.click()
