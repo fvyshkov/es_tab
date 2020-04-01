@@ -45,10 +45,11 @@ export default class AddRemoveLayout extends React.PureComponent {
       cursor: "pointer"
     };
     //const i = el.add ? "+" : el.i;
+    console.log("createelement el", el);
     const i = el.i;
     return (
 
-      <div key={i} data-grid={el} className="LayoutItem" layoutitemtype={el.elementType}>
+      <div key={i} data-grid={el} className="LayoutItem" layoutitemtype={el.elementType} idx={i}>
         {el.renderItem}
       </div>
     );

@@ -1057,7 +1057,6 @@ export default class TableViewWithSelection extends Component {
 
         return (
             <React.Fragment>
-
             {referComp}
             {referRptListComp}
             {referLoadUndoComp}
