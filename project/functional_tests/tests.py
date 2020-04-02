@@ -20,10 +20,10 @@ class NewVisitorTest(SimpleTestCase):
         self.browser.get(self.live_server_url)
 
     def tearDown(self):
-        time.sleep(5)
         self.browser.quit()
 
-    def _test_open_table_sheet_add_records(self):
+    def test_open_table_sheet_add_records(self):
+        print("test_open_table_sheet_add_records")
         """
         Самый первый "настоящий" тест
         Открываем виджет
@@ -35,20 +35,21 @@ class NewVisitorTest(SimpleTestCase):
         """
         path=["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
         filters = {"Плоскость планирования": "План","ЦФО и инвестиции": "ГО"}
-        self.prepare_table_sheet(path, filters)
+        sheet_layout = self.prepare_table_sheet(path, filters)
 
         row_count=10
 
         for i in range(0,row_count):
             print("i", i)
-            self.sheet_insert()
-            self.update_cell(i, "Арендодатель", "ООО тест "+str(i+1))
+            sheet_layout.sheet_insert()
+            sheet_layout.update_cell(i, "Арендодатель", "ООО тест "+str(i+1))
 
-        self.assertEqual(self.row_count(), row_count)
+        self.assertEqual(sheet_layout.row_count(), row_count)
 
 
 
-    def _test_open_table_sheet_recalc(self):
+    def test_open_table_sheet_recalc(self):
+        print("test_open_table_sheet_recalc")
         """
         Открываем виджет
         Выбираем лист path=["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
@@ -69,17 +70,20 @@ class NewVisitorTest(SimpleTestCase):
             sheet_layout = self.prepare_table_sheet(path, filters)
 
             sheet_layout.sheet_insert()
+            sheet_layout.wait_for_loaded()
             sheet_layout.update_cell(0, "Арендодатель", "ООО тест 1")
             sheet_layout.update_cell(0, "Класс", "Класс А")
             sheet_layout.update_cell(0, "Площадь, кв.м.", "1")
 
 
             sheet_layout.sheet_insert()
+            sheet_layout.wait_for_loaded()
             sheet_layout.update_cell(1, "Арендодатель", "ООО тест 2")
             sheet_layout.update_cell(1, "Класс", "Класс Б")
             sheet_layout.update_cell(1, "Площадь, кв.м.", "1")
 
             sheet_layout.sheet_insert()
+            sheet_layout.wait_for_loaded()
             sheet_layout.update_cell(2, "Арендодатель", "ООО тест 3")
             sheet_layout.update_cell(2, "Класс", "Класс С")
             sheet_layout.update_cell(2, "Площадь, кв.м.", "1")
@@ -103,6 +107,7 @@ class NewVisitorTest(SimpleTestCase):
             raise
 
     def test_multi_sheet(self):
+        print("test_multi_sheet")
         """
         Тестирование самих инструментов тестирования
         открываем два листа ЗК, чистим, создаем записи в них, проверяем количество
@@ -134,7 +139,8 @@ class NewVisitorTest(SimpleTestCase):
             self.browser.quit()
             raise
 
-    def _test_detail(self):
+    def test_detail(self):
+        print("test_detail")
         """
         Детализация
 
@@ -150,9 +156,8 @@ class NewVisitorTest(SimpleTestCase):
         try:
             path = ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Детализация"]
             filters = {"ЦФО и инвестиции": "ГО"}
-            self.prepare_table_sheet(path, filters)
+            sheet_layout = self.prepare_table_sheet(path, filters)
 
-            sheet_layout = Layout(self.browser, "TableViewWithSelection")
             sheet_layout.sheet_insert()
             sheet_layout.update_cell(0, "Номер", "100500")
 
@@ -198,13 +203,14 @@ class NewVisitorTest(SimpleTestCase):
             text = cell.find_element_by_xpath(".//div[@class='cell-wrapper']/div").text
             self.assertEqual(text, "сумма*2=6.00")
 
-
+            print("test_detail FIN")
 
         except:
             self.browser.quit()
             raise
 
-    def _test_detail_context_menu(self):
+    def test_detail_context_menu(self):
+        print("test_detail_context_menu")
         """
         Детализация
 
@@ -217,9 +223,8 @@ class NewVisitorTest(SimpleTestCase):
         try:
             path = ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Детализация"]
             filters = {"ЦФО и инвестиции": "ГО"}
-            self.prepare_table_sheet(path, filters)
+            sheet_layout = self.prepare_table_sheet(path, filters)
 
-            sheet_layout = Layout(self.browser, "TableViewWithSelection")
             sheet_layout.sheet_insert()
             sheet_layout.update_cell(0, "Номер", "100500")
 
@@ -242,7 +247,8 @@ class NewVisitorTest(SimpleTestCase):
             raise
 
 
-    def _test_expression(self):
+    def test_expression(self):
+        print("test_expression")
         """
         Открываем лист path=["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Детализация"]
         Устанавливаем значения аналитик
@@ -253,9 +259,8 @@ class NewVisitorTest(SimpleTestCase):
         try:
             path = ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Детализация"]
             filters = {"ЦФО и инвестиции": "ГО"}
-            self.prepare_table_sheet(path, filters)
+            sheet_layout = self.prepare_table_sheet(path, filters)
 
-            sheet_layout = Layout(self.browser, "TableViewWithSelection")
             sheet_layout.sheet_insert()
             sheet_layout.update_cell(0, "Номер", "100500")
             sheet_layout.update_cell(0, "Описание", "Работа формулы")
@@ -273,7 +278,8 @@ class NewVisitorTest(SimpleTestCase):
             self.browser.quit()
             raise
 
-    def _test_save_desktop(self):
+    def test_save_desktop(self):
+        print("test_save_desktop")
         """
         пока не тест, а заготовка - открываем лист, сохранячем десктоп, удаляем десктоп
         """
@@ -389,7 +395,14 @@ class NewVisitorTest(SimpleTestCase):
         sheet_layout = self.open_sheet(path)
         sheet_layout.setup_sheet_filters(filters)
         sheet_layout.refresh_sheet()
+        print("prepare_table_sheet 001")
+        max_count = 100
+        count = 0
         while sheet_layout.row_count()>0:
+            count += 1
+            if count > max_count:
+                raise NameError("Слишком много попыток удаления")
+            print("prepare_table_sheet 002")
             sheet_layout.sheet_delete_first()
             time.sleep(.3)
         return sheet_layout
@@ -411,15 +424,19 @@ class NewVisitorTest(SimpleTestCase):
         first_node_xpath = "//li[@aria-label='{}' ]/div[contains(@class,'dx-item')]".format(
             path[0])
         self.wait_for_element_by_xpath(first_node_xpath)
+        print("Дерево загрузилось")
 
         focused = False
         while not focused:
             try:
+                print("Ищем элемент дерева с фокусом на нем")
                 self.browser.find_element_by_xpath("//li[@role='treeitem' and contains(@class, 'dx-state-focused')]//div[contains(@class,'dx-item')]")
                 focused = True
+                print("НАШЛИ элемент дерева с фокусом на нем")
             except:
+                print("не НАШЛИ элемент дерева с фокусом на нем, жмем TAB")
                 ActionChains(self.browser).send_keys(Keys.TAB).perform()
-                time.sleep(.2)
+                time.sleep(.5)
 
 
 
@@ -619,94 +636,26 @@ class NewVisitorTest(SimpleTestCase):
     def open_sheet_list_node(self, node_label):
         focused_node_xpath = "//li[@aria-label='{}' and @role='treeitem' and contains(@class, 'dx-state-focused')]//div[contains(@class,'dx-item')]".format(
             node_label)
+
+        start_time = time.time()
+        max_count = 100
+        try_count = 0
         while True:
             try:
+
                 self.browser.find_element_by_xpath(focused_node_xpath)
                 print("FOUND", focused_node_xpath)
                 ActionChains(self.browser).send_keys(Keys.ARROW_RIGHT).perform()
                 return
-            except:
+            except (AssertionError, WebDriverException) as e:
+                try_count += 1
+                if try_count > max_count:
+                    raise e
                 print("wait before arrow down", focused_node_xpath)
                 time.sleep(.3)
                 ActionChains(self.browser).send_keys(Keys.ARROW_DOWN).perform()
 
-    def _test_open_multy_sheet_with_filter_and_tree_expanding(self):
 
-        self.browser.get(self.live_server_url)
-        add_sheet_button_id = 'add_layout_sheet_item'
-        self.wait_for_element_by_id(add_sheet_button_id)
-        add_sheet_button = self.browser.find_element_by_id(add_sheet_button_id)
-        add_sheet_button.send_keys(Keys.ENTER)
-
-        sheet_select_id = "sheet_select_dropdown"
-        self.wait_for_element_by_id("sheet_select_dropdown")
-        sheet_select = self.browser.find_element_by_id(sheet_select_id)
-        sheet_select.click()
-
-        input_box_xpath = "//div[@class='dx-texteditor-input-container']/input[@class='dx-texteditor-input']"
-        sheet_book_xpath = "//span[text()='1.Бюджет Годовой']"
-        self.wait_for_element_by_xpath(sheet_book_xpath)
-        input_box_list = self.browser.find_elements_by_xpath(input_box_xpath)
-        input_box_list[1].send_keys('Ликвидность')
-
-        sheet_xpath = "//span[text()='Ликвидность']"
-        self.wait_for_element_by_xpath(sheet_xpath)
-        sheet = self.browser.find_element_by_xpath(sheet_xpath)
-        sheet.click()
-
-        #ждем загрузки данных
-        btn_xpath = "//span[text()='ГО']"
-        self.wait_for_element_by_xpath(btn_xpath)
-
-        btn_xpath = "//button[span[text()='Аналитики']]"
-        self.wait_for_element_by_xpath(btn_xpath)
-        btn = self.browser.find_element_by_xpath(btn_xpath)
-        print('btn', btn.text)
-        btn.click()
-
-
-
-
-        dep_arrow_xpath = "//a[@id='rdts2_trigger']"
-        self.wait_for_element_by_xpath(dep_arrow_xpath)
-        dep_arrow = self.browser.find_element_by_xpath(dep_arrow_xpath)
-        dep_arrow.click()
-
-        the_dep_xpath = "//input[@id='39595']"
-        self.wait_for_element_by_xpath(the_dep_xpath)
-        the_dep = self.browser.find_element_by_xpath(the_dep_xpath)
-        the_dep.click()
-
-        self.refresh_sheet()
-
-        self.expand_tree_node('1. Активы')
-        self.expand_tree_node('1.1. Кредиты')
-
-        ind_xpath = "//span[text()='1.1.1. Основной долг']"
-        self.wait_for_element_by_xpath(ind_xpath)
-        ind = self.browser.find_element_by_xpath(ind_xpath)
-
-    """
-    def refresh_sheet(self):
-        refresh_xpath = "//div[@aria-label='refresh']"
-        self.wait_for_element_by_xpath(refresh_xpath)
-        refresh = self.browser.find_element_by_xpath(refresh_xpath)
-        refresh.click()
-        self.wait_for_sheet_loaded()
-
-    def sheet_flt_panel_is_opened(self):
-        panel = self.browser.find_element_by_xpath("//div[@class='filterPanel']")
-        return panel.is_displayed()
-
-    def open_sheet_flt_panel(self):
-        panel_is_opened =  self.sheet_flt_panel_is_opened()
-        print("panel_is_opened", panel_is_opened)
-        if not panel_is_opened:
-            btn_xpath = "//button[span[text()='Аналитики']]"
-            self.wait_for_element_by_xpath(btn_xpath)
-            btn = self.browser.find_element_by_xpath(btn_xpath)
-            btn.click()
-    """
 
     def expand_tree_node(self, node_name):
         cell_xpath = "//span[text()='"+ node_name +"']"
@@ -727,19 +676,7 @@ class NewVisitorTest(SimpleTestCase):
                 time.sleep(0.5)
 
 
-    def cell_xpath_by_value(self, cell_value):
-        return "//div[text()='{}']".format(cell_value)
 
-    def find_cell_by_value(self, cell_value):
-        print("Ищем клетку с текстом ", cell_value)
-
-        cell_xpath =  "//div[text()='{}']".format(cell_value)
-
-        self.wait_for_element_by_xpath(cell_xpath)
-        cell = self.browser.find_element_by_xpath(cell_xpath)
-        self.browser.execute_script("arguments[0].scrollIntoView();", cell)
-        print("Нашли клетку с текстом ", cell_value)
-        return cell
 
     def wait_for_element_by_class_name(self, class_name):
         start_time = time.time()

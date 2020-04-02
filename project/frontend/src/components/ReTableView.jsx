@@ -388,7 +388,7 @@ export default class ReTableView extends Component {
          if  (skey){
             httpStr += '&skey='+skey;
          }
-
+        console.log();
         httpStr = this.addAdditionalSheetParams(httpStr);
         return httpStr;
     }

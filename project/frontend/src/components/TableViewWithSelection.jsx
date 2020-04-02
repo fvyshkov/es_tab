@@ -193,6 +193,10 @@ export default class TableViewWithSelection extends Component {
         if (this.state.sheet.id){
             httpStr +='sht_id='+this.state.sheet.id;
         }
+        var skey = getFilterSkey(this.state.filterNodes);
+        if (skey){
+            httpStr += '&skey='+ getFilterSkey(this.state.filterNodes);
+        }
 
         return httpStr;
     }

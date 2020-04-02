@@ -1416,7 +1416,7 @@ def get_sheet_columns_list(sheet_type, sht_id, skey):
         return columns
     else:
         return get_sql_result("""select c.idx, c.code key, c.longname name, c.editfl, c.ent_id, atr_type,
-                               c.ind_id, c.ind_id_hi,
+                               c.ind_id, c.ind_id_hi,visiblefl,
                                (
                                select sign(count(*))
                                 from C_ES_DEC_TBL_RULE r,
@@ -1426,6 +1426,7 @@ def get_sheet_columns_list(sheet_type, sht_id, skey):
                                 and   r.rule_type='D'
                                 ) detailfl 
                                 from table(C_PKGESreq.fGetColumns(%s,%s)) c
+                                where visiblefl = 1
                                 """, [skey,sht_id])
 
 
