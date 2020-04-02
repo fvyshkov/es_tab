@@ -736,7 +736,8 @@ function gridCellRenderer(params){
         return eList;
     }
 
-    if ( (typeof node_key)=="string" && node_key.includes('dummy')){
+    const node_key = params.data.node_key;
+    if ( (typeof node_key)=="string" && node_key.includes('dummy')) {
         return getSpinner();
     }
 
