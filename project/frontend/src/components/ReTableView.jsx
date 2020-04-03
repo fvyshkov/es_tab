@@ -124,6 +124,12 @@ export default class ReTableView extends Component {
         return this.tableData.loadData(parentNode, reload)
             .then((data)=>{
                 this.setState({rowData: data});
+                data.forEach(row=>{
+                    if (row.groupfl==='1' && this.nodesForExpand.includes(row.node_key)){
+                        this.nodesForExpand.shift();
+                        this.sendExpandNode(row.node_key);
+                    }
+                });
             })
             .then(()=> {
                 this.sendRefreshData();
@@ -222,8 +228,6 @@ export default class ReTableView extends Component {
         }
     }
 
-
-
     processViewState(viewState){
         if (viewState.length>0){
             this.setState({columnStates: viewState[0].columnstates});
@@ -283,10 +287,10 @@ export default class ReTableView extends Component {
 
 
     onToolbarRefreshClick(){
-         this.gripApi.setRowData([]);
-         this.setState({isLoaded:0});
-         this.loadData({}, true);
-         this.sendRefreshGrid();
+        this.gripApi.setRowData([]);
+        this.setState({isLoaded:0});
+        this.loadData({}, true);
+        this.sendRefreshGrid();
         //
 
     }
@@ -333,9 +337,6 @@ export default class ReTableView extends Component {
         if (this.props.onDeleteCallback){
             this.props.onDeleteCallback();
         }
-
-        //this.gridApi.updateRowData({ remove: [this.gridApi.getDisplayedRowAtIndex(this.gridApi.getFocusedCell().rowIndex).data] });
-
     }
 
     sendDeleteRecord(){
@@ -418,7 +419,13 @@ export default class ReTableView extends Component {
     }
 
 
-    onGridReady(){
+    onGridReady(gridApi){
+        if (this.props.expandedGroupIds){
+            this.nodesForExpand = this.props.expandedGroupIds.slice();
+        }else{
+            this.nodesForExpand = [];
+        }
+        this.gridApi = gridApi;
         this.setState({gridKey: this.state.gridKey+1});
         this.loadData({}, true);
 
@@ -497,6 +504,7 @@ export default class ReTableView extends Component {
                                 getRowNodeId={this.props.getRowNodeId}
                                 onGridReady={this.onGridReady.bind(this)}
                                 getChartTitle={this.props.getChartTitle}
+                                sendExpandNode={click => this.sendExpandNode = click}
                                 {...this.props}
                                 />
 

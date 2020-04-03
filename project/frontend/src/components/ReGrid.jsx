@@ -137,6 +137,8 @@ export default class ReGrid extends React.Component {
         console.log('onLayoutBeforeSave chartModels BEFORE', this.gridApi.getChartModels());
         if (this.props.doBeforeSaveLayout){
 
+
+
             var chartModels  =   this.gridApi.getChartModels();
             console.log('onLayoutBeforeSave chartModels', chartModels);
             var chartParams = chartModels.map((model)=>{
@@ -159,8 +161,14 @@ export default class ReGrid extends React.Component {
                         chartLayoutId: chartLayoutId
                        };
             });
+            var expandedGroupIds = [];
 
-            this.props.doBeforeSaveLayout(this.props.layoutItemID, chartParams);
+            this.gridApi.forEachNode((node, index)=>{
+                if (node.expanded) {
+                    expandedGroupIds.push(node.data.node_key);
+                }
+            });
+            this.props.doBeforeSaveLayout(this.props.layoutItemID, chartParams, expandedGroupIds);
         }
     }
 
@@ -170,7 +178,6 @@ export default class ReGrid extends React.Component {
         }
 
         if (this.props.sendLayoutBeforeSave){
-            console.log('bind onLayoutBeforeSave');
             this.props.sendLayoutBeforeSave(this.onLayoutBeforeSave.bind(this));
         }
 
@@ -189,6 +196,10 @@ export default class ReGrid extends React.Component {
 
         if(this.props.sendInsertRecord){
             this.props.sendInsertRecord(this.sendInsertRecord.bind(this));
+        }
+
+        if(this.props.sendExpandNode){
+            this.props.sendExpandNode(this.sendExpandNode.bind(this));
         }
 
         if(this.props.sendUndoToGrid){
@@ -389,7 +400,7 @@ export default class ReGrid extends React.Component {
         //console.log('!!! gridReadySend', this.gridReadySend);
         if (this.props.onGridReady && ! this.gridReadySend){
             this.gridReadySend = true;
-            this.props.onGridReady();
+            this.props.onGridReady(this.gridApi);
 
         }
     }
@@ -430,6 +441,9 @@ export default class ReGrid extends React.Component {
 
     }
 
+    sendExpandNode(nodeId){
+        this.gridApi.setRowNodeExpanded(this.gridApi.getRowNode(nodeId), true);
+    }
 
     sendInsertRecord(){
         this.savedFocusedCell = this.gridApi.getFocusedCell();

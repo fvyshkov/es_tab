@@ -160,11 +160,14 @@ export default class LayoutWithToolbar extends Component {
 
     }
 
-    doBeforeSaveLayout(parentLayoutId, charts){
-        console.log("doBeforeSaveLayout", parentLayoutId, charts);
+    doBeforeSaveLayout(parentLayoutId, charts, expandedGroupIds){
+        console.log("doBeforeSaveLayout", parentLayoutId, charts, expandedGroupIds);
+
+
         this.layoutForSave.forEach((layout)=>{
             if (layout.itemId == parentLayoutId){
                 layout['chartsData'] = [];
+                layout['expandedGroupIds'] = expandedGroupIds;
                 for (var chartIndex in charts){
                     console.log('chart', charts[chartIndex]);
                     var chart = charts[chartIndex];
@@ -200,8 +203,6 @@ export default class LayoutWithToolbar extends Component {
                     refer = React.createRef();
                 }
 
-                console.log("SHEET=", layoutItem.sheet);
-
                 this.addElementToLayout(
                                 <Component
                                     ref={refer}
@@ -215,6 +216,7 @@ export default class LayoutWithToolbar extends Component {
                                     sheet={layoutItem.sheet}
                                     filterNodes={layoutItem.filterNodes}
                                     chartsData={layoutItem.chartsData}
+                                    expandedGroupIds={layoutItem.expandedGroupIds}
                                     {...layoutItem.formParams}
                                  />,
                                 layoutItem.layout,
