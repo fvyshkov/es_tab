@@ -48,6 +48,7 @@ urlpatterns = [
     path('run_oper/', views.run_oper),
     path('conf_opers/', views.get_conf_opers),
     path('recalc_sheet/', views.recalc_sheet),
+    path('recalc_cell/', views.recalc_cell),
     path('get_conf_list/', views.get_conf_list),
     path('get_history/', views.get_history),
     path('get_flt/', views.get_flt),

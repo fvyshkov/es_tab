@@ -563,6 +563,10 @@ export default class TableViewWithSelection extends Component {
               {
                 name: 'Отчет по расчету значения',
                 action: this.showCalcReport.bind(this, params)
+              },
+               {
+                name: 'Пересчет значения',
+                action: this.recalcCell.bind(this, params)
               }
               ]);
 
@@ -662,6 +666,56 @@ export default class TableViewWithSelection extends Component {
         this.reportTitle="Отчет по расчету значения";
         this.setState({reportDialogVisible:true});
 
+    }
+
+    recalcCell(params){
+        var nodeIds = []
+        this.gridApi.forEachNode((node, index)=>{
+            //if (node.expanded){
+                nodeIds.push(node.data);
+            //}
+        });
+
+        sendRequestPromise('recalc_cell/?sht_id='+this.state.sheet.id+'&skey='+this.getCellSkey(params)+
+                            '&sht_skey='+getFilterSkey(this.state.filterNodes),
+                            'POST', nodeIds)
+            .then((data)=>{
+                console.log('recalcCell', data);
+
+                data.forEach(node=>{
+                    console.log("node", node.node_key);
+                    if (node['column_data']){
+                        for (var i=0; i< node['column_data'].length; i++){
+                            console.log("1", node['column_data'][i]['key'], node['column_data'][i]['sql_value']);
+                            node[node['column_data'][i]['key']] = node['column_data'][i]['sql_value']
+                        }
+                    }
+                });
+
+                console.log('recalcCell', data);
+                this.setState({rowData:data});
+                this.gridApi.setRowData(data);
+
+
+
+                /*
+                if (data.length>0){
+                    var rowNode = this.gridApi.getRowNode(params.data.id);
+                    var data_test = data[0];
+                    var columns = data[0]['column_data'];
+                    for (var i=0; i< columns.length; i++){
+                        console.log('column', columns[i])
+                        data_test[columns[i]['key']] = columns[i]['sql_value']
+                    }
+                    rowNode.setData(data_test)
+                }
+                this.refreshOpenedNodes(data);
+                */
+            });
+    }
+
+    refreshOpenedNodes(){
+        console.log("refreshOpenNodes");
     }
 
     showScheduleForRow(params){

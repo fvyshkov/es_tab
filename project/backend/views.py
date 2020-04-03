@@ -84,6 +84,31 @@ def recalc_sheet(request):
 
     return JsonResponse([], safe=False)
 
+def recalc_cell(request):
+    param_dict = dict(request.GET)
+    sht_id = param_dict.get('sht_id', [''])[0]
+    skey = param_dict.get('skey', [''])[0]
+    sht_skey = param_dict.get('sht_skey', [''])[0]
+    node_list = json.loads(request.body.decode("utf-8"))
+
+    with connection.cursor() as cursor:
+        cursor.execute("""begin c_pkgconnect.popen(); 
+                        C_PKGESCALC.PCALCREPORT(%s, %s);  
+                        end; """,
+                       [sht_id, skey])
+
+    sheet_info = get_sheet_info_list(sht_id)
+
+    for node in node_list:
+        group_keys = ''# node['node_key']
+        for path_step in node['hie_path']:
+            if path_step != node['hie_path'][-1]:
+                group_keys += path_step+','
+        if not "dummy" in node['node_key']:
+            process_node(sht_id, sht_skey, node, group_keys, sheet_info[0])
+
+    return JsonResponse(node_list, safe=False)
+
 def get_history(request):
 
     param_dict = dict(request.GET)
@@ -1176,8 +1201,6 @@ def get_tree_node_list(request):
 
 
     sheet_info = get_sheet_info_list(p_sht_id)
-    color_restrict = sheet_info[0].get('color_restrict_hex')
-    color_hand = sheet_info[0].get('color_hand_hex')
 
     node_list = get_sql_result("select 'FLT_ID_'||x.flt_id||'=>'||x.flt_item_id as node_key, "
                                "x.*, dt.atr_type, dt.round_size, i.ENT_ID "
@@ -1189,89 +1212,96 @@ def get_tree_node_list(request):
                                "order by x.npp", [p_sht_id, p_key, p_flt_id, p_flt_item_id, p_flt_root_id, p_cell_key])
 
     for node in node_list:
-        p_tmp_cell_key = p_key + ',' + p_cell_key + ',' + 'FLT_ID_' + node['flt_id'] + '=>' + node['flt_item_id']
-        p_cell_key += 'FLT_ID_' + node['flt_id'] + '=>' + node['flt_item_id']
-        p_tmp_cell_key = Skey(p_tmp_cell_key).process()
-        cell_list = get_sql_result('''with params as (select %s sht_id, %s skey from dual)
-select f.styles, 
-        c_pkgescalc.fGetAnlDscr(p.skey) flt_dscr,
-        case when x.commentfl=1 
-        then (
-              select c.prim
-              from C_ES_SHT_VAL_COMMENT c
-              where c.ind_id = x.ind_id
-              and  c.skey = c_pkgescalc.fNormalizeKey( c_pkgescalc.fRemoveIndFlt(p.sht_id, p.skey||','||x.key))
-              and correctdt=(
-                            select max(c.correctdt)
-                            from C_ES_SHT_VAL_COMMENT c
-                            where c.ind_id = x.ind_id
-                            and  c.skey = c_pkgescalc.fNormalizeKey( c_pkgescalc.fRemoveIndFlt(p.sht_id, p.skey||','||x.key))
-                           )
-            ) 
-        else null end comment_text,
-        case when x.commentfl=1 
-        then (select c_pkgusr.fLongname( c.id_us)
-             from C_ES_SHT_VAL_COMMENT c
-              where c.ind_id = x.ind_id
-              and  c.skey = c_pkgescalc.fNormalizeKey( c_pkgescalc.fRemoveIndFlt(p.sht_id, p.skey||','||x.key))
-              and correctdt=(
-                            select max(c.correctdt)
-                            from C_ES_SHT_VAL_COMMENT c
-                            where c.ind_id = x.ind_id
-                            and  c.skey = c_pkgescalc.fNormalizeKey( c_pkgescalc.fRemoveIndFlt(p.sht_id, p.skey||','||x.key))
-                           ) 
-             ) 
-        else null end comment_usr_name,
-        x.*  
-from params p, table(C_PKGESSHEET.fGetDataCells(p.sht_id, p.skey)) x,
-     c_es_ver_sheet_ind_frmt f
-where f.ind_id(+) = x.ind_id and f.tbl_id(+)= x.mark_tbl_id
-''',
-                                   [p_sht_id, p_tmp_cell_key])
-
-        cell_list = list( map(process_cell_styles, cell_list,   [node]*len(cell_list), [sheet_info[0]]*len(cell_list)))
-
-        cell_list.append({'key': 'name',
-                          'font.italic':1,
-                          'border.color': 'black',
-                          'brush.color': sheet_info[0].get('color_restrict_hex'),
-                          'font.color': 'black',
-                          'sql_value': node['name']
-                          })
-
-        hie_path = []
-        if (group_keys):
-            skeys =group_keys.split(',')
-            for item in skeys:
-                if item:
-                    hie_path.append(item)
-
-        hie_path.append(node['node_key'])
-
-        node['hie_path'] = hie_path
-
-        node['column_data'] = cell_list
-
+        print("group_keys=", group_keys)
+        process_node(p_sht_id, p_key, node, group_keys, sheet_info[0])
 
     return node_list
+
+def process_node(p_sht_id, p_key, node, group_keys, sheet_info):
+
+    p_tmp_cell_key = p_key +','+ node['node_key']
+    print("process_node p_sht_id, p_tmp_cell_key, group_keys", p_sht_id, p_tmp_cell_key, "GK", group_keys)
+
+    cell_list = get_sql_result("""
+                                with params as (select %s sht_id, %s skey from dual)
+                                select f.styles, 
+                                        c_pkgescalc.fGetAnlDscr(p.skey) flt_dscr,
+                                        case when x.commentfl=1 
+                                        then (
+                                              select c.prim
+                                              from C_ES_SHT_VAL_COMMENT c
+                                              where c.ind_id = x.ind_id
+                                              and  c.skey = c_pkgescalc.fNormalizeKey( c_pkgescalc.fRemoveIndFlt(p.sht_id, p.skey||','||x.key))
+                                              and correctdt=(
+                                                            select max(c.correctdt)
+                                                            from C_ES_SHT_VAL_COMMENT c
+                                                            where c.ind_id = x.ind_id
+                                                            and  c.skey = c_pkgescalc.fNormalizeKey( c_pkgescalc.fRemoveIndFlt(p.sht_id, p.skey||','||x.key))
+                                                           )
+                                            ) 
+                                        else null end comment_text,
+                                        case when x.commentfl=1 
+                                        then (select c_pkgusr.fLongname( c.id_us)
+                                             from C_ES_SHT_VAL_COMMENT c
+                                              where c.ind_id = x.ind_id
+                                              and  c.skey = c_pkgescalc.fNormalizeKey( c_pkgescalc.fRemoveIndFlt(p.sht_id, p.skey||','||x.key))
+                                              and correctdt=(
+                                                            select max(c.correctdt)
+                                                            from C_ES_SHT_VAL_COMMENT c
+                                                            where c.ind_id = x.ind_id
+                                                            and  c.skey = c_pkgescalc.fNormalizeKey( c_pkgescalc.fRemoveIndFlt(p.sht_id, p.skey||','||x.key))
+                                                           ) 
+                                             ) 
+                                        else null end comment_usr_name,
+                                        x.*  
+                                from params p, table(C_PKGESSHEET.fGetDataCells(p.sht_id, p.skey)) x,
+                                     c_es_ver_sheet_ind_frmt f
+                                where f.ind_id(+) = x.ind_id and f.tbl_id(+)= x.mark_tbl_id
+                                """,
+                               [p_sht_id, p_tmp_cell_key])
+
+    cell_list = list( map(process_cell_styles, cell_list,   [node]*len(cell_list), [sheet_info]*len(cell_list)))
+
+    cell_list.append({'key': 'name',
+                      'font.italic':1,
+                      'border.color': 'black',
+                      'brush.color': sheet_info.get('color_restrict_hex'),
+                      'font.color': 'black',
+                      'sql_value': node['name']
+                      })
+
+    hie_path = []
+    if (group_keys):
+        skeys =group_keys.split(',')
+        for item in skeys:
+            if item:
+                hie_path.append(item)
+
+    hie_path.append(node['node_key'])
+
+    node['hie_path'] = hie_path
+
+
+    node['column_data'] = cell_list
 
 
 def process_cell_styles(cell_src, node, sheet_info):
 
     cell = cell_src.copy()
-
     cell['brush.color'] = 'white'
     cell['font.color'] = 'black'
     cell['border.color'] = 'black'
     cell['font.italic'] = '0'
     cell['font.bold'] = '0'
+    #для упрощения отладки
+    cell['node_name'] = node['name']
 
     if node.get('groupfl') == '1' or cell.get('editfl') == 0:
         cell['brush.color'] = sheet_info.get('color_restrict_hex')
     else:
         cell['brush.color'] = sheet_info.get('color_hand_hex')
 
-    if cell.get('oldfl') == '1':
+    if cell.get('oldfl') == 1:
         cell['font.color'] = 'red'
         cell['border.color'] = 'red'
         cell['font.italic'] = '1'
