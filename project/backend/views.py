@@ -536,9 +536,12 @@ def update_tree_record(request):
     print('SK=', skey  + cell_skey)
 
     with connection.cursor() as cursor:
-        cursor.execute("begin c_pkgconnect.popen(); "
-                       "   C_PKGESSHEET.pSetShtValueHand(P_SHT_ID => %s, P_IND_ID => %s, P_SKEY => %s, P_SQL_VALUE => %s); end; ",
-                       [sht_id, '', skey+cell_skey, value])
+        cursor.execute("""begin c_pkgconnect.popen(); 
+                          C_PKGESSHEET.pSetShtValueHand(P_SHT_ID => %s, P_IND_ID => %s, P_SKEY => %s, P_SQL_VALUE => %s); 
+                          C_PKGESREVERSE.pClearLinkedCellsBySht(%s);
+                          end; 
+                          """,
+                       [sht_id, '', skey+cell_skey, value, sht_id])
 
     return JsonResponse([], safe=False)
 

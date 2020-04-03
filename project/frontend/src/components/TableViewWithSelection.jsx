@@ -170,7 +170,7 @@ export default class TableViewWithSelection extends Component {
                             '&ind_id='+params.data.ind_id + '&value='+params.value
 
                         , 'POST',{})
-            .then(()=>this.reloadNodes());
+            .then(()=>this.reloadNodes(true));
 
         }else{
             this.setState({isLoaded:0});
@@ -672,10 +672,10 @@ export default class TableViewWithSelection extends Component {
 
     recalcCell(params){
         sendRequestPromise('recalc_cell/?sht_id='+this.state.sheet.id+'&skey='+this.getCellSkey(params))
-            .then(()=>{this.reloadNodes();});
+            .then(()=>{this.reloadNodes(false);});
     }
 
-    reloadNodes(){
+    reloadNodes(reloadAllCells=false){
         console.log("reloadNodes");
 
         var nodeIds = [];
@@ -686,7 +686,6 @@ export default class TableViewWithSelection extends Component {
         sendRequestPromise('reload_nodes/?sht_id='+this.state.sheet.id+'&sht_skey='+getFilterSkey(this.state.filterNodes),
                             'POST', nodeIds)
             .then((data)=>{
-
                 data.forEach(node=>{
                     console.log("node", node.node_key);
                     if (node['column_data']){
@@ -696,9 +695,11 @@ export default class TableViewWithSelection extends Component {
                         }
                     }
                 });
-
                 this.setState({rowData:data});
                 this.gridApi.setRowData(data);
+
+                this.gridApi.refreshCells({ force: reloadAllCells});
+
             });
     }
 
@@ -1007,7 +1008,6 @@ export default class TableViewWithSelection extends Component {
 
 
     onDeleteCallback(){
-
         var dataForDelete = this.gridApi.getDisplayedRowAtIndex(this.gridApi.getFocusedCell().rowIndex).data;
         var req_id = dataForDelete.id;
         //var dataForDelete = [this.gridApi.getDisplayedRowAtIndex(this.savedFocusedCell.rowIndex).data];
