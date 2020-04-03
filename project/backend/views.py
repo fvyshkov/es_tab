@@ -88,8 +88,6 @@ def recalc_cell(request):
     param_dict = dict(request.GET)
     sht_id = param_dict.get('sht_id', [''])[0]
     skey = param_dict.get('skey', [''])[0]
-    sht_skey = param_dict.get('sht_skey', [''])[0]
-    node_list = json.loads(request.body.decode("utf-8"))
 
     with connection.cursor() as cursor:
         cursor.execute("""begin c_pkgconnect.popen(); 
@@ -97,10 +95,18 @@ def recalc_cell(request):
                         end; """,
                        [sht_id, skey])
 
+    return JsonResponse([], safe=False)
+
+def reload_nodes(request):
+    param_dict = dict(request.GET)
+    sht_id = param_dict.get('sht_id', [''])[0]
+    sht_skey = param_dict.get('sht_skey', [''])[0]
+    node_list = json.loads(request.body.decode("utf-8"))
+
     sheet_info = get_sheet_info_list(sht_id)
 
     for node in node_list:
-        group_keys = ''# node['node_key']
+        group_keys = ''
         for path_step in node['hie_path']:
             if path_step != node['hie_path'][-1]:
                 group_keys += path_step+','
@@ -108,6 +114,9 @@ def recalc_cell(request):
             process_node(sht_id, sht_skey, node, group_keys, sheet_info[0])
 
     return JsonResponse(node_list, safe=False)
+
+
+
 
 def get_history(request):
 

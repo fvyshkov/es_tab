@@ -85,6 +85,7 @@ export default class TableViewWithSelection extends Component {
         this.componentDidMount = this.componentDidMount.bind(this);
         this.afterOperRun = this.afterOperRun.bind(this);
         this.closeUserReportDialog = this.closeUserReportDialog.bind(this);
+        this.reloadNodes = this.reloadNodes.bind(this);
 
     }
 
@@ -168,7 +169,8 @@ export default class TableViewWithSelection extends Component {
                                 '&cell_skey='+params.data.node_key +','+ params.colDef.field +
                             '&ind_id='+params.data.ind_id + '&value='+params.value
 
-                        , 'POST',{});
+                        , 'POST',{})
+            .then(()=>this.reloadNodes());
 
         }else{
             this.setState({isLoaded:0});
@@ -669,18 +671,21 @@ export default class TableViewWithSelection extends Component {
     }
 
     recalcCell(params){
-        var nodeIds = []
+        sendRequestPromise('recalc_cell/?sht_id='+this.state.sheet.id+'&skey='+this.getCellSkey(params))
+            .then(()=>{this.reloadNodes();});
+    }
+
+    reloadNodes(){
+        console.log("reloadNodes");
+
+        var nodeIds = [];
         this.gridApi.forEachNode((node, index)=>{
-            //if (node.expanded){
-                nodeIds.push(node.data);
-            //}
+            nodeIds.push(node.data);
         });
 
-        sendRequestPromise('recalc_cell/?sht_id='+this.state.sheet.id+'&skey='+this.getCellSkey(params)+
-                            '&sht_skey='+getFilterSkey(this.state.filterNodes),
+        sendRequestPromise('reload_nodes/?sht_id='+this.state.sheet.id+'&sht_skey='+getFilterSkey(this.state.filterNodes),
                             'POST', nodeIds)
             .then((data)=>{
-                console.log('recalcCell', data);
 
                 data.forEach(node=>{
                     console.log("node", node.node_key);
@@ -692,25 +697,8 @@ export default class TableViewWithSelection extends Component {
                     }
                 });
 
-                console.log('recalcCell', data);
                 this.setState({rowData:data});
                 this.gridApi.setRowData(data);
-
-
-
-                /*
-                if (data.length>0){
-                    var rowNode = this.gridApi.getRowNode(params.data.id);
-                    var data_test = data[0];
-                    var columns = data[0]['column_data'];
-                    for (var i=0; i< columns.length; i++){
-                        console.log('column', columns[i])
-                        data_test[columns[i]['key']] = columns[i]['sql_value']
-                    }
-                    rowNode.setData(data_test)
-                }
-                this.refreshOpenedNodes(data);
-                */
             });
     }
 

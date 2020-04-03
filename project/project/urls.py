@@ -63,6 +63,7 @@ urlpatterns = [
     path('get_report_params/', views.get_report_params),
     path('get_ref_dscr/', views.get_ref_dscr),
     path('getref/', views.getref),
+    path('reload_nodes/', views.reload_nodes),
 
 
     path('', include('frontend.urls')),
