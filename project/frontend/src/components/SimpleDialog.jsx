@@ -176,7 +176,6 @@ export default class SimpleDialog extends React.Component {
     }
 
   render() {
-    console.log("render 1");
     const {
       labelLocation,
       readOnly,
@@ -186,8 +185,6 @@ export default class SimpleDialog extends React.Component {
       company,
       width
     } = this.state;
-
-    console.log("render 2");
 
 
     var itemList = this.props.dialogParams.map((param)=>{

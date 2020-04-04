@@ -682,23 +682,61 @@ export default class TableViewWithSelection extends Component {
         this.gridApi.forEachNode((node, index)=>{
             nodeIds.push(node.data);
         });
+        var oldRowData = [];//this.state.rowData.slice();
+        //console.log("rowData", rowData);
 
         sendRequestPromise('reload_nodes/?sht_id='+this.state.sheet.id+'&sht_skey='+getFilterSkey(this.state.filterNodes),
                             'POST', nodeIds)
             .then((data)=>{
                 data.forEach(node=>{
-                    console.log("node", node.node_key);
+                    oldRowData.push(this.gridApi.getRowNode(node.node_key).data);
                     if (node['column_data']){
                         for (var i=0; i< node['column_data'].length; i++){
-                            console.log("1", node['column_data'][i]['key'], node['column_data'][i]['sql_value']);
+                            //console.log("1", node['column_data'][i]['key'], node['column_data'][i]['sql_value']);
                             node[node['column_data'][i]['key']] = node['column_data'][i]['sql_value']
+                        }
+                    }
+                });
+                console.log("oldRowData", oldRowData);
+                var changedRows = [];
+                var changedColumns = [];
+                data.forEach((node, index)=>{
+                    var oldNode = oldRowData.filter(row=>{return (row.node_key==node.node_key);})[0];
+                    if (index==0){
+                        console.log("node new", node);
+                        console.log("node old", oldNode);
+                    }
+
+                    if (node['column_data']){
+                        for (var i=0; i< node['column_data'].length; i++){
+                            var newCell = node['column_data'][i];
+                            var oldCell = oldNode['column_data'][i];
+                            if (newCell['sql_value'] != oldCell['sql_value'] ||
+                                newCell['brush.color'] != oldCell['brush.color'] ||
+                                newCell['font.color'] != oldCell['font.color'] ||
+                                newCell['border.color'] != oldCell['border.color'] ||
+                                newCell['font.italic'] != oldCell['font.italic'] ||
+                                newCell['font.bold'] != oldCell['font.bold']
+                                ){
+                                console.log("cell for refresh! ", newCell.key, node.node_key);
+                                changedColumns.push(newCell.key);
+                                changedRows.push(node.node_key);
+
+                            }
+
                         }
                     }
                 });
                 this.setState({rowData:data});
                 this.gridApi.setRowData(data);
+                var changedRowNodes = [];
 
-                this.gridApi.refreshCells({ force: reloadAllCells});
+                changedRows.forEach(row=>{
+                    changedRowNodes.push(this.gridApi.getRowNode(row));
+
+                });
+
+                this.gridApi.refreshCells({ force: true, columns: changedColumns, rowNodes: changedRowNodes});
 
             });
     }
