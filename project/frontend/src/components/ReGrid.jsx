@@ -331,10 +331,16 @@ export default class ReGrid extends React.Component {
 
                                                         if (columnData && columnData['font.bold']==='1'){
                                                             style['font-weight'] = 'bold';
+                                                        }else{
+                                                            style['font-weight'] = 'normal';
                                                         }
+
                                                         if (columnData && columnData['font.italic']==='1'){
                                                             style['font-style'] = 'italic';
+                                                        }else{
+                                                            style['font-style'] = 'normal';
                                                         }
+
                                                         if (columnData && columnData['border.color']){ 
                                                             style['border-style'] = 'solid'; 
                                                             style['border-width'] = 'thin'; 
