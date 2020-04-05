@@ -162,7 +162,7 @@ export default class TableViewWithSelection extends Component {
 
     onCellValueChanged(params){
 
-
+        console.log("");
         if (this.state.sheet_type==='tree'){
             sendRequestPromise('update_tree_record/?sht_id='+this.state.sheet_id+
                                 '&skey='+getFilterSkeyByCell(params)+
@@ -176,16 +176,25 @@ export default class TableViewWithSelection extends Component {
             this.setState({isLoaded:0});
             sendRequestPromise('update_record/?req_id='+params.data.id+'&value='+params.value+'&col_id='+params.column.colDef.ind_id, 'POST',{})
                 .then((data)=>{
+
                     var rowNode = this.gridApi.getRowNode(params.data.id);
                     var data_test = data[0];
                     var columns = data[0]['column_data'];
                     for (var i=0; i< columns.length; i++){
-                        console.log('column', columns[i])
-                        data_test[columns[i]['key']] = columns[i]['sql_value']
+                        data_test[columns[i]['key']] = columns[i]['sql_value'];
                     }
-                    rowNode.setData(data_test);
 
+                    var rowData = [];
+                    this.gridApi.forEachNode((node, index)=>{
+                        if (node.id == params.data.id){
+                            rowData.push(data_test);
+                        }else{
+                            rowData.push(node.data);
+                        }
+                    });
+                    this.gridApi.setRowData(rowData);
                     this.setState({isLoaded:1});
+
                 });
         }
     }
