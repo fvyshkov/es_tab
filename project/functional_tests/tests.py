@@ -10,7 +10,11 @@ from selenium.webdriver.common.action_chains import ActionChains
 TEST = "1.Бюджет Годовой"
 
 MAX_WAIT = 10
+"""
+запуск одного теста -  
+python manage.py test functional_tests.tests.NewVisitorTest.test_open_table_sheet_add_records
 
+"""
 
 class NewVisitorTest(SimpleTestCase):
 
