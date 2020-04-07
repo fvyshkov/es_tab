@@ -446,8 +446,6 @@ class NewVisitorTest(SimpleTestCase):
                 ActionChains(self.browser).send_keys(Keys.TAB).perform()
                 time.sleep(.2)
 
-        time.sleep(3)
-
         sheet_name = path[-1]
         for node in path:
             if node!=sheet_name:
