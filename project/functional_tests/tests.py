@@ -425,24 +425,28 @@ class NewVisitorTest(SimpleTestCase):
         sheet_select = sheet_layout.wait_for_element_by_id(sheet_select_id)
         sheet_select.click()
 
-        first_node_xpath = "//li[@aria-label='{}' ]/div[contains(@class,'dx-item')]".format(
-            path[0])
-        self.wait_for_element_by_xpath(first_node_xpath)
+        node_xpath = "//div[contains(@class, 'dx-treeview') and @layoutitemid='{}']//li[@aria-label='{}' ]/div[contains(@class,'dx-item')]".format(
+            sheet_layout.layout_item_id, path[0])
+        self.wait_for_element_by_xpath(node_xpath)
         print("Дерево загрузилось")
 
-        focused = False
-        while not focused:
+        focused_on_sheet_tree = False
+
+        start_time = time.time()
+        while not focused_on_sheet_tree:
             try:
                 print("Ищем элемент дерева с фокусом на нем")
                 self.browser.find_element_by_xpath("//li[@role='treeitem' and contains(@class, 'dx-state-focused')]//div[contains(@class,'dx-item')]")
-                focused = True
+                focused_on_sheet_tree = True
                 print("НАШЛИ элемент дерева с фокусом на нем")
             except:
+                if time.time() - start_time > 20:
+                    raise
                 print("не НАШЛИ элемент дерева с фокусом на нем, жмем TAB")
                 ActionChains(self.browser).send_keys(Keys.TAB).perform()
-                time.sleep(.5)
+                time.sleep(.2)
 
-
+        time.sleep(3)
 
         sheet_name = path[-1]
         for node in path:
@@ -592,51 +596,6 @@ class NewVisitorTest(SimpleTestCase):
 
         return 0
 
-    """
-    def sheet_insert(self):
-        sheet_insert = self.browser.find_element_by_id("view_insert")
-        sheet_insert.click()
-
-
-    def setup_sheet_filters(self, filters):
-        print("Устанавливаем аналитики", filters)
-        self.open_sheet_flt_panel()
-
-        for filter in filters:
-            #здесь еще нужно будет добавить очистку фильтра, если что-то уже указано
-            print(filter, '=', filters[filter])
-            #вводим текст для поиска значения аналитики (чтобы не искать по иерархии)
-            flt_search_xpath = "//div[text()='{}']/parent::*//input[@class='search']".format(
-                filter)
-            self.wait_for_element_by_xpath(flt_search_xpath)
-            flt_search = self.browser.find_element_by_xpath(flt_search_xpath)
-            flt_search.send_keys(filters[filter])
-            #почему-то приходится еще и кнопку нажать
-            flt_arrow_xpath = "//div[text()='{}']/parent::*//a[@role='button']".format(
-                filter)
-            self.wait_for_element_by_xpath(flt_arrow_xpath)
-            dep_arrow = self.browser.find_element_by_xpath(flt_arrow_xpath)
-            dep_arrow.click()
-            #и наконец кликаем нужное
-            flt_value_xpath = "//label[@title='{}']//input[@class='radio-item']".format(filters[filter])
-            self.wait_for_element_by_xpath(flt_value_xpath)
-            flt_value = self.browser.find_element_by_xpath(flt_value_xpath)
-            flt_value.click()
-
-    def wait_for_sheet_loaded(self):
-        div_loaded_xpath = "//div[@class='isLoaded']"
-        self.wait_for_element_by_xpath(div_loaded_xpath)
-        div_loaded = self.browser.find_element_by_xpath(div_loaded_xpath)
-
-        i = 0
-        while div_loaded.get_attribute("isLoaded") != "1":
-            print("waiting for loaded")
-            i += 1
-            if i > 20:
-                raise NameError('Лист не грузится')
-            time.sleep(.5)
-    """
-
     def open_sheet_list_node(self, node_label):
         focused_node_xpath = "//li[@aria-label='{}' and @role='treeitem' and contains(@class, 'dx-state-focused')]//div[contains(@class,'dx-item')]".format(
             node_label)
@@ -699,7 +658,7 @@ class NewVisitorTest(SimpleTestCase):
         while True:
             try:
                 element = self.browser.find_element_by_xpath(xpath)
-                return
+                return element
             except (AssertionError, WebDriverException) as e:
                 if time.time() - start_time > MAX_WAIT:
                     raise e
@@ -717,6 +676,8 @@ class Layout(object):
         #print("len(layout)", len(layouts))
         if len(layouts)>0:
             self.layout = layouts[-1]
+            self.layout_item_id = self.layout.get_attribute("idx")
+
             #print("self.layout", self.layout)
         else:
             raise NameError('Виджет не наден')

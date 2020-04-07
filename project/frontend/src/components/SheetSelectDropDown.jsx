@@ -85,6 +85,7 @@ export default class SheetSelectDropDown extends Component {
         return (
                 <TreeView
                     dataSource={this.state.sheetList}
+                    elementAttr={{"layoutitemid": this.props.layoutItemID}}
                     keyExpr={'id'}
                     selectionMode={'single'}
                     virtualModeEnabled={false}

@@ -1237,6 +1237,7 @@ export default class TableViewWithSelection extends Component {
                                                         <SheetSelectDropDown
                                                             onSelectNewSheet={this.loadNewSheet.bind(this)}
                                                             sheet={this.props.sheet}
+                                                            layoutItemID={this.props.layoutItemID}
                                                             />
                                                         );
                                                 }
