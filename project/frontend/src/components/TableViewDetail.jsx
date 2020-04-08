@@ -111,11 +111,14 @@ export default class TableViewDetail extends Component {
                 rowNode.setData(data_test);
 
                 this.setState({isLoaded:1});
+            })
+            .then(()=>{
+                if (this.props.updateParentCallback){
+                   this.props.updateParentCallback(this.props.additionalSheetParams.parent_id);
+                }
             });
 
-        if (this.props.updateParentCallback){
-            this.props.updateParentCallback(this.props.additionalSheetParams.parent_id);
-        }
+
     }
 
     render() {

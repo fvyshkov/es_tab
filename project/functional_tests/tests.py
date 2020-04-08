@@ -6,10 +6,13 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 TEST = "1.Бюджет Годовой"
 
-MAX_WAIT = 10
+MAX_WAIT = 20
 """
 запуск одного теста -  
 python manage.py test functional_tests.tests.NewVisitorTest.test_open_table_sheet_add_records
@@ -50,7 +53,51 @@ class NewVisitorTest(SimpleTestCase):
 
         self.assertEqual(sheet_layout.row_count(), row_count)
 
+    def _test_row(self):
+        for i in range(1,10):
+            self.test_detail()
 
+            #path = ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Детализация"]
+            #sheet_layout = self.open_sheet(path)
+
+            self.browser.quit()
+            self.browser = webdriver.Firefox()
+            self.live_server_url = 'http://127.0.0.1:8000/'
+            self.browser.get(self.live_server_url)
+
+
+    def test_multi_sheet(self):
+        print("test_multi_sheet")
+        """
+        Тестирование самих инструментов тестирования
+        открываем два листа ЗК, чистим, создаем записи в них, проверяем количество
+        """
+        try:
+            path = ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Детализация"]
+            filters = {"ЦФО и инвестиции": "ГО"}
+            sheet_layout1 = self.prepare_table_sheet(path, filters)
+
+            path = ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
+            filters = {"Плоскость планирования": "План", "ЦФО и инвестиции": "ГО"}
+
+            sheet_layout2 = self.prepare_table_sheet(path, filters)
+
+            sheet_layout1.sheet_insert()
+            sheet_layout2.sheet_insert()
+            sheet_layout1.sheet_insert()
+            sheet_layout2.sheet_insert()
+            sheet_layout1.sheet_insert()
+            sheet_layout2.sheet_insert()
+            sheet_layout1.sheet_insert()
+
+            sheet_layout1.wait_for_loaded()
+            sheet_layout2.wait_for_loaded()
+
+            self.assertEqual(sheet_layout1.row_count(), 4)
+            self.assertEqual(sheet_layout2.row_count(), 3)
+        except:
+            self.browser.quit()
+            raise
 
     def test_open_table_sheet_recalc(self):
         print("test_open_table_sheet_recalc")
@@ -110,39 +157,6 @@ class NewVisitorTest(SimpleTestCase):
             self.browser.quit()
             raise
 
-    def test_multi_sheet(self):
-        print("test_multi_sheet")
-        """
-        Тестирование самих инструментов тестирования
-        открываем два листа ЗК, чистим, создаем записи в них, проверяем количество
-        """
-        try:
-            path = ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Детализация"]
-            filters = {"ЦФО и инвестиции": "ГО"}
-            sheet_layout1 = self.prepare_table_sheet(path, filters)
-
-            path = ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
-            filters = {"Плоскость планирования": "План", "ЦФО и инвестиции": "ГО"}
-
-            sheet_layout2 = self.prepare_table_sheet(path, filters)
-
-            sheet_layout1.sheet_insert()
-            sheet_layout2.sheet_insert()
-            sheet_layout1.sheet_insert()
-            sheet_layout2.sheet_insert()
-            sheet_layout1.sheet_insert()
-            sheet_layout2.sheet_insert()
-            sheet_layout1.sheet_insert()
-
-            sheet_layout1.wait_for_loaded()
-            sheet_layout2.wait_for_loaded()
-
-            self.assertEqual(sheet_layout1.row_count(), 4)
-            self.assertEqual(sheet_layout2.row_count(), 3)
-        except:
-            self.browser.quit()
-            raise
-
     def test_detail(self):
         print("test_detail")
         """
@@ -175,21 +189,25 @@ class NewVisitorTest(SimpleTestCase):
 
             sheet_layout.sheet_insert()
             sheet_layout.update_cell(1, "Номер", "100501")
+            sheet_layout.wait_for_loaded()
 
             detail_layout.sheet_insert()
             detail_layout.update_cell(0, "Наименование", "Деталь 1")
             detail_layout.update_cell(0, "Сумма детали", "1")
+            detail_layout.wait_for_loaded()
+            sheet_layout.wait_for_loaded()
 
             detail_layout.sheet_insert()
             detail_layout.update_cell(1, "Наименование", "Деталь 2")
             detail_layout.update_cell(1, "Сумма детали", "2")
+            detail_layout.wait_for_loaded()
+            sheet_layout.wait_for_loaded()
 
             detail_layout.sheet_insert()
             detail_layout.update_cell(2, "Наименование", "Деталь 3")
             detail_layout.update_cell(2, "Сумма детали", "3")
-
-            sheet_layout.wait_for_loaded()
             detail_layout.wait_for_loaded()
+            sheet_layout.wait_for_loaded()
 
             #проверки
             #1. сумма по записи 1 = 6
@@ -400,14 +418,15 @@ class NewVisitorTest(SimpleTestCase):
         sheet_layout.setup_sheet_filters(filters)
         sheet_layout.refresh_sheet()
         print("prepare_table_sheet 001")
-        max_count = 100
+        max_count = 30
         count = 0
         while sheet_layout.row_count()>0:
             count += 1
             if count > max_count:
                 raise NameError("Слишком много попыток удаления")
-            print("prepare_table_sheet 002")
+            #print("prepare_table_sheet 002")
             sheet_layout.sheet_delete_first()
+            sheet_layout.wait_for_loaded()
             time.sleep(.3)
         return sheet_layout
 
@@ -428,195 +447,23 @@ class NewVisitorTest(SimpleTestCase):
         node_xpath = "//div[contains(@class, 'dx-treeview') and @layoutitemid='{}']//li[@aria-label='{}' ]/div[contains(@class,'dx-item')]".format(
             sheet_layout.layout_item_id, path[0])
         self.wait_for_element_by_xpath(node_xpath)
-        print("Дерево загрузилось")
 
-        focused_on_sheet_tree = False
+        print("Справочник листов загрузился")
 
-        start_time = time.time()
-        while not focused_on_sheet_tree:
-            try:
-                print("Ищем элемент дерева с фокусом на нем")
-                self.browser.find_element_by_xpath("//li[@role='treeitem' and contains(@class, 'dx-state-focused')]//div[contains(@class,'dx-item')]")
-                focused_on_sheet_tree = True
-                print("НАШЛИ элемент дерева с фокусом на нем")
-            except:
-                if time.time() - start_time > 20:
-                    raise
-                print("не НАШЛИ элемент дерева с фокусом на нем, жмем TAB")
-                ActionChains(self.browser).send_keys(Keys.TAB).perform()
-                time.sleep(.2)
 
         sheet_name = path[-1]
         for node in path:
             if node!=sheet_name:
-                self.open_sheet_list_node(node)
+                sheet_layout.open_sheet_list_node(node)
 
-        sheet_xpath = "//span[text()='{}']".format(sheet_name)
-        sheet = sheet_layout.wait_for_element_by_xpath(sheet_xpath)
 
-        print("sheet", sheet)
-        clicked = False
+        sheet_xpath = "//div[contains(@class, 'dx-treeview') and @layoutitemid='{}']//li[@aria-label='{}' and @role='treeitem']/div[contains(@class,'dx-item')]".format(sheet_layout.layout_item_id, sheet_name)
 
-        import sys
-        while not clicked:
-            try:
-                ActionChains(self.browser).send_keys(Keys.ARROW_DOWN).perform()
-                focused_sheet_xpath = "//li[@aria-label='{}' and @role='treeitem' and contains(@class, 'dx-state-focused')]/div[contains(@class,'dx-item')]".format(
-                    sheet_name)
-                focused_sheet = self.browser.find_element_by_xpath(focused_sheet_xpath)
-                print("got focused sheet!", focused_sheet)
-                ActionChains(self.browser).send_keys(Keys.ENTER).perform()
-                clicked = True
-                time.sleep(.2)
-            except:
-                pass
-                print("Unexpected error:", sys.exc_info()[1])
-
+        sheet = self.browser.find_element_by_xpath(sheet_xpath)
+        ActionChains(self.browser).move_to_element(sheet).perform()
+        sheet.click()
         sheet_layout.wait_for_loaded()
-        print("Открыли лист, путь", path)
         return sheet_layout
-
-
-    def update_cell(self, row_index, column_name, cell_value):
-        cell = self.find_cell(row_index, column_name)
-        cell_is_refer = self.cell_is_refer(cell)
-        cell = self.find_cell(row_index, column_name)
-
-        if cell_is_refer:
-            cell.send_keys(Keys.ENTER)
-            selected_item_xpath="//div[contains(@class,'dx-item')]//span[text()='{}']".format(cell_value)
-            self.wait_for_element_by_xpath(selected_item_xpath)
-            item = self.browser.find_element_by_xpath(selected_item_xpath)
-            item.click()
-        else:
-            cell.send_keys(cell_value)
-            cell.send_keys(Keys.ENTER)
-
-
-    def row_count(self):
-        return int(self.status_bar_value("Строк"))
-
-    def status_bar_value(self, name):
-        self.wait_for_sheet_loaded()
-        xpath = "//div[contains(@class,'ag-status-bar')]\
-                                    //span[@ref='eLabel' and text()='{}']\
-                                    /parent::*/span[@ref='eValue']".format(name)
-        return self.browser.find_element_by_xpath(xpath).text
-
-    def focus_on_first_cell(self):
-        first_cell_xpath = "//div[@class='cell-wrapper']/parent::*"
-        self.wait_for_element_by_xpath(first_cell_xpath)
-        cell = self.browser.find_element_by_xpath(first_cell_xpath)
-        selected = False
-        while not selected:
-            try:
-                cell.click()
-                selected = True
-            except:
-                print("waiting for first cell")
-                time.sleep(.1)
-
-                self.wait_for_element_by_xpath(first_cell_xpath)
-                cell = self.browser.find_element_by_xpath(first_cell_xpath)
-
-        for i in range(0,20):
-            ActionChains(self.browser).key_down(Keys.ARROW_LEFT).perform()
-
-    def find_cell(self, row_index, column_name):
-
-        # скроллим грид пока не найдем соответствующую колонку
-        header_cell_xpath = "//span[@class='ag-header-cell-text' and text()='{}' and @role='columnheader']".format(column_name)
-        column_found = False
-        self.focus_on_first_cell()
-
-        while not column_found:
-            try:
-                span = self.browser.find_element_by_xpath(header_cell_xpath)
-                column_found = True
-            except:
-                ActionChains(self.browser).key_down(Keys.ARROW_RIGHT).perform()
-                time.sleep(.1)
-                print("looking fo column {}".format(column_name))
-
-
-
-
-
-        header_cell_xpath = "//div[contains(@class,'ag-header-cell')]//span[@class='ag-header-cell-text' and text()='{}' and @role='columnheader']//ancestor::div[contains(@class,'ag-header-cell') and contains(@col-id,'C')]".format(column_name)
-        self.wait_for_element_by_xpath(header_cell_xpath)
-        header_cell = self.browser.find_element_by_xpath(header_cell_xpath)
-        print("col-id", header_cell.get_attribute("col-id"))
-        cell_xpath = "//div[contains(@class,'ag-row') and @row-index='{}']//div[contains(@class,'ag-cell') and @col-id='{}']".format(str(row_index), header_cell.get_attribute("col-id"))
-
-        self.wait_for_element_by_xpath(cell_xpath)
-        cell = self.browser.find_element_by_xpath(cell_xpath)
-
-        selected = False
-        while not selected:
-            try:
-                cell.click()
-                selected = True
-            except:
-                time.sleep(.1)
-                self.wait_for_element_by_xpath(cell_xpath)
-                cell = self.browser.find_element_by_xpath(cell_xpath)
-                #cell = self.find_cell(row_index, column_name)
-
-        return cell
-
-    def cell_is_refer(self, cell):
-        try:
-            if cell.find_element_by_xpath(".//div[@class='text-cell' and @refer='1']"):
-                return True
-        except:
-            return False
-
-
-    def sheet_delete_first(self):
-        cells_xpath = "//div[contains(@class, 'ag-row')]//div[contains(@class, 'ag-cell')]"
-        cells = self.browser.find_elements_by_xpath(cells_xpath)
-        if len(cells) > 0:
-            selected = False
-            while not selected:
-                try:
-                    cells[0].click()
-                    selected = True
-                except:
-                    time.sleep(.1)
-                    cells = self.browser.find_elements_by_xpath(cells_xpath)
-                    print("wait for cell")
-
-
-            sheet_delete = self.browser.find_element_by_id("view_delete")
-            sheet_delete.click()
-
-            return 1
-
-        return 0
-
-    def open_sheet_list_node(self, node_label):
-        focused_node_xpath = "//li[@aria-label='{}' and @role='treeitem' and contains(@class, 'dx-state-focused')]//div[contains(@class,'dx-item')]".format(
-            node_label)
-
-        start_time = time.time()
-        max_count = 100
-        try_count = 0
-        while True:
-            try:
-
-                self.browser.find_element_by_xpath(focused_node_xpath)
-                print("FOUND", focused_node_xpath)
-                ActionChains(self.browser).send_keys(Keys.ARROW_RIGHT).perform()
-                return
-            except (AssertionError, WebDriverException) as e:
-                try_count += 1
-                if try_count > max_count:
-                    raise e
-                print("wait before arrow down", focused_node_xpath)
-                time.sleep(.3)
-                ActionChains(self.browser).send_keys(Keys.ARROW_DOWN).perform()
-
-
 
     def expand_tree_node(self, node_name):
         cell_xpath = "//span[text()='"+ node_name +"']"
@@ -668,19 +515,12 @@ class Layout(object):
     def __init__(self, browser, layout_type):
         self.browser = browser
         xpath = "//div[@layoutitemtype='{}' and contains(@class, 'LayoutItem')]".format(layout_type)
-        #self.layout = self.browser.find_element_by_xpath(xpath)
-
         layouts = self.browser.find_elements_by_xpath(xpath)
-        #print("len(layout)", len(layouts))
         if len(layouts)>0:
             self.layout = layouts[-1]
             self.layout_item_id = self.layout.get_attribute("idx")
-
-            #print("self.layout", self.layout)
         else:
             raise NameError('Виджет не наден')
-
-
 
 
     def wait_for_element_by_xpath(self, xpath):
@@ -727,7 +567,6 @@ class Layout(object):
 
         header_cell_xpath = ".//div[contains(@class,'ag-header-cell')]//span[@class='ag-header-cell-text' and text()='{}' and @role='columnheader']//ancestor::div[contains(@class,'ag-header-cell') and contains(@col-id,'C')]".format(column_name)
         header_cell = self.wait_for_element_by_xpath(header_cell_xpath)
-        #print("col-id", header_cell.get_attribute("col-id"))
         cell_xpath = ".//div[contains(@class,'ag-row') and @row-index='{}']//div[contains(@class,'ag-cell') and @col-id='{}']".format(str(row_index), header_cell.get_attribute("col-id"))
 
         cell = self.wait_for_element_by_xpath(cell_xpath)
@@ -785,18 +624,11 @@ class Layout(object):
 
 
     def wait_for_loaded(self):
-        #чуть-чуть подлождем, а то есть вероятность что флаг  isLoaded=0 не успеет сброситься
         time.sleep(1)
-        div_loaded_xpath = ".//div[@class='isLoaded']"
-        div_loaded = self.wait_for_element_by_xpath(div_loaded_xpath)
+        is_loaded_xpath = ".//div[contains(@class, 'LayoutItem') and @idx='{}']//div[@class='isLoaded' and @isloaded='1']".format(
+            self.layout_item_id)
+        WebDriverWait(self.browser, MAX_WAIT).until(EC.presence_of_element_located((By.XPATH, is_loaded_xpath)))
 
-        i = 0
-        while div_loaded.get_attribute("isLoaded") != "1":
-            print("waiting for loaded")
-            i += 1
-            if i > 20:
-                raise NameError('Лист не грузится')
-            time.sleep(.5)
 
     def setup_sheet_filters(self, filters):
         print("Устанавливаем аналитики", filters)
@@ -877,5 +709,15 @@ class Layout(object):
         return 0
 
     def sheet_insert(self):
-        insert_btn = self.layout.find_element_by_id("view_insert")
-        insert_btn.click()
+        ins_xpath = ".//div[contains(@class, 'LayoutItem') and @idx='{}']//div[@id='view_insert']".format(self.layout_item_id)
+        element = WebDriverWait(self.browser, MAX_WAIT).until(EC.element_to_be_clickable((By.XPATH, ins_xpath)))
+        element.click()
+
+    def open_sheet_list_node(self, node_label):
+        node_img_xpath = "//div[contains(@class, 'dx-treeview') and @layoutitemid='{}']//li[@aria-label='{}' and @role='treeitem']//div[contains(@class,'dx-treeview-toggle-item-visibility')]".format(
+            self.layout_item_id,  node_label)
+        node_img = WebDriverWait(self.browser, MAX_WAIT).until(EC.presence_of_element_located((By.XPATH, node_img_xpath)))
+        ActionChains(self.browser).move_to_element(node_img).perform()
+        #after scroll can be stale, so renew -
+        node_img = WebDriverWait(self.browser, MAX_WAIT).until(EC.presence_of_element_located((By.XPATH, node_img_xpath)))
+        node_img.click()
