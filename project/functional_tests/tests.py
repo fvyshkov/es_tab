@@ -66,6 +66,65 @@ class NewVisitorTest(SimpleTestCase):
             self.browser.get(self.live_server_url)
 
 
+    def test_colors_table_sheet(self):
+        print("test_colors_table_sheet")
+
+        """
+        test_colors_table_sheet
+        """
+        try:
+            path = ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
+            filters =  {}#{"Плоскость планирования": "План", "ЦФО и инвестиции": "ГО"}
+
+            sheet_layout = self.prepare_table_sheet(path, filters)
+
+            sheet_layout.sheet_insert()
+            sheet_layout.wait_for_loaded()
+
+            colors = {
+                        "Запрет редактирования": [161, 162, 163],
+                        "Ручной ввод": [241, 242, 243],
+                        "Аналитики": [61, 62, 63]
+                    }
+
+            sheet_layout.update_colors(colors)
+
+
+            sheet_layout.refresh_sheet()
+
+            cell = sheet_layout.find_cell(0, "Стоимость, год")
+            color_text = cell.value_of_css_property("background-color")
+            color_rgb = color_text[color_text.find("(") + 1:color_text.find(")")].split(',')
+            del color_rgb[-1]
+            color_rgb = [int(x) for x in color_rgb]
+            #print("Запрет редактирования", color_rgb)
+
+            self.assertEqual(colors["Запрет редактирования"], color_rgb)
+
+
+            cell = sheet_layout.find_cell(0, "Плоскость планирования")
+            color_text = cell.value_of_css_property("background-color")
+            color_rgb = color_text[color_text.find("(") + 1:color_text.find(")")].split(',')
+            del color_rgb[-1]
+            color_rgb = [int(x) for x in color_rgb]
+            #print("Аналитики", color_rgb)
+
+            self.assertEqual(colors["Аналитики"], color_rgb)
+
+            cell = sheet_layout.find_cell(0, "Класс")
+            color_text = cell.value_of_css_property("background-color")
+            color_rgb = color_text[color_text.find("(") + 1:color_text.find(")")].split(',')
+            del color_rgb[-1]
+            color_rgb = [int(x) for x in color_rgb]
+            #print("Ручной ввод", color_rgb)
+
+            self.assertEqual(colors["Ручной ввод"], color_rgb)
+
+        except:
+            self.browser.quit()
+            raise
+
+
     def test_multi_sheet(self):
         print("test_multi_sheet")
         """
@@ -417,17 +476,16 @@ class NewVisitorTest(SimpleTestCase):
         sheet_layout = self.open_sheet(path)
         sheet_layout.setup_sheet_filters(filters)
         sheet_layout.refresh_sheet()
-        print("prepare_table_sheet 001")
         max_count = 30
         count = 0
         while sheet_layout.row_count()>0:
             count += 1
             if count > max_count:
                 raise NameError("Слишком много попыток удаления")
-            #print("prepare_table_sheet 002")
             sheet_layout.sheet_delete_first()
             sheet_layout.wait_for_loaded()
-            time.sleep(.3)
+            time.sleep(.2)
+
         return sheet_layout
 
     def open_sheet(self, path):
@@ -465,12 +523,6 @@ class NewVisitorTest(SimpleTestCase):
         sheet_layout.wait_for_loaded()
         return sheet_layout
 
-    def expand_tree_node(self, node_name):
-        cell_xpath = "//span[text()='"+ node_name +"']"
-        self.wait_for_element_by_xpath(cell_xpath)
-        cell = self.browser.find_element_by_xpath(cell_xpath)
-        cell.click()
-        ActionChains(self.browser).send_keys(Keys.ENTER).perform()
 
     def wait_for_element_by_id(self, element_id):
         start_time = time.time()
@@ -565,7 +617,7 @@ class Layout(object):
 
 
 
-        header_cell_xpath = ".//div[contains(@class,'ag-header-cell')]//span[@class='ag-header-cell-text' and text()='{}' and @role='columnheader']//ancestor::div[contains(@class,'ag-header-cell') and contains(@col-id,'C')]".format(column_name)
+        header_cell_xpath = ".//div[contains(@class,'ag-header-cell')]//span[@class='ag-header-cell-text' and text()='{}' and @role='columnheader']//ancestor::div[contains(@class,'ag-header-cell') and (contains(@col-id,'C') or contains(@col-id,'FLT')  )]".format(column_name)
         header_cell = self.wait_for_element_by_xpath(header_cell_xpath)
         cell_xpath = ".//div[contains(@class,'ag-row') and @row-index='{}']//div[contains(@class,'ag-cell') and @col-id='{}']".format(str(row_index), header_cell.get_attribute("col-id"))
 
@@ -671,9 +723,13 @@ class Layout(object):
             btn.click()
 
     def refresh_sheet(self):
-        refresh_xpath = ".//div[@aria-label='refresh']"
-        refresh = self.wait_for_element_by_xpath(refresh_xpath)
-        refresh.click()
+        #refresh_xpath = ".//div[@aria-label='refresh']"
+        #refresh = self.wait_for_element_by_xpath(refresh_xpath)
+
+        refresh = WebDriverWait(self.browser, MAX_WAIT).until(
+            EC.element_to_be_clickable((By.XPATH, "//div[contains(@class, 'LayoutItem') and @idx='{}']//div[@aria-label='refresh']".format(self.layout_item_id))))
+        #refresh.click()
+        self.browser.execute_script("arguments[0].click();", refresh)
         self.wait_for_loaded()
 
     def row_count(self):
@@ -709,8 +765,13 @@ class Layout(object):
         return 0
 
     def sheet_insert(self):
-        ins_xpath = ".//div[contains(@class, 'LayoutItem') and @idx='{}']//div[@id='view_insert']".format(self.layout_item_id)
+        ins_xpath = "//div[contains(@class, 'LayoutItem') and @idx='{}']//div[@id='view_insert']".format(self.layout_item_id)
         element = WebDriverWait(self.browser, MAX_WAIT).until(EC.element_to_be_clickable((By.XPATH, ins_xpath)))
+        element.click()
+
+    def sheet_colors(self):
+        btn_xpath = "//div[contains(@class, 'LayoutItem') and @idx='{}']//div[@id='view_color']".format(self.layout_item_id)
+        element = WebDriverWait(self.browser, MAX_WAIT).until(EC.element_to_be_clickable((By.XPATH, btn_xpath)))
         element.click()
 
     def open_sheet_list_node(self, node_label):
@@ -721,3 +782,53 @@ class Layout(object):
         #after scroll can be stale, so renew -
         node_img = WebDriverWait(self.browser, MAX_WAIT).until(EC.presence_of_element_located((By.XPATH, node_img_xpath)))
         node_img.click()
+        
+    def update_colors(self, colors):
+
+        self.sheet_colors()
+
+        for color in colors:
+            print("color", color)
+            color_btn_xpath = "//div[@class='dx-field-label' and text()='{}']/parent::*//div[@role='button' and @aria-label='Select']".format(
+                color)
+            color_btn = WebDriverWait(self.browser, MAX_WAIT).until(
+                EC.element_to_be_clickable((By.XPATH, color_btn_xpath)))
+            print("color_btn", color_btn)
+            color_btn.click()
+
+
+
+            color_code_xpath = "(//div[@aria-label='Red']//input[@type='text'])[last()]"
+            color_code = WebDriverWait(self.browser, MAX_WAIT).until(
+                EC.element_to_be_clickable((By.XPATH, color_code_xpath)))
+            color_code.click()
+            for i in range(0, 3):
+                color_code.send_keys(Keys.BACKSPACE)
+            color_code.send_keys(colors[color][0])
+            color_code.send_keys(Keys.TAB)
+
+            color_code_xpath = "(//div[@aria-label='Green']//input[@type='text'])[last()]"
+            color_code = WebDriverWait(self.browser, MAX_WAIT).until(
+                EC.element_to_be_clickable((By.XPATH, color_code_xpath)))
+            color_code.click()
+            for i in range(0, 3):
+                color_code.send_keys(Keys.BACKSPACE)
+            color_code.send_keys(colors[color][1])
+            color_code.send_keys(Keys.TAB)
+
+            color_code_xpath = "(//div[@aria-label='Blue']//input[@type='text'])[last()]"
+            color_code = WebDriverWait(self.browser, MAX_WAIT).until(
+                EC.element_to_be_clickable((By.XPATH, color_code_xpath)))
+            color_code.click()
+            for i in range(0, 3):
+                color_code.send_keys(Keys.BACKSPACE)
+            color_code.send_keys(colors[color][2])
+            color_code.send_keys(Keys.TAB)
+
+            WebDriverWait(self.browser, MAX_WAIT).until(
+                EC.element_to_be_clickable((By.XPATH, "(//span[@class='dx-button-text' and text()='OK'])[last()]"))).click()
+
+        WebDriverWait(self.browser, MAX_WAIT).until(EC.element_to_be_clickable(
+            (By.XPATH, "//div[contains(@class, 'dx-popup-wrapper')]//div[@aria-label='save']"))).click()
+        WebDriverWait(self.browser, MAX_WAIT).until(EC.element_to_be_clickable(
+            (By.XPATH, "//div[contains(@class, 'dx-popup-wrapper')]//div[@aria-label='close']"))).click()
