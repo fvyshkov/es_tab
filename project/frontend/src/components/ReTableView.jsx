@@ -60,6 +60,19 @@ export default class ReTableView extends Component {
     }
 
 
+    onSendInsertRecord(newRows, api){
+        console.log("reTableView onSendInsertRecord", newRows);
+        if (newRows && newRows.length>0){
+            api.updateRowData({ add: newRows });
+            var rowNode = api.getRowNode(newRows[0].node_key);
+            var data_test = newRows[0];
+            var columns = newRows[0]['column_data'];
+            for (var i=0; i< columns.length; i++){
+                data_test[columns[i]['key']] = columns[i]['sql_value']
+            }
+            rowNode.setData(data_test);
+        }
+    }
 
     componentDidMount(){
         if (this.props.sendLoadAll){
@@ -68,6 +81,10 @@ export default class ReTableView extends Component {
 
         if (this.props.sendNewFilterNodes){
             this.props.sendNewFilterNodes(this.onLoadFilterNodes.bind(this));
+        }
+
+        if (this.props.sendInsertRecord){
+            this.props.sendInsertRecord(this.onSendInsertRecord.bind(this));
         }
 
 

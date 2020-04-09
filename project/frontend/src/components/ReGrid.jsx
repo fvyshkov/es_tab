@@ -509,6 +509,7 @@ export default class ReGrid extends React.Component {
     }
 
     sendDeleteRecord(){
+        console.log("regrid sendDeleteRecord");
         this.gridApi.updateRowData({ remove: [this.gridApi.getDisplayedRowAtIndex(this.gridApi.getFocusedCell().rowIndex).data] });
     }
 

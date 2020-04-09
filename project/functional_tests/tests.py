@@ -59,7 +59,6 @@ class NewVisitorTest(SimpleTestCase):
             self.test_detail()
 
             #path = ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Детализация"]
-            #sheet_layout = self.open_sheet(path)
 
             self.browser.quit()
             self.browser = webdriver.Firefox()
@@ -96,6 +95,47 @@ class NewVisitorTest(SimpleTestCase):
         sheet_layout.wait_for_loaded()
 
         return sheet_layout
+
+    def test_sheet_after_desktop(self):
+        """
+        после загрузки десктопа
+        ЗАНОВО открываем лист (в этом примере тот же, хотя лучше будет сделать пример с другим)
+        и выполняем проверки из другого теста - удаление, добавление, работа формул
+        """
+
+        sheet_layout = self.test_create_and_open_desktop()
+        sheet_layout.open_sheet(["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"])
+        sheet_layout.delete_all()
+
+        sheet_layout.sheet_insert()
+        sheet_layout.wait_for_loaded()
+        sheet_layout.update_cell(0, "Арендодатель", "ООО тест 1")
+        sheet_layout.update_cell(0, "Класс", "Класс А")
+        sheet_layout.update_cell(0, "Площадь, кв.м.", "1")
+
+        sheet_layout.sheet_insert()
+        sheet_layout.wait_for_loaded()
+        sheet_layout.update_cell(1, "Арендодатель", "ООО тест 2")
+        sheet_layout.update_cell(1, "Класс", "Класс Б")
+        sheet_layout.update_cell(1, "Площадь, кв.м.", "1")
+
+        sheet_layout.sheet_insert()
+        sheet_layout.wait_for_loaded()
+        sheet_layout.update_cell(2, "Арендодатель", "ООО тест 3")
+        sheet_layout.update_cell(2, "Класс", "Класс С")
+        sheet_layout.update_cell(2, "Площадь, кв.м.", "1")
+
+        cell1 = sheet_layout.find_cell(0, "Ежемесячные расходы")
+
+        # пока не умеем зажав шифт ткнуть в  произвольную клетку (из-за необходимости перейти в начало грида для поиска клетки)
+        # поэтому такое неаккуратное выделение области стрелками
+        ActionChains(self.browser).click(cell1).perform()
+        ActionChains(self.browser).key_down(Keys.SHIFT).perform()
+        ActionChains(self.browser).send_keys(Keys.ARROW_DOWN).perform()
+        ActionChains(self.browser).send_keys(Keys.ARROW_DOWN).perform()
+        ActionChains(self.browser).key_up(Keys.SHIFT).perform()
+
+        self.assertEqual(float(sheet_layout.status_bar_value("Сумма")), 850)
 
     def test_colors_after_desktop(self):
         """
@@ -547,22 +587,15 @@ class NewVisitorTest(SimpleTestCase):
         Если есть записи - удаляем их одну за другой
         возвращаем Layout для данного виджета
         """
-        sheet_layout = self.open_sheet(path)
+        sheet_layout = self.open_new_sheet(path)
         sheet_layout.setup_sheet_filters(filters)
         sheet_layout.refresh_sheet()
-        max_count = 30
-        count = 0
-        while sheet_layout.row_count()>0:
-            count += 1
-            if count > max_count:
-                raise NameError("Слишком много попыток удаления")
-            sheet_layout.sheet_delete_first()
-            sheet_layout.wait_for_loaded()
-            time.sleep(.2)
+        sheet_layout.delete_all()
 
         return sheet_layout
 
-    def open_sheet(self, path):
+
+    def open_new_sheet(self, path):
         #открыли виджет
         add_sheet_button_id = 'add_layout_sheet_item'
         self.wait_for_element_by_id(add_sheet_button_id)
@@ -570,31 +603,9 @@ class NewVisitorTest(SimpleTestCase):
         add_sheet_button.send_keys(Keys.ENTER)
 
         sheet_layout = Layout(self.browser, "TableViewWithSelection")
-
-        #справочник листов
-        sheet_select_id = "sheet_select_dropdown"
-        sheet_select = sheet_layout.wait_for_element_by_id(sheet_select_id)
-        sheet_select.click()
-
-        node_xpath = "//div[contains(@class, 'dx-treeview') and @layoutitemid='{}']//li[@aria-label='{}' ]/div[contains(@class,'dx-item')]".format(
-            sheet_layout.layout_item_id, path[0])
-        self.wait_for_element_by_xpath(node_xpath)
-
-        print("Справочник листов загрузился")
+        sheet_layout.open_sheet(path)
 
 
-        sheet_name = path[-1]
-        for node in path:
-            if node!=sheet_name:
-                sheet_layout.open_sheet_list_node(node)
-
-
-        sheet_xpath = "//div[contains(@class, 'dx-treeview') and @layoutitemid='{}']//li[@aria-label='{}' and @role='treeitem']/div[contains(@class,'dx-item')]".format(sheet_layout.layout_item_id, sheet_name)
-
-        sheet = self.browser.find_element_by_xpath(sheet_xpath)
-        ActionChains(self.browser).move_to_element(sheet).perform()
-        sheet.click()
-        sheet_layout.wait_for_loaded()
         return sheet_layout
 
 
@@ -907,3 +918,41 @@ class Layout(object):
             (By.XPATH, "//div[contains(@class, 'dx-popup-wrapper')]//div[@aria-label='save']"))).click()
         WebDriverWait(self.browser, MAX_WAIT).until(EC.element_to_be_clickable(
             (By.XPATH, "//div[contains(@class, 'dx-popup-wrapper')]//div[@aria-label='close']"))).click()
+
+    def open_sheet(self, path):
+
+        #справочник листов
+        sheet_select_id = "sheet_select_dropdown"
+        sheet_select = self.wait_for_element_by_id(sheet_select_id)
+        sheet_select.click()
+
+        node_xpath = "//div[contains(@class, 'dx-treeview') and @layoutitemid='{}']//li[@aria-label='{}' ]/div[contains(@class,'dx-item')]".format(
+            self.layout_item_id, path[0])
+        self.wait_for_element_by_xpath(node_xpath)
+
+        print("Справочник листов загрузился")
+
+
+        sheet_name = path[-1]
+        for node in path:
+            if node!=sheet_name:
+                self.open_sheet_list_node(node)
+
+
+        sheet_xpath = "//div[contains(@class, 'dx-treeview') and @layoutitemid='{}']//li[@aria-label='{}' and @role='treeitem']/div[contains(@class,'dx-item')]".format(self.layout_item_id, sheet_name)
+
+        sheet = self.browser.find_element_by_xpath(sheet_xpath)
+        ActionChains(self.browser).move_to_element(sheet).perform()
+        sheet.click()
+        self.wait_for_loaded()
+
+    def delete_all(self):
+        max_count = 30
+        count = 0
+        while self.row_count()>0:
+            count += 1
+            if count > max_count:
+                raise NameError("Слишком много попыток удаления (>{})".format(max_count))
+            self.sheet_delete_first()
+            self.wait_for_loaded()
+            time.sleep(.2)

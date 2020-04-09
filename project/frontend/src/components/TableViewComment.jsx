@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ReTableView from './ReTableView.jsx';
 import commentDatasource from './commentDatasource.js';
 import CommentPanel from './CommentPanel.jsx';
-import {sendRequest} from './App.js';
+import {sendRequestPromise} from './App.js';
 
 export default class TableViewComment extends Component {
     constructor(props) {
@@ -67,7 +67,11 @@ export default class TableViewComment extends Component {
         httpRequest += '&skey=' + this.props.additionalSheetParams.skey;
         httpRequest += '&prim=' + this.state.currentComment.prim;
         httpRequest += '&fileids=' + this.state.currentComment.fileIds.replace(/(^,)|(,$)/g, "");
-        sendRequest(httpRequest, ()=> {this.gridApi.purgeServerSideCache();},'POST',{});
+        sendRequestPromise(httpRequest)
+            .then((newRows)=>{
+                this.sendInsertRecord(newRows, this.gridApi);
+                this.setState({itemPanelVisible: false});
+            });
     }
 
     onFileValueChanged(e){
@@ -96,8 +100,14 @@ export default class TableViewComment extends Component {
         return httpStr;
     }
 
+    sendDeleteRecord(){
+
+    }
+
     onDeleteCallback(){
-        sendRequestPromise('delete_comment/?proc_id=' + data.proc_id + '&njrn=' + data.njrn,'POST',{});
+        var dataForDelete = this.gridApi.getDisplayedRowAtIndex(this.gridApi.getFocusedCell().rowIndex).data;
+        sendRequestPromise('delete_comment/?proc_id=' + dataForDelete.proc_id + '&njrn=' + dataForDelete.njrn,'POST',{})
+            .then(()=>{this.sendDeleteRecord()});
     }
 
     onGetGridApi(gridApi){
@@ -113,6 +123,12 @@ export default class TableViewComment extends Component {
                         price: 220,
                         icon: 'download'}];
         return items;
+    }
+
+
+    onGetGridApi(gridApi){
+        this.gridApi = gridApi;
+        console.log('tableViewComments onGetGridApi', this.gridApi);
     }
 
     render() {
@@ -137,6 +153,8 @@ export default class TableViewComment extends Component {
                     getDatasource={commentDatasource.bind(this)}
                     onInsertCallback={this.onInsertCallback.bind(this)}
                     onDeleteCallback={this.onDeleteCallback.bind(this)}
+                    sendDeleteRecord={click => this.sendDeleteRecord = click}
+                    sendInsertRecord={click => this.sendInsertRecord = click}
                     onCellFocused={this.onCellFocused.bind(this)}
                     onGetGridApi={this.onGetGridApi.bind(this)}
                     getDataRequestString={this.getDataRequestString.bind(this)}

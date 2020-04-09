@@ -210,23 +210,10 @@ export default class TableViewWithSelection extends Component {
     onInsertCallback(){
         if (this.state.sheet_id){
             this.setState({isLoaded:0});
-
             sendRequestPromise('insert_record/?sht_id='+this.state.sheet_id+'&skey='+ getFilterSkey(this.state.filterNodes),'POST',{})
                 .then((newRows)=>{
-
-                    this.gridApi.updateRowData({ add: newRows });
-
-                    var rowNode = this.gridApi.getRowNode(newRows[0].id);
-                    var data_test = newRows[0];
-                    var columns = newRows[0]['column_data'];
-                    for (var i=0; i< columns.length; i++){
-                        console.log('column', columns[i])
-                        data_test[columns[i]['key']] = columns[i]['sql_value']
-                    }
-                    rowNode.setData(data_test);
-
+                    this.sendInsertRecord(newRows, this.gridApi);
                     this.setState({isLoaded:1});
-
                 });
         }
     }
@@ -1223,6 +1210,7 @@ export default class TableViewWithSelection extends Component {
                     onDeleteCallback={this.onDeleteCallback.bind(this)}
                     onGetGridApi={this.onGetGridApi.bind(this)}
                     sendDeleteRecord={click => this.sendDeleteRecord = click}
+                    sendInsertRecord={click => this.sendInsertRecord = click}
                     additionalToolbarItem={()=>{return(
                                                         <SheetSelectDropDown
                                                             onSelectNewSheet={this.loadNewSheet.bind(this)}

@@ -224,7 +224,7 @@ def get_comments_list(ind_id, skey):
                         from
                         (
                         select 
-                        rownum com_id,
+                        c.njrn com_id,
                          c.*,
                           (select C_PKGESSHEET.FGETSHEETPATH(i.sht_id,'1') 
                            from c_es_ver_sheet_ind i where id = c.ind_id) sht_path,
@@ -247,6 +247,8 @@ def get_comments_list(ind_id, skey):
                             """,
                         [ind_id, skey])
     for row in res:
+        row['node_key'] = row.get("com_id")
+        row['hie_path'] = [row.get("com_id")]
         column_data = []
 
         cell ={}
@@ -371,11 +373,41 @@ def insert_comment(request):
     cell_type = param_dict.get('cell_type', [''])[0]
     fids = param_dict.get('fileids', [''])[0]
 
-    with connection.cursor() as cursor:
-        cursor.execute("begin c_pkgconnect.popen(); "
-                       " C_PKGESSHEET.pAddCellComment(%s, %s, %s, %s, %s); " 
-                       " end; ",
-                       [ind_id, skey, prim, cell_type, fids])
+
+    connection = get_oracle_connection()
+    cursor = connection.cursor()
+    com_id_prm = cursor.var(int)
+    cursor.execute("""declare
+                         p_ind_id number := :1;
+                          p_skey varchar2(250) := :2;
+                          p_prim varchar2(250) := :3;
+                          p_cell_type char(1) := :4;
+                          p_fids varchar2(250) := :5;
+                          nNJRN number;
+                          nsht_id  number := c_pkgessheet.fGetSheetByInd(p_ind_id);
+                    begin 
+                        c_pkgconnect.popen(); 
+                        C_PKGESSHEET.pAddCellComment(p_ind_id, p_skey, p_prim, p_cell_type, p_fids);
+                        
+                        select max(njrn)
+                        into nNJRN
+                        from C_ES_SHT_VAL_COMMENT
+                        where   ind_id = p_ind_id
+                        and skey = C_PKGESCALC.fNormalizeKey(nsht_id, c_pkgescalc.fRemoveIndFlt(nsht_id, p_skey));
+                    
+                        :6:=nNJRN;
+                        
+                        commit;
+                    end; """,
+                   [ind_id, skey, prim, cell_type, fids, com_id_prm])
+
+    comments = get_comments_list(ind_id, skey)
+    print("com_id = ", com_id_prm.getvalue())
+    for comment in comments:
+        print("list id = ", comment.get('com_id'))
+
+        if comment.get('com_id') == com_id_prm.getvalue():
+            return JsonResponse([comment], safe=False)
 
     return JsonResponse([], safe=False)
 
@@ -545,7 +577,7 @@ def update_tree_record(request):
 
     return JsonResponse([], safe=False)
 
-def add_table_record(request):
+def insert_table_record(request):
     param_dict = dict(request.GET)
     data = json.loads(request.body.decode("utf-8"))
     sht_id = param_dict.get('sht_id', [''])[0]
