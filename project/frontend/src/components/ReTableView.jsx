@@ -76,6 +76,10 @@ export default class ReTableView extends Component {
             this.setState({filterNodes: this.props.filterNodes});
         }
 
+        if (this.props.sheet){
+            this.setState({sheet_id: this.props.sheet.id});
+        }
+
         if (this.props.onLayoutContentChange && this.props.sheet){
             this.props.onLayoutContentChange({
                                                 type: 'loadNewSheet',

@@ -9,6 +9,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import random
 
 TEST = "1.Бюджет Годовой"
 
@@ -65,12 +66,78 @@ class NewVisitorTest(SimpleTestCase):
             self.live_server_url = 'http://127.0.0.1:8000/'
             self.browser.get(self.live_server_url)
 
+    def test_create_and_open_desktop(self):
+        import random
+        """
+
+        """
+        sheet_layout = self.prepare_table_sheet(["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"], {})
+        sheet_layout.sheet_insert()
+        sheet_layout.wait_for_loaded()
+        desktop_name =  "TEST Аренда, одна пустая запись"
+        self.save_desktop(desktop_name)
+        close = WebDriverWait(self.browser, MAX_WAIT).until(EC.element_to_be_clickable((By.ID, "close_all_layout_items")))
+        close.click()
+
+        open = WebDriverWait(self.browser, MAX_WAIT).until(EC.element_to_be_clickable((By.ID, "open_desktop")))
+
+        open.click()
+
+        desktop_row_xpath = "//td[@role='gridcell' and text()='{}']".format(desktop_name)
+        desktop_row = WebDriverWait(self.browser, MAX_WAIT).until(EC.element_to_be_clickable((By.XPATH, desktop_row_xpath)))
+        desktop_row.click()
+
+        select_button_xpath = "//span[@class='dx-button-text' and text()='Выбрать']"
+        select_button = WebDriverWait(self.browser, MAX_WAIT).until(EC.element_to_be_clickable((By.XPATH, select_button_xpath)))
+        select_button.click()
+        time.sleep(1)
+
+        sheet_layout = Layout(self.browser, "TableViewWithSelection")
+        sheet_layout.wait_for_loaded()
+
+
+        colors = {
+            "Запрет редактирования": [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)],
+            "Ручной ввод": [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)],
+            "Аналитики": [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)]
+        }
+
+        sheet_layout.update_colors(colors)
+
+        sheet_layout.refresh_sheet()
+
+        cell = sheet_layout.find_cell(0, "Стоимость, год")
+        color_text = cell.value_of_css_property("background-color")
+        color_rgb = color_text[color_text.find("(") + 1:color_text.find(")")].split(',')
+        del color_rgb[-1]
+        color_rgb = [int(x) for x in color_rgb]
+        # print("Запрет редактирования", color_rgb)
+
+        self.assertEqual(colors["Запрет редактирования"], color_rgb)
+
+        cell = sheet_layout.find_cell(0, "Плоскость планирования")
+        color_text = cell.value_of_css_property("background-color")
+        color_rgb = color_text[color_text.find("(") + 1:color_text.find(")")].split(',')
+        del color_rgb[-1]
+        color_rgb = [int(x) for x in color_rgb]
+        # print("Аналитики", color_rgb)
+
+        self.assertEqual(colors["Аналитики"], color_rgb)
+
+        cell = sheet_layout.find_cell(0, "Класс")
+        color_text = cell.value_of_css_property("background-color")
+        color_rgb = color_text[color_text.find("(") + 1:color_text.find(")")].split(',')
+        del color_rgb[-1]
+        color_rgb = [int(x) for x in color_rgb]
+        # print("Ручной ввод", color_rgb)
+
+        self.assertEqual(colors["Ручной ввод"], color_rgb)
 
     def test_colors_table_sheet(self):
         print("test_colors_table_sheet")
 
         """
-        test_colors_table_sheet
+        
         """
         try:
             path = ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
