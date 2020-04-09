@@ -67,9 +67,9 @@ class NewVisitorTest(SimpleTestCase):
             self.browser.get(self.live_server_url)
 
     def test_create_and_open_desktop(self):
-        import random
         """
-
+        создаем и открываем десктоп ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
+        без фильтров
         """
         sheet_layout = self.prepare_table_sheet(["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"], {})
         sheet_layout.sheet_insert()
@@ -94,6 +94,14 @@ class NewVisitorTest(SimpleTestCase):
 
         sheet_layout = Layout(self.browser, "TableViewWithSelection")
         sheet_layout.wait_for_loaded()
+
+        return sheet_layout
+
+    def test_colors_after_desktop(self):
+        """
+        проверяем работу с цветами (на уже открытом виджете) после загрузки десктопа
+        """
+        sheet_layout = self.test_create_and_open_desktop()
 
 
         colors = {
@@ -133,11 +141,9 @@ class NewVisitorTest(SimpleTestCase):
 
         self.assertEqual(colors["Ручной ввод"], color_rgb)
 
-    def test_colors_table_sheet(self):
-        print("test_colors_table_sheet")
-
+    def test_colors(self):
         """
-        
+        открываем, создаем одну запись, переопределяем цвета, проверяем как раскрашивается
         """
         try:
             path = ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
@@ -149,9 +155,10 @@ class NewVisitorTest(SimpleTestCase):
             sheet_layout.wait_for_loaded()
 
             colors = {
-                        "Запрет редактирования": [161, 162, 163],
-                        "Ручной ввод": [241, 242, 243],
-                        "Аналитики": [61, 62, 63]
+                        "Запрет редактирования": [random.randint(0, 255) for x in [1,2,3]],
+                        "Аналитики": [random.randint(0, 255) for x in [1, 2, 3]],
+                        "Ручной ввод": [random.randint(0, 255) for x in [1,2,3]],
+
                     }
 
             sheet_layout.update_colors(colors)
@@ -860,7 +867,8 @@ class Layout(object):
                 color)
             color_btn = WebDriverWait(self.browser, MAX_WAIT).until(
                 EC.element_to_be_clickable((By.XPATH, color_btn_xpath)))
-            print("color_btn", color_btn)
+            print("color_btn", color_btn.get_attribute('outerHTML'))
+            ActionChains(self.browser).move_to_element(color_btn).perform()
             color_btn.click()
 
 
