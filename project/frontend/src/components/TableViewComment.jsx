@@ -35,9 +35,11 @@ export default class TableViewComment extends Component {
 
     }
 
+    sendResetFile(){}
 
     onInsertCallback(){
-        this.setState({currentComment: {
+        this.sendResetFile();
+        this.setState({ currentComment: {
                                     sheet_name: this.props.additionalSheetParams.sheet_path,
                                     flt_dscr: this.props.additionalSheetParams.flt_dscr,
                                     prim:"",
@@ -56,9 +58,6 @@ export default class TableViewComment extends Component {
     }
 
     uploadFile(o){
-
-        console.log('uploadFile', o);
-
     }
 
     saveData(){
@@ -75,7 +74,6 @@ export default class TableViewComment extends Component {
     }
 
     onFileValueChanged(e){
-        console.log('onFileValueChanged', e);
         this.state.currentComment.fileList = e.previousValue;
         this.setState({currentComment: this.state.currentComment});
 
@@ -83,20 +81,15 @@ export default class TableViewComment extends Component {
     }
 
     onToolbarDeleteClick(){
-        console.log('delete comment');
     }
 
     onCellFocused(params){
         this.setState({focusedCell:params.api.getFocusedCell()});
         this.gridApi = params.api;
-        console.log('onCellFocused this.gripApi', this.gridApi);
     }
 
     getDataRequestString(){
         var httpStr = 'get_comments/?dummy=1';
-        /*if (this.state.sheet_id){
-            httpStr += '&sht_id=' + this.state.sheet_id;
-        }*/
         return httpStr;
     }
 
@@ -111,9 +104,7 @@ export default class TableViewComment extends Component {
     }
 
     onGetGridApi(gridApi){
-        //console.log('TableViewComment this.props.onGetGridApi', this.props.onGetGridApi);
         this.gridApi = gridApi;
-        console.log('onGetGridApi', this.gridApi);
     }
 
     getMenuItems(){
@@ -143,6 +134,8 @@ export default class TableViewComment extends Component {
                     onFileValueChanged={this.onFileValueChanged.bind(this)}
                     onFileUploaded={this.onFileUploaded.bind(this)}
                     uploadFile={this.uploadFile.bind(this)}
+                    sendResetFile={click => this.sendResetFile = click}
+
                 />
 
                 <ReTableView

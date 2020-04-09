@@ -17,6 +17,7 @@ export default class CommentPanel extends React.Component {
                 };
 
 
+      this.fileUploaderRef = React.createRef();
 
      this.toolbarItems =   [
                                 {
@@ -28,6 +29,8 @@ export default class CommentPanel extends React.Component {
                                     }
                                 }
                             ];
+
+        this.componentDidMount = this.componentDidMount.bind(this);
   }
 
 
@@ -39,13 +42,31 @@ export default class CommentPanel extends React.Component {
 
 
     onFUInitialized(component){
-        console.log('onFUInitialized', component);
+    }
+
+    componentDidMount(){
+        if (this.props.sendResetFile){
+            this.props.sendResetFile(this.resetFile.bind(this));
+        }
+    }
+
+    resetFile(){
+        if (this.fileUploaderRef.current && this.fileUploaderRef.current.instance
+            && this.props.commentData
+            && this.props.commentData.fileList.length==0
+
+            ){
+            this.fileUploaderRef.current.instance.reset();
+        }
     }
 
 
+    render() {
 
-  render() {
-    return (
+        return (
+
+
+
       <React.Fragment>
       <Popup
           visible={this.props.popupVisible}
@@ -74,6 +95,7 @@ export default class CommentPanel extends React.Component {
             </Item>
             <Item itemType="group" caption="Файлы" >
                       <FileUploader
+                        ref={this.fileUploaderRef}
                         multiple={true}
 
                         uploadMode={"instantly"}
