@@ -119,6 +119,7 @@ class ColorPanel extends React.Component {
 
 
     saveColors(){
+
         console.log('this.state', this.state);
         var httpStr = 'sht_info_update/?sht_id='+this.props.sheet_id+'&';
         httpStr += 'colorArest='+hexToDelphiColor(this.state.colorArest)+'&';
@@ -130,6 +131,8 @@ class ColorPanel extends React.Component {
         httpStr += 'colorFilter='+ hexToDelphiColor(this.state.colorFilter);
 
         sendRequestPromise(httpStr,'POST');
+
+        this.props.onSaveColors();
     }
 
   render() {

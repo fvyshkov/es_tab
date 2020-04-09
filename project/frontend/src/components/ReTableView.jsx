@@ -455,6 +455,10 @@ export default class ReTableView extends Component {
     sendLoadChartsToGrid(){
     }
 
+    onSaveColors(){
+        this.setState({colorPanelVisible: false});
+    }
+
     render(){
 
         return (
@@ -466,6 +470,7 @@ export default class ReTableView extends Component {
                     popupVisible={this.state.colorPanelVisible}
                     sendColorPanelClose={this.onColorPanelClose}
                     sheet_id={this.state.sheet_id}
+                    onSaveColors={this.onSaveColors.bind(this)}
                 />
 
 
