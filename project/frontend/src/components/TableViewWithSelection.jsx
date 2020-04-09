@@ -820,12 +820,11 @@ export default class TableViewWithSelection extends Component {
             skey = getFilterSkeyByCell(params);
             skey += columnData.key;
 
-
             var additionalParams = {
                                     viewType: 'CommentView',
                                     ind_id: columnData.ind_id,
                                     skey: skey,
-                                    sheet_path: this.state.sheet_path,
+                                    sheet_path: this.state.sheet.sheet_path,
                                     flt_dscr: columnData['flt_dscr']
                                    };
 
