@@ -129,17 +129,7 @@ export default class TableViewWithSelection extends Component {
     }
 
     getFilterData(){
-
-
-        //this.firstFilterNodesRequest = true;
-        if (this.props.filterNodes && this.firstFilterNodesRequest){
-            this.firstFilterNodesRequest = false;
-            return new Promise((resolve, reject)=>{resolve(this.props.filterNodes);})
-            return this.props.filterNodes;
-
-        }else{
-            return sendRequestPromise('sht_filters/?sht_id='+this.state.sheet_id+'&stype='+this.state.sheet.stype);
-        }
+        return sendRequestPromise('sht_filters/?sht_id='+this.state.sheet_id+'&stype='+this.state.sheet.stype);
     }
 
     loadNewSheet(sheet){
