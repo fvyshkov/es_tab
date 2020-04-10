@@ -896,8 +896,6 @@ class Layout(object):
 
         WebDriverWait(self.browser, MAX_WAIT).until(EC.element_to_be_clickable(
             (By.XPATH, "//div[contains(@class, 'dx-popup-wrapper')]//div[@aria-label='save']"))).click()
-        #WebDriverWait(self.browser, MAX_WAIT).until(EC.element_to_be_clickable(
-        #    (By.XPATH, "//div[contains(@class, 'dx-popup-wrapper')]//div[@aria-label='close']"))).click()
 
     def open_sheet(self, path):
 
