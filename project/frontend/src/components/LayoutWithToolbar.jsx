@@ -292,11 +292,6 @@ export default class LayoutWithToolbar extends Component {
     }
 
     onLayoutChange(layout){
-        console.log('onLayoutChange 01 ', this.layoutForSave);
-        console.log('onLayoutChange(layout)', layout);
-        console.log('onLayoutChange(items)', this.state.items);
-
-        //layoutForSave={itemId, layout, type,  sheet, filterNodes}
         layout.forEach((layoutItem)=>{
             var forSaveItem = this.layoutForSave.find((forSaveItem)=>{ return forSaveItem.itemId == layoutItem.i  });
 
@@ -325,26 +320,18 @@ export default class LayoutWithToolbar extends Component {
 
         });
 
-        console.log('onLayoutChange 021 ', this.layoutForSave);
-        console.log('onLayoutChange 022 ', layout);
-        console.log('onLayoutChange 022 layout.length ', layout.length, "this.layoutForSave.length", this.layoutForSave.length);
 
         var cleanedLayout = this.layoutForSave.filter(
             (forSaveItem)=>{
                 return layout.find((layoutItem)=>{return layoutItem.i == forSaveItem.itemId;
                         });
             });
-        console.log('onLayoutChange 022 cleanedLayout ', cleanedLayout);
-        //this.layoutForSave = [];
-        //this.layoutForSave = cleanedLayout;
         this.layoutForSave = this.layoutForSave.filter(
             (forSaveItem)=>{
                 return layout.find((layoutItem)=>{return layoutItem.i==forSaveItem.itemId;
                         });
             });
-
-        console.log('onLayoutChange 03 ', this.layoutForSave);
-        console.log('this.layoutForSave', this.layoutForSave);
+        window.scrollTo(0,document.body.scrollHeight);
     }
 
     addLayout(params){
