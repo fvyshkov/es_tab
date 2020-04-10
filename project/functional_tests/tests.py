@@ -200,7 +200,14 @@ class NewVisitorTest(SimpleTestCase):
                         "Ручной ввод": [random.randint(0, 255) for x in [1,2,3]],
 
                     }
+            """
 
+            colors = {
+                "Запрет редактирования": [1, 2, 3],
+                "Ручной ввод": [1, 2, 3],
+                "Аналитики": [1, 2, 3],
+            }
+            """
             sheet_layout.update_colors(colors)
 
 
@@ -873,51 +880,24 @@ class Layout(object):
         self.sheet_colors()
 
         for color in colors:
-            print("color", color)
-            color_btn_xpath = "//div[@class='dx-field-label' and text()='{}']/parent::*//div[@role='button' and @aria-label='Select']".format(
+            color_btn_xpath = "//div[@class='dx-field-label' and text()='{}']/parent::*//input[@type='text']".format(
                 color)
             color_btn = WebDriverWait(self.browser, MAX_WAIT).until(
                 EC.element_to_be_clickable((By.XPATH, color_btn_xpath)))
-            print("color_btn", color_btn.get_attribute('outerHTML'))
             ActionChains(self.browser).move_to_element(color_btn).perform()
             color_btn.click()
+            for i in range(0,7):
+                color_btn.send_keys(Keys.BACKSPACE)
 
+            new_color_hex = '#%02x%02x%02x' % (colors[color][0], colors[color][1], colors[color][2])
+            color_btn.send_keys(new_color_hex)
+            color_btn.send_keys(Keys.TAB)
 
-
-            color_code_xpath = "(//div[@aria-label='Red']//input[@type='text'])[last()]"
-            color_code = WebDriverWait(self.browser, MAX_WAIT).until(
-                EC.element_to_be_clickable((By.XPATH, color_code_xpath)))
-            color_code.click()
-            for i in range(0, 3):
-                color_code.send_keys(Keys.BACKSPACE)
-            color_code.send_keys(colors[color][0])
-            color_code.send_keys(Keys.TAB)
-
-            color_code_xpath = "(//div[@aria-label='Green']//input[@type='text'])[last()]"
-            color_code = WebDriverWait(self.browser, MAX_WAIT).until(
-                EC.element_to_be_clickable((By.XPATH, color_code_xpath)))
-            color_code.click()
-            for i in range(0, 3):
-                color_code.send_keys(Keys.BACKSPACE)
-            color_code.send_keys(colors[color][1])
-            color_code.send_keys(Keys.TAB)
-
-            color_code_xpath = "(//div[@aria-label='Blue']//input[@type='text'])[last()]"
-            color_code = WebDriverWait(self.browser, MAX_WAIT).until(
-                EC.element_to_be_clickable((By.XPATH, color_code_xpath)))
-            color_code.click()
-            for i in range(0, 3):
-                color_code.send_keys(Keys.BACKSPACE)
-            color_code.send_keys(colors[color][2])
-            color_code.send_keys(Keys.TAB)
-
-            WebDriverWait(self.browser, MAX_WAIT).until(
-                EC.element_to_be_clickable((By.XPATH, "(//span[@class='dx-button-text' and text()='OK'])[last()]"))).click()
 
         WebDriverWait(self.browser, MAX_WAIT).until(EC.element_to_be_clickable(
             (By.XPATH, "//div[contains(@class, 'dx-popup-wrapper')]//div[@aria-label='save']"))).click()
-        WebDriverWait(self.browser, MAX_WAIT).until(EC.element_to_be_clickable(
-            (By.XPATH, "//div[contains(@class, 'dx-popup-wrapper')]//div[@aria-label='close']"))).click()
+        #WebDriverWait(self.browser, MAX_WAIT).until(EC.element_to_be_clickable(
+        #    (By.XPATH, "//div[contains(@class, 'dx-popup-wrapper')]//div[@aria-label='close']"))).click()
 
     def open_sheet(self, path):
 

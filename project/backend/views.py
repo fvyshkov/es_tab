@@ -1935,7 +1935,7 @@ def get_anl_table_rows(sht_id, skey):
                 cell['req_id'] = row_dict['id']
 
                 cell['comment_count'] = row_dict.get('k_'+cell['key'].lower())
-                if cell['comment_count'] >0:
+                if cell['comment_count'] and  int(cell['comment_count'] ) >0:
                     cell['commentfl'] = 1
 
                 if cell['editfl']==1 and cell['ent_id'] and row[column_idx]:
