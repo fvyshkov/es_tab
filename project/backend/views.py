@@ -213,13 +213,14 @@ def get_comments(request):
             cell_skey = skey
 
         print('ind_id', ind_id, 'cell_key', cell_skey)
-        comments_list = get_comments_list(ind_id, cell_skey)
+        comments_list = get_comments_list(ind_id, cell_skey, req_id)
 
         return JsonResponse(comments_list, safe = False)
 
 
-def get_comments_list(ind_id, skey):
-    res = get_sql_result("""
+def get_comments_list(ind_id, skey, req_id):
+    if len(req_id)==0:
+        res = get_sql_result("""
                         select *
                         from
                         (
@@ -246,6 +247,35 @@ def get_comments_list(ind_id, skey):
                         order by correctdt desc
                             """,
                         [ind_id, skey])
+    else:
+        res = get_sql_result("""
+                                select *
+                                from
+                                (
+                                select 
+                                c.njrn com_id,
+                                 c.*,
+                                  (select C_PKGESSHEET.FGETSHEETPATH(i.sht_id,'1') 
+                                   from c_es_ver_sheet_ind i where id = c.ind_id) sht_path,
+                                    'ID='||req_id flt_dscr,
+                                      c_pkgusr.fUsrName(c.id_us) usr_name,
+                                      (select  json_arrayagg(json_object('filename' value filename, 'id' value id))
+                                      from  C_ES_REQ_COMM_FILES cf,
+                                             C_ES_FILE f
+                                      where c.ind_id = cf.ind_id
+                                            and c.req_id = cf.req_id
+                                            and c.proc_id = cf.proc_id
+                                            and c.njrn = cf.njrn
+                                            and cf.file_id = f.id) file_list
+                                from C_ES_SHT_REQ_COMMENT c
+                                where   c.ind_id =  %s 
+                                and c.req_id = %s
+                                order by ind_id, req_id, proc_id, njrn
+                                )
+                                order by correctdt desc
+                                    """,
+                             [ind_id, req_id])
+
     for row in res:
         row['node_key'] = row.get("com_id")
         row['hie_path'] = [row.get("com_id")]
@@ -369,6 +399,7 @@ def insert_comment(request):
     param_dict = dict(request.GET)
     prim = param_dict.get('prim', [''])[0]
     ind_id = param_dict.get('ind_id', [''])[0]
+    req_id = param_dict.get('req_id', [''])[0]
     skey = param_dict.get('skey', [''])[0]
     cell_type = param_dict.get('cell_type', [''])[0]
     fids = param_dict.get('fileids', [''])[0]
@@ -383,25 +414,39 @@ def insert_comment(request):
                           p_prim varchar2(250) := :3;
                           p_cell_type char(1) := :4;
                           p_fids varchar2(250) := :5;
+                          p_req_id number(10) := :6;
                           nNJRN number;
                           nsht_id  number := c_pkgessheet.fGetSheetByInd(p_ind_id);
                     begin 
                         c_pkgconnect.popen(); 
-                        C_PKGESSHEET.pAddCellComment(p_ind_id, p_skey, p_prim, p_cell_type, p_fids);
                         
-                        select max(njrn)
-                        into nNJRN
-                        from C_ES_SHT_VAL_COMMENT
-                        where   ind_id = p_ind_id
-                        and skey = C_PKGESCALC.fNormalizeKey(nsht_id, c_pkgescalc.fRemoveIndFlt(nsht_id, p_skey));
-                    
-                        :6:=nNJRN;
+                        if p_req_id='' then
+                            C_PKGESSHEET.pAddCellComment(p_ind_id, p_skey, p_prim, p_cell_type, p_fids);
+                            select max(njrn)
+                            into nNJRN
+                            from C_ES_SHT_VAL_COMMENT
+                            where   ind_id = p_ind_id
+                            and skey = C_PKGESCALC.fNormalizeKey(nsht_id, c_pkgescalc.fRemoveIndFlt(nsht_id, p_skey));
+                            
+                        else
+                            C_PKGESREQ.pAddCellComment(p_ind_id=> p_ind_id,p_req_id=> p_req_id,p_prim=> p_prim, p_fids=> p_fids);
+                            
+                            select max(njrn)
+                            into nNJRN
+                            from C_ES_SHT_REQ_COMMENT
+                            where   ind_id = p_ind_id
+                            and     req_id = p_req_id;
+                        end if;
+                        
+                        
+                        
+                        :7:=nNJRN;
                         
                         commit;
                     end; """,
-                   [ind_id, skey, prim, cell_type, fids, com_id_prm])
+                   [ind_id, skey, prim, cell_type, fids, req_id, com_id_prm])
 
-    comments = get_comments_list(ind_id, skey)
+    comments = get_comments_list(ind_id, skey, req_id)
     print("com_id = ", com_id_prm.getvalue())
     for comment in comments:
         print("list id = ", comment.get('com_id'))
@@ -1828,7 +1873,7 @@ def get_anl_table_rows(sht_id, skey):
     columns = get_sheet_columns_list('TABLE', sht_id, skey)
 
     refer_items = get_sql_result("""
-                                select t. *, i.ENT_ID 
+                                select t. *, i.ENT_ID
                                 from c_es_ver_sheet_ind i, table(C_PKGESent.fGetColComboMain(i.id, i.IND_MAIN_ID)) t
                                 where i.SHT_ID  = %s
                                 """,
@@ -1846,8 +1891,15 @@ def get_anl_table_rows(sht_id, skey):
             cell['font.italic'] = '0'
             cell['font.bold'] = '0'
 
+
             column_name = refCursor.description[column_idx][0].lower()
+
+            if column_name.upper().startswith("C"):
+                cell['ind_id'] = column_name[1:]
+
             row_dict[column_name] = row[column_idx]
+
+
             if any([True for column in columns if column['key'] == column_name.upper()]):
 
                 column_list = [column for column in columns if column['key'] == column_name.upper()]
@@ -1873,6 +1925,8 @@ def get_anl_table_rows(sht_id, skey):
 
 
                 cell['key'] = column_name.upper()
+                cell['req_id'] = row_dict['id']
+
                 if cell['editfl']==1 and cell['ent_id'] and row[column_idx]:
                     selected_refer_items = [item for item in refer_items if item['ent_id'] == cell['ent_id'] and item['id'] == row[column_idx]]
                     if len(selected_refer_items)>0:

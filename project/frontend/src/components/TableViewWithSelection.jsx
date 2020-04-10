@@ -805,6 +805,7 @@ export default class TableViewWithSelection extends Component {
     showCommentForCell(params){
 
         var columnData = getColumnData(params);
+        console.log("showCommentForCell", params, columnData);
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
 

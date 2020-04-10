@@ -64,6 +64,7 @@ export default class TableViewComment extends Component {
 
         var httpRequest = 'insert_comment/?ind_id=' + this.props.additionalSheetParams.ind_id;
         httpRequest += '&skey=' + this.props.additionalSheetParams.skey;
+        httpRequest += '&req_id=' + this.props.additionalSheetParams.req_id;
         httpRequest += '&prim=' + this.state.currentComment.prim;
         httpRequest += '&fileids=' + this.state.currentComment.fileIds.replace(/(^,)|(,$)/g, "");
         sendRequestPromise(httpRequest)
