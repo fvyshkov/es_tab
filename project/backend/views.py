@@ -1883,6 +1883,11 @@ def get_anl_table_rows(sht_id, skey):
 
         row_dict = {}
         column_data = []
+
+        for column_idx in range(len(refCursor.description)):
+            column_name = refCursor.description[column_idx][0].lower()
+            row_dict[column_name] = row[column_idx]
+
         for column_idx in range(len(refCursor.description)):
             cell={}
             cell['brush.color'] = 'white'
@@ -1897,7 +1902,9 @@ def get_anl_table_rows(sht_id, skey):
             if column_name.upper().startswith("C"):
                 cell['ind_id'] = column_name[1:]
 
-            row_dict[column_name] = row[column_idx]
+
+
+            #row_dict[column_name] = row[column_idx]
 
 
             if any([True for column in columns if column['key'] == column_name.upper()]):
@@ -1926,6 +1933,16 @@ def get_anl_table_rows(sht_id, skey):
 
                 cell['key'] = column_name.upper()
                 cell['req_id'] = row_dict['id']
+
+                print("row_dict", row_dict)
+                print("index", "k_"+cell['key'].lower())
+
+
+                cell['comment_count'] = row_dict.get('k_'+cell['key'].lower())
+                if cell['comment_count'] >0:
+                    cell['commentfl'] = 1
+
+                print("count", cell['comment_count'])
 
                 if cell['editfl']==1 and cell['ent_id'] and row[column_idx]:
                     selected_refer_items = [item for item in refer_items if item['ent_id'] == cell['ent_id'] and item['id'] == row[column_idx]]
