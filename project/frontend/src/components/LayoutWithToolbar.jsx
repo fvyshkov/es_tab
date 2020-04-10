@@ -357,7 +357,7 @@ export default class LayoutWithToolbar extends Component {
         }
 
         if (params.LONGNAME){
-            httpStr += '&longname='+ params.LONGNAME.value;
+            httpStr += '&longname='+ encodeURIComponent(params.LONGNAME.value);
         }
 
         sendRequestPromise(httpStr, 'POST', this.layoutForSave)
