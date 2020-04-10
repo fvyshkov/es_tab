@@ -71,6 +71,11 @@ export default class TableViewComment extends Component {
             .then((newRows)=>{
                 this.sendInsertRecord(newRows, this.gridApi);
                 this.setState({itemPanelVisible: false});
+            })
+            .then(()=>{
+                if (this.props.updateParentCallback){
+                    this.props.updateParentCallback(this.props.additionalSheetParams.req_id);
+                }
             });
     }
 
@@ -101,7 +106,12 @@ export default class TableViewComment extends Component {
     onDeleteCallback(){
         var dataForDelete = this.gridApi.getDisplayedRowAtIndex(this.gridApi.getFocusedCell().rowIndex).data;
         sendRequestPromise('delete_comment/?proc_id=' + dataForDelete.proc_id + '&njrn=' + dataForDelete.njrn,'POST',{})
-            .then(()=>{this.sendDeleteRecord()});
+            .then(()=>{this.sendDeleteRecord()})
+            .then(()=>{
+                if (this.props.updateParentCallback){
+                    this.props.updateParentCallback(this.props.additionalSheetParams.req_id);
+                }
+            });
     }
 
     onGetGridApi(gridApi){
