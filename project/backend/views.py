@@ -1035,7 +1035,7 @@ def get_sheet_list_plane(request):
                                "and c.code='MIS' and cmp.BOOK_ID = b.id "
                             "  and t.id = s.type_id "
                             "  and p.id = s.proc_id "
-                               "and v.cmp_id = cmp.id and g.VER_ID = v.ID and s.grp_id = g.id order by 1,2,3,4,5",[])
+                               "and v.cmp_id = cmp.id and g.VER_ID = v.ID and s.grp_id = g.id order by 1,2,3,4,5, 6",[])
     book = {}
     cmp = {}
     ver = {}
