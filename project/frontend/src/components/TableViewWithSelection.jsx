@@ -600,48 +600,8 @@ export default class TableViewWithSelection extends Component {
                     rowNode.setData(data_test);
 
                     this.setState({isLoaded:1});
-                    /*
-                    var changedRows = [];
-                    var changedColumns = [];
-                    data.forEach((node, index)=>{
-                        var oldNode = oldRowData.filter(row=>{return (row.node_key==node.node_key);})[0];
-                        if (index==0){
-                            console.log("node new", node);
-                            console.log("node old", oldNode);
-                        }
 
-                        if (node['column_data']){
-                            for (var i=0; i< node['column_data'].length; i++){
-                                var newCell = node['column_data'][i];
-                                var oldCell = oldNode['column_data'][i];
-                                if (newCell['sql_value'] != oldCell['sql_value'] ||
-                                    newCell['brush.color'] != oldCell['brush.color'] ||
-                                    newCell['font.color'] != oldCell['font.color'] ||
-                                    newCell['border.color'] != oldCell['border.color'] ||
-                                    newCell['font.italic'] != oldCell['font.italic'] ||
-                                    newCell['font.bold'] != oldCell['font.bold']
-                                    ){
-                                    console.log("cell for refresh! ", newCell.key, node.node_key);
-                                    changedColumns.push(newCell.key);
-                                    changedRows.push(node.node_key);
-
-                                }
-
-                            }
-                        }
-                    });
-                    this.setState({rowData:data});
-                    this.gridApi.setRowData(data);
-                    var changedRowNodes = [];
-
-                    changedRows.forEach(row=>{
-                        changedRowNodes.push(this.gridApi.getRowNode(row));
-
-                    });
-
-                    this.gridApi.refreshCells({ force: true, columns: changedColumns, rowNodes: changedRowNodes});
-                    */
-                    this.gridApi.refreshCells({ force: true});
+                    this.gridApi.refreshCells({ force: true, rowNodes: [this.gridApi.getRowNode(req_id)]});
 
                 });
     }
