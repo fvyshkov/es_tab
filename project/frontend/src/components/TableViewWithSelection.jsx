@@ -1035,12 +1035,13 @@ export default class TableViewWithSelection extends Component {
 
 
     onDeleteCallback(){
-        var dataForDelete = this.gridApi.getDisplayedRowAtIndex(this.gridApi.getFocusedCell().rowIndex).data;
-        var req_id = dataForDelete.id;
-        //var dataForDelete = [this.gridApi.getDisplayedRowAtIndex(this.savedFocusedCell.rowIndex).data];
-        //console.log("dataForDelete req_id", req_id);
-        sendRequestPromise('delete_record/?req_id='+req_id,'POST',{})
-            .then(()=>{this.sendDeleteRecord()});
+        const range = this.gridApi.getCellRanges();
+        if (range.length>0){
+            for (var i=range[0]['startRow']['rowIndex']; i<= range[0]['endRow']['rowIndex'] ;i++){
+                sendRequestPromise('delete_record/?req_id='+this.gridApi.getDisplayedRowAtIndex(i).data.id,'POST',{})
+                    .then(()=>{this.sendDeleteRecord()});
+            }
+        }
     }
 
     showReportParamRefer(refdscr, refcode){
