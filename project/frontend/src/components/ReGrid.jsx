@@ -127,6 +127,9 @@ export default class ReGrid extends React.Component {
 
 
     refreshData(){
+        if (this.savedFilterModel){
+                    this.gridApi.setFilterModel(this.savedFilterModel);
+                }
         this.gridApi.setRowData(this.props.rowData);
     }
 
@@ -172,9 +175,19 @@ export default class ReGrid extends React.Component {
         }
     }
 
+    onSendSaveFilter(){
+        console.log("onSendSaveFilter", this.gridApi.getFilterModel());
+        this.savedFilterModel = JSON.parse(JSON.stringify(this.gridApi.getFilterModel())) ;
+        console.log("savedFilterModels", this.savedFilterModel);
+    }
+
     componentDidMount() {
         if (this.props.sendRefreshGrid){
             this.props.sendRefreshGrid(this.refreshGrid);
+        }
+
+        if (this.props.sendSaveFilter){
+            this.props.sendSaveFilter(this.onSendSaveFilter.bind(this));
         }
 
         if (this.props.sendLayoutBeforeSave){
@@ -232,10 +245,7 @@ export default class ReGrid extends React.Component {
 
 
     refreshGrid(){
-//        this.setState({gridKey: this.state.gridKey+1});
-        //setTimeout(function(api){api.purgeServerSideCache()},0, this.gridApi);
         this.loadColumns();
-
     }
 
     processColumnsData(columnList){
@@ -565,9 +575,7 @@ export default class ReGrid extends React.Component {
                             onFirstDataRendered={this.onFirstDataRendered.bind(this)}
                             enableRangeSelection={true}
                             enableCharts={true}
-
                             gridOptions={{context: { getFilterSkey: this.props.getFilterSkey }}}
-
                             onFilterPanelChange={this.props.onFilterPanelChange}
                             selectedFilterNodes={this.props.selectedFilterNodes}
                             filterNodes={this.props.filterNodes}

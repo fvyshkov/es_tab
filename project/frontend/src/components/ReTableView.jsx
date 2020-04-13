@@ -308,6 +308,7 @@ export default class ReTableView extends Component {
 
 
     onToolbarRefreshClick(){
+        this.sendSaveFilter();
         this.gripApi.setRowData([]);
         this.setState({isLoaded:0});
         this.loadData({}, true);
@@ -531,6 +532,7 @@ export default class ReTableView extends Component {
                                 onGridReady={this.onGridReady.bind(this)}
                                 getChartTitle={this.props.getChartTitle}
                                 sendExpandNode={click => this.sendExpandNode = click}
+                                sendSaveFilter={click => this.sendSaveFilter = click}
                                 {...this.props}
                                 />
 
