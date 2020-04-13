@@ -160,7 +160,7 @@ export default class LayoutWithToolbar extends Component {
 
     }
 
-    doBeforeSaveLayout(parentLayoutId, charts, expandedGroupIds, filterModel){
+    doBeforeSaveLayout(parentLayoutId, charts, expandedGroupIds, filterModel, columnState){
         console.log("doBeforeSaveLayout", parentLayoutId, charts, expandedGroupIds);
 
 
@@ -169,6 +169,7 @@ export default class LayoutWithToolbar extends Component {
                 layout['chartsData'] = [];
                 layout['expandedGroupIds'] = expandedGroupIds;
                 layout['columnFilterModel'] = filterModel;
+                layout['columnState'] = columnState;
                 for (var chartIndex in charts){
                     console.log('chart', charts[chartIndex]);
                     var chart = charts[chartIndex];
@@ -219,6 +220,7 @@ export default class LayoutWithToolbar extends Component {
                                     chartsData={layoutItem.chartsData}
                                     expandedGroupIds={layoutItem.expandedGroupIds}
                                     columnFilterModel={layoutItem.columnFilterModel}
+                                    columnState={layoutItem.columnState}
                                     {...layoutItem.formParams}
                                  />,
                                 layoutItem.layout,

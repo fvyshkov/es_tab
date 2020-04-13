@@ -133,6 +133,11 @@ export default class ReGrid extends React.Component {
         if (this.props.columnFilterModel){
             this.gridApi.setFilterModel(this.props.columnFilterModel);
         }
+
+        if (this.props.columnState){
+            this.gridColumnApi.setColumnState(this.props.columnState);
+        }
+
         this.gridApi.setRowData(this.props.rowData);
     }
 
@@ -174,7 +179,7 @@ export default class ReGrid extends React.Component {
                     expandedGroupIds.push(node.data.node_key);
                 }
             });
-            this.props.doBeforeSaveLayout(this.props.layoutItemID, chartParams, expandedGroupIds, this.gridApi.getFilterModel());
+            this.props.doBeforeSaveLayout(this.props.layoutItemID, chartParams, expandedGroupIds, this.gridApi.getFilterModel(), this.gridColumnApi.getColumnState());
         }
     }
 
