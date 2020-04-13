@@ -251,8 +251,10 @@ export default class ReTableView extends Component {
 
     processViewState(viewState){
         if (viewState.length>0){
-            this.setState({columnStates: viewState[0].columnstates});
-            this.setState({expandedGroupIds: viewState[0].expandedgroupids});
+            this.setState({columnStates: viewState[0].columnstates,
+                           expandedGroupIds: viewState[0].expandedgroupids
+                          });
+
        }
     }
 

@@ -128,8 +128,11 @@ export default class ReGrid extends React.Component {
 
     refreshData(){
         if (this.savedFilterModel){
-                    this.gridApi.setFilterModel(this.savedFilterModel);
-                }
+            this.gridApi.setFilterModel(this.savedFilterModel);
+        }
+        if (this.props.columnFilterModel){
+            this.gridApi.setFilterModel(this.props.columnFilterModel);
+        }
         this.gridApi.setRowData(this.props.rowData);
     }
 
@@ -171,14 +174,13 @@ export default class ReGrid extends React.Component {
                     expandedGroupIds.push(node.data.node_key);
                 }
             });
-            this.props.doBeforeSaveLayout(this.props.layoutItemID, chartParams, expandedGroupIds);
+            this.props.doBeforeSaveLayout(this.props.layoutItemID, chartParams, expandedGroupIds, this.gridApi.getFilterModel());
         }
     }
 
     onSendSaveFilter(){
-        console.log("onSendSaveFilter", this.gridApi.getFilterModel());
         this.savedFilterModel = JSON.parse(JSON.stringify(this.gridApi.getFilterModel())) ;
-        console.log("savedFilterModels", this.savedFilterModel);
+        return this.savedFilterModel;
     }
 
     componentDidMount() {
