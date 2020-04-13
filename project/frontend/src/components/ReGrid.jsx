@@ -114,14 +114,7 @@ export default class ReGrid extends React.Component {
         this.sendUndoToGrid = this.sendUndoToGrid.bind(this);
         this.onLayoutBeforeSave = this.onLayoutBeforeSave.bind(this);
 
-
-
-
-
         this.columnsLoaded = false;
-
-
-
 
     }
 
@@ -129,12 +122,13 @@ export default class ReGrid extends React.Component {
     refreshData(){
         if (this.savedFilterModel){
             this.gridApi.setFilterModel(this.savedFilterModel);
-        }
-        if (this.props.columnFilterModel){
+        }else if (this.props.columnFilterModel){
             this.gridApi.setFilterModel(this.props.columnFilterModel);
         }
 
-        if (this.props.columnState){
+        if (this.savedColumnState){
+            this.gridColumnApi.setColumnState(this.savedColumnState);
+        } else if (this.props.columnState){
             this.gridColumnApi.setColumnState(this.props.columnState);
         }
 
@@ -185,6 +179,7 @@ export default class ReGrid extends React.Component {
 
     onSendSaveFilter(){
         this.savedFilterModel = JSON.parse(JSON.stringify(this.gridApi.getFilterModel())) ;
+        this.savedColumnState = JSON.parse(JSON.stringify(this.gridColumnApi.getColumnState())) ;
         return this.savedFilterModel;
     }
 
