@@ -5,6 +5,7 @@ import json
 import ntpath
 from django.core.files.base import ContentFile
 import cx_Oracle
+import re
 
 
 def get_schedule(request):
@@ -27,7 +28,6 @@ def get_file(request):
     file_node = get_sql_result("select filedata, filename from c_es_file where id = %s", [file_id])
     filedata = file_node[0]['filedata']
     filename = ntpath.basename(file_node[0]['filename'])
-    print('fn="', "="+filename+'=')
     response = HttpResponse(filedata.read(), content_type='application/octet-stream')
     response['Content-Disposition'] = 'attachment; filename="'+filename+'"'
     return response
@@ -36,7 +36,6 @@ def get_report(request):
     from urllib.request import urlopen
     from urllib.parse import quote
 
-    print('rptParams', dict(request.GET).get('params', [''])[0])
     url = 'http://127.0.0.1:60000/rpt/?params='+ quote(dict(request.GET).get('params', [''])[0])
 
 
@@ -695,6 +694,7 @@ def import_sheet_data(request):
 
 def get_xml_excel_header_info(xml_text):
     from bs4 import BeautifulSoup
+    #print("xml_text", xml_text)
 
     soup = BeautifulSoup(xml_text, features="xml")
     sheets = soup.find_all('Worksheet')
@@ -704,8 +704,9 @@ def get_xml_excel_header_info(xml_text):
     idx = 0
     for style in soup.find_all('Style'):
         idx = idx + 1
-        if style.find('Interior').get('ss:Color'):
-            colored_background_style_ids.append(style['ss:ID'])
+        namespace_id = re.search("<(.*?):", str(style)).group(1)
+        if style.find('Interior') and  style.find('Interior').get(namespace_id+':Color'):
+            colored_background_style_ids.append(style[namespace_id+':ID'])
 
     colored_rows = []
     row_index = 0
