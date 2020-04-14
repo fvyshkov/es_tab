@@ -79,6 +79,12 @@ export default class ReTableView extends Component {
             this.props.sendLoadAll(this.loadAll.bind(this));
         }
 
+        if (this.props.sendRefresh){
+            this.props.sendRefresh(this.onToolbarRefreshClick.bind(this));
+        }
+
+
+
         if (this.props.sendNewFilterNodes){
             this.props.sendNewFilterNodes(this.onLoadFilterNodes.bind(this));
         }

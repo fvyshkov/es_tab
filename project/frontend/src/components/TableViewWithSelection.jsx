@@ -1009,7 +1009,10 @@ export default class TableViewWithSelection extends Component {
             httpStr += '&del_existed='+delExistingRecords;
 
             axios.post( httpStr, file, {})
-                .then(()=>notify('Импорт успешно завершен','success'));
+                .then(()=>notify('Импорт успешно завершен','success'))
+                .then(()=>{
+                     this.sendRefresh();
+                });
 
         });
 
@@ -1215,6 +1218,7 @@ export default class TableViewWithSelection extends Component {
                     onGetGridApi={this.onGetGridApi.bind(this)}
                     sendDeleteRecord={click => this.sendDeleteRecord = click}
                     sendInsertRecord={click => this.sendInsertRecord = click}
+                    sendRefresh={click => this.sendRefresh = click}
                     additionalToolbarItem={()=>{return(
                                                         <SheetSelectDropDown
                                                             onSelectNewSheet={this.loadNewSheet.bind(this)}
