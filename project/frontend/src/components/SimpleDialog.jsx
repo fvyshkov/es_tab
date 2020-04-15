@@ -94,12 +94,8 @@ export default class SimpleDialog extends React.Component {
     }
 
     closeReference(row) {
-        console.log("close refer this.props.dialogParams", this.props.dialogParams);
         if (row) {
-            console.log('closeReference', row, this.state.referFieldName);
-
             const currentDialogParam = this.props.dialogParams.filter(param=> param.dataField == this.state.referFieldName);
-            console.log("currentDialogParam[0]", currentDialogParam[0]);
             if (currentDialogParam.length>0){
                 this.state.formData[this.state.referFieldName] = row[currentDialogParam[0].parentfield];
             }
@@ -112,7 +108,6 @@ export default class SimpleDialog extends React.Component {
     }
 
     componentDidMount(){
-        console.log('simpledialog componentDidMount');
 
         this.state.formData = {};
 
@@ -126,13 +121,10 @@ export default class SimpleDialog extends React.Component {
     }
 
     setVal(e, f) {
-        console.log("setVal e,f", e,f);
         this.setState(prevState => ({formData:{...prevState.formData}}), ()=>(this.state.formData[f]=e.value));
-        //this.state.formData[f] = e.value;
     }
 
     renderRef (data) {
-        console.log('renderRef data=', data);
         return (
             <RefTextBox
                 value={this.state.formData[data.dataField]}
@@ -147,14 +139,11 @@ export default class SimpleDialog extends React.Component {
     }
 
     onRefButtonClick(refcode, keyvalues, fieldName) {
-        console.log("onRefButtonClick", refcode, keyvalues, fieldName);
-
         var dialog = this;
         sendRequestPromise("get_ref_dscr/?ref_code="+refcode)
             .then((data)=>{
 
                 if (data.length>0){
-                    console.log("refdscr data", data);
                     this.refdscr = data[0];
                     this.refCode = refcode;
                     this.keyvalues = keyvalues;
@@ -169,10 +158,6 @@ export default class SimpleDialog extends React.Component {
     //onRefButtonClick
 
     onOk(){
-        console.log("this", this);
-        this.setState({dddd:1000});
-        console.log("this 2");
-        //this.state.testPopupVisible = true;
     }
 
   render() {
@@ -189,7 +174,6 @@ export default class SimpleDialog extends React.Component {
 
     var itemList = this.props.dialogParams.map((param)=>{
         if (param.visible){
-            console.log('itemList param', param);
             return (<Item
                 key={param.dataField}
                 dataField={param.dataField}
@@ -200,15 +184,6 @@ export default class SimpleDialog extends React.Component {
             />);
         }
     });
-/*
-
-
-
-/*
-
-*/
-
-    console.log("render 3");
 
     var referComp = this.state.referVisible ?
             <Refer
