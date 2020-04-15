@@ -407,9 +407,13 @@ def insert_comment(request):
     fids = param_dict.get('fileids', [''])[0]
 
 
+
     connection = get_oracle_connection()
     cursor = connection.cursor()
     com_id_prm = cursor.var(int)
+
+    #print("insert_comment", ind_id, '&'+skey+'&', prim, cell_type, fids, '&'+req_id+'&')
+
     cursor.execute("""declare
                          p_ind_id number := :1;
                           p_skey varchar2(250) := :2;
@@ -421,9 +425,14 @@ def insert_comment(request):
                           nsht_id  number := c_pkgessheet.fGetSheetByInd(p_ind_id);
                     begin 
                         c_pkgconnect.popen(); 
-                        
-                        if p_req_id='' then
-                            C_PKGESSHEET.pAddCellComment(p_ind_id, p_skey, p_prim, p_cell_type, p_fids);
+                        if p_req_id is null or p_req_id=''  then
+                            C_PKGESSHEET.pAddCellComment(
+                                                        p_ind_id => p_ind_id,
+                                                        p_skey =>  p_skey,
+                                                        p_prim =>  p_prim,
+                                                        p_cell_type =>  p_cell_type,
+                                                        p_fids =>  p_fids
+                                                        );
                             select max(njrn)
                             into nNJRN
                             from C_ES_SHT_VAL_COMMENT

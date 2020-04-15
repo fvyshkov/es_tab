@@ -38,7 +38,7 @@ export default class TableViewDetail extends Component {
                 rowNode.setData(data_test);
 
                 if (this.props.updateParentCallback){
-                    this.props.updateParentCallback(this.props.additionalSheetParams.parent_id);
+                    this.props.updateParentCallback(this.props.additionalSheetParams);
                 }
 
             });
@@ -61,7 +61,7 @@ export default class TableViewDetail extends Component {
             .then(()=>{this.sendDeleteRecord()})
             .then(()=>{
                 if (this.props.updateParentCallback){
-                    this.props.updateParentCallback(this.props.additionalSheetParams.parent_id);
+                    this.props.updateParentCallback(this.props.additionalSheetParams);
                 }
             });
     }
@@ -114,7 +114,7 @@ export default class TableViewDetail extends Component {
             })
             .then(()=>{
                 if (this.props.updateParentCallback){
-                   this.props.updateParentCallback(this.props.additionalSheetParams.parent_id);
+                   this.props.updateParentCallback(this.props.additionalSheetParams);
                 }
             });
 

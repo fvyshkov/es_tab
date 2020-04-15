@@ -439,6 +439,10 @@ export default class ReGrid extends React.Component {
 
     }
 
+    onExpandOrCollapseAll(e1,e2){
+        console.log("onExpandOrCollapseAll", e1,e2);
+    }
+
     onRowGroupOpened(e){
 
         this.props.processNodeExpanding(e);
@@ -589,6 +593,7 @@ export default class ReGrid extends React.Component {
                             onColumnPinned={this.onGridStateChange.bind(this)}
                             onColumnVisible={this.onGridStateChange.bind(this)}
                             onRowGroupOpened={this.onRowGroupOpened.bind(this)}
+                            onExpandOrCollapseAll={this.onExpandOrCollapseAll.bind(this)}
                             getRowNodeId={this.props.getRowNodeId}
                             onCellValueChanged={this.onCellValueChanged.bind(this)}
                             deltaRowDataMode={true}
@@ -860,7 +865,7 @@ function getColumnData(params){
     if (params.node && params.node.data &&  params.node.data.column_data){
         columnDataList = params.node.data.column_data;
         colDefField = params.column.colDef.field;
-    }else if(params.rowIndex){
+    }else if(params.rowIndex != undefined){
         columnDataList = params.api.getDisplayedRowAtIndex(params.rowIndex).data.column_data;
         colDefField = params.colDef.field;
     }else if (params.data && params.colDef) {

@@ -585,14 +585,17 @@ export default class TableViewWithSelection extends Component {
         }
     }
 
-    updateParentCallback(req_id){
-        console.log("updateParentCallback!!!", req_id);
+    updateParentCallback(params){
+        console.log("updateParentCallback!!!", params);
         this.setState({isLoaded:0});
 
-        sendRequestPromise('update_record/?req_id='+req_id, 'POST',{})
+        var httpStr = '';
+        if (params.req_id){
+            httpStr = 'update_record/?req_id='+params.req_id;
+            sendRequestPromise(httpStr, 'POST',{})
                 .then((data)=>{
                     var rowNode = this.gridApi.getRowNode(req_id);
-                    console.log();
+
                     var data_test = data[0];
                     var columns = data[0]['column_data'];
                     for (var i=0; i< columns.length; i++){
@@ -607,6 +610,9 @@ export default class TableViewWithSelection extends Component {
                     this.gridApi.refreshCells({ force: true, rowNodes: [this.gridApi.getRowNode(req_id)]});
 
                 });
+        }else{
+            this.reloadNodes();
+        }
     }
 
 
@@ -707,7 +713,8 @@ export default class TableViewWithSelection extends Component {
                                 newCell['font.color'] != oldCell['font.color'] ||
                                 newCell['border.color'] != oldCell['border.color'] ||
                                 newCell['font.italic'] != oldCell['font.italic'] ||
-                                newCell['font.bold'] != oldCell['font.bold']
+                                newCell['font.bold'] != oldCell['font.bold'] ||
+                                newCell['commentfl'] != oldCell['commentfl']
                                 ){
                                 console.log("cell for refresh! ", newCell.key, node.node_key);
                                 changedColumns.push(newCell.key);
@@ -825,6 +832,8 @@ export default class TableViewWithSelection extends Component {
                 */
             skey = getFilterSkeyByCell(params);
             skey += columnData.key;
+
+            console.log("comment skey", skey);
 
             var additionalParams = {
                                     viewType: 'CommentView',

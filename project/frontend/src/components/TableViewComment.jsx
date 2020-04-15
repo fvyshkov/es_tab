@@ -64,7 +64,9 @@ export default class TableViewComment extends Component {
 
         var httpRequest = 'insert_comment/?ind_id=' + this.props.additionalSheetParams.ind_id;
         httpRequest += '&skey=' + this.props.additionalSheetParams.skey;
-        httpRequest += '&req_id=' + this.props.additionalSheetParams.req_id;
+        if (this.props.additionalSheetParams.req_id){
+            httpRequest += '&req_id=' + this.props.additionalSheetParams.req_id;
+        }
         httpRequest += '&prim=' + this.state.currentComment.prim;
         httpRequest += '&fileids=' + this.state.currentComment.fileIds.replace(/(^,)|(,$)/g, "");
         sendRequestPromise(httpRequest)
@@ -74,7 +76,7 @@ export default class TableViewComment extends Component {
             })
             .then(()=>{
                 if (this.props.updateParentCallback){
-                    this.props.updateParentCallback(this.props.additionalSheetParams.req_id);
+                    this.props.updateParentCallback(this.props.additionalSheetParams);
                 }
             });
     }
@@ -109,7 +111,7 @@ export default class TableViewComment extends Component {
             .then(()=>{this.sendDeleteRecord()})
             .then(()=>{
                 if (this.props.updateParentCallback){
-                    this.props.updateParentCallback(this.props.additionalSheetParams.req_id);
+                    this.props.updateParentCallback(this.props.additionalSheetParams);
                 }
             });
     }
