@@ -358,19 +358,22 @@ export default class TableViewWithSelection extends Component {
     downloadSheetData(){
         var repParams = {};
 
-        repParams['SHT_ID'] = {type:"S", value: this.state.sheet.id};
-        repParams['SKEY'] = {type:"S", value: getFilterSkey(this.state.filterNodes)};
-        //repParams['DOP'] = {type:"S", value: ""};
-        repParams['COL_LIMIT'] = {type:"S", value: "0"};
 
 
         if (this.state.sheet.stype ==='DM' || this.state.sheet.stype === 'MULT_DM' || this.state.sheet.stype === 'R'){
+            repParams['SHT_ID'] = {type:"S", value: this.state.sheet.id};
+            repParams['SKEY'] = {type:"S", value: getFilterSkey(this.state.filterNodes)};
+            //repParams['DOP'] = {type:"S", value: ""};
+            repParams['COL_LIMIT'] = {type:"S", value: "0"};
+
             getReport('C_ES_DM_EXP_RPT', repParams);
         }else if (this.state.sheet.stype === 'TURN'){
-            rParams.AddItem('P_SHT_ID', this.props.sheet_id);
+            repParams['P_SHT_ID'] = {type:"S", value: this.state.sheet.id};
             getReport('C_ES_TURN_EXP_RPT', repParams);
         }else if (this.state.sheet.stype === 'P'){
-            console.log('TODO');
+            repParams['P_SHT_ID'] = {type:"S", value: this.state.sheet.id};
+            repParams['P_SKEY'] = {type:"S", value: getFilterSkey(this.state.filterNodes)};
+            getReport('C_ES_PROD_EXP_RPT', repParams);
         }else{
             console.log('this type of list is not supported');
         }
@@ -995,28 +998,28 @@ export default class TableViewWithSelection extends Component {
         event.preventDefault();
         var file = event.target.files[0];
 
-        var delExistingRecords = '';
+        var httpStr = window.location.origin;
+        httpStr += '/import_sheet_data/?sht_id='+this.state.sheet_id;
+        httpStr += '&skey='+getFilterSkey(this.state.filterNodes);
+        httpStr += '&stype='+this.state.sheet.stype;
 
-        let result = confirm("<i>Удалить имеющиеся записи перед импортом?</i>", "Импорт данных");
-        result.then((dialogResult) => {
-            delExistingRecords = dialogResult ? "1" : "0";
+        if (this.state.sheet.stype!="P"){
+            let result = confirm("<i>Удалить имеющиеся записи перед импортом?</i>", "Импорт данных");
+            result.then((dialogResult) => {
+                var delExistingRecords = dialogResult ? "1" : "0";
+                httpStr += '&del_existed='+delExistingRecords;
+                this.importSheetData(httpStr, file);
+            });
+        }else{
+            this.importSheetData(httpStr, file);
+        }
 
+    }
 
-
-            var httpStr = window.location.origin;
-            httpStr += '/import_sheet_data/?sht_id='+this.state.sheet_id;
-            httpStr += '&skey='+getFilterSkey(this.state.filterNodes);
-            httpStr += '&del_existed='+delExistingRecords;
-
-            axios.post( httpStr, file, {})
-                .then(()=>notify('Импорт успешно завершен','success'))
-                .then(()=>{
-                     this.sendRefresh();
-                });
-
-        });
-
-
+    importSheetData(httpStr, file){
+        axios.post( httpStr, file, {})
+            .then(()=>notify('Импорт успешно завершен','success'))
+            .then(()=>this.sendRefresh());
     }
 
     sendNewFilterNodes(){
