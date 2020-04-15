@@ -230,9 +230,15 @@ export default class TableViewWithSelection extends Component {
         var httpStr = 'recalc_sheet/?sht_id='+this.state.sheet.id;
         if (recalcType==='old'){
             httpStr += '&skey='+ getFilterSkey(this.state.filterNodes);
+            notify('Запущен пересчет устаревших значений по выбранным аналитикам');
+        }else if(recalcType==='full'){
+            notify('Запущен полный пересчет листа');
         }else if(recalcType==='selected'){
             alert('Пересчет выделенного диапазона не реализован');
         }
+
+
+
         sendRequestPromise(httpStr)
             .then(()=>notify('Пересчет успешно завершен','success'))
             .catch(()=>notify('ОШИБКА ПЕРЕСЧЕТА', 'error'));
@@ -668,8 +674,10 @@ export default class TableViewWithSelection extends Component {
     }
 
     recalcCell(params){
+        notify('Запущен пересчет значения');
         sendRequestPromise('recalc_cell/?sht_id='+this.state.sheet.id+'&skey='+this.getCellSkey(params))
-            .then(()=>{this.reloadNodes(false);});
+            .then(()=>{this.reloadNodes(false);})
+            .then(()=>notify('Пересчет успешно завершен', 'success'));
     }
 
     reloadNodes(reloadAllCells=false){
