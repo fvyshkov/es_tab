@@ -6,6 +6,9 @@ import ntpath
 from django.core.files.base import ContentFile
 import cx_Oracle
 import re
+from bs4 import BeautifulSoup
+import pandas as pd
+from xml.sax import ContentHandler, parse, parseString
 
 
 def get_schedule(request):
@@ -665,9 +668,84 @@ def import_sheet_data(request):
     param_dict = dict(request.GET)
     sht_id = param_dict['sht_id'][0]
     skey = param_dict['skey'][0]
-    del_existed = param_dict['del_existed'][0]
+    del_existed = param_dict.get('del_existed', [''])[0]
+    stype = param_dict.get('stype', [''])[0]
 
-    header_info = get_xml_excel_header_info(request.body)
+    file = request.body
+
+    if stype=="P":
+        import_prod_sheet(file)
+    else:
+        import_table_sheet(sht_id, file, skey, del_existed)
+
+    return JsonResponse([], safe=False)
+
+
+def import_prod_sheet(file):
+    sheet_xml = xml_prod_sheet_to_string(file)
+    connection = get_oracle_connection()
+    cursor = connection.cursor()
+    my_clob = cursor.var(cx_Oracle.CLOB)
+    my_clob.setvalue(0, sheet_xml)
+    cursor.execute("""begin c_pkgconnect.popen();
+                                    c_pkgxmlie.pXmlTest(:1);
+                                    commit;                                                            
+                            end;""", [my_clob])
+
+
+def xml_prod_sheet_to_string(file):
+    sheet = read_excel_xml(file)[0]
+
+    from xml.etree.ElementTree import Element, SubElement, Comment, tostring
+
+    sheet_xml = Element('C_ES_SHEET_DATA',
+                        {"BOOK_CODE": sheet[0][1],
+                         "YEAR": sheet[1][1],
+                         "VERSION_CODE": sheet[2][1],
+                         "SHEET_NAME": sheet[3][1]
+                         })
+    flt_list = SubElement(sheet_xml, 'ANLS')
+
+    row_index = 6
+
+    while len(sheet[row_index])>0:
+        flt = SubElement(flt_list, 'ANL',{"NAME": sheet[row_index][0], "VALUE": sheet[row_index][1]})
+        row_index += 1
+
+    row_index += 1
+    columns = sheet[row_index]
+    row_index += 1
+
+    while len(sheet[row_index])>0:
+        ind = SubElement(sheet_xml, 'IND', {"NAME": sheet[row_index][0]})
+        for i in range (1,len(sheet[row_index])):
+            cell = SubElement(ind, 'CELL', {"COLUMN": columns[i], "VALUE": sheet[row_index][i]})
+        row_index += 1
+
+    from xml.etree import ElementTree
+    from xml.dom import minidom
+
+    rough_string = ElementTree.tostring(sheet_xml, 'utf-8')
+    reparsed = minidom.parseString(rough_string)
+    pretty_str =  reparsed.toprettyxml(indent="  ")
+    return pretty_str
+
+def read_excel_xml(file):
+    soup = BeautifulSoup(file,'xml')
+    workbook = []
+    for sheet in soup.findAll('Worksheet'):
+        sheet_as_list = []
+        for row in sheet.findAll('Row'):
+            row_as_list = []
+            for cell in row.findAll('Cell'):
+                row_as_list.append(cell.Data.text)
+            sheet_as_list.append(row_as_list)
+        workbook.append(sheet_as_list)
+    return workbook
+
+def import_table_sheet(sht_id, file, skey, del_existed):
+
+    header_info = get_xml_excel_header_info(file)
     header_top = header_info.get('first_row')
     header_bottom = header_info.get('last_row')
 
@@ -677,7 +755,7 @@ def import_sheet_data(request):
     connection = get_oracle_connection()
     cursor = connection.cursor()
     my_clob = cursor.var(cx_Oracle.CLOB)
-    my_clob.setvalue(0, request.body)
+    my_clob.setvalue(0, file)
     cursor.execute("""begin c_pkgconnect.popen();
                                 C_PKGESIMP.pImportReqFromXLS(p_xml => :1, 
                                                             p_sht_id => :2, 
@@ -689,12 +767,10 @@ def import_sheet_data(request):
                                 commit;                                                            
                         end;""", [my_clob, sht_id, header_top, header_bottom, del_existed, skey])
 
-    return JsonResponse([], safe=False)
+
 
 
 def get_xml_excel_header_info(xml_text):
-    from bs4 import BeautifulSoup
-    #print("xml_text", xml_text)
 
     soup = BeautifulSoup(xml_text, features="xml")
     sheets = soup.find_all('Worksheet')
