@@ -1248,6 +1248,15 @@ export default class TableViewWithSelection extends Component {
                                                         );
                                                 }
                                           }
+                    addToolPanels={ [
+                                {
+                                id: "sheetFilters",
+                                labelDefault: "Аналитики",
+                                labelKey: "sheetFilters",
+                                iconKey: "filter",
+                                toolPanel: "filterPanelInToolPanel"
+                                }
+                            ]}
                     {...this.props}
                 />
             </React.Fragment>

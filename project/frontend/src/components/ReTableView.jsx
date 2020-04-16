@@ -29,17 +29,14 @@ export default class ReTableView extends Component {
                         forceGridReload: false,
                         columnStates: [],
                         expandedGroupIds : [],
-                        isLoaded: 0,
-                        addToolPanels: [
-                                {
-                                id: "sheetFilters",
-                                labelDefault: "Аналитики",
-                                labelKey: "sheetFilters",
-                                iconKey: "filter",
-                                toolPanel: "filterPanelInToolPanel"
-                                }
-                            ]
+                        isLoaded: 0
                       };
+
+        if (props.addToolPanels){
+            this.state.addToolPanels = props.addToolPanels;
+        }else{
+            this.state.addToolPanels = [];
+        }
 
         this.reportDialogParams = [];
         this.isFirstLoadData = true;
