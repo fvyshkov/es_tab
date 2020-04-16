@@ -600,7 +600,7 @@ export default class TableViewWithSelection extends Component {
             httpStr = 'update_record/?req_id='+params.req_id;
             sendRequestPromise(httpStr, 'POST',{})
                 .then((data)=>{
-                    var rowNode = this.gridApi.getRowNode(req_id);
+                    var rowNode = this.gridApi.getRowNode(params.req_id);
 
                     var data_test = data[0];
                     var columns = data[0]['column_data'];
@@ -613,7 +613,7 @@ export default class TableViewWithSelection extends Component {
 
                     this.setState({isLoaded:1});
 
-                    this.gridApi.refreshCells({ force: true, rowNodes: [this.gridApi.getRowNode(req_id)]});
+                    this.gridApi.refreshCells({ force: true, rowNodes: [this.gridApi.getRowNode(params.req_id)]});
 
                 });
         }else{

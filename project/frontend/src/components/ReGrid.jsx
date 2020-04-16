@@ -118,6 +118,18 @@ export default class ReGrid extends React.Component {
 
     }
 
+    specialEquality(s1, s2){
+        var s1Copy = s1;
+        var s2Copy = s2;
+        if (s1Copy.endsWith("_1")){
+            s1Copy = s1Copy.slice(0,-2);
+        }
+        if (s2Copy.endsWith("_1")){
+            s2Copy = s2Copy.slice(0,-2);
+        }
+
+        return (s2Copy == s1Copy);
+    }
 
     refreshData(){
         if (this.savedFilterModel){
@@ -126,7 +138,32 @@ export default class ReGrid extends React.Component {
             this.gridApi.setFilterModel(this.props.columnFilterModel);
         }
 
+
+
         if (this.savedColumnState){
+            var columns = this.gridColumnApi.getColumnState();
+
+            columns.forEach((column)=>{
+                var isCurrentColFoundInSaved = false;
+                this.savedColumnState.forEach((savedColumn)=>{
+                    if(this.specialEquality(savedColumn.colId , column.colId)){
+                        //если нашлось соответствие, ничего не нужно делать
+                        isCurrentColFoundInSaved = true;
+                        savedColumn.colId = column.colId;
+                    }
+
+                });
+
+                if(!isCurrentColFoundInSaved){
+                    this.savedColumnState.unshift(Object.assign({}, column));
+                }
+            });
+
+            this.savedColumnState = this.savedColumnState.filter((savedColumn)=>{
+                var foundInReal = columns.find(realColumn=> realColumn.colId == savedColumn.colId);
+                return foundInReal ? true: false;
+            });
+
             this.gridColumnApi.setColumnState(this.savedColumnState);
         } else if (this.props.columnState){
             this.gridColumnApi.setColumnState(this.props.columnState);
