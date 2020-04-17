@@ -852,7 +852,6 @@ def get_layouts(request):
     for layout in layout_list:
         test = layout.get('layout').read()
         d = json.loads(test)
-        print('test', d)
         layout['layout'] = d
 
 
@@ -1367,7 +1366,6 @@ def get_tree_node_list(request):
     node_list = get_tree_nodes_inner([], p_sht_id, p_skey, p_flt_id, p_flt_item_id, p_flt_root_id, p_group_keys, p_recursive)
 
     for node in node_list:
-        print("group_keys=", p_group_keys)
         process_node(p_sht_id, p_skey, node, p_group_keys, sheet_info[0])
 
     return node_list
@@ -1386,27 +1384,39 @@ def get_tree_nodes_inner(node_list, p_sht_id, p_skey, p_flt_id, p_flt_item_id, p
                                    order by x.npp
                                    """,
                                [p_sht_id, p_skey, p_flt_id, p_flt_item_id, p_flt_root_id, p_cell_key])
+    children_nodes = []
+    for node in inner_node_list:
+        hie_path = []
+        if (p_group_keys):
+            skeys = p_group_keys.split(',')
+            for item in skeys:
+                if item:
+                    hie_path.append(item)
+        hie_path.append(node['node_key'])
+        node['hie_path'] = hie_path
 
-    if p_recursive=="1":
-        for node in inner_node_list:
+        if p_recursive=="1":
             if node.get("groupfl")=="1":
-                inner_node_list += get_tree_nodes_inner([],
+                if len(p_group_keys)>0:
+                    new_group_keys =  p_group_keys+','+node.get("node_key")
+                else:
+                    new_group_keys = node.get("node_key")
+                children_nodes += get_tree_nodes_inner([],
                                                         p_sht_id,
                                                         p_skey,
                                                         node.get("flt_id"),#p_flt_id,
                                                         node.get("flt_item_id"),#p_flt_item_id,
                                                         p_flt_root_id,
-                                                        p_group_keys+','+node.get("node_key"),#p_group_keys,
+                                                        new_group_keys,
                                                         p_recursive)
 
-
-    return node_list + inner_node_list
+    return node_list + inner_node_list + children_nodes
 
 
 def process_node(p_sht_id, p_key, node, group_keys, sheet_info):
 
     p_tmp_cell_key = p_key +','+ node['node_key']
-    print("process_node p_sht_id, p_tmp_cell_key, group_keys", p_sht_id, p_tmp_cell_key, "GK", group_keys)
+
 
     cell_list = get_sql_result("""
                                 with params as (select %s sht_id, %s skey from dual)
@@ -1455,19 +1465,6 @@ def process_node(p_sht_id, p_key, node, group_keys, sheet_info):
                       'font.color': 'black',
                       'sql_value': node['name']
                       })
-
-    hie_path = []
-    if (group_keys):
-        skeys =group_keys.split(',')
-        for item in skeys:
-            if item:
-                hie_path.append(item)
-
-    hie_path.append(node['node_key'])
-
-    node['hie_path'] = hie_path
-
-
     node['column_data'] = cell_list
 
 
