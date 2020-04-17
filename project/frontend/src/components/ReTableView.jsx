@@ -73,8 +73,22 @@ export default class ReTableView extends Component {
 
     onSendExpandRecursive(node_key){
         var api = this.getGridApi();
-        this.loadData(api.getRowNode(node_key), false, true);
+        if (!this.tableData.loadedNodes.includes(node_key)){
+            this.loadData(api.getRowNode(node_key), false, true)
+                .then(()=>this.expandLoadedNodesRecursive(api.getRowNode(node_key)));
+        }
     }
+
+    expandLoadedNodesRecursive( node){
+        node.gridApi.setRowNodeExpanded(node, true);
+        node.gridApi.forEachNode((nodeIterator)=>{
+            if (nodeIterator.parent && nodeIterator.parent.id == node.id && !nodeIterator.expanded){
+                this.expandLoadedNodesRecursive(nodeIterator);
+            }
+        });
+
+    }
+
 
     componentDidMount(){
         if (this.props.sendLoadAll){

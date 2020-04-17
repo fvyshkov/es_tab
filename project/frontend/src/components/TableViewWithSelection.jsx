@@ -577,7 +577,6 @@ export default class TableViewWithSelection extends Component {
 
     expandRecursive(params){
         this.sendExpandRecursive(params.node.data.node_key);
-        console.log("expandRecursive=",params.node.data.node_key);
     }
 
 
