@@ -220,9 +220,17 @@ export default class ReGrid extends React.Component {
         return this.savedFilterModel;
     }
 
+    getGridApi(){
+        return this.gridApi;
+    }
+
     componentDidMount() {
         if (this.props.sendRefreshGrid){
             this.props.sendRefreshGrid(this.refreshGrid);
+        }
+
+        if (this.props.getGridApi){
+            this.props.getGridApi(this.getGridApi.bind(this));
         }
 
         if (this.props.sendSaveFilter){

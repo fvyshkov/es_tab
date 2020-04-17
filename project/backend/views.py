@@ -1395,20 +1395,20 @@ def get_tree_nodes_inner(node_list, p_sht_id, p_skey, p_flt_id, p_flt_item_id, p
         hie_path.append(node['node_key'])
         node['hie_path'] = hie_path
 
-        if p_recursive=="1":
-            if node.get("groupfl")=="1":
-                if len(p_group_keys)>0:
-                    new_group_keys =  p_group_keys+','+node.get("node_key")
-                else:
-                    new_group_keys = node.get("node_key")
-                children_nodes += get_tree_nodes_inner([],
-                                                        p_sht_id,
-                                                        p_skey,
-                                                        node.get("flt_id"),#p_flt_id,
-                                                        node.get("flt_item_id"),#p_flt_item_id,
-                                                        p_flt_root_id,
-                                                        new_group_keys,
-                                                        p_recursive)
+        if p_recursive=="1"and node.get("groupfl")=="1":
+            node['children_loaded'] = "1"
+            if len(p_group_keys)>0:
+                new_group_keys =  p_group_keys+','+node.get("node_key")
+            else:
+                new_group_keys = node.get("node_key")
+            children_nodes += get_tree_nodes_inner([],
+                                                    p_sht_id,
+                                                    p_skey,
+                                                    node.get("flt_id"),#p_flt_id,
+                                                    node.get("flt_item_id"),#p_flt_item_id,
+                                                    p_flt_root_id,
+                                                    new_group_keys,
+                                                    p_recursive)
 
     return node_list + inner_node_list + children_nodes
 

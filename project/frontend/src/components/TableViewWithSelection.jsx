@@ -576,6 +576,7 @@ export default class TableViewWithSelection extends Component {
     }
 
     expandRecursive(params){
+        this.sendExpandRecursive(params.node.data.node_key);
         console.log("expandRecursive=",params.node.data.node_key);
     }
 
@@ -1248,6 +1249,7 @@ export default class TableViewWithSelection extends Component {
                     sendDeleteRecord={click => this.sendDeleteRecord = click}
                     sendInsertRecord={click => this.sendInsertRecord = click}
                     sendRefresh={click => this.sendRefresh = click}
+                    sendExpandRecursive={click => this.sendExpandRecursive = click}
                     additionalToolbarItem={()=>{return(
                                                         <SheetSelectDropDown
                                                             onSelectNewSheet={this.loadNewSheet.bind(this)}

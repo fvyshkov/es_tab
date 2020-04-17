@@ -71,10 +71,20 @@ export default class ReTableView extends Component {
         }
     }
 
+    onSendExpandRecursive(node_key){
+        var api = this.getGridApi();
+        this.loadData(api.getRowNode(node_key), false, true);
+    }
+
     componentDidMount(){
         if (this.props.sendLoadAll){
             this.props.sendLoadAll(this.loadAll.bind(this));
         }
+
+        if (this.props.sendExpandRecursive){
+            this.props.sendExpandRecursive(this.onSendExpandRecursive.bind(this));
+        }
+
 
         if (this.props.sendRefresh){
             this.props.sendRefresh(this.onToolbarRefreshClick.bind(this));
@@ -542,6 +552,7 @@ export default class ReTableView extends Component {
                                 getChartTitle={this.props.getChartTitle}
                                 sendExpandNode={click => this.sendExpandNode = click}
                                 sendSaveFilter={click => this.sendSaveFilter = click}
+                                getGridApi={click => this.getGridApi = click}
                                 {...this.props}
                                 />
 

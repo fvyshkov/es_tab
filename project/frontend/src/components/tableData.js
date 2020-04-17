@@ -39,7 +39,15 @@ export class TableData {
             .then((data)=>{
                 //удаляем фиктивную ноду
                 this.rowData = this.rowData.filter(e => e.node_key !== parentNodeKey + '_dummy_child');
-
+                return data;
+            })
+            .then((data)=>{
+                //
+                data.forEach(row=>{
+                    if (row.children_loaded && row.children_loaded=="1"){
+                        this.loadedNodes.push(row.node_key);
+                    }
+                });
                 return data;
             })
             .then((data)=>{
@@ -66,8 +74,7 @@ export class TableData {
                             }
                         }
                         //вставляем фиктивную ноду под нераскрытую группу
-                        if (row.groupfl==='1' //&& !this.expandedNodes.includes(row.node_key)
-                        ){
+                        if (row.groupfl==='1' && (!row.children_loaded || row.children_loaded!="1") ){
                             this.rowData.push({});
                             var dummy_hie_path = row.hie_path.slice();
                             dummy_hie_path.push(row.node_key + ' dummy child');
