@@ -1348,49 +1348,60 @@ def get_sheet_nodes(request):
 def get_tree_node_list(request):
 
     param_dict = dict(request.GET)
-    p_sht_id = ''
-    p_flt_id = ''
-    p_flt_item_id = ''
-    p_key = ''
     p_flt_root_id = ''
-    p_cell_key = ''
 
 
-
-    if 'sht_id' in param_dict:
-        p_sht_id = param_dict['sht_id'][0]
-    else:
+    if not 'sht_id' in param_dict:
         return []
 
-    group_keys = param_dict.get('group_keys', [''])[0]
-
-    if 'flt_id' in param_dict:
-        p_flt_id = param_dict['flt_id'][0]
-    if 'flt_item_id' in param_dict:
-        p_flt_item_id = param_dict['flt_item_id'][0]
-    if 'group_keys' in param_dict:
-        p_cell_key = Skey(group_keys).process()
-    if 'skey' in param_dict:
-        p_key = param_dict['skey'][0]
-
-
+    p_group_keys = param_dict.get('group_keys', [''])[0]
+    p_recursive = param_dict.get('recursive', [''])[0]
+    p_skey = param_dict.get('skey', [''])[0]
+    p_sht_id = param_dict.get('sht_id', [''])[0]
+    p_flt_id = param_dict.get('flt_id', [''])[0]
+    p_flt_item_id = param_dict.get('flt_item_id', [''])[0]
 
     sheet_info = get_sheet_info_list(p_sht_id)
 
-    node_list = get_sql_result("select 'FLT_ID_'||x.flt_id||'=>'||x.flt_item_id as node_key, "
-                               "x.*, dt.atr_type, dt.round_size, i.ENT_ID "
-                               "from table(C_PKGESsheet.fGetNodes(%s,%s,%s,%s,%s,%s)) x, "
-                               "C_ES_DTYPE dt, "
-                               "C_ES_VER_SHEET_IND i "
-                               "where dt.id(+) = x.dtype_id "
-                               "and i.id(+) = x.IND_ID "
-                               "order by x.npp", [p_sht_id, p_key, p_flt_id, p_flt_item_id, p_flt_root_id, p_cell_key])
+
+    node_list = get_tree_nodes_inner([], p_sht_id, p_skey, p_flt_id, p_flt_item_id, p_flt_root_id, p_group_keys, p_recursive)
 
     for node in node_list:
-        print("group_keys=", group_keys)
-        process_node(p_sht_id, p_key, node, group_keys, sheet_info[0])
+        print("group_keys=", p_group_keys)
+        process_node(p_sht_id, p_skey, node, p_group_keys, sheet_info[0])
 
     return node_list
+
+def get_tree_nodes_inner(node_list, p_sht_id, p_skey, p_flt_id, p_flt_item_id, p_flt_root_id, p_group_keys, p_recursive):
+    p_cell_key = Skey(p_group_keys).process()
+
+    inner_node_list = get_sql_result("""
+                                    select 'FLT_ID_'||x.flt_id||'=>'||x.flt_item_id as node_key, 
+                                   x.*, dt.atr_type, dt.round_size, i.ENT_ID 
+                                   from table(C_PKGESsheet.fGetNodes(%s,%s,%s,%s,%s,%s)) x, 
+                                   C_ES_DTYPE dt, 
+                                   C_ES_VER_SHEET_IND i 
+                                   where dt.id(+) = x.dtype_id 
+                                   and i.id(+) = x.IND_ID 
+                                   order by x.npp
+                                   """,
+                               [p_sht_id, p_skey, p_flt_id, p_flt_item_id, p_flt_root_id, p_cell_key])
+
+    if p_recursive=="1":
+        for node in inner_node_list:
+            if node.get("groupfl")=="1":
+                inner_node_list += get_tree_nodes_inner([],
+                                                        p_sht_id,
+                                                        p_skey,
+                                                        node.get("flt_id"),#p_flt_id,
+                                                        node.get("flt_item_id"),#p_flt_item_id,
+                                                        p_flt_root_id,
+                                                        p_group_keys+','+node.get("node_key"),#p_group_keys,
+                                                        p_recursive)
+
+
+    return node_list + inner_node_list
+
 
 def process_node(p_sht_id, p_key, node, group_keys, sheet_info):
 

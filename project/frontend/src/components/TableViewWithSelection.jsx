@@ -564,10 +564,19 @@ export default class TableViewWithSelection extends Component {
                {
                 name: 'Пересчет значения',
                 action: this.recalcCell.bind(this, params)
+              },
+              "separator",
+               {
+                name: 'Раскрыть все нижестоящие',
+                action: this.expandRecursive.bind(this, params)
               }
               ]);
 
               return menuItems;
+    }
+
+    expandRecursive(params){
+        console.log("expandRecursive=",params.node.data.node_key);
     }
 
 

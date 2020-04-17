@@ -117,7 +117,7 @@ export default class ReTableView extends Component {
         this.setState({colorPanelVisible:true});
     }
 
-    loadData(parentNode, reload = false){
+    loadData(parentNode, reload = false, recursive = false){
         //при изменении пропса-массива приходится вручную изменить key грида, чтобы он перерендерился
         if (reload){
             this.setState({ gridKey: this.state.gridKey+1, rowData: null});
@@ -131,6 +131,9 @@ export default class ReTableView extends Component {
             if (skey){
                 httpStr += '&skey=' + this.getFilterSkey();
             }
+
+            httpStr += '&recursive=' + (recursive ? "1" : "0");
+
 
             httpStr = this.addAdditionalSheetParams(httpStr);
 
@@ -313,6 +316,7 @@ export default class ReTableView extends Component {
 
 
     onToolbarRefreshClick(){
+
         this.sendSaveFilter();
         this.gripApi.setRowData([]);
         this.setState({isLoaded:0});

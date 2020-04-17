@@ -746,7 +746,7 @@ export default class ReGrid extends React.Component {
         var result = [
             ...this.props.getContextMenuItems(params),
             "separator",
-            "expandAll",
+            //"expandAll",
             "copyWithHeadersCopy",
             "export",
             "chartRange"
