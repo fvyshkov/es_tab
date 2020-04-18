@@ -567,6 +567,7 @@ export default class ReTableView extends Component {
                                 sendExpandNode={click => this.sendExpandNode = click}
                                 sendSaveFilter={click => this.sendSaveFilter = click}
                                 getGridApi={click => this.getGridApi = click}
+                                onSendExpandRecursive={this.onSendExpandRecursive.bind(this)}
                                 {...this.props}
                                 />
 

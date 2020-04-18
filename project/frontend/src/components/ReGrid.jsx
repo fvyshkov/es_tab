@@ -344,6 +344,7 @@ export default class ReGrid extends React.Component {
                             atr_type:currentValue.atr_type,
                             chartDataType : cellChartDataType,
                             filter:columnFilter,
+                            suppressKeyboardEvent: suppressCtrlArrow,
                             cellEditor: columnCellEditor,
                             tooltipComponentParams: (params)=>{return {columnData: getColumnData(params)};},
                             tooltipComponent: "sheetCellTooltip",
@@ -645,6 +646,7 @@ export default class ReGrid extends React.Component {
                             undoRedoCellEditing={true}
                             undoRedoCellEditingLimit={100}
                             enableCellChangeFlash={true}
+                            onCellKeyDown={this.onCellKeyDown.bind(this)}
                             onCellFocused={this.onCellFocused.bind(this)}
                             localeText={{
                                                 // for filter panel
@@ -745,6 +747,16 @@ export default class ReGrid extends React.Component {
         return commentDatasource(grid);
     }
 
+
+
+    onCellKeyDown = e => {
+
+        if (e.event.ctrlKey && e.event.key=="ArrowRight" && this.props.onSendExpandRecursive){
+            this.props.onSendExpandRecursive(e.node.id);
+        }else if (e.event.ctrlKey && e.event.key=="ArrowLeft"){
+            this.gridApi.setRowNodeExpanded( this.gridApi.getRowNode(e.node.id), false);
+        }
+    }
 
 
 
@@ -940,5 +952,16 @@ function hexToRGB(hex, alpha, delta=0) {
     } else {
         return "rgb(" + r + ", " + g + ", " + b + ")";
     }
+}
+
+function suppressCtrlArrow(params){
+    var event = params.event;
+    //подавляем ctrl+-> для первой колонки (группирующей)
+    //потому что на это сочетание повесим раскрытие узла с рекурсией
+    var suppress = params.column.colDef.showRowGroup &&
+            event.ctrlKey  && event.key == "ArrowRight";
+
+    return suppress;
+
 }
 

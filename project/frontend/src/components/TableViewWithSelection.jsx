@@ -568,6 +568,7 @@ export default class TableViewWithSelection extends Component {
               "separator",
                {
                 name: 'Раскрыть все нижестоящие',
+                shortcut: "Ctrl+→",
                 action: this.expandRecursive.bind(this, params)
               }
               ]);
