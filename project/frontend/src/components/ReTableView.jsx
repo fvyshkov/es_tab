@@ -124,6 +124,10 @@ export default class ReTableView extends Component {
             this.props.sendExpandRecursive(this.onSendExpandRecursive.bind(this));
         }
 
+        if (this.props.sendCollapseAll){
+            this.props.sendCollapseAll(this.onSendCollapseAll.bind(this));
+        }
+
 
         if (this.props.sendRefresh){
             this.props.sendRefresh(this.onToolbarRefreshClick.bind(this));
@@ -156,6 +160,14 @@ export default class ReTableView extends Component {
                                                 changeParams: {sheet: this.props.sheet}
                                              });
         }
+    }
+
+    onSendCollapseAll(){
+        var api = this.getGridApi();
+
+        api.forEachNode((nodeIterator)=>{
+            api.setRowNodeExpanded(nodeIterator, false);
+        });
     }
 
     sendRefreshGrid(){

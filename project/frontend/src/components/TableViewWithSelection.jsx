@@ -574,11 +574,21 @@ export default class TableViewWithSelection extends Component {
               {
                 name: 'Раскрыть все',
                 action: this.expandRecursive.bind(this, params, true)
+              },
+              {
+                name: 'Закрыть все',
+                action: this.collapseAll.bind(this)
               }
               ]);
 
               return menuItems;
     }
+
+    collapseAll(){
+        this.sendCollapseAll();
+    }
+
+    sendCollapseAll(){}
 
     expandRecursive(params, expandAll = false){
         this.sendExpandRecursive(params.node.data.node_key, expandAll);
@@ -1254,6 +1264,7 @@ export default class TableViewWithSelection extends Component {
                     sendInsertRecord={click => this.sendInsertRecord = click}
                     sendRefresh={click => this.sendRefresh = click}
                     sendExpandRecursive={click => this.sendExpandRecursive = click}
+                    sendCollapseAll={click => this.sendCollapseAll = click}
                     additionalToolbarItem={()=>{return(
                                                         <SheetSelectDropDown
                                                             onSelectNewSheet={this.loadNewSheet.bind(this)}
