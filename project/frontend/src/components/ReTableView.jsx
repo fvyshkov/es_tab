@@ -71,25 +71,34 @@ export default class ReTableView extends Component {
         }
     }
 
-    onSendExpandRecursive(node_key){
+    onSendExpandRecursive(node_key, expandAll){
         var api = this.getGridApi();
 
-        api.setRowNodeExpanded(api.getRowNode(node_key), true);
+        if (!expandAll){
+            api.setRowNodeExpanded(api.getRowNode(node_key), true);
 
-        if (!this.tableData.loadedNodes.includes(node_key)){
-            this.loadData(api.getRowNode(node_key), false, true)
-                .then(()=>this.expandLoadedNodesRecursive(api.getRowNode(node_key)));
+            if (!this.tableData.loadedNodes.includes(node_key)){
+                this.loadData(api.getRowNode(node_key), false, true)
+                    .then(()=>this.expandLoadedNodesRecursive(api.getRowNode(node_key)));
+            }else{
+                api.forEachNode((nodeIterator)=>{
+                    if (nodeIterator.parent && nodeIterator.parent.id == node_key &&
+                            !this.tableData.loadedNodes.includes(nodeIterator.data.node_key)
+                        )
+                    {
+                        //раскрываем НЕзагруженных детей рекурсивно (читая с сервера)
+                        this.onSendExpandRecursive(nodeIterator.data.node_key);
+                    }else{
+                        //просто раскрываем уже загруженные ноды
+                        this.expandLoadedNodesRecursive(nodeIterator)
+                    }
+                });
+            }
         }else{
-            api.forEachNode((nodeIterator)=>{
-                if (nodeIterator.parent && nodeIterator.parent.id == node_key &&
-                        !this.tableData.loadedNodes.includes(nodeIterator.data.node_key)
-                    )
-                {
-                    //раскрываем НЕзагруженных детей рекурсивно (читая с сервера)
-                    this.onSendExpandRecursive(nodeIterator.data.node_key);
-                }else{
-                    //просто раскрываем уже загруженные ноды
-                    this.expandLoadedNodesRecursive(nodeIterator)
+
+            api.forEachNode(node=>{
+                if (node.level==0 && node.data.groupfl==='1'){
+                    this.onSendExpandRecursive(node.data.node_key, false);
                 }
             });
         }

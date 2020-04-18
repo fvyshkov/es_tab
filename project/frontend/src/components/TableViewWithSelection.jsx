@@ -569,15 +569,19 @@ export default class TableViewWithSelection extends Component {
                {
                 name: 'Раскрыть все нижестоящие',
                 shortcut: "Ctrl+→",
-                action: this.expandRecursive.bind(this, params)
+                action: this.expandRecursive.bind(this, params, false)
+              },
+              {
+                name: 'Раскрыть все',
+                action: this.expandRecursive.bind(this, params, true)
               }
               ]);
 
               return menuItems;
     }
 
-    expandRecursive(params){
-        this.sendExpandRecursive(params.node.data.node_key);
+    expandRecursive(params, expandAll = false){
+        this.sendExpandRecursive(params.node.data.node_key, expandAll);
     }
 
 
