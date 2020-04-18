@@ -214,7 +214,7 @@ export default class ReTableView extends Component {
                 this.setState({rowData: data});
                 data.forEach(row=>{
                     if (row.groupfl==='1' && this.nodesForExpand.includes(row.node_key)){
-                        this.nodesForExpand.shift();
+                        this.nodesForExpand = this.nodesForExpand.filter(el=> el.node_key != row.node_key);
                         this.sendExpandNode(row.node_key);
                     }
                 });
@@ -375,15 +375,25 @@ export default class ReTableView extends Component {
         return '0';
     }
 
+    saveExpandedNodes(){
+        this.nodesForExpand = [];
+        var gridApi = this.getGridApi();
+        gridApi.forEachNode(node=>{
+            if (node.expanded){
+                    this.nodesForExpand.push(node.data.node_key);
+            }
+        });
+
+
+    }
 
     onToolbarRefreshClick(){
-
+        this.saveExpandedNodes();
         this.sendSaveFilter();
         this.gripApi.setRowData([]);
         this.setState({isLoaded:0});
         this.loadData({}, true);
         this.sendRefreshGrid();
-        //
 
     }
 
