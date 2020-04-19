@@ -365,12 +365,28 @@ export default class TableViewWithSelection extends Component {
         var repParams = {};
 
 
-
         if (this.state.sheet.stype ==='DM' || this.state.sheet.stype === 'MULT_DM' || this.state.sheet.stype === 'R'){
             repParams['SHT_ID'] = {type:"S", value: this.state.sheet.id};
-            repParams['SKEY'] = {type:"S", value: getFilterSkey(this.state.filterNodes)};
-            //repParams['DOP'] = {type:"S", value: ""};
+            var skey = getFilterSkey(this.state.filterNodes);
+            var skey_cleaned = '';
+            skey.split(',').forEach(el=>{
+                if (!el.startsWith("FLT_ID_DOP")){
+                    skey_cleaned += el+',';
+                }
+            });
+
+            repParams['SKEY'] = {type:"S", value: skey_cleaned};
             repParams['COL_LIMIT'] = {type:"S", value: "0"};
+
+            if (this.state.sheet.stype ==='DM' || this.state.sheet.stype === 'MULT_DM'){
+                if (this.state.filterNodes.DOP){
+                    this.state.filterNodes.DOP.filter_node_list.forEach(node=>{
+                        if (node.checked){
+                            repParams['DOP'] = {type:"S", value: node.id};
+                        }
+                    });
+                }
+            }
 
             getReport('C_ES_DM_EXP_RPT', repParams);
         }else if (this.state.sheet.stype === 'TURN'){
