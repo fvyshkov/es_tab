@@ -41,7 +41,7 @@ def get_report(request):
 
     url = 'http://127.0.0.1:60000/rpt/?params='+ quote(dict(request.GET).get('params', [''])[0])
 
-
+    print("report params", dict(request.GET).get('params', [''])[0])
     report_data = urlopen(url).read()
 
 
@@ -765,16 +765,52 @@ def import_table_sheet(sht_id, file, skey, del_existed):
     cursor = connection.cursor()
     my_clob = cursor.var(cx_Oracle.CLOB)
     my_clob.setvalue(0, file)
-    cursor.execute("""begin c_pkgconnect.popen();
-                                C_PKGESIMP.pImportReqFromXLS(p_xml => :1, 
-                                                            p_sht_id => :2, 
-                                                            p_header_top => :3, 
-                                                            p_header_bottom => :4,
-                                                            p_del_existed_req => :5,
-                                                            p_skey => :6
+    cursor.execute("""
+                        declare
+                            p_xml clob := :1; 
+                            p_sht_id number(10) := :2; 
+                            p_header_top int := :3;
+                            p_header_bottom int := :4;
+                            p_del_existed_req int := :5;
+                            p_skey varchar2(500) := :6;
+                            
+                            ssheet_type varchar2(30); 
+                        begin   
+                            c_pkgconnect.popen();
+                            
+                            select t.stype
+                            into ssheet_type 
+                            from c_es_sheet_type t, c_es_ver_sheet s  
+                            where s.id = p_sht_id and t.id = s.type_id;
+                            
+                            if ssheet_type like '%DM' then--DM, MULTY_DM
+                                C_PKGESIMP.pImportDMFromXLS(p_xml => p_xml, 
+                                                            p_sht_id => p_sht_id, 
+                                                            p_header_top => p_header_top, 
+                                                            p_header_bottom => p_header_bottom,
+                                                            p_del_existed_req => p_del_existed_req,
+                                                            p_skey => p_skey
                                                             );
+                            elsif ssheet_type like 'R' then
+                                C_PKGESIMP.pImportReqFromXLS(p_xml => p_xml, 
+                                                            p_sht_id => p_sht_id, 
+                                                            p_header_top => p_header_top, 
+                                                            p_header_bottom => p_header_bottom,
+                                                            p_del_existed_req => p_del_existed_req,
+                                                            p_skey => p_skey
+                                                            );
+                            elsif ssheet_type like 'TURN' then
+                                C_PKGESIMP.pImportTurnFromXLS(p_xml => p_xml, 
+                                                            p_sht_id => p_sht_id, 
+                                                            p_header_bottom => p_header_bottom,
+                                                            p_del_existed_req => p_del_existed_req
+                                                            );
+                            else
+                                raise_application_error(-20000,localize('Недопустимый тип листа'));                                                            
+                            end if;
+                            
                                 commit;                                                            
-                        end;""", [my_clob, sht_id, header_top, header_bottom, del_existed, skey])
+                        end;""", [ my_clob, sht_id,  header_top, header_bottom, del_existed, skey])
 
 
 
