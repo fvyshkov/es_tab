@@ -135,7 +135,7 @@ export default class TableViewWithSelection extends Component {
     loadNewSheet(sheet){
         this.setState({sheet_id: sheet.id, sheet_type: sheet.sheet_type, sheet_path: sheet.sheet_path, sheet: sheet});
         this.sendLoadAll(sheet.id, sheet.sheet_type);
-        this.loadOperList();
+
 
         if (this.props.onLayoutContentChange){
             this.props.onLayoutContentChange({
@@ -991,6 +991,7 @@ export default class TableViewWithSelection extends Component {
             .then((data)=>{
                 this.sendNewFilterNodes(data, this.state.filterNodes);
             });
+        this.loadOperList();
     }
     closeReference(row) {
 
