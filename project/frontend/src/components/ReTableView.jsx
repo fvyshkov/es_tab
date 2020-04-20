@@ -222,6 +222,13 @@ export default class ReTableView extends Component {
             .then(()=> {
                 this.sendRefreshData();
             })
+
+            .then(()=>{
+                if (this.props.afterLoadData){
+                    this.props.afterLoadData();
+                }
+            })
+
             .then(()=>{
                 this.setState({loading:false});
                 this.setState({isLoaded:1});
@@ -299,7 +306,7 @@ export default class ReTableView extends Component {
 
     }
 
-    onLoadFilterNodes(filterNodesList){
+    onLoadFilterNodes(filterNodesList, oldFilterNodes){
         var newFilterNodes = this.state.filterNodes;
         newFilterNodes = {};
 
@@ -307,12 +314,29 @@ export default class ReTableView extends Component {
             newFilterNodes[filter.flt_id] = filter;
         });
 
+        if (oldFilterNodes){
+            this.copyFilterSelection(newFilterNodes, oldFilterNodes);
+        }
+
         this.setState({filterNodes: newFilterNodes});
         //при изменении пропса-массива приходится вручную изменить key грида, чтобы он перерендерился
         this.setState({gridKey: this.state.gridKey+1});
 
         if (this.props.onFilterNodesChange){
             this.props.onFilterNodesChange(this.state.filterNodes);
+        }
+    }
+
+    copyFilterSelection(destinationFilterNodes, sourceFilterNodes){
+        for (var filterId in destinationFilterNodes){
+            if (sourceFilterNodes[filterId]){
+                sourceFilterNodes[filterId].filter_node_list.forEach(node=>{
+                    var destinationIndex = destinationFilterNodes[filterId].filter_node_list.findIndex(el=> el.id == node.id);
+                    if (destinationIndex>=0){
+                        destinationFilterNodes[filterId].filter_node_list[destinationIndex].checked = node.checked;
+                    }
+                });
+            }
         }
     }
 
@@ -491,7 +515,6 @@ export default class ReTableView extends Component {
          if  (skey){
             httpStr += '&skey='+skey;
          }
-        console.log();
         httpStr = this.addAdditionalSheetParams(httpStr);
         return httpStr;
     }
@@ -541,6 +564,10 @@ export default class ReTableView extends Component {
     }
 
     render(){
+        var tmpProps = JSON.parse(JSON.stringify(this.props));
+        if (this.state.filterNodes){
+            tmpProps.filterNodes = JSON.parse(JSON.stringify(this.state.filterNodes));
+        }
 
         return (
             <React.Fragment>
@@ -615,7 +642,7 @@ export default class ReTableView extends Component {
                                 sendSaveFilter={click => this.sendSaveFilter = click}
                                 getGridApi={click => this.getGridApi = click}
                                 onSendExpandRecursive={this.onSendExpandRecursive.bind(this)}
-                                {...this.props}
+                                {...tmpProps}
                                 />
 
 

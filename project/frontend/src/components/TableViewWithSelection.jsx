@@ -986,7 +986,12 @@ export default class TableViewWithSelection extends Component {
         }
     }
 
-
+    afterLoadData(){
+        sendRequestPromise('sht_filters/?sht_id='+this.state.sheet.id+'&stype='+this.state.sheet.stype)
+            .then((data)=>{
+                this.sendNewFilterNodes(data, this.state.filterNodes);
+            });
+    }
     closeReference(row) {
 
         this.onConfirmCallBack(this.operItem, 'NJRN=>'+row.njrn+',ROOTFL=>0,BPFL=>1');
@@ -1290,6 +1295,7 @@ export default class TableViewWithSelection extends Component {
                                                         );
                                                 }
                                           }
+                    afterLoadData={this.afterLoadData.bind(this)}
                     addToolPanels={ [
                                 {
                                 id: "sheetFilters",
