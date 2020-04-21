@@ -17,11 +17,11 @@ export default class TreeReference extends React.Component {
     };
 
     componentDidMount() {
-      console.log('ref mount');
+
     }
 
     componentWillUnmount() {
-      console.log('ref unmount');
+
     }
 
     onRefHidden() {

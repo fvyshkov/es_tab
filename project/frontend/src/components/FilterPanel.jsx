@@ -54,18 +54,15 @@ export default class FilterPanel extends Component {
     }
 
     render() {
-        //this.filterRenderItems = this.state.filterList.map(
         if (!this.props.filterNodes || this.props.filterNodes.length===0){
             return (<div></div>);
         }
-        //console.log('this.props.filterNodes', this.props.filterNodes);
 
         var filterRenderItems = [];
 
         for (var filterID in this.props.filterNodes){
             if (Object.prototype.hasOwnProperty.call(this.props.filterNodes, filterID)){
                 var fltItem = this.props.filterNodes[filterID];
-                //console.log('fltItem', fltItem);
                 filterRenderItems.push(
                     <div key={fltItem.flt_id}>
                         <DropdownHOC

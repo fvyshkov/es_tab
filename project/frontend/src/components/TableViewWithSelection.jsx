@@ -104,7 +104,6 @@ export default class TableViewWithSelection extends Component {
                             sheet_type: this.props.sheet.sheet_type });
         }
 
-        console.log('DIDMOUNT this.props.filterNodes', this.props.layoutItemID);
 
         if (this.props.filterNodes){
             this.setState({filterNodes: this.props.filterNodes});
@@ -152,7 +151,6 @@ export default class TableViewWithSelection extends Component {
 
     onCellValueChanged(params){
 
-        console.log("");
         if (this.state.sheet_type==='tree'){
             sendRequestPromise('update_tree_record/?sht_id='+this.state.sheet_id+
                                 '&skey='+getFilterSkeyByCell(params)+
@@ -303,7 +301,6 @@ export default class TableViewWithSelection extends Component {
 
             sendRequestPromise('get_dm_dops/?sht_id='+this.state.sheet.id)
                 .then((data)=>{
-                    console.log('loadUndoData=>', data);
                     this.setState({loadUndoData: data, showLoadUndoRef: true})
                 });
 
@@ -343,7 +340,6 @@ export default class TableViewWithSelection extends Component {
     }
 
     runLoadDM(params){
-        console.log('runLoadDM() loadDmParams', params);
         var dop = params.DOP.value;
         var dopString = dop.getDate().toString().padStart(2,'0')  + '.' +
                                 (dop.getMonth()+1).toString().padStart(2,'0') + '.' +
@@ -354,7 +350,6 @@ export default class TableViewWithSelection extends Component {
 
 
     runUserReport(params){
-        console.log('runUserReport', this.state.userReportCode, params);
         getReport(this.state.userReportCode, params);
 
 
@@ -523,7 +518,6 @@ export default class TableViewWithSelection extends Component {
 
     getContextMenuItems(params){
 
-        console.log("params.column.colDef", params.column.colDef);
 
         var menuItems = [];
 
@@ -632,7 +626,6 @@ export default class TableViewWithSelection extends Component {
     }
 
     updateParentCallback(params){
-        console.log("updateParentCallback!!!", params);
         this.setState({isLoaded:0});
 
         var httpStr = '';
@@ -645,7 +638,6 @@ export default class TableViewWithSelection extends Component {
                     var data_test = data[0];
                     var columns = data[0]['column_data'];
                     for (var i=0; i< columns.length; i++){
-                        console.log('column', columns[i])
                         data_test[columns[i]['key']] = columns[i]['sql_value']
                     }
 
@@ -676,7 +668,7 @@ export default class TableViewWithSelection extends Component {
                                 additionalSheetParams={formParams.additionalSheetParams}
                                 onToolbarCloseClick={this.props.onToolbarCloseClick.bind(this)}
                                 layoutItemID={newLayoutItemID}
-                                getRowNodeId={(data)=>{console.log("getRowNodeId data", data); return data.node_key;}}
+                                getRowNodeId={(data)=>{ return data.node_key;}}
                                 getDataRequestString={this.getDataRequestString.bind(this)}
                                 updateParentCallback={this.updateParentCallback.bind(this)}
                                 />;
@@ -721,14 +713,12 @@ export default class TableViewWithSelection extends Component {
     }
 
     reloadNodes(reloadAllCells=false){
-        console.log("reloadNodes");
 
         var nodeIds = [];
         this.gridApi.forEachNode((node, index)=>{
             nodeIds.push(node.data);
         });
-        var oldRowData = [];//this.state.rowData.slice();
-        //console.log("rowData", rowData);
+        var oldRowData = [];
 
         sendRequestPromise('reload_nodes/?sht_id='+this.state.sheet.id+'&sht_skey='+getFilterSkey(this.state.filterNodes),
                             'POST', nodeIds)
@@ -737,20 +727,15 @@ export default class TableViewWithSelection extends Component {
                     oldRowData.push(this.gridApi.getRowNode(node.node_key).data);
                     if (node['column_data']){
                         for (var i=0; i< node['column_data'].length; i++){
-                            //console.log("1", node['column_data'][i]['key'], node['column_data'][i]['sql_value']);
                             node[node['column_data'][i]['key']] = node['column_data'][i]['sql_value']
                         }
                     }
                 });
-                console.log("oldRowData", oldRowData);
                 var changedRows = [];
                 var changedColumns = [];
                 data.forEach((node, index)=>{
                     var oldNode = oldRowData.filter(row=>{return (row.node_key==node.node_key);})[0];
-                    if (index==0){
-                        console.log("node new", node);
-                        console.log("node old", oldNode);
-                    }
+
 
                     if (node['column_data']){
                         for (var i=0; i< node['column_data'].length; i++){
@@ -764,7 +749,6 @@ export default class TableViewWithSelection extends Component {
                                 newCell['font.bold'] != oldCell['font.bold'] ||
                                 newCell['commentfl'] != oldCell['commentfl']
                                 ){
-                                console.log("cell for refresh! ", newCell.key, node.node_key);
                                 changedColumns.push(newCell.key);
                                 changedRows.push(node.node_key);
 
@@ -788,7 +772,7 @@ export default class TableViewWithSelection extends Component {
     }
 
     refreshOpenedNodes(){
-        console.log("refreshOpenNodes");
+
     }
 
     showScheduleForRow(params){
@@ -865,7 +849,6 @@ export default class TableViewWithSelection extends Component {
     showCommentForCell(params){
 
         var columnData = getColumnData(params);
-        console.log("showCommentForCell", params, columnData);
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
 
@@ -881,7 +864,6 @@ export default class TableViewWithSelection extends Component {
             skey = getFilterSkeyByCell(params);
             skey += columnData.key;
 
-            console.log("comment skey", skey);
 
             var additionalParams = {
                                     viewType: 'CommentView',
@@ -944,12 +926,9 @@ export default class TableViewWithSelection extends Component {
     }
 
     afterOperRun(){
-        console.log('afterOperRun callback');
         //перегрузим фильтры не трогая ничего больше
         sendRequestPromise('sht_filters/?sht_id='+this.state.sheet.id+'&stype='+this.state.sheet.stype)
             .then((data)=>{
-                //this.setState({filterNodes: data})
-                console.log('afterOperRun', data);
                 this.sendNewFilterNodes(data);
             });
 
@@ -980,10 +959,7 @@ export default class TableViewWithSelection extends Component {
 
 
     onTopMenuClick(){
-        console.log('onTopMenuClick');
-        if (this.state.sheet.id ){
-           // this.loadOperList();
-        }
+
     }
 
     afterLoadData(){
@@ -1029,8 +1005,6 @@ export default class TableViewWithSelection extends Component {
                                     }
                         });
 
-                        console.log("rptDialogParams", rptDialogParams);
-                        console.log("closeRptListReference this", this);
 
                         this.setState({
                             userReportCode: row.code,
@@ -1091,15 +1065,12 @@ export default class TableViewWithSelection extends Component {
 
 
     closeUserReportDialog(){
-        console.log("1");
         this.setState({userReportParamsVisible:false});
-        console.log("2");
     }
 
 
     onGetGridApi(gridApi){
         this.gridApi = gridApi;
-        console.log('tableViewWithSelection onGetGridApi', this.gridApi);
     }
 
 
@@ -1113,11 +1084,12 @@ export default class TableViewWithSelection extends Component {
         }
     }
 
+
+    sendDeleteRecord(){}
+
     showReportParamRefer(refdscr, refcode){
-        console.log("1 showReportParamRefer", refdscr);
         this.setState({userReportParamsVisible:false});
 
-        console.log("2 showReportParamRefer", refdscr);
         this.setState({reportParamReferVisible:true, reportParamReferDscr: refdscr, reportParamReferRefCode : refcode});
     }
 
@@ -1138,7 +1110,6 @@ export default class TableViewWithSelection extends Component {
                       }}
             /> : null;
 
-        console.log('RENDER this.state.loadUndoData=', this.state.loadUndoData);
 
         var referLoadUndoComp = this.state.showLoadUndoRef ? <Reference
                 data={this.state.loadUndoData}
@@ -1155,7 +1126,6 @@ export default class TableViewWithSelection extends Component {
                       }}
             /> : null;
 
-            console.log('2 RENDER this.state.loadUndoData=', this.state.loadUndoData);
 
             var referRptListComp = this.state.showRptList ? <Reference
                 data={this.state.reportList}
@@ -1174,7 +1144,6 @@ export default class TableViewWithSelection extends Component {
             var referPaymentsCreateComp = this.state.createPaymentsVisible ? <Reference
                 data={this.state.loadDmDates}
                   onRefHidden={(params)=>{
-                            console.log('paymentsCreate TODO', params.dop);
                             sendRequestPromise('create_payments/?sht_id='+this.state.sheet.id+
                                             '&dop='+params.dop+
                                             '&skey='+getFilterSkey(this.state.filterNodes))
@@ -1192,7 +1161,6 @@ export default class TableViewWithSelection extends Component {
             /> : null;
 
 
-//this.setState({reportParamReferVisible:true, reportParamReferDscr: refdscr, reportParamReferRefCode : refcode});
             let reportParamReferComp = this.state.reportParamReferVisible ?
                     (<Refer
                     refCode={this.state.reportParamReferRefCode}
@@ -1200,7 +1168,6 @@ export default class TableViewWithSelection extends Component {
                     refdscr={this.state.reportParamReferDscr}
                     />) : null;
 
-                console.log('10 RENDER this.state.loadUndoData=', this.state.loadUndoData);
 
 
         return (

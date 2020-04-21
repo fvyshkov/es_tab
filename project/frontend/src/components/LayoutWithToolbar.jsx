@@ -63,7 +63,6 @@ export default class LayoutWithToolbar extends Component {
         hint: "Новое окно",
         onClick: () => {
                             var refer = React.createRef();
-                            console.log('refer created=', refer);
                             this.addElementToLayout(
                                                         <TableViewWithSelection ref={refer}
                                                             layoutItemID={"n" + this.state.items.length}
@@ -142,15 +141,12 @@ export default class LayoutWithToolbar extends Component {
     savePatternLayout(saveAsNew){
 
         this.state.items.forEach((item)=>{
-            console.log("item.refer", item.refer);
             if (item.refer && item.refer.current && item.refer.current.sendLayoutBeforeSave){
-                console.log("item.refer", item.refer);
                 item.refer.current.sendLayoutBeforeSave();
             }
         });
 
         this.savedLayout = this.layoutForSave;
-        console.log("savePatternLayout this.savedLayout", this.savedLayout);
 
         this.addLayoutParams = [
             {dataField:"LONGNAME", label:"Наименование", value: "Рабочий стол",  visible: true}
@@ -168,7 +164,6 @@ export default class LayoutWithToolbar extends Component {
     }
 
     doBeforeSaveLayout(parentLayoutId, charts, expandedGroupIds, filterModel, columnState){
-        console.log("doBeforeSaveLayout", parentLayoutId, charts, expandedGroupIds);
 
 
         this.layoutForSave.forEach((layout)=>{
@@ -178,7 +173,6 @@ export default class LayoutWithToolbar extends Component {
                 layout['columnFilterModel'] = filterModel;
                 layout['columnState'] = columnState;
                 for (var chartIndex in charts){
-                    console.log('chart', charts[chartIndex]);
                     var chart = charts[chartIndex];
                     if (this.layoutForSave.find(element=> element.itemId == chart.chartLayoutId)){
                         layout['chartsData'].push(chart);
@@ -191,16 +185,12 @@ export default class LayoutWithToolbar extends Component {
 
     openPatternLayout(layout){
 
-        console.log("this.layoutForSave", this.layoutForSave);
-        console.log("this.savedLayout", layout);
-        //return;
         //сначала удалим все что есть
         this.setState({items:[]});
 
         this.layoutForSave = layout;
         this.savedLayout = layout;
 
-        console.log("this.savedLayout", layout);
 
         this.savedLayout.forEach((layoutItem)=>{
             if (layoutItem.elementType in layoutComponents){
@@ -243,8 +233,6 @@ export default class LayoutWithToolbar extends Component {
     }
 
     onLayoutContentChange(contentChangeParams){
-        console.log('onLayoutContentChange 1 this.layoutForSave', this.layoutForSave);
-        console.log('onLayoutContentChange 11 contentChangeParams', contentChangeParams);
 
         var foundItem = false;
         this.layoutForSave.forEach((layoutItem)=>{
@@ -262,7 +250,7 @@ export default class LayoutWithToolbar extends Component {
                 this.layoutForSave[this.layoutForSave.length-1][paramItem] = contentChangeParams.changeParams[paramItem];
             }
         }
-        console.log('onLayoutContentChange 2 this.layoutForSave', this.layoutForSave);
+
 
 
     }
@@ -278,7 +266,6 @@ export default class LayoutWithToolbar extends Component {
 
     addElementToLayout(elementRenderer, layout, elementType, formParams, refer){
 
-        console.log("addElementToLayout refer", refer);
 
         var actualLayout = layout
         if (!layout){
@@ -347,8 +334,6 @@ export default class LayoutWithToolbar extends Component {
 
     addLayout(params){
 
-        console.log('addLayout', params);
-
         var httpStr =  'update_layout/?dummy=1';
         if (params.layoutId){
             httpStr += '&layout_id='+ params.layoutId;
@@ -376,7 +361,6 @@ export default class LayoutWithToolbar extends Component {
     }
 
     deleteLayout(params){
-        //console.log("deleteLayout", params);
         var ids = params.map(row=> {return {id: row.id}});
 
         sendRequestPromise('delete_layout/', 'POST', {ids:ids})
@@ -386,7 +370,6 @@ export default class LayoutWithToolbar extends Component {
                     var deletedId = ids.find((deletedLayout)=>{ return deletedLayout.id ==layout.id  });
                     return !deletedId;
                 });
-                //console.log("2 this.state.layoutsList.length", this.state.layoutsList.length);
 
                 this.setState({layoutsList:layoutsFiltered});
             })
