@@ -13,7 +13,7 @@ import { getReport } from './getReport.js';
 import { sendRequestPromise } from './sendRequestPromise.js';
 import {TableData} from './tableData.js';
 import {getFilterSkeyByCell, getFilterSkey} from './esUtils.js';
-
+import { confirm } from 'devextreme/ui/dialog';
 
 
 
@@ -469,6 +469,12 @@ export default class ReTableView extends Component {
     onDeleteCallback(){
         if (this.props.onDeleteCallback){
             this.props.onDeleteCallback();
+            let result = confirm("<i>Это действие не может быть отменено. Продолжить?</i>", "Удаление записей");
+            result.then((dialogResult) => {
+                if (dialogResult){
+                    this.props.onDeleteCallback();
+                }
+            });
         }
     }
 
