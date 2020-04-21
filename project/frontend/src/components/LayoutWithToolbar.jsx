@@ -60,6 +60,7 @@ export default class LayoutWithToolbar extends Component {
     addItemButtonOptions = {
         elementAttr: {"id": "add_layout_sheet_item"},
         icon: 'plus',
+        hint: "Новое окно",
         onClick: () => {
                             var refer = React.createRef();
                             console.log('refer created=', refer);
@@ -90,6 +91,7 @@ export default class LayoutWithToolbar extends Component {
     closeButtonOptions = {
         elementAttr: {"id": "close_all_layout_items"},
         icon: 'close',
+        hint: "Закрыть все окна",
         onClick: () => {
             this.setState({items:[]});
         }
@@ -99,6 +101,7 @@ export default class LayoutWithToolbar extends Component {
     openPatternLayoutButtonOptions = {
         elementAttr: {"id": "open_desktop"},
         icon: 'columnfield',
+        hint: "Открыть рабочий стол",
         onClick: () => {
 
 
@@ -118,7 +121,9 @@ export default class LayoutWithToolbar extends Component {
 
     savePatternLayoutButtonOptions = {
         elementAttr: {"id": "save_desktop_new"},
-        text: "Сохранить новый рабочий стол",
+        //text: "Сохранить новый рабочий стол",
+        icon: "newfolder",
+        hint: "Сохранить новый рабочий стол",
         onClick: () => {
             this.savePatternLayout(true);
         }
@@ -126,7 +131,9 @@ export default class LayoutWithToolbar extends Component {
 
     savePatternLayoutReplaceButtonOptions = {
         elementAttr: {"id": "save_desktop_replace"},
-        text: "Сохранить как...",
+        //text: "Сохранить как...",
+        icon: "paste",
+        hint: "Сохранить как...",
         onClick: () => {
             this.savePatternLayout(false);
         }
@@ -424,14 +431,15 @@ export default class LayoutWithToolbar extends Component {
                     options={this.openPatternLayoutButtonOptions} />
 
                     <Item
-                    locateInMenu="always"
+                    location={"after"}
                     widget={'dxButton'}
                     options={this.savePatternLayoutButtonOptions} />
 
                     <Item
-                    locateInMenu="always"
+                    location={"after"}
                     widget={'dxButton'}
                     options={this.savePatternLayoutReplaceButtonOptions} />
+
 
 
                 </Toolbar>
