@@ -95,6 +95,7 @@ class Reference extends React.Component {
                 <Button
                     text = ""
                     icon="clear"
+                    hint="Удалить выбранные записи"
                     type = "normal"
                     onClick={this.onDeleteItem.bind(this)}
                 />

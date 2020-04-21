@@ -133,7 +133,7 @@ export default class LayoutWithToolbar extends Component {
         elementAttr: {"id": "save_desktop_replace"},
         //text: "Сохранить как...",
         icon: "paste",
-        hint: "Сохранить как...",
+        hint: "Сохранить рабочий стол как...",
         onClick: () => {
             this.savePatternLayout(false);
         }

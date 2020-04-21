@@ -36,6 +36,7 @@ export default class SheetToolbar extends Component {
 
     refreshButtonOptions = {
         icon: 'refresh',
+        hint: "Обновить",
         onClick: (e) => {
             this.props.onRefreshCallback();
         }
@@ -44,6 +45,7 @@ export default class SheetToolbar extends Component {
     insertButtonOptions = {
         elementAttr: {"id": "view_insert"},
         icon: 'plus',
+        hint: "Новая запись",
         onClick: (e) => {
             //console.log('insertButtonOptions.onClick');
             this.props.onInsertCallback();
@@ -53,6 +55,7 @@ export default class SheetToolbar extends Component {
     deleteButtonOptions = {
         elementAttr: {"id": "view_delete"},
         icon: 'minus',
+        hint: "Удалить запись",
         onClick: (e) => {
             this.props.onDeleteCallback();
         }
@@ -62,6 +65,7 @@ export default class SheetToolbar extends Component {
     closeButtonOptions = {
         elementAttr: {"id": "view_close"},
         icon: 'close',
+        hint: "Закрыть окно",
         onClick: (e) => {
             this.props.onCloseCallback();
         }
@@ -70,6 +74,7 @@ export default class SheetToolbar extends Component {
     saveButtonOptions = {
         elementAttr: {"id": "view_save"},
         icon: 'save',
+        hint: "Сохранить",
         onClick: () => {
             this.props.onSaveCallback();
         }
@@ -78,6 +83,7 @@ export default class SheetToolbar extends Component {
     colorButtonOptions = {
         elementAttr: {"id": "view_color"},
         icon: 'palette',
+        hint: "Цветовая схема",
         onClick: () => {
             this.props.onPreferencesCallback();
         }
@@ -97,6 +103,7 @@ export default class SheetToolbar extends Component {
                     options={
                             {icon: 'plus',
                             elementAttr: {"id": "view_insert"},
+                            hint: "Добавить запись",
                             onClick: (e) => {this.props.onInsertCallback();}}
                     }/>
 
@@ -109,6 +116,7 @@ export default class SheetToolbar extends Component {
                     options={{
                                 icon: 'undo',
                                 elementAttr: {"id": "view_undo"},
+                                hint: "Отмена коррекции",
                                 onClick: () => {
                                     this.props.onUndoCallback();
                                 }
