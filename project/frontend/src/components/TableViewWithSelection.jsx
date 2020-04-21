@@ -1273,7 +1273,11 @@ export default class TableViewWithSelection extends Component {
                     saveViewState={this.saveViewState.bind(this)}
                     onCellValueChanged={this.onCellValueChanged.bind(this)}
                     getDataRequestString={this.getDataRequestString.bind(this)}
-                    getRowNodeId={(data)=>{return data.node_key;}}
+                    getRowNodeId={(data)=>{
+                                            if (data){
+                                                return data.node_key;
+                                            }
+                                          }}
                     getMenuItems={this.getMenuItems.bind(this)}
                     onFilterNodesChange={this.onFilterNodesChange.bind(this)}
                     sendNewFilterNodes={click => this.sendNewFilterNodes = click}

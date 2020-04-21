@@ -362,7 +362,14 @@ export default class ReTableView extends Component {
 
 
     onFilterPanelChange(selectedNodes, allNodes, filterID){
-        this.state.filterNodes[filterID].filter_node_list = allNodes;
+
+        var tmpNodes = allNodes.slice();
+
+        tmpNodes.forEach(node=>{
+            node.checked = selectedNodes.find(selectedNode => selectedNode.id == node.id);
+        });
+
+        this.state.filterNodes[filterID].filter_node_list = tmpNodes;
         this.setState({filterNodes : this.state.filterNodes});
 
         if (this.props.onFilterNodesChange){
