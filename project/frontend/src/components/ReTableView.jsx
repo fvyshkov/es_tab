@@ -330,12 +330,20 @@ export default class ReTableView extends Component {
     copyFilterSelection(destinationFilterNodes, sourceFilterNodes){
         for (var filterId in destinationFilterNodes){
             if (sourceFilterNodes[filterId]){
-                sourceFilterNodes[filterId].filter_node_list.forEach(node=>{
-                    var destinationIndex = destinationFilterNodes[filterId].filter_node_list.findIndex(el=> el.id == node.id);
-                    if (destinationIndex>=0){
-                        destinationFilterNodes[filterId].filter_node_list[destinationIndex].checked = node.checked;
-                    }
-                });
+                processTree(
+                    destinationFilterNodes[filterId].filter_node_list,
+                    (destinationNode)=>{
+                        processTree(
+                            sourceFilterNodes[filterId].filter_node_list,
+                            (sourceNode)=>{
+                                if (sourceNode.id === destinationNode.id ){
+                                    destinationNode.checked = sourceNode.checked;
+                                }
+                            },
+                            'children');
+                    },
+                    'children');
+
             }
         }
     }
@@ -364,10 +372,11 @@ export default class ReTableView extends Component {
     onFilterPanelChange(selectedNodes, allNodes, filterID){
 
         var tmpNodes = allNodes.slice();
+        processTree(tmpNodes,(node) =>{
+            var isChecked = selectedNodes.find(selectedNode => selectedNode.id == node.id) ? true: false;
+            node.checked = isChecked;
+        },'children');
 
-        tmpNodes.forEach(node=>{
-            node.checked = selectedNodes.find(selectedNode => selectedNode.id == node.id);
-        });
 
         this.state.filterNodes[filterID].filter_node_list = tmpNodes;
         this.setState({filterNodes : this.state.filterNodes});
