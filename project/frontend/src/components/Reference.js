@@ -42,8 +42,11 @@ class Reference extends React.Component {
     }
 
     onOk(e) {
-        console.log('ok pressed', this.row);
         this.props.onRefHidden(this.row);
+    }
+
+    onRowDblClick(e){
+        this.onOk();
     }
 
     render () {
@@ -74,6 +77,9 @@ class Reference extends React.Component {
               height={250}
               noDataText={"Нет данных"}
               onSelectionChanged={this.onSelectionChanged}
+              onRowDblClick={this.onRowDblClick.bind(this)}
+
+
             >
               <Selection mode="multiple" showCheckBoxesMode="none" />
               {columns.map((column) => <Column key={column.field} dataField={column.field} caption={column.caption} />)}
