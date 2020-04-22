@@ -1085,7 +1085,6 @@ export default class TableViewWithSelection extends Component {
     }
 
 
-    sendDeleteRecord(){}
 
     showReportParamRefer(refdscr, refcode){
         this.setState({userReportParamsVisible:false});

@@ -11,7 +11,7 @@ export class operList{
         this.operMenuList=[];
         this.callbackBeforeOperRun = callbackBeforeOperRun;
         this.callbackAfterOperRun = callbackAfterOperRun;
-        console.log('CONSTRUCTOR callbackAfterOperRun', callbackAfterOperRun);
+
     }
 
     runOper(item){

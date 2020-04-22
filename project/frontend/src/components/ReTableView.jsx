@@ -120,6 +120,10 @@ export default class ReTableView extends Component {
             this.props.sendLoadAll(this.loadAll.bind(this));
         }
 
+        if(this.props.sendDeleteRecord){
+            this.props.sendDeleteRecord(this.sendDeleteRecord.bind(this));
+        }
+
         if (this.props.sendExpandRecursive){
             this.props.sendExpandRecursive(this.onSendExpandRecursive.bind(this));
         }
@@ -477,7 +481,6 @@ export default class ReTableView extends Component {
 
     onDeleteCallback(){
         if (this.props.onDeleteCallback){
-            this.props.onDeleteCallback();
             let result = confirm("<i>Это действие не может быть отменено. Продолжить?</i>", "Удаление записей");
             result.then((dialogResult) => {
                 if (dialogResult){
@@ -487,9 +490,6 @@ export default class ReTableView extends Component {
         }
     }
 
-    sendDeleteRecord(){
-
-    }
 
     onInsertCallback(){
         if (this.props.onInsertCallback){
