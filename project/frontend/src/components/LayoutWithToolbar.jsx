@@ -42,6 +42,8 @@ export default class LayoutWithToolbar extends Component {
     constructor(props) {
         super(props);
 
+        this.currentLayout = {};
+
         this.layoutForSave = [];
         this.addLayoutParams = [];
         this.state={
@@ -138,7 +140,7 @@ export default class LayoutWithToolbar extends Component {
         }
     }
 
-    savePatternLayout(saveAsNew){
+    savePatternLayout(saveAsNew, replaceCurrent = false){
 
         this.state.items.forEach((item)=>{
             if (item.refer && item.refer.current && item.refer.current.sendLayoutBeforeSave){
@@ -154,11 +156,13 @@ export default class LayoutWithToolbar extends Component {
 
         if (saveAsNew){
             this.setState({addLayoutDialogVisible:true});
-        }else{
+        }else if (!replaceCurrent){
             sendRequestPromise('get_layouts/')
                     .then((layouts)=>{
                         this.setState({layoutsList:layouts, showLayoutsRefer:true,  layoutsReferenceMode: 'saveLayout'});
                 });
+        }else{
+            this.addLayout({layoutId: this.currentLayout.id});
         }
 
     }
@@ -190,7 +194,6 @@ export default class LayoutWithToolbar extends Component {
 
         this.layoutForSave = layout;
         this.savedLayout = layout;
-
 
         this.savedLayout.forEach((layoutItem)=>{
             if (layoutItem.elementType in layoutComponents){
@@ -352,6 +355,7 @@ export default class LayoutWithToolbar extends Component {
         this.setState({showLayoutsRefer:false});
         if (params){
             if (this.state.layoutsReferenceMode=='openLayout'){
+                this.currentLayout = Object.assign({}, params);
                 this.openPatternLayout(params.layout);
             }else if (this.state.layoutsReferenceMode=='saveLayout'){
 
@@ -393,12 +397,11 @@ export default class LayoutWithToolbar extends Component {
             /> : null;
 
 
-
-
         return (
             <React.Fragment>
-            <div className='Wrapper'>
-                <Toolbar>
+            <div className='Wrapper' currentLayoutName={this.currentLayout.longname}>
+                <Toolbar >
+
                     <Item
                     location={'before'}
                     widget={'dxButton'}
@@ -424,6 +427,20 @@ export default class LayoutWithToolbar extends Component {
                     options={this.savePatternLayoutReplaceButtonOptions} />
 
 
+                    <Item
+                    location={"after"}
+                    widget={'dxButton'}
+                    options={
+                        {
+                            elementAttr: {"id": "save_desktop_replace_current"},
+                            icon: "save",
+                            disabled: (this.currentLayout && this.currentLayout.longname  ) ? false: true,
+                            hint: (this.currentLayout && this.currentLayout.longname ) ?  "Сохранить с заменой текущего ("+this.currentLayout.longname +  ")": "",
+                            onClick: () => {
+                                this.savePatternLayout(false, true);
+                            }
+                        }
+                    } />
 
                 </Toolbar>
 
