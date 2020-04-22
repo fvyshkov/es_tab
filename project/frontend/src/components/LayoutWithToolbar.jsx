@@ -56,7 +56,11 @@ export default class LayoutWithToolbar extends Component {
         this.getNewLayoutItemID = this.getNewLayoutItemID.bind(this);
         this.openPatternLayout = this.openPatternLayout.bind(this);
         this.savePatternLayout = this.savePatternLayout.bind(this);
+
+        this.componentDidMount = this.componentDidMount.bind(this);
     }
+
+
 
 
     addItemButtonOptions = {
@@ -164,6 +168,20 @@ export default class LayoutWithToolbar extends Component {
         }else{
             this.addLayout({layoutId: this.currentLayout.id});
         }
+
+    }
+
+    componentDidMount(){
+        sendRequestPromise('get_layouts/')
+            .then((layouts)=>{
+                layouts.forEach(layout=>{
+                    if (layout.defaultfl=="1"){
+                        this.currentLayout = Object.assign({}, layout);
+                        this.openPatternLayout(layout.layout);
+
+                    }
+                });
+            });
 
     }
 
@@ -382,14 +400,45 @@ export default class LayoutWithToolbar extends Component {
 
     render(){
 
+        this.state.layoutsList.forEach((layout)=>{
+            layout.defaultfl  = (layout.defaultfl=="1");
+        });
+
         var layoutsRefer = this.state.showLayoutsRefer ? <Reference
                 data={this.state.layoutsList}
                  onRefHidden={this.closeLayoutsReference.bind(this)}
                  keyField={'id'}
                  onDeleteItem={this.deleteLayout.bind(this)}
+                 toolbarAdd={
+                        [
+                        {
+                            icon:"product",
+                            hint:"Установить рабочий стол по умолчанию",
+                            type:"normal",
+                            onClick:(params)=>{
+
+                                if (params.length>0){
+                                    sendRequestPromise("layout_set_default/?layout_id="+params[0].id)
+                                        .then(()=>sendRequestPromise('get_layouts/'))
+                                        .then((layouts)=>{
+                                            this.setState({layoutsList:layouts});
+                                        })
+                                        .then(()=>{
+                                            if (params[0].defaultfl=="0"){
+                                                notify("Задан рабочий стол по умолчанию","success");
+                                            }else{
+                                                notify("Снят признак рабочего стола по умолчанию","success");
+                                            }
+                                        });
+                                }
+                            }
+                        }
+                        ]
+                 }
                  refdscr={{
                         title: 'Рабочие столы',
                         columns: [
+                          {caption: 'По умолчанию', field: 'defaultfl', dataType: 'boolean'},
                           {caption: 'Наименование', field: 'longname'},
                           {caption: 'Дата и время', field: 'correctdt'}
                         ]

@@ -923,6 +923,30 @@ def update_layout(request):
     return JsonResponse([], safe=False)
 
 
+def layout_set_default(request):
+    param_dict = dict(request.GET)
+    layout_id = param_dict.get('layout_id', [''])[0]
+    print('layout_set_default layoput', layout_id)
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+                            declare
+                                nID int := %s;
+                                sDEFAULTFL char(1);
+                            begin
+                                c_pkgconnect.popen();
+                                
+                                update c_es_layout
+                                set defaultfl = case when id = nID then decode(defaultfl,'0','1','0')
+                                                else '0' end
+                                where id_us = p_idus;
+                                                                
+                            end;
+                        """, [layout_id])
+
+    return JsonResponse([], safe=False)
+
+
 def delete_layout(request):
     data = json.loads(request.body.decode("utf-8"))
     print('delete layoput', data)
@@ -939,9 +963,6 @@ def delete_layout(request):
                             """, [layout['id']])
 
     return JsonResponse([], safe=False)
-
-
-
 
 def get_sheet_info_update(request):
     param_dict = dict(request.GET)

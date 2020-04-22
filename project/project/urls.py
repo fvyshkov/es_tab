@@ -64,6 +64,7 @@ urlpatterns = [
     path('get_ref_dscr/', views.get_ref_dscr),
     path('getref/', views.getref),
     path('reload_nodes/', views.reload_nodes),
+    path('layout_set_default/', views.layout_set_default),
 
 
     path('', include('frontend.urls')),

@@ -57,6 +57,18 @@ class Reference extends React.Component {
         this.row = this.data[0];
       }
       let columns = refdscr ? refdscr.columns : [];
+
+      var toolbarAdd = this.props.toolbarAdd ? this.props.toolbarAdd.map(button=>{
+        return <Button
+                    text={button.text}
+                    icon= {button.icon}
+                    hint= {button.hint}
+                    type = "normal"
+                    onClick= {()=>button.onClick(this.selectedRows)}
+                />
+      }): null;
+
+
       return(
       <Popup
         visible={true}
@@ -82,7 +94,12 @@ class Reference extends React.Component {
 
             >
               <Selection mode="multiple" showCheckBoxesMode="none" />
-              {columns.map((column) => <Column key={column.field} dataField={column.field} caption={column.caption} />)}
+              {columns.map((column) =>
+                    <Column key={column.field}
+                    dataField={column.field}
+                    caption={column.caption}
+                    dataType={column.dataType}
+                     />)}
               <Sorting mode="none" />
               <Scrolling mode="virtual" />
             </DataGrid>
@@ -107,6 +124,7 @@ class Reference extends React.Component {
                 />
                 ) : null
               }
+              {toolbarAdd}
 
             </div>
       </Popup>
