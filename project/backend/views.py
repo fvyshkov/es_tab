@@ -525,7 +525,7 @@ def update_table_record(request):
                         """,
                        [req_id])
 
-    # нужно переделать на извлечение одной записи, а не всех по ключу с дальнейшим отбором!
+
     row = get_anl_table_row_by_id(req_id)
     return JsonResponse([row], safe=False)
 
@@ -1960,7 +1960,7 @@ def get_anl_table_row_by_id(id):
         parent_id = row[0].get('parent_id', '')
 
         if not parent_id:
-            skey = row[0].get('skey', '')
+            skey = '' #не берем row.skey - чтобы получить и колонки со значениями аналитик
             rows = get_anl_table_rows(row[0].get('sht_id'), skey)
         else:
             rows = get_anl_detail_table_rows(row[0].get('sht_id',''), '', row[0].get('ind_id',''), parent_id)
