@@ -659,8 +659,9 @@ export default class TableViewWithSelection extends Component {
             var newLayoutItemID = this.props.getNewLayoutItemID();
 
             const formParams = {additionalSheetParams:{
-                                                            parent_id:params.node.data.id,
-                                                            ind_id:params.column.colDef.ind_id,
+                                                            parent_id: params.node.data.id,
+                                                            req_id: params.node.data.id,
+                                                            ind_id: params.column.colDef.ind_id,
                                                             sht_id: this.state.sheet_id
                                                             }};
 
