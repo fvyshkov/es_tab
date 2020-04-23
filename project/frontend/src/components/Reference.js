@@ -75,7 +75,7 @@ class Reference extends React.Component {
         closeOnOutsideClick={true}
         showTitle={true}
         title={refdscr.title}
-        width={500}
+        width={600}
         height={370}
         onHidden={this.onRefHidden}
         resizeEnabled={true}
@@ -99,6 +99,7 @@ class Reference extends React.Component {
                     dataField={column.field}
                     caption={column.caption}
                     dataType={column.dataType}
+                    width={column.width}
                      />)}
               <Sorting mode="none" />
               <Scrolling mode="virtual" />

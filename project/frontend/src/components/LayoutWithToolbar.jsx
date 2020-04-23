@@ -408,6 +408,7 @@ export default class LayoutWithToolbar extends Component {
                 data={this.state.layoutsList}
                  onRefHidden={this.closeLayoutsReference.bind(this)}
                  keyField={'id'}
+
                  onDeleteItem={this.deleteLayout.bind(this)}
                  toolbarAdd={
                         [
@@ -438,9 +439,9 @@ export default class LayoutWithToolbar extends Component {
                  refdscr={{
                         title: 'Рабочие столы',
                         columns: [
-                          {caption: 'По умолчанию', field: 'defaultfl', dataType: 'boolean'},
-                          {caption: 'Наименование', field: 'longname'},
-                          {caption: 'Дата и время', field: 'correctdt'}
+                          {caption: 'По умолчанию', field: 'defaultfl', dataType: 'boolean', width:"20%"},
+                          {caption: 'Наименование', field: 'longname', width:"50%"},
+                          {caption: 'Дата и время', field: 'correctdt', width:"30%"}
                         ]
                       }}
             /> : null;
