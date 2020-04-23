@@ -346,7 +346,9 @@ export default class ReGrid extends React.Component {
                             filter:columnFilter,
                             suppressKeyboardEvent: suppressCtrlArrow,
                             cellEditor: columnCellEditor,
-                            tooltipComponentParams: (params)=>{return {columnData: getColumnData(params)};},
+                            tooltipComponentParams: (params)=>{
+                                                                return {columnData: getColumnData(params)};
+                                                              },
                             tooltipComponent: "sheetCellTooltip",
                             tooltipValueGetter: function(params) {
                                                     var columnData =  getColumnData(params);

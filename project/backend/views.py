@@ -1469,6 +1469,19 @@ def get_tree_nodes_inner(node_list, p_sht_id, p_skey, p_flt_id, p_flt_item_id, p
 
     return node_list + inner_node_list + children_nodes
 
+def get_cell_comment(request):
+    param_dict = dict(request.GET)
+    ind_id = param_dict.get('ind_id', [''])[0]
+    skey = param_dict.get('skey', [''])[0]
+    req_id = param_dict.get('req_id', [''])[0]
+
+    if req_id:
+        comments = get_sql_result("select C_PKGESREQ.FGETCELLCOMMENT(%s, %s) text from dual", [req_id, ind_id])
+    else:
+        comments = get_sql_result("select C_PKGESSHEET.FGETCELLCOMMENT(%s, %s, '0') text from dual", [ ind_id, skey])
+
+    return JsonResponse(comments, safe=False)
+
 
 def process_node(p_sht_id, p_key, node, group_keys, sheet_info):
 
@@ -1478,6 +1491,7 @@ def process_node(p_sht_id, p_key, node, group_keys, sheet_info):
     cell_list = get_sql_result("""
                                 with params as (select %s sht_id, %s skey from dual)
                                 select f.styles, 
+                                        c_pkgescalc.fNormalizeKey( c_pkgescalc.fRemoveIndFlt(p.sht_id, p.skey||','||x.key)) cell_skey,
                                         c_pkgescalc.fGetAnlDscr(p.skey) flt_dscr,
                                         case when x.commentfl=1 
                                         then (

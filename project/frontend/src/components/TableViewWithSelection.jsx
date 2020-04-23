@@ -608,9 +608,14 @@ export default class TableViewWithSelection extends Component {
     showHistoryForCell(params, showAll=false){
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
-
+            var skey = '';
+            if (!showAll){
+                skey = getFilterSkeyByCell(params);
+                var columnData = getColumnData(params);
+                skey += columnData.key;
+            }
             const formParams = {additionalSheetParams:{
-                                                            skey: showAll ? '' : this.getCellSkey(params),
+                                                            skey: skey,
                                                             sht_id: this.state.sheet_id,
                                                             ind_id: params.node.data.ind_id
                                                             }};

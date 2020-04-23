@@ -65,6 +65,7 @@ urlpatterns = [
     path('getref/', views.getref),
     path('reload_nodes/', views.reload_nodes),
     path('layout_set_default/', views.layout_set_default),
+    path('get_cell_comment/', views.get_cell_comment),
 
 
     path('', include('frontend.urls')),
