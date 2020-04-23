@@ -125,7 +125,9 @@ def get_history(request):
     param_dict = dict(request.GET)
     sht_id = param_dict.get('sht_id', [''])[0]
     ind_id = param_dict.get('ind_id', [''])[0]
+    req_id = param_dict.get('req_id', [''])[0]
     skey = param_dict.get('skey', [''])[0]
+    dop = param_dict.get('dop', [''])[0]
 
 
     connection = get_oracle_connection()
@@ -139,8 +141,10 @@ def get_history(request):
                                               p_sht_id=> :2,
                                               p_ind_id=> :3,
                                               p_skey=> :4,
+                                              p_req_id=> :5,
+                                              p_dop => :6,
                                               p_cell_type=>'0');
-                        end;""", [refCursor, sht_id, ind_id, skey])
+                        end;""", [refCursor, sht_id, ind_id, skey, req_id, dop])
 
     history_list = []
 
@@ -2098,6 +2102,8 @@ def get_anl_table_rows(sht_id, skey):
 
                 cell['key'] = column_name.upper()
                 cell['req_id'] = row_dict['id']
+                if row_dict['dop']:
+                    cell['dop'] = row_dict['dop'].strftime("%d.%m.%y")
 
                 cell['comment_count'] = row_dict.get('k_'+cell['key'].lower())
                 if cell['comment_count'] and  int(cell['comment_count'] ) >0:
