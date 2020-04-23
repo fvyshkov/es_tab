@@ -194,6 +194,15 @@ background-color: #d9ff96;
 }
 
 
+.cell-wrapper-center{
+  width: 100%;
+  text-align: center;
+}
+
+.checkbox-in-cell{
+    display: inline-block;
+}
+
 .custom-tooltip {
     position: absolute;
     width: 300px;

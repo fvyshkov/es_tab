@@ -334,7 +334,10 @@ export default class ReGrid extends React.Component {
                                                         return params.data.name;
                                                     }
                                                 },
-                                                suppressCount: true
+                                                suppressCount: true,
+                                                onCheckBoxClick: function(params){
+                                                    params.originalTarget.cellParams.setValue(params.originalTarget.checked ? "1":"0");
+                                                }
                                             },
 
                             autoHeight: true,
@@ -801,7 +804,9 @@ function gridCellRenderer(params){
         }else{
             displayValue = '';
         }
-    }else{
+    }else if(params.colDef.atr_type==="C") {
+        displayValue = '';
+    }else {
         displayValue = params.value;
     }
 
@@ -861,11 +866,32 @@ function gridCellRenderer(params){
         element.appendChild(buttonElement);
     }
 
+    if (params.colDef.atr_type==="C" ){
+        element.setAttribute("class" , "cell-wrapper-center");
+    }else{
+        element.setAttribute("class" , "cell-wrapper");
+    }
 
-    element.setAttribute("class" , "cell-wrapper");
     var innerElementForCell = document.createElement("div");
     if (params.colDef.atr_type==="N" ){
         innerElementForCell.setAttribute("class" , "number-cell");
+    }else if (params.colDef.atr_type==="C" ){
+        var checkbox = document.createElement("input");
+
+        function test(params){
+            console.log('prm test');
+        }
+
+        checkbox.setAttribute("type" , "checkbox");
+        checkbox.setAttribute("class" , "checkbox-in-cell");
+        checkbox.addEventListener('click', params.onCheckBoxClick);
+        checkbox['cellParams'] = params;
+        if (params.value=="1"){
+            checkbox.setAttribute("checked", "" );
+        }
+
+        innerElementForCell.appendChild(checkbox);
+
     }else{
         innerElementForCell.setAttribute("class" , "text-cell");
         if (params.colDef.ent_id){
