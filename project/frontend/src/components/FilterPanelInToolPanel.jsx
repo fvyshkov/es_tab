@@ -7,24 +7,34 @@ class FilterPanelInToolPanel extends Component {
 
     constructor(props) {
         super(props);
-        this.state={};
+        this.state={
+            filterNodes:{}
+        };
 
         this.onFilterPanelChange = this.props.agGridReact.props.onFilterPanelChange;
 
         this.props.api.addEventListener('modelUpdated', this.updatePanel.bind(this));
+        this.props.api.addEventListener('refreshFilter', this.refreshFilter.bind(this));
     }
 
     loadNewSheetToFilterPanel(){
     }
 
+    refreshFilter(params){
+        //иначе не перерисовывает!
+        this.setState({filterNodes: {}});
+        this.setState({filterNodes: params.detail.filterNodes});
+    }
+
     render() {
+        console.log("FP render", this.state.filterNodes);
         return (
             <FilterPanel
                 sheet_id={this.state.sheet_id}
                 sendRefreshPanel={click => this.loadNewSheetToFilterPanel = click}
                 onFilterPanelChange={this.onFilterPanelChange}
                 selectedFilterNodes={this.props.agGridReact.props.selectedFilterNodes}
-                filterNodes={this.props.agGridReact.props.filterNodes}
+                filterNodes={this.state.filterNodes}
             />
         );
     }

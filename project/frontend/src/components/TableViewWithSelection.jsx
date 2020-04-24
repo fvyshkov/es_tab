@@ -939,7 +939,7 @@ export default class TableViewWithSelection extends Component {
         //перегрузим фильтры не трогая ничего больше
         sendRequestPromise('sht_filters/?sht_id='+this.state.sheet.id+'&stype='+this.state.sheet.stype)
             .then((data)=>{
-                this.sendNewFilterNodes(data);
+                this.sendNewFilterNodes(data, this.state.filterNodes);
             });
 
     }

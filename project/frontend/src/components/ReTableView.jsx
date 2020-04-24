@@ -326,8 +326,10 @@ export default class ReTableView extends Component {
         }
 
         this.setState({filterNodes: newFilterNodes});
-        //при изменении пропса-массива приходится вручную изменить key грида, чтобы он перерендерился
-        this.setState({gridKey: this.state.gridKey+1});
+
+        var event = new CustomEvent('refreshFilter', { bubbles: true, detail: {filterNodes: newFilterNodes} });
+        var api = this.getGridApi();
+        api.dispatchEvent(event);
 
         if (this.props.onFilterNodesChange){
             this.props.onFilterNodesChange(this.state.filterNodes);
