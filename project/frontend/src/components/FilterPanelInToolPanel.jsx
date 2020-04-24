@@ -27,7 +27,6 @@ class FilterPanelInToolPanel extends Component {
     }
 
     render() {
-        console.log("FP render", this.state.filterNodes);
         return (
             <FilterPanel
                 sheet_id={this.state.sheet_id}
