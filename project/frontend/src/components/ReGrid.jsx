@@ -35,7 +35,6 @@ export default class ReGrid extends React.Component {
         this.chartProcessingIndex = 0;
 
         this.state = {
-        gridKey:0,
         colorRestrict: 0,
         modules: AllModules,
           columnDefs: [],
@@ -603,7 +602,7 @@ export default class ReGrid extends React.Component {
         }
         return (
                 <React.Fragment>
-                    <div className ="ag-theme-balham NonDraggableAreaClassName ToolbarViewContent" key={this.props.gridKey} id="myGrid123">
+                    <div className ="ag-theme-balham NonDraggableAreaClassName ToolbarViewContent" id="myGrid123">
                         <AgGridReact
                             modules={AllModules}
                             getRowClass={this.getRowClass}

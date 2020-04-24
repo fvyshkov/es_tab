@@ -25,7 +25,6 @@ export default class ReTableView extends Component {
                         colorPanelVisible: false,
                         selectedFilterNodes: {},
                         filterNodes: {},
-                        gridKey: 0,
                         forceGridReload: false,
                         columnStates: [],
                         expandedGroupIds : [],
@@ -183,10 +182,6 @@ export default class ReTableView extends Component {
     }
 
     loadData(parentNode, reload = false, recursive = false){
-        //при изменении пропса-массива приходится вручную изменить key грида, чтобы он перерендерился
-        if (reload){
-            this.setState({ gridKey: this.state.gridKey+1, rowData: null});
-        }
 
         this.tableData.setRequestString(()=>{
 
@@ -625,7 +620,6 @@ export default class ReTableView extends Component {
 
                             <ReGrid
                                 rowData={this.state.rowData}
-                                gridKey={this.state.gridKey}
                                 getContextMenuItems={this.props.getContextMenuItems}
                                 getColumnsListRequestString={this.getColumnsListRequestString.bind(this)}
                                 sendRefreshGrid={click => this.sendRefreshGrid = click}
