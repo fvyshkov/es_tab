@@ -973,11 +973,12 @@ export default class TableViewWithSelection extends Component {
     }
 
     afterLoadData(){
-        sendRequestPromise('sht_filters/?sht_id='+this.state.sheet.id+'&stype='+this.state.sheet.stype)
+        return sendRequestPromise('sht_filters/?sht_id='+this.state.sheet.id+'&stype='+this.state.sheet.stype)
             .then((data)=>{
                 this.sendNewFilterNodes(data, this.state.filterNodes);
+                this.loadOperList();
             });
-        this.loadOperList();
+
     }
 
     closeReference(row) {
