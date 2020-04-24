@@ -586,10 +586,11 @@ export default class ReTableView extends Component {
     }
 
     render(){
+        /*
         var tmpProps = JSON.parse(JSON.stringify(this.props));
         if (this.state.filterNodes){
             tmpProps.filterNodes = JSON.parse(JSON.stringify(this.state.filterNodes));
-        }
+        }*/
 
         return (
             <React.Fragment>
@@ -664,7 +665,14 @@ export default class ReTableView extends Component {
                                 sendSaveFilter={click => this.sendSaveFilter = click}
                                 getGridApi={click => this.getGridApi = click}
                                 onSendExpandRecursive={this.onSendExpandRecursive.bind(this)}
-                                {...tmpProps}
+                                onAddChart={this.state.onAddChart}
+
+                                columnFilterModel={this.props.columnFilterModel}
+                                columnState={this.props.columnState}
+                                doBeforeSaveLayout={this.props.doBeforeSaveLayout}
+                                getLayoutForSave={this.props.getLayoutForSave}
+                                layoutItemID={this.props.layoutItemID}
+                                sendLayoutBeforeSave={this.props.sendLayoutBeforeSave}
                                 />
 
 
