@@ -419,10 +419,6 @@ export default class ReGrid extends React.Component {
 
         columns = groupColumns(columns);
         this.setState({columnDefs: columns});
-        //заставляем грид перерендериться
-        //без этого "загадочного" действия в FilterToolPanel почему-то не попадают новые пропсы
-        //this.setState({gridKey: this.state.gridKey+1});
-
         this.columnsLoaded = true;
     }
 

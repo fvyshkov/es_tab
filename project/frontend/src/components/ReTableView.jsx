@@ -573,7 +573,6 @@ export default class ReTableView extends Component {
             this.nodesForExpand = [];
         }
         this.gridApi = gridApi;
-        this.setState({gridKey: this.state.gridKey+1});
         this.loadData({}, true);
 
     }
@@ -586,11 +585,6 @@ export default class ReTableView extends Component {
     }
 
     render(){
-        /*
-        var tmpProps = JSON.parse(JSON.stringify(this.props));
-        if (this.state.filterNodes){
-            tmpProps.filterNodes = JSON.parse(JSON.stringify(this.state.filterNodes));
-        }*/
 
         return (
             <React.Fragment>

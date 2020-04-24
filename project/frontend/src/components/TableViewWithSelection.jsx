@@ -979,8 +979,8 @@ export default class TableViewWithSelection extends Component {
             });
         this.loadOperList();
     }
-    closeReference(row) {
 
+    closeReference(row) {
         this.onConfirmCallBack(this.operItem, 'NJRN=>'+row.njrn+',ROOTFL=>0,BPFL=>1');
         this.setState({showRef: false, refCode: ''});
     };
