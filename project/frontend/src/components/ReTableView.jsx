@@ -223,7 +223,7 @@ export default class ReTableView extends Component {
             })
 
             .then(()=>{
-                if (this.props.afterLoadData){
+                if (this.props.afterLoadData && reload){
                     return this.props.afterLoadData();
                 }else{
                     new Promise((resolve, reject)=>{resolve('success');});
