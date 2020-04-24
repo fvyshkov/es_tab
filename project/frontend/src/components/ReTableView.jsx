@@ -182,7 +182,6 @@ export default class ReTableView extends Component {
     }
 
     loadData(parentNode, reload = false, recursive = false){
-
         this.tableData.setRequestString(()=>{
 
             let httpStr = this.props.getDataRequestString();
@@ -607,7 +606,8 @@ export default class ReTableView extends Component {
                             onInsertCallback={this.onInsertCallback.bind(this)}
                             onDeleteCallback={this.onDeleteCallback.bind(this)}
                             onUndoCallback={this.onUndoClick.bind(this)}
-
+                            isInsertDisabled={this.props.isInsertDisabled}
+                            isDeleteDisabled={this.props.isDeleteDisabled}
                             sheetSelection={false}
                             additionalToolbarItem={this.props.additionalToolbarItem}
                             getMenuItems={this.props.getMenuItems}

@@ -42,24 +42,6 @@ export default class SheetToolbar extends Component {
         }
     }
 
-    insertButtonOptions = {
-        elementAttr: {"id": "view_insert"},
-        icon: 'plus',
-        hint: "Новая запись",
-        onClick: (e) => {
-            //console.log('insertButtonOptions.onClick');
-            this.props.onInsertCallback();
-        }
-    }
-
-    deleteButtonOptions = {
-        elementAttr: {"id": "view_delete"},
-        icon: 'minus',
-        hint: "Удалить запись",
-        onClick: (e) => {
-            this.props.onDeleteCallback();
-        }
-    }
 
 
     closeButtonOptions = {
@@ -104,12 +86,25 @@ export default class SheetToolbar extends Component {
                             {icon: 'plus',
                             elementAttr: {"id": "view_insert"},
                             hint: "Добавить запись",
-                            onClick: (e) => {this.props.onInsertCallback();}}
-                    }/>
+                            disabled: this.props.isInsertDisabled? this.props.isInsertDisabled(): false,
+                            onClick: (e) => {this.props.onInsertCallback();}
+                            }
+                        }
+                    />
 
                     <Item location={'before'}
                     widget={'dxButton'}
-                    options={this.deleteButtonOptions} />
+                    options={
+                            {
+                                elementAttr: {"id": "view_delete"},
+                                icon: 'minus',
+                                hint: "Удалить запись",
+                                disabled: this.props.isDeleteDisabled? this.props.isDeleteDisabled(): false,
+                                onClick: (e) => {
+                                        this.props.onDeleteCallback();
+                                    }
+                            }
+                    } />
 
                     <Item location={'before'}
                     widget={'dxButton'}

@@ -1101,8 +1101,15 @@ export default class TableViewWithSelection extends Component {
 
     showReportParamRefer(refdscr, refcode){
         this.setState({userReportParamsVisible:false});
-
         this.setState({reportParamReferVisible:true, reportParamReferDscr: refdscr, reportParamReferRefCode : refcode});
+    }
+
+
+    isInsertDisabled(){
+        return (this.state.sheet && this.state.sheet.sheet_type && this.state.sheet.stype=="P") ? true : false;
+    }
+    isDeleteDisabled(){
+        return (this.state.sheet && this.state.sheet.sheet_type && this.state.sheet.stype=="P") ? true : false;
     }
 
     render(){
@@ -1270,6 +1277,8 @@ export default class TableViewWithSelection extends Component {
                     sendRefresh={click => this.sendRefresh = click}
                     sendExpandRecursive={click => this.sendExpandRecursive = click}
                     sendCollapseAll={click => this.sendCollapseAll = click}
+                    isInsertDisabled={this.isInsertDisabled.bind(this)}
+                    isDeleteDisabled={this.isDeleteDisabled.bind(this)}
                     additionalToolbarItem={()=>{return(
                                                         <SheetSelectDropDown
                                                             onSelectNewSheet={this.loadNewSheet.bind(this)}
