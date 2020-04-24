@@ -93,7 +93,7 @@ export class operList{
             httpStr += '&bop_id=' + this.bop_id;
             httpStr += '&nstat=' + this.nstat;
 
-            sendRequestPromise(httpStr)
+            return sendRequestPromise(httpStr)
                 .then((operList)=> {
                     this.itemsList = operList;
                 });

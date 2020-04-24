@@ -931,7 +931,7 @@ export default class TableViewWithSelection extends Component {
                                             this.beforeOperRun,
                                             this.afterOperRun
                                         );
-            this.operList.init();
+            return this.operList.init();
         }
     }
 
@@ -973,11 +973,13 @@ export default class TableViewWithSelection extends Component {
     }
 
     afterLoadData(){
+
         return sendRequestPromise('sht_filters/?sht_id='+this.state.sheet.id+'&stype='+this.state.sheet.stype)
             .then((data)=>{
                 this.sendNewFilterNodes(data, this.state.filterNodes);
-                this.loadOperList();
-            });
+
+            })
+            .then(()=>this.loadOperList());
 
     }
 
