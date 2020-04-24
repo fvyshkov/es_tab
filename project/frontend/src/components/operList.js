@@ -58,7 +58,6 @@ export class operList{
     }
 
     getOperMenuList(){
-        this.init();
         var operMenuList = [];
 
         if (this.itemsList.length>0){
