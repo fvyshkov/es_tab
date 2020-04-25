@@ -60,6 +60,7 @@ class Reference extends React.Component {
 
       var toolbarAdd = this.props.toolbarAdd ? this.props.toolbarAdd.map(button=>{
         return <Button
+                    key={button.key}
                     text={button.text}
                     icon= {button.icon}
                     hint= {button.hint}
@@ -106,17 +107,20 @@ class Reference extends React.Component {
             </DataGrid>
             <div>
               <Button
+                key="ok"
                 text = "Выбрать"
                 type = "default"
                 onClick = {this.onOk}
               />
               <Button
+                key="close"
                 text = "Закрыть"
                 type = "success"
                 onClick = {this.onRefHidden}
               />
               {this.props.onDeleteItem ? (
                 <Button
+                    key="delete"
                     text = ""
                     icon="clear"
                     hint="Удалить выбранные записи"

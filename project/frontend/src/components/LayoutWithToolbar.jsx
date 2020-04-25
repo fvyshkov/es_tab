@@ -414,6 +414,7 @@ export default class LayoutWithToolbar extends Component {
                         [
                         {
                             icon:"product",
+                            key:"default",
                             hint:"Установить рабочий стол по умолчанию",
                             type:"normal",
                             onClick:(params)=>{
