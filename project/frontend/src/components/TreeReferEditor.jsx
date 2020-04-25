@@ -18,6 +18,10 @@ export default class TreeReferEditor extends Component {
     }
 
     componentDidMount() {
+        var selectedRow = this.state.refData.filter(row=>{return  row.name==this.props.value});
+        if (selectedRow.length>0){
+            this.state.selectedItemData =  selectedRow[0];
+        }
         this.refs.container.addEventListener('keydown', this.checkAndSelectRow);
         this.focus();
     }
