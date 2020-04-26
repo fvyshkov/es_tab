@@ -179,6 +179,8 @@ export default class TableViewWithSelection extends Component {
                             rowData.push(node.data);
                         }
                     });
+
+                    this.setState({rowData:rowData});
                     this.gridApi.setRowData(rowData);
                     this.setState({isLoaded:1});
 
