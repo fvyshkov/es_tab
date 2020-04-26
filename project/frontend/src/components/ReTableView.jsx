@@ -588,7 +588,7 @@ export default class ReTableView extends Component {
         return (
             <React.Fragment>
 
-                <div class="isLoaded" isLoaded={this.state.isLoaded} />
+                <div className="isLoaded" isloaded={this.state.isLoaded} />
 
                 <ColorPanel
                     popupVisible={this.state.colorPanelVisible}

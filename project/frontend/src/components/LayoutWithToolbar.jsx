@@ -450,7 +450,7 @@ export default class LayoutWithToolbar extends Component {
 
         return (
             <React.Fragment>
-            <div className='Wrapper' currentLayoutName={this.currentLayout.longname}>
+            <div className='Wrapper' currentlayoutname={this.currentLayout.longname}>
                 <Toolbar >
 
                     <Item

@@ -96,7 +96,7 @@ export default class FilterPanel extends Component {
 
 
         return (
-            <div class="filterPanel">
+            <div className="filterPanel">
                 {filterRenderItems}
             </div>
         );
