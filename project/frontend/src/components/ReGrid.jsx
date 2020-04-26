@@ -644,6 +644,7 @@ export default class ReGrid extends React.Component {
                             onCellValueChanged={this.onCellValueChanged.bind(this)}
                             deltaRowDataMode={true}
                             undoRedoCellEditing={true}
+                            enableFillHandle={true}
                             undoRedoCellEditingLimit={100}
                             enableCellChangeFlash={true}
                             onCellKeyDown={this.onCellKeyDown.bind(this)}

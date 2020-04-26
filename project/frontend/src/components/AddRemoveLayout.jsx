@@ -44,8 +44,6 @@ export default class AddRemoveLayout extends React.PureComponent {
       top: 0,
       cursor: "pointer"
     };
-    //const i = el.add ? "+" : el.i;
-    console.log("createelement el", el);
     const i = el.i;
     return (
 
