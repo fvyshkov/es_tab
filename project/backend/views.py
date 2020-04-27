@@ -197,7 +197,7 @@ def get_conf_list(request):
                   and o.id = p.id
                   and s.id = o.bop_id
                   and p.id = (select proc_id from c_es_ver_sheet where id= %s )
-                  --and o.undofl='0'
+                  and o.undofl='0'
                 order by o.execdt desc
     
     """, [ sht_id])
