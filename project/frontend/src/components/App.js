@@ -2,11 +2,12 @@ import React, { Component } from 'react';
 import ReactDOM from "react-dom";
 import LayoutWithToolbar from "./LayoutWithToolbar.jsx";
 import AddRemoveLayout from './AddRemoveLayout.jsx';
-import TestGrid from './TestGrid.jsx';
 import { FileUploader } from 'devextreme-react';
 import "./index.css";
 import { Provider } from "react-redux";
 import store from "../store/index";
+import '@ag-grid-community/all-modules/dist/styles/ag-grid.css';
+import '@ag-grid-community/all-modules/dist/styles/ag-theme-balham.css';
 
 
 const App = () => (

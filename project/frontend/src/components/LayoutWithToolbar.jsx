@@ -16,8 +16,6 @@ import TableViewHistory from './TableViewHistory.jsx';
 import TableViewSchedule from './TableViewSchedule.jsx';
 import ReTableView from './ReTableView.jsx';
 
-
-import { AgGridReact } from "@ag-grid-community/react";
 import {processTree} from './esUtils.js';
 import SimpleDialog from './SimpleDialog.jsx';
 import {someChartModel, someChartModel2} from './testData.js';

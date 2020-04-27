@@ -1,14 +1,19 @@
 import referStore from './sheetReference.js';
 import React from "react";
+
 import { AgGridReact } from "@ag-grid-community/react";
-import "ag-grid-enterprise";
-import { AllModules } from "@ag-grid-enterprise/all-modules";
+import { LicenseManager } from "@ag-grid-enterprise/core";
+import { AllModules } from  "@ag-grid-enterprise/all-modules";
+//import "ag-grid-community";
+//import "ag-grid-enterprise";
+
+
 import TreeReferEditor from "./TreeReferEditor.jsx";
 import NumericEditor from "./NumericEditor.jsx";
 import { sendRequest } from './App.js';
 import { sendRequestPromise } from './sendRequestPromise.js';
 import FilterPanelInToolPanel from "./FilterPanelInToolPanel.jsx";
-import {LicenseManager} from "@ag-grid-enterprise/core";
+
 import ReTableView from './ReTableView.jsx';
 import ToolbarView from './ToolbarView.jsx';
 import sheetDatasource from './sheetDatasource';
