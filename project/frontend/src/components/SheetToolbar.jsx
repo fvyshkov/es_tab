@@ -112,6 +112,7 @@ export default class SheetToolbar extends Component {
                                 icon: 'undo',
                                 elementAttr: {"id": "view_undo"},
                                 hint: "Отмена коррекции",
+                                visible: false,
                                 onClick: () => {
                                     this.props.onUndoCallback();
                                 }
