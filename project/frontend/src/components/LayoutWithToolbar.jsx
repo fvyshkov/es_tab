@@ -22,6 +22,12 @@ import {someChartModel, someChartModel2} from './testData.js';
 import { sendRequestPromise } from './sendRequestPromise.js';
 import Reference from './Reference.js';
 
+import { css } from "@emotion/core";
+import ClipLoader from "react-spinners/ClipLoader";
+import GridLoader from "react-spinners/GridLoader";
+import PropagateLoader from "react-spinners/PropagateLoader";
+
+
 const layoutComponents = {
     TableViewWithSelection: TableViewWithSelection,
     TableViewFlow: TableViewFlow,
@@ -31,7 +37,6 @@ const layoutComponents = {
     TableViewSchedule: TableViewSchedule,
     ReTableView: ReTableView
 };
-
 
 export default class LayoutWithToolbar extends Component {
 
@@ -48,7 +53,8 @@ export default class LayoutWithToolbar extends Component {
                     items:[],
                     addLayoutDialogVisible: false,
                     showLayoutsRefer: false,
-                    layoutsList:[]
+                    layoutsList:[],
+                    isLoading: false
                     };
         this.addElementToLayout = this.addElementToLayout.bind(this);
         this.getNewLayoutItemID = this.getNewLayoutItemID.bind(this);
@@ -170,8 +176,10 @@ export default class LayoutWithToolbar extends Component {
     }
 
     componentDidMount(){
+        this.setState({isLoading: true});
         sendRequestPromise('get_layouts/')
             .then((layouts)=>{
+                this.setState({isLoading: false});
                 layouts.forEach(layout=>{
                     if (layout.defaultfl=="1"){
                         this.currentLayout = Object.assign({}, layout);
@@ -445,7 +453,11 @@ export default class LayoutWithToolbar extends Component {
                       }}
             /> : null;
 
-
+        const override = css`
+                          display: block;
+                          margin: 0 auto;
+                          border-color: red;
+                        `;
         return (
             <React.Fragment>
             <div className='Wrapper' currentlayoutname={this.currentLayout.longname}>
@@ -504,8 +516,14 @@ export default class LayoutWithToolbar extends Component {
                     width={400}
                     height={200}
                 />
-
-
+                <div className="layout-loader">
+                    <PropagateLoader
+                          css={override}
+                          size={30}
+                          color={"lightblue"}
+                          loading={this.state.isLoading}
+                    />
+                </div>
 
                 <AddRemoveLayout
                     items={this.state.items}

@@ -203,6 +203,16 @@ background-color: #d9ff96;
     display: inline-block;
 }
 
+.layout-loader{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -50px;
+    margin-left: -50px;
+    width: 100px;
+    height: 100px;
+}
+
 .custom-tooltip {
     position: absolute;
     width: 300px;
