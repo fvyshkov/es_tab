@@ -2038,6 +2038,7 @@ def get_anl_table_rows(sht_id, skey):
     color_restrict = sheet_info[0].get('color_restrict_hex')
     color_hand = sheet_info[0].get('color_hand_hex')
     color_filter = sheet_info[0].get('color_filter_hex')
+    color_confirm = sheet_info[0].get('color_conf_hex')
 
     columns = get_sheet_columns_list('TABLE', sht_id, skey)
 
@@ -2083,11 +2084,20 @@ def get_anl_table_rows(sht_id, skey):
 
                     cell['ent_id'] = column_list[0].get('ent_id')
                     cell['atr_type'] = column_list[0].get('atr_type')
-                    cell['editfl'] = column_list[0].get('editfl')
                     cell['name'] = column_list[0].get('name')
+
+                    if row_dict['confirmfl'] == '1':
+                        print("confirm, editl=0")
+                        cell['editfl'] = 0
+                        cell['border.color'] = 'blue'
+                    else:
+                        cell['editfl'] = column_list[0].get('editfl')
 
                     if column_name.upper().startswith('FLT'):
                         cell['brush.color'] = color_filter
+                    elif row_dict['confirmfl']=='1':
+                        print("confirm, brush")
+                        cell['brush.color'] = color_confirm
                     elif cell['editfl'] ==0:
                         cell['brush.color'] = color_restrict
                     else:
@@ -2097,7 +2107,7 @@ def get_anl_table_rows(sht_id, skey):
                     cell['ent_id'] =  None
                     cell['atr_type'] = None
                     cell['editfl'] = 0
-                    cell['brush.color'] = color_restric
+                    cell['brush.color'] = color_restrict
 
 
                 cell['key'] = column_name.upper()
@@ -2109,7 +2119,7 @@ def get_anl_table_rows(sht_id, skey):
                 if cell['comment_count'] and  int(cell['comment_count'] ) >0:
                     cell['commentfl'] = 1
 
-                if cell['editfl']==1 and cell['ent_id'] and row[column_idx]:
+                if cell['ent_id'] and row[column_idx]:
                     selected_refer_items = [item for item in refer_items if item['ent_id'] == cell['ent_id'] and item['id'] == row[column_idx]]
                     if len(selected_refer_items)>0:
                         cell['sql_value'] = selected_refer_items[0].get("name")
