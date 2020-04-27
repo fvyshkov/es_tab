@@ -35,11 +35,6 @@ export default class DropdownHOC extends Component {
         this.props.onChangeSelection(selectedNodes, this.state.data,  this.state.filterID);
     };
 
-            /*
-            dangerouslySetInnerHTML = {{__html: `
-                  #39476_tag { color: blue }
-                `}}
-            */
 
   render() {
     return (
