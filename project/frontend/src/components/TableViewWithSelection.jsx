@@ -275,60 +275,38 @@ export default class TableViewWithSelection extends Component {
 
     beforeOperRun(item, runOperCallback){
         if (item.code==='CONFIRM'){
-            this.onConfirmCallBack=runOperCallback;
+            this.operList.operServerCallback = runOperCallback;
             this.operItem = item;
             this.confirm();
         }else if (item.code==='CONFIRM_UNDO'){
-            /////
-
-            this.onConfirmCallBack=runOperCallback;
+            this.operList.operServerCallback = runOperCallback;
             this.operItem = item;
             sendRequestPromise('conf_opers/?proc_id='+this.state.sheet.proc_id+'&rootfl=0')
                 .then((data)=>{this.setState({confirmUndoData: data, showRef: true})});
-
         }else if (item.code==='CONFIRM_UNDO'){
-            /////
-
-            this.onConfirmCallBack=runOperCallback;
+            this.operList.operServerCallback = runOperCallback;
             this.operItem = item;
             sendRequestPromise('conf_opers/?proc_id='+this.state.sheet.proc_id+'&rootfl=0')
                 .then((data)=>{this.setState({confirmUndoData: data, showRef: true})});
-
         }else if (item.code==='LOAD_DM_UNDO'){
-            /////
-
             this.operItem = item;
             this.operList.operServerCallback = runOperCallback;
-
             sendRequestPromise('get_dm_dops/?sht_id='+this.state.sheet.id)
                 .then((data)=>{
                     this.setState({loadUndoData: data, showLoadUndoRef: true})
                 });
-
         }else if (item.code==='LOAD_DM'){
-            /////
-            //this.onConfirmCallBack=runOperCallback;
             this.operItem = item;
             this.operList.operServerCallback = runOperCallback;
             var dop = new Date();
             dop = new Date(dop.getFullYear(), dop.getMonth() + 1, 0);
-            /*
-            var dopString = dop.getDate().toString().padStart(2,'0')  + '.' +
-                                (dop.getMonth()+1).toString().padStart(2,'0') + '.' +
-                                dop.getFullYear();
-            */
             this.loadDmParams =  [{dataField:"DOP", editorType: "dxDateBox" , label:"Дата загрузки", value: dop,  visible: true}];
             this.setState({loadDMDialogVisible:true})
-
-
         }else if (item.code==='CONFIRM_ROOT_UNDO'){
-            /////
-
-            this.onConfirmCallBack=runOperCallback;
+            this.operList.operServerCallback = runOperCallback;
             this.operItem = item;
             sendRequestPromise('conf_opers/?proc_id='+this.state.sheet.proc_id+'&rootfl=1')
                 .then((data)=>{this.setState({confirmUndoData: data, showRef: true})});
-
         }else{
             runOperCallback(item,'');
         }
@@ -917,14 +895,14 @@ export default class TableViewWithSelection extends Component {
         var skey = getFilterSkey(this.state.filterNodes);
         operParams += ',SKEY=>'+skey;
 
-        this.onConfirmCallBack(this.operItem, operParams);
+        this.operList.operServerCallback(this.operItem, operParams);
         this.setState({confirmPanelVisible: false});
 
 
     }
 
     loadOperList(){
-        if (this.state.sheet_id){
+        if (this.state.sheet.id){
             this.operList = new operList(
                                             this.state.sheet.proc_id,
                                             this.state.sheet.bop_id,
@@ -941,6 +919,9 @@ export default class TableViewWithSelection extends Component {
         sendRequestPromise('sht_filters/?sht_id='+this.state.sheet.id+'&stype='+this.state.sheet.stype)
             .then((data)=>{
                 this.sendNewFilterNodes(data, this.state.filterNodes);
+            })
+            .then(()=>{
+                this.sendRefresh();
             });
 
     }
@@ -985,7 +966,7 @@ export default class TableViewWithSelection extends Component {
     }
 
     closeReference(row) {
-        this.onConfirmCallBack(this.operItem, 'NJRN=>'+row.njrn+',ROOTFL=>0,BPFL=>1');
+        this.operList.operServerCallback(this.operItem, 'NJRN=>'+row.njrn+',ROOTFL=>0,BPFL=>1');
         this.setState({showRef: false, refCode: ''});
     };
 

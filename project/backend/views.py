@@ -2087,7 +2087,6 @@ def get_anl_table_rows(sht_id, skey):
                     cell['name'] = column_list[0].get('name')
 
                     if row_dict['confirmfl'] == '1':
-                        print("confirm, editl=0")
                         cell['editfl'] = 0
                         cell['border.color'] = 'blue'
                     else:
@@ -2096,7 +2095,6 @@ def get_anl_table_rows(sht_id, skey):
                     if column_name.upper().startswith('FLT'):
                         cell['brush.color'] = color_filter
                     elif row_dict['confirmfl']=='1':
-                        print("confirm, brush")
                         cell['brush.color'] = color_confirm
                     elif cell['editfl'] ==0:
                         cell['brush.color'] = color_restrict

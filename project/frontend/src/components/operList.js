@@ -11,21 +11,15 @@ export class operList{
         this.operMenuList=[];
         this.callbackBeforeOperRun = callbackBeforeOperRun;
         this.callbackAfterOperRun = callbackAfterOperRun;
-
     }
 
     runOper(item){
-        //notify(item.longname+'='+item.name);
-
-
         if (this.callbackBeforeOperRun){
             this.callbackBeforeOperRun(item, this.runOperCallback);
-
         }
     }
 
     runOperCallback(item, userParams){
-        //return;
         var httpStr = 'run_oper/?proc_id=' + item.proc_id;
         httpStr += '&oper_code=' + item.code;
 
@@ -35,14 +29,11 @@ export class operList{
 
         sendRequestPromise(httpStr)
             .then(()=>{
-                console.log('RUNOPER callbackAfterOperRun', this.callbackAfterOperRun);
                 if (this.callbackAfterOperRun){
                     this.callbackAfterOperRun();
                 }
             })
-            .then(()=>notify('Операция "'+item.name+'" успешно завершена'));
-            //перечитаем список операций
-            //.then(()=>this.init());
+            .then(()=>notify('Операция "'+item.name+'" успешно завершена', "success"));
     }
 
     operMenuItemRender(item){
@@ -71,7 +62,9 @@ export class operList{
                                    return {
                                             id: item.nord,
                                             name: item.name,
-                                            onClick: () => this.runOper(item),
+                                            onClick: () => {
+                                                this.runOper(item);
+                                            } ,
                                             template: this.operMenuItemRender,
                                             getDisabled: ()=> { return item.enable==="1" ? false: true;},
                                             cancelfl: item.cancelfl
