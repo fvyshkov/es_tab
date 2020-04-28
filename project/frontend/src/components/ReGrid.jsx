@@ -46,7 +46,6 @@ export default class ReGrid extends React.Component {
           treeData: this.props.treeData,
           frameworkComponents: {
             treeReferEditor: TreeReferEditor,
-           // gridCellRenderer:GridCellRenderer,
             numericEditor: NumericEditor,
             filterPanelInToolPanel: FilterPanelInToolPanel,
             sheetCellTooltip: SheetCellTooltip

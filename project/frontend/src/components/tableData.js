@@ -105,7 +105,11 @@ export class TableData {
 
         if (parentNode && parentNode.data && parentNode.data.hie_path){
             var pathToExpandedNode = '';
-            parentNode.data.hie_path.forEach(el=>{pathToExpandedNode += el+','});
+            if (parentNode.data.hie_path_keys){
+                parentNode.data.hie_path_keys.forEach(el=>{pathToExpandedNode += el+','});
+            }else{
+                parentNode.data.hie_path.forEach(el=>{pathToExpandedNode += el+','});
+            }
             httpStr += '&group_keys='+pathToExpandedNode;
         }
         return sendRequestPromise(httpStr);

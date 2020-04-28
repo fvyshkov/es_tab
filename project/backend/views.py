@@ -1435,7 +1435,21 @@ def get_tree_nodes_inner(node_list, p_sht_id, p_skey, p_flt_id, p_flt_item_id, p
     p_cell_key = Skey(p_group_keys).process()
 
     inner_node_list = get_sql_result("""
-                                    select 'FLT_ID_'||x.flt_id||'=>'||x.flt_item_id as node_key, 
+                                    select 'FLT_ID_'||x.flt_id||'=>'||x.flt_item_id as node_key,
+                                    ( 
+                                    select listagg(row_name,',') WITHIN GROUP (order by row_name)  AS employees
+                                    from (
+                                    select  c_pkgesbook.fGetFilterNodeNameById(flt_id, item_id) row_name
+                                    
+                                    from (
+                                        select column_value ,substr(column_value,8,instr(column_value,'=')-8) flt_id,
+                                        substr(column_value,instr(column_value,'>')+1) item_id
+                                        from table (c_pkgesutils.fSplit(%s))
+                                        where column_value is not null
+                                        )
+                                        )
+                                        group by 1
+                                    ) names_path,
                                    x.*, dt.atr_type, dt.round_size, i.ENT_ID 
                                    from table(C_PKGESsheet.fGetNodes(%s,%s,%s,%s,%s,%s)) x, 
                                    C_ES_DTYPE dt, 
@@ -1444,7 +1458,7 @@ def get_tree_nodes_inner(node_list, p_sht_id, p_skey, p_flt_id, p_flt_item_id, p
                                    and i.id(+) = x.IND_ID 
                                    order by x.npp
                                    """,
-                               [p_sht_id, p_skey, p_flt_id, p_flt_item_id, p_flt_root_id, p_cell_key])
+                               [p_group_keys, p_sht_id, p_skey, p_flt_id, p_flt_item_id, p_flt_root_id, p_cell_key])
     children_nodes = []
     for node in inner_node_list:
         hie_path = []
@@ -1454,7 +1468,17 @@ def get_tree_nodes_inner(node_list, p_sht_id, p_skey, p_flt_id, p_flt_item_id, p
                 if item:
                     hie_path.append(item)
         hie_path.append(node['node_key'])
-        node['hie_path'] = hie_path
+        node['hie_path_keys'] = hie_path
+
+        names_path_list = []
+        names_path = node.get("names_path")
+        if (names_path):
+            skeys = names_path.split(',')
+            for item in skeys:
+                if item:
+                    names_path_list.append(item)
+        names_path_list.append(node['name'])
+        node['hie_path'] = names_path_list
 
         if p_recursive=="1"and node.get("groupfl")=="1":
             node['children_loaded'] = "1"
