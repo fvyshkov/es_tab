@@ -260,7 +260,7 @@ export default class TableViewWithSelection extends Component {
         }
 
         this.setState({confirmData: {
-                                    sheet_name: this.state.sheet_path,
+                                    sheet_name: this.state.sheet.sheet_path,
                                     flt_dscr: filterDscr,
                                     prim: "",
                                     correctdt : "",
