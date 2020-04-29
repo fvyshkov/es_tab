@@ -1437,7 +1437,7 @@ def get_tree_nodes_inner(node_list, p_sht_id, p_skey, p_flt_id, p_flt_item_id, p
     inner_node_list = get_sql_result("""
                                     select 'FLT_ID_'||x.flt_id||'=>'||x.flt_item_id as node_key,
                                     ( 
-                                    select listagg(row_name,',') WITHIN GROUP (order by rn)  AS employees
+                                    select listagg(row_name,'#') WITHIN GROUP (order by rn)  AS employees
                                     from (
                                     select rn, c_pkgesbook.fGetFilterNodeNameById(flt_id, item_id) row_name
                                     
@@ -1473,7 +1473,7 @@ def get_tree_nodes_inner(node_list, p_sht_id, p_skey, p_flt_id, p_flt_item_id, p
         names_path_list = []
         names_path = node.get("names_path")
         if (names_path):
-            skeys = names_path.split(',')
+            skeys = names_path.split('#')
             for item in skeys:
                 if item:
                     names_path_list.append(item)
