@@ -1377,6 +1377,7 @@ def get_sheet_nodes(request):
     p_key = ''
 
 
+
     p_flt_root_id = ''
     p_cell_key = ''
 
@@ -1391,6 +1392,8 @@ def get_sheet_nodes(request):
     if 'skey' in param_dict:
         p_key = param_dict['skey'][0]
 
+    detailfl = param_dict.get('detailfl', [''])[0]
+
     if p_sht_id=='':
         return JsonResponse([], safe=False)
 
@@ -1403,10 +1406,10 @@ def get_sheet_nodes(request):
 
     sheet_type = get_sheet_type(p_sht_id)
 
-    if sheet_type=='TREE':
-        node_list = get_tree_node_list(request)
-    elif p_ind_id:
+    if detailfl=="1":
         node_list = get_anl_detail_table_rows(p_sht_id, p_key, p_ind_id, p_parent_id)
+    elif sheet_type=='TREE':
+        node_list = get_tree_node_list(request)
     else:
         node_list = get_anl_table_rows(p_sht_id,p_key)
 
@@ -1593,6 +1596,9 @@ def process_cell_styles(cell_src, node, sheet_info):
     #для упрощения отладки
     cell['node_name'] = node['name']
 
+    if not cell['ind_id']:
+        cell['ind_id'] = node['ind_id']
+
     if node.get('groupfl') == '1' or cell.get('editfl') == 0:
         cell['brush.color'] = sheet_info.get('color_restrict_hex')
     else:
@@ -1680,7 +1686,7 @@ def get_sheet_columns(request):
 
 
 
-    elif len(p_ind_id)>0:
+    elif view_type=='DetailView':#len(p_ind_id)>0:
         p_parent_id = param_dict.get('parent_id',[''])[0]
 
         columns = get_sheet_details_columns_list(p_sht_id, p_skey, p_ind_id)

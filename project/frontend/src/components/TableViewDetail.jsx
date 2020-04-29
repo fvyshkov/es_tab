@@ -73,15 +73,14 @@ export default class TableViewDetail extends Component {
 
     getColumnsListRequestString(){
         console.log('this.props.additionalSheetParams=',this.props.additionalSheetParams);
-        var httpStr = "sht_columns/?viewType=FlowView&sht_id="+this.props.additionalSheetParams.sht_id+
-            "&dop="+this.props.additionalSheetParams.dop+
-            "&skey="+this.props.additionalSheetParams.skey;
+        var httpStr = "sht_columns/?viewType=DetailView&dummy=1";
 
         return httpStr;
     }
 
     getDataRequestString(){
         var httpStr = 'sht_nodes/?dummy=1';
+        /*
         if (this.props.additionalSheetParams){
             for (var paramName in this.props.additionalSheetParams){
                 if (Object.prototype.hasOwnProperty.call(this.props.additionalSheetParams, paramName)){
@@ -90,6 +89,7 @@ export default class TableViewDetail extends Component {
             }
 
         }
+        */
 
         return httpStr;
     }
@@ -138,6 +138,7 @@ export default class TableViewDetail extends Component {
                     sendDeleteRecord={click => this.sendDeleteRecord = click}
                     onCellValueChanged={this.onCellValueChanged.bind(this)}
                     additionalToolbarItem={()=>{return(<div className="toolbar-label">Детализация</div>);}}
+                    getColumnsListRequestString={this.getColumnsListRequestString.bind(this)}
                 />
             </div>
         );

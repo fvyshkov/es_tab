@@ -544,7 +544,9 @@ export default class ReTableView extends Component {
         var httpStr = str;
         if (this.props.additionalSheetParams){
             for (var paramName in this.props.additionalSheetParams){
-                if (Object.prototype.hasOwnProperty.call(this.props.additionalSheetParams, paramName)){
+                if (Object.prototype.hasOwnProperty.call(this.props.additionalSheetParams, paramName)
+                    && this.props.additionalSheetParams[paramName]
+                ){
                     httpStr += '&'+paramName+'='+this.props.additionalSheetParams[paramName];
                 }
             }

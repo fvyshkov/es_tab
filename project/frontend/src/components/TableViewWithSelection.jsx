@@ -645,13 +645,24 @@ export default class TableViewWithSelection extends Component {
     showDetailForCell(params){
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
+            var columnData = getColumnData(params);
+            var skey = getFilterSkeyByCell(params);
+            skey += columnData.key;
+
+            var ind_id =  columnData.ind_id;
+            if (!ind_id){
+                ind_id = params.column.colDef.ind_id
+            }
 
             const formParams = {additionalSheetParams:{
                                                             parent_id: params.node.data.id,
                                                             req_id: params.node.data.id,
-                                                            ind_id: params.column.colDef.ind_id,
-                                                            sht_id: this.state.sheet_id
+                                                            ind_id: ind_id,
+                                                            sht_id: this.state.sheet.id,
+                                                            skey: skey,
+                                                            detailfl: "1"
                                                             }};
+
 
             var detailRender =  <TableViewDetail
                                 additionalSheetParams={formParams.additionalSheetParams}
