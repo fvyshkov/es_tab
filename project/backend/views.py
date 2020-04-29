@@ -1427,7 +1427,12 @@ def get_tree_node_list(request):
     node_list = get_tree_nodes_inner([], p_sht_id, p_skey, p_flt_id, p_flt_item_id, p_flt_root_id, p_group_keys, p_recursive)
 
     for node in node_list:
-        process_node(p_sht_id, p_skey, node, p_group_keys, sheet_info[0])
+        if node.get('stype')=="TURN":
+            real_skey = Skey(p_group_keys+','+node['node_key']).process()
+        else:
+            real_skey = p_skey+','+node['node_key']
+
+        process_node(p_sht_id, real_skey, node, p_group_keys, sheet_info[0])
 
     return node_list
 
@@ -1436,6 +1441,11 @@ def get_tree_nodes_inner(node_list, p_sht_id, p_skey, p_flt_id, p_flt_item_id, p
 
     inner_node_list = get_sql_result("""
                                     select 'FLT_ID_'||x.flt_id||'=>'||x.flt_item_id as node_key,
+                                            (select stype 
+                                            from c_es_sheet_type t,
+                                                 c_es_ver_sheet s
+                                            where s.id =  %s and s.type_id = t.id) stype,
+                                            
                                     ( 
                                     select listagg(row_name,'#') WITHIN GROUP (order by rn)  AS employees
                                     from (
@@ -1458,7 +1468,7 @@ def get_tree_nodes_inner(node_list, p_sht_id, p_skey, p_flt_id, p_flt_item_id, p
                                    and i.id(+) = x.IND_ID 
                                    order by x.npp
                                    """,
-                               [p_group_keys, p_sht_id, p_skey, p_flt_id, p_flt_item_id, p_flt_root_id, p_cell_key])
+                               [p_sht_id, p_group_keys, p_sht_id, p_skey, p_flt_id, p_flt_item_id, p_flt_root_id, p_cell_key])
     children_nodes = []
     for node in inner_node_list:
         hie_path = []
@@ -1513,9 +1523,6 @@ def get_cell_comment(request):
 
 def process_node(p_sht_id, p_key, node, group_keys, sheet_info):
 
-    p_tmp_cell_key = p_key +','+ node['node_key']
-
-
     cell_list = get_sql_result("""
                                 with params as (select %s sht_id, %s skey from dual)
                                 select f.styles, 
@@ -1553,7 +1560,7 @@ def process_node(p_sht_id, p_key, node, group_keys, sheet_info):
                                      c_es_ver_sheet_ind_frmt f
                                 where f.ind_id(+) = x.ind_id and f.tbl_id(+)= x.mark_tbl_id
                                 """,
-                               [p_sht_id, p_tmp_cell_key])
+                               [p_sht_id, p_key])
 
     cell_list = list( map(process_cell_styles, cell_list,   [node]*len(cell_list), [sheet_info]*len(cell_list)))
 
