@@ -244,6 +244,7 @@ export default class ReTableView extends Component {
     setDummyRow(){
         const dummy_key="dummy_0";
         this.setState({rowData: [{node_key: dummy_key, hie_path: [dummy_key], name: "DUMMY"}]});
+        this.sendDummyColumn();
     }
 
     afterFirstLoadData(){
@@ -658,6 +659,7 @@ export default class ReTableView extends Component {
                                 getChartTitle={this.props.getChartTitle}
                                 sendExpandNode={click => this.sendExpandNode = click}
                                 sendSaveFilter={click => this.sendSaveFilter = click}
+                                sendDummyColumn={click => this.sendDummyColumn = click}
                                 getGridApi={click => this.getGridApi = click}
                                 onSendExpandRecursive={this.onSendExpandRecursive.bind(this)}
                                 onAddChart={this.state.onAddChart}

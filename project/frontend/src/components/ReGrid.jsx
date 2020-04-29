@@ -232,6 +232,10 @@ export default class ReGrid extends React.Component {
             this.props.sendRefreshGrid(this.refreshGrid);
         }
 
+        if (this.props.sendDummyColumn){
+            this.props.sendDummyColumn(this.sendDummyColumn);
+        }
+
         if (this.props.getGridApi){
             this.props.getGridApi(this.getGridApi.bind(this));
         }
@@ -281,6 +285,10 @@ export default class ReGrid extends React.Component {
 
 
 
+    }
+
+    sendDummyColumn(){
+        this.setState({columnDefs: [{headerName: 'Загрузка списка столбцов...'}]});
     }
 
     sendUndoToGrid(){
