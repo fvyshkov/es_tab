@@ -1014,6 +1014,14 @@ def get_sheet_type(sht_id):
     else:
         return 'NONE'
 
+def get_sheet_stype(sht_id):
+    sql_res = get_sql_result(
+        'select t.stype from c_es_sheet_type t, c_es_ver_sheet s  where s.id = %s and t.id = s.type_id', [sht_id])
+    if len(sql_res)>0:
+        return sql_res[0].get('stype')
+    else:
+        return None
+
 
 def get_sheet_info(request):
     param_dict = dict(request.GET)
@@ -1756,6 +1764,11 @@ def get_sht_filters(request):
         return JsonResponse({})
     else:
         sht_id = param_dict['sht_id'][0]
+
+        stype = get_sheet_stype(sht_id)
+        if stype=="TURN":
+            return JsonResponse({})
+
         filter_list = get_sql_result('select f.id flt_id, c_pkgesbook.fGetSheetFltName(f.id) name'
                                      ' from c_es_ver_sheet_flt f where sht_id = %s',
                                        [sht_id])
