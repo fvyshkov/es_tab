@@ -72,25 +72,12 @@ export default class TableViewDetail extends Component {
     }
 
     getColumnsListRequestString(){
-        console.log('this.props.additionalSheetParams=',this.props.additionalSheetParams);
         var httpStr = "sht_columns/?viewType=DetailView&dummy=1";
-
         return httpStr;
     }
 
     getDataRequestString(){
         var httpStr = 'sht_nodes/?dummy=1';
-        /*
-        if (this.props.additionalSheetParams){
-            for (var paramName in this.props.additionalSheetParams){
-                if (Object.prototype.hasOwnProperty.call(this.props.additionalSheetParams, paramName)){
-                    httpStr += '&'+paramName+'='+this.props.additionalSheetParams[paramName];
-                }
-            }
-
-        }
-        */
-
         return httpStr;
     }
 
