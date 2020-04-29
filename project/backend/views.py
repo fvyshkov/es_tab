@@ -1437,12 +1437,12 @@ def get_tree_nodes_inner(node_list, p_sht_id, p_skey, p_flt_id, p_flt_item_id, p
     inner_node_list = get_sql_result("""
                                     select 'FLT_ID_'||x.flt_id||'=>'||x.flt_item_id as node_key,
                                     ( 
-                                    select listagg(row_name,',') WITHIN GROUP (order by row_name)  AS employees
+                                    select listagg(row_name,',') WITHIN GROUP (order by rn)  AS employees
                                     from (
-                                    select  c_pkgesbook.fGetFilterNodeNameById(flt_id, item_id) row_name
+                                    select rn, c_pkgesbook.fGetFilterNodeNameById(flt_id, item_id) row_name
                                     
                                     from (
-                                        select column_value ,substr(column_value,8,instr(column_value,'=')-8) flt_id,
+                                        select rownum rn, column_value ,substr(column_value,8,instr(column_value,'=')-8) flt_id,
                                         substr(column_value,instr(column_value,'>')+1) item_id
                                         from table (c_pkgesutils.fSplit(%s))
                                         where column_value is not null
