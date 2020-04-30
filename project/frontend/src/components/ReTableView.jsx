@@ -191,7 +191,14 @@ export default class ReTableView extends Component {
                 httpStr += '&skey=' + this.getFilterSkey();
             }
 
+            var skey_multi= this.getFilterSkeyMulti();
+            if (skey_multi){
+                console.log("skey_multi+", skey_multi);
+                httpStr += '&skey_multi='+skey_multi;
+            }
+
             httpStr += '&recursive=' + (recursive ? "1" : "0");
+
 
 
             httpStr = this.addAdditionalSheetParams(httpStr);
@@ -404,6 +411,38 @@ export default class ReTableView extends Component {
         return skey;
     }
 
+    getFilterSkeyMulti(){
+        var skey = '';
+
+        for (var filterID in this.state.filterNodes){
+            if (Object.prototype.hasOwnProperty.call(this.state.filterNodes, filterID)) {
+                var filterNodeList = this.state.filterNodes[filterID].filter_node_list;
+
+                var skeyFilter = '';
+                getSelectedArrayInSingleTree(filterNodeList).forEach(nodeId=>{
+                    console.log("getSelectedArrayInSingleTree", nodeId.id);
+                    skeyFilter += 'FLT_ID_'+filterID+'=>'+nodeId.id+',';
+                });
+
+                if (!skeyFilter){
+                    skey += 'FLT_ID_'+filterID+'=>0,';
+                }else{
+                    skey += skeyFilter;
+                }
+                /*
+                if (itemID !='0'){
+                    skey = skey+ 'FLT_ID_'+filterID+'=>'+itemID+',';
+                }
+                */
+            }
+        }
+        //console.log("getFilterSkeyMulti", skey);
+        return skey;
+    }
+
+
+
+
     getCheckedFilterNodeId(nodeList){
         for (var i=0; i<nodeList.length; i++){
             if (nodeList[i]['checked']){
@@ -530,7 +569,13 @@ export default class ReTableView extends Component {
             if (this.state.sheet_id){
                 httpStr +='sht_id='+this.state.sheet_id;
             }
+        }
 
+        var skey_multi= this.getFilterSkeyMulti();
+        console.log("skey_multi", skey_multi);
+        if (skey_multi){
+            console.log("skey_multi+", skey_multi);
+            httpStr += '&skey_multi='+skey_multi;
         }
 
          var skey = this.getFilterSkey();
@@ -700,7 +745,9 @@ function getSelectedArrayInSingleTree(singleTreeArray){
     var selectedIds = [];
 
     processTree(singleTreeArray, (item)=>{
+
                                             if (item.checked){
+                                                console.log("item", item);
                                                 selectedIds.push({id:item.id});
                                             }
                                          });

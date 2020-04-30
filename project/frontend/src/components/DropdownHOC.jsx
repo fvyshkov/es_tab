@@ -48,7 +48,7 @@ export default class DropdownHOC extends Component {
           onChange={this.handleChange}
           onAction={this.onAction}
           onNodeToggle={this.onNodeToggle}
-          mode={'radioSelect'}
+          mode={'multiSelect'}
         />
      </div>
     </div>

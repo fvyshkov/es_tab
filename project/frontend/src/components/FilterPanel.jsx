@@ -71,28 +71,13 @@ export default class FilterPanel extends Component {
                           treeName={fltItem.name}
                           onChangeSelection={this.handleChangeTest}
                           filterID={fltItem.flt_id}
-                          mode={'radioSelect'}
+                          mode={'multiSelect'}
                         />
                     </div>
                 );
             }
         }
-        /*
-        this.filterRenderItems = this.state.filterList.map(
-            (fltItem, key) =>
-                <div>
-                    <DropdownHOC
-                      key={fltItem.flt_id}
-                      data={fltItem.filter_node_list}
-                      treeName={fltItem.name}
-                      onChangeSelection={this.handleChangeTest}
-                      filterID={fltItem.flt_id}
-                      mode={'radioSelect'}
-                    />
-                </div>
 
-
-        );*/
 
 
         return (
