@@ -109,11 +109,18 @@ def reload_nodes(request):
 
     for node in node_list:
         group_keys = ''
-        for path_step in node['hie_path']:
-            if path_step != node['hie_path'][-1]:
-                group_keys += path_step+','
+
         if not "dummy" in node['node_key']:
-            process_node(sht_id, sht_skey, node, group_keys, sheet_info[0])
+            for path_step in node['hie_path_keys']:
+                if path_step != node['hie_path_keys'][-1]:
+                    group_keys += path_step + ','
+
+            if node.get('stype') == "TURN":
+                real_skey = Skey(group_keys + ',' + node['node_key']).process()
+            else:
+                real_skey = sht_skey + ',' + node['node_key']
+
+            process_node(sht_id, real_skey, node, group_keys, sheet_info[0])
 
     return JsonResponse(node_list, safe=False)
 
@@ -487,6 +494,7 @@ def update_table_record(request):
                                 sval varchar2(250) := %s;
                                 scalc_value varchar2(250);
                                 nent_id number(10);
+                                nsht_id number(10);
                             begin 
                                 c_pkgconnect.popen(); 
                                 
@@ -516,6 +524,12 @@ def update_table_record(request):
                                            );
                            
                                 c_pkgesreq.pRecalcReq(nreq_id);
+                                
+                                C_PKGESreq.pAddToQueue(nreq_id);
+                                C_PKGESREQ.pProcessReqQueue;
+                                
+                                select sht_id into nsht_id from c_es_ver_sheet_req where id = nreq_id;
+                                C_PKGESREVERSE.pClearLinkedCellsBySht(nsht_id);
                            
                             end; """,
                            [col_id, req_id, value])
@@ -1442,7 +1456,6 @@ def get_tree_node_list(request):
             real_skey = Skey(p_group_keys+','+node['node_key']).process()
         else:
             real_skey = p_skey+','+node['node_key']
-
         process_node(p_sht_id, real_skey, node, p_group_keys, sheet_info[0])
 
     return node_list
