@@ -2129,7 +2129,7 @@ def get_anl_table_row_by_id(id):
             rows = get_anl_detail_table_rows(row[0].get('sht_id', ''), row[0].get('skey', ''), row[0].get('ind_id', ''), '')
         elif not parent_id:
             skey = '' #не берем row.skey - чтобы получить и колонки со значениями аналитик
-            rows = get_anl_table_rows(row[0].get('sht_id'), skey)
+            rows = get_anl_table_rows(row[0].get('sht_id'), skey, skey)
         else:
             rows = get_anl_detail_table_rows(row[0].get('sht_id',''), '', row[0].get('ind_id',''), parent_id)
 
@@ -2150,7 +2150,9 @@ def get_anl_table_rows(sht_id, skey, skey_multi):
 
     connection = get_oracle_connection()
     cursor = connection.cursor()
-    prepare_analitics("пока неважно, главное чтобы не TURN", skey_multi, cursor)
+
+    stype = get_sheet_stype(sht_id)
+    prepare_analitics(stype, skey_multi, cursor)
     refCursor = connection.cursor()
 
 
