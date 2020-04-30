@@ -57,7 +57,6 @@ export default class ReTableView extends Component {
 
 
     onSendInsertRecord(newRows, api){
-        console.log("reTableView onSendInsertRecord", newRows);
         if (newRows && newRows.length>0){
             api.updateRowData({ add: newRows });
             var rowNode = api.getRowNode(newRows[0].node_key);
@@ -193,7 +192,6 @@ export default class ReTableView extends Component {
 
             var skey_multi= this.getFilterSkeyMulti();
             if (skey_multi){
-                console.log("skey_multi+", skey_multi);
                 httpStr += '&skey_multi='+skey_multi;
             }
 
@@ -420,7 +418,6 @@ export default class ReTableView extends Component {
 
                 var skeyFilter = '';
                 getSelectedArrayInSingleTree(filterNodeList).forEach(nodeId=>{
-                    console.log("getSelectedArrayInSingleTree", nodeId.id);
                     skeyFilter += 'FLT_ID_'+filterID+'=>'+nodeId.id+',';
                 });
 
@@ -429,14 +426,8 @@ export default class ReTableView extends Component {
                 }else{
                     skey += skeyFilter;
                 }
-                /*
-                if (itemID !='0'){
-                    skey = skey+ 'FLT_ID_'+filterID+'=>'+itemID+',';
-                }
-                */
             }
         }
-        //console.log("getFilterSkeyMulti", skey);
         return skey;
     }
 
@@ -572,9 +563,7 @@ export default class ReTableView extends Component {
         }
 
         var skey_multi= this.getFilterSkeyMulti();
-        console.log("skey_multi", skey_multi);
         if (skey_multi){
-            console.log("skey_multi+", skey_multi);
             httpStr += '&skey_multi='+skey_multi;
         }
 
@@ -747,7 +736,6 @@ function getSelectedArrayInSingleTree(singleTreeArray){
     processTree(singleTreeArray, (item)=>{
 
                                             if (item.checked){
-                                                console.log("item", item);
                                                 selectedIds.push({id:item.id});
                                             }
                                          });

@@ -1383,7 +1383,7 @@ class Skey(object):
         return ''
 
 
-def get_sheet_nodes(request):
+def sht_nodes(request):
     param_dict = dict(request.GET)
     p_sht_id = ''
     p_flt_id = ''
@@ -1408,27 +1408,62 @@ def get_sheet_nodes(request):
 
     detailfl = param_dict.get('detailfl', [''])[0]
 
+
     if p_sht_id=='':
         return JsonResponse([], safe=False)
 
-    sql_result = get_sql_result("select c_pkgessheet.fGetMainFlt(%s) main_flt_id from dual", [p_sht_id])
+    sql_result = get_sql_result("""
+                                select c_pkgessheet.fGetMainFlt(%s) main_flt_id          
+                                from dual 
+                                """, [p_sht_id])
+
     main_flt_id = sql_result[0].get('main_flt_id')
-    p_flt_root_id = Skey(p_key+','+p_cell_key).get_flt_value(main_flt_id)
+    stype = get_sheet_stype(p_sht_id)
+
 
     p_ind_id = param_dict.get('ind_id', [''])[0]
     p_parent_id = param_dict.get('parent_id', [''])[0]
-
+    p_skey_multi = param_dict.get('skey_multi', [''])[0]
     sheet_type = get_sheet_type(p_sht_id)
+
 
     if detailfl=="1":
         node_list = get_anl_detail_table_rows(p_sht_id, p_key, p_ind_id, p_parent_id)
     elif sheet_type=='TREE':
         node_list = get_tree_node_list(request)
     else:
-        node_list = get_anl_table_rows(p_sht_id,p_key)
+        node_list = get_anl_table_rows(p_sht_id,p_key, p_skey_multi)
 
 
     return JsonResponse(node_list, safe = False)
+
+def prepare_analitics(sheet_type, skey_multi, cursor):
+    cursor.execute("""
+                        begin
+                            c_pkgconnect.popen();
+                        end;
+                    """, [])
+
+    if sheet_type=="TURN":
+        cursor.execute("""
+                                begin
+                                    c_pkgessheet.paddfilter('MULTIFL','0');
+                                end;
+                            """, [])
+    else:
+        cursor.execute("""
+                                begin
+                                    c_pkgessheet.paddfilter('MULTIFL', '1');
+                                end;
+                            """, [])
+
+        for filter_key in skey_multi.split(','):
+            if filter_key:
+                cursor.execute("""
+                                        begin
+                                            c_pkgessheet.paddanalitic(:1, :2);
+                                        end;
+                                    """, [filter_key.split('=>')[0], filter_key.split('=>')[1]])
 
 def get_tree_node_list(request):
 
@@ -1445,11 +1480,22 @@ def get_tree_node_list(request):
     p_sht_id = param_dict.get('sht_id', [''])[0]
     p_flt_id = param_dict.get('flt_id', [''])[0]
     p_flt_item_id = param_dict.get('flt_item_id', [''])[0]
+    p_skey_multi = param_dict.get('skey_multi', [''])[0]
 
     sheet_info = get_sheet_info_list(p_sht_id)
 
 
-    node_list = get_tree_nodes_inner([], p_sht_id, p_skey, p_flt_id, p_flt_item_id, p_flt_root_id, p_group_keys, p_recursive)
+
+
+    node_list = get_tree_nodes_inner([],
+                                     p_sht_id,
+                                     p_skey,
+                                     p_flt_id,
+                                     p_flt_item_id,
+                                     p_flt_root_id,
+                                     p_group_keys,
+                                     p_recursive
+                                     )
 
     for node in node_list:
         if node.get('stype')=="TURN":
@@ -1460,7 +1506,9 @@ def get_tree_node_list(request):
 
     return node_list
 
-def get_tree_nodes_inner(node_list, p_sht_id, p_skey, p_flt_id, p_flt_item_id, p_flt_root_id, p_group_keys, p_recursive):
+def get_tree_nodes_inner(node_list, p_sht_id, p_skey, p_flt_id,
+                            p_flt_item_id, p_flt_root_id, p_group_keys,
+                         p_recursive):
     p_cell_key = Skey(p_group_keys).process()
 
     inner_node_list = get_sql_result("""
@@ -1637,7 +1685,7 @@ def process_cell_styles(cell_src, node, sheet_info):
 
     return cell
 
-def get_sheet_columns(request):
+def sheet_columns(request):
     param_dict = dict(request.GET)
     p_sht_id =''
     p_skey = ''
@@ -1649,6 +1697,7 @@ def get_sheet_columns(request):
 
     p_ind_id = param_dict.get('ind_id', [''])[0]
     view_type = param_dict.get('viewType', [''])[0]
+    skey_multi = param_dict.get('skey_multi', [''])[0]
 
 
     if view_type=='CommentView':
@@ -1705,7 +1754,7 @@ def get_sheet_columns(request):
         columns = get_sheet_details_columns_list(p_sht_id, p_skey, p_ind_id)
     else:
         sheet_type = get_sheet_type(p_sht_id)
-        columns = get_sheet_columns_list(sheet_type, p_sht_id, p_skey)
+        columns = get_sheet_columns_list(sheet_type, p_sht_id, p_skey, skey_multi)
 
 
     for column in columns:
@@ -1750,7 +1799,14 @@ def get_sheet_details_columns_list(p_sht_id, p_skey, p_ind_id):
                              ' from table(C_PKGESREQ.fGetDetColumns(%s, %s, %s)) c', [p_sht_id, p_ind_id, p_skey])
     return columns
 
-def get_sheet_columns_list(sheet_type, sht_id, skey):
+def get_sheet_columns_list(sheet_type, sht_id, skey, skey_multi):
+    connection = get_oracle_connection()
+    cursor = connection.cursor()
+
+    stype = get_sheet_stype(sht_id)
+
+    prepare_analitics(stype, skey_multi, cursor)
+
     if sheet_type=='TREE':
         columns = get_sql_result('select * from table(C_PKGESsheet.fGetColumns(%s, %s))', [sht_id, skey])
         for column in columns:
@@ -1761,7 +1817,7 @@ def get_sheet_columns_list(sheet_type, sht_id, skey):
         columns.insert(0, group_column)
         return columns
     else:
-        return get_sql_result("""select c.idx, c.code key, c.longname name, c.editfl, c.ent_id, atr_type,
+        columns =  get_sql_result_prepared("""select c.idx, c.code key, c.longname name, c.editfl, c.ent_id, atr_type,
                                c.ind_id, c.ind_id_hi,visiblefl,
                                (
                                select sign(count(*))
@@ -1771,9 +1827,11 @@ def get_sheet_columns_list(sheet_type, sht_id, skey):
                                 and   r.row_id = t.tbl_id
                                 and   r.rule_type='D'
                                 ) detailfl 
-                                from table(C_PKGESreq.fGetColumns(%s,%s)) c
+                                from table(C_PKGESreq.fGetColumns(:1,:2)) c
                                 where visiblefl = 1
-                                """, [skey,sht_id])
+                                """, [skey,sht_id], cursor)
+        print("cols", columns)
+        return columns
 
 
 
@@ -2081,11 +2139,8 @@ def get_anl_table_row_by_id(id):
                 return row
 
 
-def get_anl_table_rows(sht_id, skey):
-    print('sht_id=',sht_id, 'sk', skey)
-    connection = get_oracle_connection()
-    cursor = connection.cursor()
-    refCursor =  connection.cursor()
+def get_anl_table_rows(sht_id, skey, skey_multi):
+
 
     dop = Skey(skey).get_flt_value('DOP')
     if skey:
@@ -2093,14 +2148,15 @@ def get_anl_table_rows(sht_id, skey):
     else:
         skey_cleaned = ''
 
-    try:
-        cursor.execute("""begin c_pkgconnect.popen();
-                        :1 := c_pkgesreq.fGetCursor( :2, :3,:4,5000,''); 
-                    end;""", [refCursor, sht_id, skey_cleaned, dop])
-    except:
-        print("get_anl_table_rows ERROR")
-        return []
+    connection = get_oracle_connection()
+    cursor = connection.cursor()
+    prepare_analitics("пока неважно, главное чтобы не TURN", skey_multi, cursor)
+    refCursor = connection.cursor()
 
+
+    cursor.execute("""begin c_pkgconnect.popen();
+                    :1 := c_pkgesreq.fGetCursor( :2, :3,:4,5000,''); 
+                end;""", [refCursor, sht_id, skey_cleaned, dop])
 
     ref_cursor =[]
 
@@ -2111,7 +2167,7 @@ def get_anl_table_rows(sht_id, skey):
     color_filter = sheet_info[0].get('color_filter_hex')
     color_confirm = sheet_info[0].get('color_conf_hex')
 
-    columns = get_sheet_columns_list('TABLE', sht_id, skey)
+    columns = get_sheet_columns_list('TABLE', sht_id, skey, skey_multi)
 
     refer_items = get_sql_result("""
                                 select t. *, i.ENT_ID
@@ -2445,6 +2501,10 @@ def get_sql_result(sql, params):
         cursor.execute('call c_pkgconnect.popen();' )
         cursor.execute(sql, params)
         return dict_fetch_all(cursor)
+
+def get_sql_result_prepared(sql, params,  cursor):
+    cursor.execute(sql, params)
+    return dict_fetch_all(cursor)
 
 def run_sql(sql, params):
     with connection.cursor() as cursor:
