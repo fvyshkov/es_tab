@@ -2055,13 +2055,21 @@ def get_operlist_list(proc_id, bop_id, nstat):
 
 def get_anl_table_row_by_id(id):
     #пока некрасиво получим все записи по ключу, поскольку пока нет серверной части, чтобы получить одну запись со всеми колонками
-    row = get_sql_result("select sht_id, skey, parent_id, ind_id from c_es_ver_sheet_req where id= %s", [id])
+    row = get_sql_result("""
+                            select r.sht_id, r.skey, r.parent_id, r.ind_id, t.stype 
+                            from c_es_sheet_type t, c_es_ver_sheet s, c_es_ver_sheet_req r 
+                            where r.id= %s
+                            and s.id = r.sht_id
+                            and s.type_id = t.id
+                        """, [id])
     if len(row)==0:
         return {}
     else:
         parent_id = row[0].get('parent_id', '')
 
-        if not parent_id:
+        if row[0].get("stype")=="TURN":
+            rows = get_anl_detail_table_rows(row[0].get('sht_id', ''), row[0].get('skey', ''), row[0].get('ind_id', ''), '')
+        elif not parent_id:
             skey = '' #не берем row.skey - чтобы получить и колонки со значениями аналитик
             rows = get_anl_table_rows(row[0].get('sht_id'), skey)
         else:
