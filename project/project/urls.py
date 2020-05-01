@@ -22,7 +22,7 @@ urlpatterns = [
     path('filter_nodes/', views.get_filter_nodes),
     path('sht_filters/', views.get_sht_filters),
     path('sht_nodes/', views.sht_nodes),
-    path('sht_columns/', views.sheet_columns),
+    path('sht_columns/', views.sht_columns),
     path('sheet_list/', views.get_sheet_list_plane),
     path('refer/', views.get_refer),
     path('refer_value/', views.get_refer_value),

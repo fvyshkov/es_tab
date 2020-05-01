@@ -1474,6 +1474,7 @@ def get_tree_node_list(request):
     if not 'sht_id' in param_dict:
         return []
 
+
     p_group_keys = param_dict.get('group_keys', [''])[0]
     p_recursive = param_dict.get('recursive', [''])[0]
     p_skey = param_dict.get('skey', [''])[0]
@@ -1484,7 +1485,10 @@ def get_tree_node_list(request):
 
     sheet_info = get_sheet_info_list(p_sht_id)
 
-
+    connection = get_oracle_connection()
+    cursor = connection.cursor()
+    stype = get_sheet_stype(p_sht_id)
+    prepare_analitics(stype, p_skey_multi, cursor)
 
 
     node_list = get_tree_nodes_inner([],
@@ -1502,7 +1506,7 @@ def get_tree_node_list(request):
             real_skey = Skey(p_group_keys+','+node['node_key']).process()
         else:
             real_skey = p_skey+','+node['node_key']
-        process_node(p_sht_id, real_skey, node, p_group_keys, sheet_info[0])
+        process_node(p_sht_id, real_skey, node, p_group_keys, sheet_info[0], cursor)
 
     return node_list
 
@@ -1593,10 +1597,10 @@ def get_cell_comment(request):
     return JsonResponse(comments, safe=False)
 
 
-def process_node(p_sht_id, p_key, node, group_keys, sheet_info):
+def process_node(p_sht_id, p_key, node, group_keys, sheet_info, cursor):
 
-    cell_list = get_sql_result("""
-                                with params as (select %s sht_id, %s skey from dual)
+    cell_list = get_sql_result_prepared("""
+                                with params as (select :1 sht_id, :2 skey from dual)
                                 select f.styles, 
                                         c_pkgescalc.fNormalizeKey( c_pkgescalc.fRemoveIndFlt(p.sht_id, p.skey||','||x.key)) cell_skey,
                                         c_pkgescalc.fGetAnlDscr(p.skey) flt_dscr,
@@ -1632,7 +1636,7 @@ def process_node(p_sht_id, p_key, node, group_keys, sheet_info):
                                      c_es_ver_sheet_ind_frmt f
                                 where f.ind_id(+) = x.ind_id and f.tbl_id(+)= x.mark_tbl_id
                                 """,
-                               [p_sht_id, p_key])
+                               [p_sht_id, p_key], cursor)
 
     cell_list = list( map(process_cell_styles, cell_list,   [node]*len(cell_list), [sheet_info]*len(cell_list)))
 
@@ -1685,7 +1689,7 @@ def process_cell_styles(cell_src, node, sheet_info):
 
     return cell
 
-def sheet_columns(request):
+def sht_columns(request):
     param_dict = dict(request.GET)
     p_sht_id =''
     p_skey = ''
@@ -1808,7 +1812,7 @@ def get_sheet_columns_list(sheet_type, sht_id, skey, skey_multi):
     prepare_analitics(stype, skey_multi, cursor)
 
     if sheet_type=='TREE':
-        columns = get_sql_result('select * from table(C_PKGESsheet.fGetColumns(%s, %s))', [sht_id, skey])
+        columns = get_sql_result_prepared('select * from table(C_PKGESsheet.fGetColumns(:1, :2))', [sht_id, skey], cursor)
         for column in columns:
             column['atr_type'] = 'N' #в целях эксперимента, конечно это не всегда так
 
