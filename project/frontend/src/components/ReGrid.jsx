@@ -158,7 +158,7 @@ export default class ReGrid extends React.Component {
                 });
 
                 if(!isCurrentColFoundInSaved){
-                    this.savedColumnState.unshift(Object.assign({}, column));
+                    this.savedColumnState.push(Object.assign({}, column));
                 }
             });
 
