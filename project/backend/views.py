@@ -1821,6 +1821,10 @@ def get_sheet_columns_list(sheet_type, sht_id, skey, skey_multi):
         columns = get_sql_result_prepared('select * from table(C_PKGESsheet.fGetColumns(:1, :2))', [sht_id, skey], cursor)
         for column in columns:
             column['atr_type'] = 'N' #в целях эксперимента, конечно это не всегда так
+            #заплатка, на самом деле признак детализации должен определяться на уровне клетки, а не столбца
+            if stype=="TURN" and column['name']=="Обороты":
+                column['detailfl']="1"
+
 
 
         group_column = {'idx': 0, 'key': 'name', 'name': 'Показатель', 'editfl': 0, 'rowgroupfl': 1}
@@ -1840,7 +1844,7 @@ def get_sheet_columns_list(sheet_type, sht_id, skey, skey_multi):
                                 from table(C_PKGESreq.fGetColumns(:1,:2)) c
                                 where visiblefl = 1
                                 """, [skey,sht_id], cursor)
-        print("cols", columns)
+
         return columns
 
 

@@ -500,7 +500,7 @@ export default class TableViewWithSelection extends Component {
 
         var menuItems = [];
 
-        if (params.column.colDef.detailfl==1 || params.node.data.stype=="TURN"){
+        if (params.column.colDef.detailfl==1 ){
             menuItems.push({
                 name: 'Детализация <b>[' + params.column.colDef.headerName+']</b>',
                 action: this.showDetailForCell.bind(this, params)
