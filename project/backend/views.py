@@ -107,6 +107,12 @@ def reload_nodes(request):
 
     sheet_info = get_sheet_info_list(sht_id)
 
+    skey_multi = param_dict.get('skey_multi', [''])[0]
+    connection = get_oracle_connection()
+    cursor = connection.cursor()
+    stype = get_sheet_stype(sht_id)
+    prepare_analitics(stype, skey_multi, cursor)
+
     for node in node_list:
         group_keys = ''
 
@@ -120,7 +126,7 @@ def reload_nodes(request):
             else:
                 real_skey = sht_skey + ',' + node['node_key']
 
-            process_node(sht_id, real_skey, node, group_keys, sheet_info[0])
+            process_node(sht_id, real_skey, node, group_keys, sheet_info[0], cursor)
 
     return JsonResponse(node_list, safe=False)
 
@@ -1839,7 +1845,7 @@ def get_sheet_columns_list(sheet_type, sht_id, skey, skey_multi):
 
 
 
-def get_sht_filters(request):
+def sht_filters(request):
     param_dict = dict(request.GET)
     if 'sht_id' not in param_dict:
         return JsonResponse({})
@@ -1848,7 +1854,7 @@ def get_sht_filters(request):
 
         stype = get_sheet_stype(sht_id)
         if stype=="TURN":
-            return JsonResponse({})
+            return JsonResponse([], safe=False)
 
         filter_list = get_sql_result('select f.id flt_id, c_pkgesbook.fGetSheetFltName(f.id) name'
                                      ' from c_es_ver_sheet_flt f where sht_id = %s',

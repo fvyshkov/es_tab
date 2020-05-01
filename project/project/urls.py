@@ -20,7 +20,7 @@ from backend import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('filter_nodes/', views.get_filter_nodes),
-    path('sht_filters/', views.get_sht_filters),
+    path('sht_filters/', views.sht_filters),
     path('sht_nodes/', views.sht_nodes),
     path('sht_columns/', views.sht_columns),
     path('sheet_list/', views.get_sheet_list_plane),
