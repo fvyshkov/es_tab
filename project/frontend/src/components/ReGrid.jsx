@@ -137,8 +137,6 @@ export default class ReGrid extends React.Component {
     refreshData(){
         if (this.savedFilterModel){
             this.gridApi.setFilterModel(this.savedFilterModel);
-        }else if (this.props.columnFilterModel){
-            this.gridApi.setFilterModel(this.props.columnFilterModel);
         }
 
 
@@ -168,8 +166,6 @@ export default class ReGrid extends React.Component {
             });
 
             this.gridColumnApi.setColumnState(this.savedColumnState);
-        } else if (this.props.columnState){
-            this.gridColumnApi.setColumnState(this.props.columnState);
         }
 
         this.gridApi.setRowData(this.props.rowData);
@@ -217,10 +213,11 @@ export default class ReGrid extends React.Component {
         }
     }
 
-    onSendSaveFilter(){
-        this.savedFilterModel = JSON.parse(JSON.stringify(this.gridApi.getFilterModel())) ;
-        this.savedColumnState = JSON.parse(JSON.stringify(this.gridColumnApi.getColumnState())) ;
-        return this.savedFilterModel;
+    onSendSaveFilter(filterModel, columnState){
+
+        this.savedFilterModel = filterModel ? filterModel : JSON.parse(JSON.stringify(this.gridApi.getFilterModel())) ;
+        this.savedColumnState = columnState ? columnState : JSON.parse(JSON.stringify(this.gridColumnApi.getColumnState())) ;
+
     }
 
     getGridApi(){

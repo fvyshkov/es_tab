@@ -609,6 +609,7 @@ export default class ReTableView extends Component {
             this.nodesForExpand = [];
         }
         this.gridApi = gridApi;
+        this.sendSaveFilter(this.props.columnFilterModel, this.props.columnState);
         this.loadData({}, true);
 
     }
