@@ -2174,7 +2174,16 @@ def get_anl_table_rows(sht_id, skey, skey_multi):
                     :1 := c_pkgesreq.fGetCursor( :2, :3,:4,5000,''); 
                 end;""", [refCursor, sht_id, skey_cleaned, dop])
 
-    ref_cursor =[]
+    columns = get_sheet_columns_list('TABLE', sht_id, skey, skey_multi)
+
+
+    ref_cursor = process_table_sheet(sht_id, refCursor, columns)
+    return ref_cursor
+
+def process_table_sheet(sht_id, refCursor, columns):
+
+    ref_cursor = []
+
 
     sheet_info = get_sheet_info_list(sht_id)
 
@@ -2183,7 +2192,7 @@ def get_anl_table_rows(sht_id, skey, skey_multi):
     color_filter = sheet_info[0].get('color_filter_hex')
     color_confirm = sheet_info[0].get('color_conf_hex')
 
-    columns = get_sheet_columns_list('TABLE', sht_id, skey, skey_multi)
+
 
     refer_items = get_sql_result("""
                                 select t. *, i.ENT_ID
@@ -2216,10 +2225,6 @@ def get_anl_table_rows(sht_id, skey, skey_multi):
                 cell['ind_id'] = column_name[1:]
 
 
-
-            #row_dict[column_name] = row[column_idx]
-
-
             if any([True for column in columns if column['key'] == column_name.upper()]):
 
                 column_list = [column for column in columns if column['key'] == column_name.upper()]
@@ -2229,7 +2234,7 @@ def get_anl_table_rows(sht_id, skey, skey_multi):
                     cell['atr_type'] = column_list[0].get('atr_type')
                     cell['name'] = column_list[0].get('name')
 
-                    if row_dict['confirmfl'] == '1':
+                    if row_dict.get('confirmfl') == '1':
                         cell['editfl'] = 0
                         cell['border.color'] = 'blue'
                     else:
@@ -2237,7 +2242,7 @@ def get_anl_table_rows(sht_id, skey, skey_multi):
 
                     if column_name.upper().startswith('FLT'):
                         cell['brush.color'] = color_filter
-                    elif row_dict['confirmfl']=='1':
+                    elif row_dict.get('confirmfl')=='1':
                         cell['brush.color'] = color_confirm
                     elif cell['editfl'] ==0:
                         cell['brush.color'] = color_restrict
@@ -2458,59 +2463,13 @@ def get_anl_detail_table_rows(sht_id, skey, ind_id, parent_id):
     cursor.execute("""begin c_pkgconnect.popen();
                         :1 := c_pkgesreq.fGetDetailsCursor( :2, :3, :4, :5); 
                     end;""", [refCursor, sht_id, ind_id, skey, parent_id])
-    ref_cursor =[]
-
-    sheet_info = get_sheet_info_list(sht_id)
-
-    color_restrict = sheet_info[0].get('color_restrict_hex')
-    color_hand = sheet_info[0].get('color_hand_hex')
-    color_filter = sheet_info[0].get('color_filter_hex')
-
 
     columns = get_sheet_details_columns_list(sht_id, skey, ind_id)
-    for row in refCursor:
-        row_dict = {}
-        column_data = []
-        for column_idx in range(len(refCursor.description)):
-            column_name = refCursor.description[column_idx][0].lower()
-            row_dict[column_name] = row[column_idx]
-            if any([True for column in columns if column['key'] == column_name.upper()]):
-                column_list = [column for column in columns if column['key'] == column_name.upper()]
-                if len(column_list)>0:
-                    ent_id = column_list[0].get('ent_id')
-                    atr_type = column_list[0].get('atr_type')
-                    editfl = column_list[0].get('editfl')
-                    if column_name.upper().startswith('FLT'):
-                        color = color_filter
-                    elif editfl==0:
-                        color = color_restrict
-                    else:
-                        color = color_hand
-
-                else:
-                    ent_id = None
-                    atr_type = None
-                    editfl = 0
-                    color = color_restric
-
-                column_data.append({
-                                        'key':column_name.upper(),
-                                        'sql_value': row[column_idx],
-                                        'editfl':editfl,
-                                        'ent_id':ent_id,
-                                        'atr_type':atr_type,
-                                        'color':color
-
-                })
 
 
-        row_dict['node_key'] = row_dict['id']
-        row_dict['column_data'] = column_data
-        row_dict['hie_path'] = [row_dict['node_key']]
+    ref_cursor = process_table_sheet(sht_id, refCursor, columns)
+    return ref_cursor
 
-        ref_cursor.append(row_dict)
-
-    return ref_cursor;
 
 def get_sql_result(sql, params):
     with connection.cursor() as cursor:
