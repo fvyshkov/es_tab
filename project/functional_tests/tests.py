@@ -41,6 +41,12 @@ class NewVisitorTest(SimpleTestCase):
         Добавляем 10 записей, вводим при этом тестовые знгачения для поля "арендатор"
         Проверяем, что в статус-баре отобразилось именно 10 записей
         """
+        self.wait_for_layouts_loaded()
+        close = WebDriverWait(self.browser, MAX_WAIT).until(
+            EC.element_to_be_clickable((By.ID, "close_all_layout_items")))
+        close.click()
+
+
         path=["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
         filters = {"Плоскость планирования": "План","ЦФО и инвестиции": "ГО"}
         sheet_layout = self.prepare_table_sheet(path, filters)
@@ -95,6 +101,11 @@ class NewVisitorTest(SimpleTestCase):
         sheet_layout.wait_for_loaded()
 
         return sheet_layout
+
+    def wait_for_layouts_loaded(self):
+        layout_is_loaded_path = "//div[@class='Wrapper' and @isloading='0']"
+        WebDriverWait(self.browser, MAX_WAIT).until(EC.presence_of_element_located((By.XPATH, layout_is_loaded_path)))
+
 
     def test_sheet_after_desktop(self):
         """
@@ -792,7 +803,7 @@ class Layout(object):
             dep_arrow = self.wait_for_element_by_xpath(flt_arrow_xpath)
             dep_arrow.click()
             #и наконец кликаем нужное
-            flt_value_xpath = ".//label[@title='{}']//input[@class='radio-item']".format(filters[filter])
+            flt_value_xpath = ".//label[@title='{}']//input[@class='checkbox-item']".format(filters[filter])
             flt_value = self.wait_for_element_by_xpath(flt_value_xpath)
             flt_value.click()
 
@@ -839,11 +850,16 @@ class Layout(object):
         cells = self.layout.find_elements_by_xpath(cells_xpath)
         if len(cells) > 0:
             selected = False
+
+            start_time = time.time()
+
             while not selected:
                 try:
                     cells[0].click()
                     selected = True
-                except:
+                except (AssertionError, WebDriverException) as e:
+                    if time.time() - start_time > MAX_WAIT:
+                        raise e
                     time.sleep(.1)
                     cells = self.layout.find_elements_by_xpath(cells_xpath)
                     print("wait for cell")
@@ -851,6 +867,10 @@ class Layout(object):
 
             sheet_delete = self.layout.find_element_by_id("view_delete")
             sheet_delete.click()
+
+            confirm_xpath = "//div[contains(@class, 'dx-button') and @aria-label='Yes']"
+            element = WebDriverWait(self.browser, MAX_WAIT).until(EC.element_to_be_clickable((By.XPATH, confirm_xpath)))
+            element.click()
 
             return 1
 
