@@ -26,9 +26,16 @@ class NewVisitorTest(SimpleTestCase):
         self.browser = webdriver.Firefox()
         self.live_server_url = 'http://127.0.0.1:8000/'
         self.browser.get(self.live_server_url)
+        self.cleanup_layout()
 
     def tearDown(self):
         self.browser.quit()
+
+    def cleanup_layout(self):
+        self.wait_for_layouts_loaded()
+        close = WebDriverWait(self.browser, MAX_WAIT).until(
+            EC.element_to_be_clickable((By.ID, "close_all_layout_items")))
+        close.click()
 
     def test_open_table_sheet_add_records(self):
         print("test_open_table_sheet_add_records")
@@ -41,11 +48,6 @@ class NewVisitorTest(SimpleTestCase):
         Добавляем 10 записей, вводим при этом тестовые знгачения для поля "арендатор"
         Проверяем, что в статус-баре отобразилось именно 10 записей
         """
-        self.wait_for_layouts_loaded()
-        close = WebDriverWait(self.browser, MAX_WAIT).until(
-            EC.element_to_be_clickable((By.ID, "close_all_layout_items")))
-        close.click()
-
 
         path=["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
         filters = {"Плоскость планирования": "План","ЦФО и инвестиции": "ГО"}
@@ -274,16 +276,27 @@ class NewVisitorTest(SimpleTestCase):
             sheet_layout2 = self.prepare_table_sheet(path, filters)
 
             sheet_layout1.sheet_insert()
-            sheet_layout2.sheet_insert()
-            sheet_layout1.sheet_insert()
-            sheet_layout2.sheet_insert()
-            sheet_layout1.sheet_insert()
-            sheet_layout2.sheet_insert()
-            sheet_layout1.sheet_insert()
-
             sheet_layout1.wait_for_loaded()
+
+            sheet_layout2.sheet_insert()
             sheet_layout2.wait_for_loaded()
 
+            sheet_layout1.sheet_insert()
+            sheet_layout1.wait_for_loaded()
+
+            sheet_layout2.sheet_insert()
+            sheet_layout2.wait_for_loaded()
+
+            sheet_layout1.sheet_insert()
+            sheet_layout1.wait_for_loaded()
+
+            sheet_layout2.sheet_insert()
+            sheet_layout2.wait_for_loaded()
+
+            sheet_layout1.sheet_insert()
+            sheet_layout1.wait_for_loaded()
+
+            #time.sleep(1)
             self.assertEqual(sheet_layout1.row_count(), 4)
             self.assertEqual(sheet_layout2.row_count(), 3)
         except:
@@ -342,7 +355,17 @@ class NewVisitorTest(SimpleTestCase):
             ActionChains(self.browser).send_keys(Keys.ARROW_DOWN).perform()
             ActionChains(self.browser).key_up(Keys.SHIFT).perform()
 
-            self.assertEqual(float(sheet_layout.status_bar_value("Сумма")),850)
+            start_time = time.time()
+            success = False
+            while not success:
+                try:
+                    self.assertEqual(float(sheet_layout.status_bar_value("Сумма")),850)
+                    success = True
+                except:
+                    if time.time() - start_time > MAX_WAIT:
+                        raise e
+                    time.sleep(.1)
+
 
         except:
             self.browser.quit()
@@ -548,7 +571,7 @@ class NewVisitorTest(SimpleTestCase):
 
     def save_new_desktop(self, desktop_name):
         print("save_new_desktop")
-        self.open_additional_menu()
+        #self.open_additional_menu()
         button_id = 'save_desktop_new'
         self.wait_for_element_by_id(button_id)
         button = self.browser.find_element_by_id(button_id)
@@ -571,20 +594,10 @@ class NewVisitorTest(SimpleTestCase):
         button.click()
 
         return
-
-        menu_xpath = "//span[text()='Сохранить новый рабочий стол']"
-        try:
-            self.browser.find_element_by_xpath(menu_xpath)
-            return
-        except:
-            button_xpath = "//div[@class='dx-button-content']//i[contains(@class, 'dx-icon-overflow')]"
-            self.wait_for_element_by_xpath(button_xpath)
-            button = self.browser.find_element_by_xpath(button_xpath)
-            button.click()
         
 
     def open_desktop_replace(self):
-        self.open_additional_menu()
+        #self.open_additional_menu()
         button_id = 'save_desktop_replace'
         self.wait_for_element_by_id(button_id)
         button = self.browser.find_element_by_id(button_id)
@@ -778,10 +791,10 @@ class Layout(object):
             return False
 
 
-    def wait_for_loaded(self):
-        time.sleep(1)
-        is_loaded_xpath = ".//div[contains(@class, 'LayoutItem') and @idx='{}']//div[@class='isLoaded' and @isloaded='1']".format(
-            self.layout_item_id)
+    def wait_for_loaded(self, is_loaded="1"):
+        #time.sleep(.1)
+        is_loaded_xpath = ".//div[contains(@class, 'LayoutItem') and @idx='{}']//div[@class='isLoaded' and @isloaded='{}']".format(
+            self.layout_item_id, is_loaded)
         WebDriverWait(self.browser, MAX_WAIT).until(EC.presence_of_element_located((By.XPATH, is_loaded_xpath)))
 
 
@@ -877,22 +890,57 @@ class Layout(object):
         return 0
 
     def sheet_insert(self):
+        row_count = self.row_count()
         ins_xpath = "//div[contains(@class, 'LayoutItem') and @idx='{}']//div[@id='view_insert']".format(self.layout_item_id)
         element = WebDriverWait(self.browser, MAX_WAIT).until(EC.element_to_be_clickable((By.XPATH, ins_xpath)))
         element.click()
+        start_time = time.time()
+        while self.row_count()==row_count:
+            time.sleep(.1)
+            if time.time() - start_time > MAX_WAIT:
+                raise NameError("Insert failed")
+
 
     def sheet_colors(self):
         btn_xpath = "//div[contains(@class, 'LayoutItem') and @idx='{}']//div[@id='view_color']".format(self.layout_item_id)
         element = WebDriverWait(self.browser, MAX_WAIT).until(EC.element_to_be_clickable((By.XPATH, btn_xpath)))
         element.click()
 
+
+
     def open_sheet_list_node(self, node_label):
         node_img_xpath = "//div[contains(@class, 'dx-treeview') and @layoutitemid='{}']//li[@aria-label='{}' and @role='treeitem']//div[contains(@class,'dx-treeview-toggle-item-visibility')]".format(
             self.layout_item_id,  node_label)
         node_img = WebDriverWait(self.browser, MAX_WAIT).until(EC.presence_of_element_located((By.XPATH, node_img_xpath)))
+
+        if 'firefox' in self.browser.capabilities['browserName']:
+            print("firefox")
+            success = False
+            while not success:
+                try:
+                    print("try")
+                    ActionChains(self.browser).move_to_element(node_img).perform()
+                    success = True
+                except:
+                    print("except")
+                    time.sleep(.1)
+                    ActionChains(self.browser).send_keys(Keys.ARROW_DOWN).perform()
+            """
+            while not WebDriverWait(self.browser, MAX_WAIT).until(EC.visibility_of_element_located((By.XPATH, node_img_xpath))):
+                print("about to click down")
+                time.sleep(.1)
+
+                ActionChains(self.browser).send_keys(Keys.ARROW_DOWN).perform()
+                time.sleep(1)
+            """
+            #scroll_shim(self.browser, node_img)
+            #self.browser.execute_script("arguments[0].scrollIntoView();", node_img)
+            #time.sleep(.5)
+            #pass
+
         ActionChains(self.browser).move_to_element(node_img).perform()
         #after scroll can be stale, so renew -
-        node_img = WebDriverWait(self.browser, MAX_WAIT).until(EC.presence_of_element_located((By.XPATH, node_img_xpath)))
+        node_img = WebDriverWait(self.browser, MAX_WAIT).until(EC.element_to_be_clickable((By.XPATH, node_img_xpath)))
         node_img.click()
         
     def update_colors(self, colors):
@@ -940,7 +988,14 @@ class Layout(object):
         sheet_xpath = "//div[contains(@class, 'dx-treeview') and @layoutitemid='{}']//li[@aria-label='{}' and @role='treeitem']/div[contains(@class,'dx-item')]".format(self.layout_item_id, sheet_name)
 
         sheet = self.browser.find_element_by_xpath(sheet_xpath)
-        ActionChains(self.browser).move_to_element(sheet).perform()
+        success = False
+        while not success:
+            try:
+                ActionChains(self.browser).move_to_element(sheet).perform()
+                success = True
+            except:
+                time.sleep(.1)
+                ActionChains(self.browser).send_keys(Keys.ARROW_DOWN).perform()
         sheet.click()
         self.wait_for_loaded()
 
