@@ -14,6 +14,33 @@ import random
 TEST = "1.Бюджет Годовой"
 
 MAX_WAIT = 20
+
+def wait_for_success_proc(proc):
+    start_time = time.time()
+    success = False
+    while not success:
+        try:
+            proc()
+            success = True
+            print("!!!")
+        except:
+            print("wait for proc success")
+            if time.time() - start_time > MAX_WAIT:
+                raise e
+            time.sleep(.1)
+
+
+def scroll_shim(passed_in_driver, object):
+    x = object.location['x']
+    y = object.location['y']
+    scroll_by_coord = 'window.scrollTo(%s,%s);' % (
+        x,
+        y
+    )
+    scroll_nav_out_of_way = 'window.scrollBy(0, -120);'
+    passed_in_driver.execute_script(scroll_by_coord)
+    passed_in_driver.execute_script(scroll_nav_out_of_way)
+
 """
 запуск одного теста -  
 python manage.py test functional_tests.tests.NewVisitorTest.test_open_table_sheet_add_records
@@ -504,12 +531,13 @@ class NewVisitorTest(SimpleTestCase):
             sheet_layout.wait_for_loaded()
 
             #проверки
+            def my_assert():
+                sum_cell = sheet_layout.find_cell(0, "Формула")
+                sum_text = sum_cell.find_element_by_xpath(".//div[@class='cell-wrapper']/div").text
+                self.assertTrue('Запись №100500 описание = "Работа формулы", коррекция' in sum_text)
+                print("that's it!")
 
-            sum_cell = sheet_layout.find_cell(0, "Формула")
-            sum_text = sum_cell.find_element_by_xpath(".//div[@class='cell-wrapper']/div").text
-            self.assertTrue('Запись №100500 описание = "Работа формулы", коррекция' in sum_text)
-
-
+            wait_for_success_proc(my_assert)
         except:
             self.browser.quit()
             raise
@@ -859,9 +887,12 @@ class Layout(object):
         return self.wait_for_element_by_xpath(xpath).text
 
     def sheet_delete_first(self):
+        self.wait_for_loaded()
         cells_xpath = ".//div[contains(@class, 'ag-row')]//div[contains(@class, 'ag-cell')]"
         cells = self.layout.find_elements_by_xpath(cells_xpath)
+
         if len(cells) > 0:
+
             selected = False
 
             start_time = time.time()
@@ -877,13 +908,19 @@ class Layout(object):
                     cells = self.layout.find_elements_by_xpath(cells_xpath)
                     print("wait for cell")
 
+            row_count = self.row_count()
 
             sheet_delete = self.layout.find_element_by_id("view_delete")
             sheet_delete.click()
-
             confirm_xpath = "//div[contains(@class, 'dx-button') and @aria-label='Yes']"
             element = WebDriverWait(self.browser, MAX_WAIT).until(EC.element_to_be_clickable((By.XPATH, confirm_xpath)))
             element.click()
+
+            def my_assert():
+                if self.row_count() != row_count-1:
+                    raise NameError("Delete failed")
+
+            wait_for_success_proc(my_assert)
 
             return 1
 
