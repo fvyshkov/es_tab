@@ -13,14 +13,14 @@ import random
 
 TEST = "1.Бюджет Годовой"
 
-MAX_WAIT = 20
+MAX_WAIT = 10
 
-def wait_for_success_proc(proc):
+def wait_for_success_proc(proc, proc_params):
     start_time = time.time()
     success = False
     while not success:
         try:
-            proc()
+            proc(proc_params)
             success = True
             print("!!!")
         except:
@@ -131,6 +131,23 @@ class NewVisitorTest(SimpleTestCase):
 
         return sheet_layout
 
+    def open_desktop(self, desktop_name):
+        open = WebDriverWait(self.browser, MAX_WAIT).until(EC.element_to_be_clickable((By.ID, "open_desktop")))
+        open.click()
+
+        desktop_row_xpath = "//td[@role='gridcell' and text()='{}']".format(desktop_name)
+        desktop_row = WebDriverWait(self.browser, MAX_WAIT).until(
+            EC.element_to_be_clickable((By.XPATH, desktop_row_xpath)))
+        desktop_row.click()
+
+        select_button_xpath = "//span[@class='dx-button-text' and text()='Выбрать']"
+        select_button = WebDriverWait(self.browser, MAX_WAIT).until(
+            EC.element_to_be_clickable((By.XPATH, select_button_xpath)))
+        select_button.click()
+        time.sleep(1)
+
+
+
     def wait_for_layouts_loaded(self):
         layout_is_loaded_path = "//div[@class='Wrapper' and @isloading='0']"
         WebDriverWait(self.browser, MAX_WAIT).until(EC.presence_of_element_located((By.XPATH, layout_is_loaded_path)))
@@ -176,6 +193,18 @@ class NewVisitorTest(SimpleTestCase):
         ActionChains(self.browser).key_up(Keys.SHIFT).perform()
 
         self.assertEqual(float(sheet_layout.status_bar_value("Сумма")), 850)
+
+    def select_area(self, cell, area_width, area_height):
+        ActionChains(self.browser).click(cell).perform()
+        ActionChains(self.browser).key_down(Keys.SHIFT).perform()
+
+        for i in range(1, area_width):
+            ActionChains(self.browser).send_keys(Keys.ARROW_RIGHT).perform()
+
+        for i in range(1, area_height):
+            ActionChains(self.browser).send_keys(Keys.ARROW_DOWN).perform()
+
+        ActionChains(self.browser).key_up(Keys.SHIFT).perform()
 
     def test_colors_after_desktop(self):
         """
@@ -330,6 +359,90 @@ class NewVisitorTest(SimpleTestCase):
             self.browser.quit()
             raise
 
+    def test_table_diagram(self):
+        print("test_table_diagram")
+        """
+        Открываем виджет
+        Выбираем лист path=["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
+        Устанавливаем значения аналитик
+        Если есть записи - удаляем их одну за другой
+
+        Вводим 3 записи, получаем такие значения
+        класс, площадь  цена        стоимость   ежемесячно
+        Класс А	1.00	4 300.00	4 300.00	358.33
+        Класс Б	1.00	3 900.00	3 900.00	325.00
+        Класс С	1.00	2 000.00	2 000.00	166.67
+
+        - Открываем два графика, по разным областям
+        - Проверяем цифры на обоих
+        
+        """
+        try:
+            """
+            path = ["TEST TEST", "2017", "1.0", "Заявочные бюджеты", "Аренда"]
+            filters = {"Плоскость планирования": "План", "ЦФО и инвестиции": "ГО"}
+            sheet_layout = self.prepare_table_sheet(path, filters)
+
+            sheet_layout.sheet_insert()
+            sheet_layout.wait_for_loaded()
+            sheet_layout.update_cell(0, "Арендодатель", "ООО тест 1")
+            sheet_layout.update_cell(0, "Класс", "Класс А")
+            sheet_layout.update_cell(0, "Площадь, кв.м.", "1")
+
+            sheet_layout.sheet_insert()
+            sheet_layout.wait_for_loaded()
+            sheet_layout.update_cell(1, "Арендодатель", "ООО тест 2")
+            sheet_layout.update_cell(1, "Класс", "Класс Б")
+            sheet_layout.update_cell(1, "Площадь, кв.м.", "1")
+
+            sheet_layout.sheet_insert()
+            sheet_layout.wait_for_loaded()
+            sheet_layout.update_cell(2, "Арендодатель", "ООО тест 3")
+            sheet_layout.update_cell(2, "Класс", "Класс С")
+            sheet_layout.update_cell(2, "Площадь, кв.м.", "1")
+            """
+            self.open_desktop("Аренда")
+            time.sleep(1)
+            sheet_layout = Layout(self.browser, "TableViewWithSelection")
+            sheet_layout.wait_for_loaded()
+
+            cell1 = sheet_layout.find_cell(0, "Класс")
+
+            self.select_area(cell1, 2, 3)
+
+
+            ActionChains(self.browser).context_click(cell1).perform()
+
+            ActionChains(self.browser).send_keys(Keys.ARROW_DOWN).perform()
+            print("clicked down")
+
+            def get_menu_item(item_text):
+                print("look for", item_text)
+                ActionChains(self.browser).send_keys(Keys.ARROW_DOWN).perform()
+                menu_path = "//div[contains(@class,'ag-menu-option-active')]//span[contains(@class,'ag-menu-option-text') and contains(text(),'{}')]".format(
+                    item_text)
+                self.browser.find_element_by_xpath(menu_path)
+
+
+            wait_for_success_proc(get_menu_item, "Chart Range")
+            ActionChains(self.browser).send_keys(Keys.ARROW_RIGHT).perform()
+
+
+            wait_for_success_proc(get_menu_item, "Pie")
+            ActionChains(self.browser).send_keys(Keys.ARROW_RIGHT).perform()
+
+
+            wait_for_success_proc(get_menu_item, "Doughnut")
+
+
+            ActionChains(self.browser).send_keys(Keys.ENTER).perform()
+
+            time.sleep(10)
+
+        except:
+            self.browser.quit()
+            raise
+
     def test_open_table_sheet_recalc(self):
         print("test_open_table_sheet_recalc")
         """
@@ -374,24 +487,12 @@ class NewVisitorTest(SimpleTestCase):
 
             cell1 = sheet_layout.find_cell(0, "Ежемесячные расходы")
 
-            #пока не умеем зажав шифт ткнуть в  произвольную клетку (из-за необходимости перейти в начало грида для поиска клетки)
-            #поэтому такое неаккуратное выделение области стрелками
-            ActionChains(self.browser).click(cell1).perform()
-            ActionChains(self.browser).key_down(Keys.SHIFT).perform()
-            ActionChains(self.browser).send_keys(Keys.ARROW_DOWN).perform()
-            ActionChains(self.browser).send_keys(Keys.ARROW_DOWN).perform()
-            ActionChains(self.browser).key_up(Keys.SHIFT).perform()
+            self.select_area(cell1, 1,3)
 
-            start_time = time.time()
-            success = False
-            while not success:
-                try:
-                    self.assertEqual(float(sheet_layout.status_bar_value("Сумма")),850)
-                    success = True
-                except:
-                    if time.time() - start_time > MAX_WAIT:
-                        raise e
-                    time.sleep(.1)
+            def assert_sum():
+                self.assertEqual(float(sheet_layout.status_bar_value("Сумма")), 850)
+
+            wait_for_success_proc(assert_sum)
 
 
         except:
@@ -896,6 +997,7 @@ class Layout(object):
             if self.layout.find_elements_by_xpath(cells_loading_xpath):
                 raise NameError("is loading")
 
+        time.sleep(.5)
         wait_for_success_proc(no_loading_cells)
 
         cells_xpath = ".//div[contains(@class, 'ag-row')]//div[contains(@class, 'ag-cell')]"
