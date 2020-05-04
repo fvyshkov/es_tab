@@ -843,15 +843,11 @@ class Layout(object):
             flt_search_xpath = ".//div[text()='{}']/parent::*//input[@class='search']".format(
                 filter)
             flt_search = self.wait_for_element_by_xpath(flt_search_xpath)
+            flt_search.click()
             flt_search.send_keys(filters[filter])
-            #почему-то приходится еще и кнопку нажать
-            flt_arrow_xpath = ".//div[text()='{}']/parent::*//a[@role='button']".format(
-                filter)
-            dep_arrow = self.wait_for_element_by_xpath(flt_arrow_xpath)
-            dep_arrow.click()
             #и наконец кликаем нужное
             flt_value_xpath = ".//label[@title='{}']//input[@class='checkbox-item']".format(filters[filter])
-            flt_value = WebDriverWait(self.browser, MAX_WAIT).until(EC.element_to_be_clickable((By.XPATH, flt_value_xpath)))
+            flt_value = self.wait_for_element_by_xpath(flt_value_xpath)#WebDriverWait(self.browser, MAX_WAIT).until(EC.element_to_be_clickable((By.XPATH, flt_value_xpath)))
             flt_value.click()
 
     def refresh_sheet(self):
