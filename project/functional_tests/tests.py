@@ -26,7 +26,7 @@ def wait_for_success_proc(proc):
         except:
             print("wait for proc success")
             if time.time() - start_time > MAX_WAIT:
-                raise e
+                raise
             time.sleep(.1)
 
 
@@ -845,7 +845,7 @@ class Layout(object):
             dep_arrow.click()
             #и наконец кликаем нужное
             flt_value_xpath = ".//label[@title='{}']//input[@class='checkbox-item']".format(filters[filter])
-            flt_value = self.wait_for_element_by_xpath(flt_value_xpath)
+            flt_value = WebDriverWait(self.browser, MAX_WAIT).until(EC.element_to_be_clickable((By.XPATH, flt_value_xpath)))
             flt_value.click()
 
     def refresh_sheet(self):
@@ -888,6 +888,14 @@ class Layout(object):
 
     def sheet_delete_first(self):
         self.wait_for_loaded()
+
+        def no_loading_cells():
+            cells_loading_xpath = ".//div[contains(@class, 'ag-row')]//div[contains(@class, 'ag-cell')]//div[@class='spinner']"
+            if self.layout.find_elements_by_xpath(cells_loading_xpath):
+                raise NameError("is loading")
+
+        wait_for_success_proc(no_loading_cells)
+
         cells_xpath = ".//div[contains(@class, 'ag-row')]//div[contains(@class, 'ag-cell')]"
         cells = self.layout.find_elements_by_xpath(cells_xpath)
 
