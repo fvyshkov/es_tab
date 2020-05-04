@@ -422,7 +422,7 @@ class NewVisitorTest(SimpleTestCase):
 
             cell = sheet_layout.find_cell(0, "Сумма")
             ActionChains(self.browser).context_click(cell).perform()
-            menu_dtl_path = "//span[@class='ag-menu-option-text' and contains(text(),'етализация')]"
+            menu_dtl_path = "//span[contains(@class,'ag-menu-option-text') and contains(text(),'етализация')]"
             self.wait_for_element_by_xpath(menu_dtl_path)
             self.browser.find_element_by_xpath(menu_dtl_path).click()
 
@@ -452,19 +452,25 @@ class NewVisitorTest(SimpleTestCase):
 
             #проверки
             #1. сумма по записи 1 = 6
-            sum_cell = sheet_layout.find_cell(0, "Сумма")
-            sum_text = sum_cell.find_element_by_xpath(".//div[@class='cell-wrapper']/div").text
-            self.assertEqual(float(sum_text), 6)
+            def vrf1():
+                sum_cell = sheet_layout.find_cell(0, "Сумма")
+                sum_text = sum_cell.find_element_by_xpath(".//div[@class='cell-wrapper']/div").text
+                self.assertEqual(float(sum_text), 6)
+            wait_for_success_proc(vrf1)
 
             #2. сумма по записи 2 = 0
-            sum_cell = sheet_layout.find_cell(1, "Сумма")
-            sum_text = sum_cell.find_element_by_xpath(".//div[@class='cell-wrapper']/div").text
-            self.assertEqual(float(sum_text), 0)
+            def vrf2():
+                sum_cell = sheet_layout.find_cell(1, "Сумма")
+                sum_text = sum_cell.find_element_by_xpath(".//div[@class='cell-wrapper']/div").text
+                self.assertEqual(float(sum_text), 0)
+            wait_for_success_proc(vrf2)
 
             #3. формула по детализации
-            cell = detail_layout.find_cell(2, "Сумма формула")
-            text = cell.find_element_by_xpath(".//div[@class='cell-wrapper']/div").text
-            self.assertEqual(text, "сумма*2=6.00")
+            def vrf3():
+                cell = detail_layout.find_cell(2, "Сумма формула")
+                text = cell.find_element_by_xpath(".//div[@class='cell-wrapper']/div").text
+                self.assertEqual(text, "сумма*2=6.00")
+            wait_for_success_proc(vrf3)
 
             print("test_detail FIN")
 
