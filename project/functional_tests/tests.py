@@ -15,7 +15,7 @@ TEST = "1.Бюджет Годовой"
 
 MAX_WAIT = 10
 
-def wait_for_success_proc(proc, proc_params):
+def wait_for_success_proc(proc, proc_params=None, run_on_except=None):
     start_time = time.time()
     success = False
     while not success:
@@ -27,6 +27,8 @@ def wait_for_success_proc(proc, proc_params):
             print("wait for proc success")
             if time.time() - start_time > MAX_WAIT:
                 raise
+            if run_on_except:
+                run_on_except()
             time.sleep(.1)
 
 
@@ -359,7 +361,7 @@ class NewVisitorTest(SimpleTestCase):
             self.browser.quit()
             raise
 
-    def test_table_diagram(self):
+    def test_table_chart(self):
         print("test_table_diagram")
         """
         Открываем виджет
@@ -405,43 +407,62 @@ class NewVisitorTest(SimpleTestCase):
             time.sleep(1)
             sheet_layout = Layout(self.browser, "TableViewWithSelection")
             sheet_layout.wait_for_loaded()
-
             cell1 = sheet_layout.find_cell(0, "Класс")
 
             self.select_area(cell1, 2, 3)
+            self.run_context_menu(cell1, ["Chart Range", "Pie", "Doughnut"])
 
+            #ресайзим график чтобы был вдвое меньше листа по измерениям
+            chart = chart_resize_handle = self.browser.find_elements_by_xpath("//div[contains(@class,'LayoutItem')]")[-1]
+            chart_resize_handle = self.browser.find_elements_by_xpath("//div[contains(@class,'LayoutItem')]//span[contains(@class,'react-resizable-handle')]")[-1]
+            xoffset = -(chart.size.get('width') - sheet_layout.layout.size.get('width')/2)
+            yoffset = -(chart.size.get('height') - sheet_layout.layout.size.get('height')/2)
+            ActionChains(self.browser).drag_and_drop_by_offset(chart_resize_handle,  xoffset, yoffset ).perform()
 
-            ActionChains(self.browser).context_click(cell1).perform()
+            cell1 = sheet_layout.find_cell(0, "Класс")
+            self.select_area(cell1, 2, 2)
+            self.run_context_menu(cell1, ["Chart Range", "Column", "Grouped"])
 
-            ActionChains(self.browser).send_keys(Keys.ARROW_DOWN).perform()
-            print("clicked down")
+            # ресайзим график чтобы был вдвое меньше листа по измерениям
+            chart = chart_resize_handle = self.browser.find_elements_by_xpath("//div[contains(@class,'LayoutItem')]")[
+                -1]
+            chart_resize_handle = self.browser.find_elements_by_xpath(
+                "//div[contains(@class,'LayoutItem')]//span[contains(@class,'react-resizable-handle')]")[-1]
+            xoffset = -(chart.size.get('width') - sheet_layout.layout.size.get('width') / 2)
+            yoffset = -(chart.size.get('height') - sheet_layout.layout.size.get('height') / 2)
+            ActionChains(self.browser).drag_and_drop_by_offset(chart_resize_handle, xoffset, yoffset).perform()
 
-            def get_menu_item(item_text):
-                print("look for", item_text)
-                ActionChains(self.browser).send_keys(Keys.ARROW_DOWN).perform()
-                menu_path = "//div[contains(@class,'ag-menu-option-active')]//span[contains(@class,'ag-menu-option-text') and contains(text(),'{}')]".format(
-                    item_text)
-                self.browser.find_element_by_xpath(menu_path)
+            #<div class="ag-chart-tooltip-content">Класс Б: 40</div>
 
-
-            wait_for_success_proc(get_menu_item, "Chart Range")
-            ActionChains(self.browser).send_keys(Keys.ARROW_RIGHT).perform()
-
-
-            wait_for_success_proc(get_menu_item, "Pie")
-            ActionChains(self.browser).send_keys(Keys.ARROW_RIGHT).perform()
-
-
-            wait_for_success_proc(get_menu_item, "Doughnut")
-
-
-            ActionChains(self.browser).send_keys(Keys.ENTER).perform()
-
-            time.sleep(10)
+            time.sleep(3)
 
         except:
             self.browser.quit()
             raise
+
+    def run_context_menu(self, cell, menu_path):
+
+        ActionChains(self.browser).context_click(cell).perform()
+
+        ActionChains(self.browser).send_keys(Keys.ARROW_DOWN).perform()
+
+
+        def get_menu_item(item_text):
+            print("look for", item_text)
+            menu_path = "//div[contains(@class,'ag-menu-option-active')]//span[contains(@class,'ag-menu-option-text') and contains(text(),'{}')]".format(
+                item_text)
+            self.browser.find_element_by_xpath(menu_path)
+
+        def run_on_except():
+            ActionChains(self.browser).send_keys(Keys.ARROW_DOWN).perform()
+
+        for menu_item in menu_path:
+            wait_for_success_proc(get_menu_item, menu_item, run_on_except)
+            if menu_item==menu_path[-1]:
+                ActionChains(self.browser).send_keys(Keys.ENTER).perform()
+            else:
+                ActionChains(self.browser).send_keys(Keys.ARROW_RIGHT).perform()
+
 
     def test_open_table_sheet_recalc(self):
         print("test_open_table_sheet_recalc")
