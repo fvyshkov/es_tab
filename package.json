@@ -27,6 +27,8 @@
     "@babel/preset-env": "^7.9.5",
     "@babel/preset-react": "^7.9.4",
     "@emotion/core": "^10.0.28",
+    "@nivo/bar": "^0.61.1",
+    "@nivo/pie": "^0.61.1",
     "ag-grid": "^18.1.2",
     "ag-grid-community": "^23.0.2",
     "ag-grid-enterprise": "^23.0.2",
