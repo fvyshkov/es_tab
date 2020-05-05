@@ -26,7 +26,7 @@ export class BarChartPanel extends Component {
                        preparedData:[],
                        keys:[],
                        fields:[],
-                       key:0
+                       groupMode:"stacked"
                      };
 
         this.componentDidMount = this.componentDidMount.bind(this);
@@ -93,6 +93,10 @@ export class BarChartPanel extends Component {
 
     }
 
+    onChangeGroupMode(){
+        this.setState({groupMode: event.target.value});
+    }
+
     render() {
 
         var options = this.state.fields.map(field=>{
@@ -113,12 +117,19 @@ export class BarChartPanel extends Component {
                     data={this.state.preparedData}
                     keys={this.state.keys}
                     indexBy={this.state.xFieldName}
+                    groupMode={this.state.groupMode}
                 />
+                <p>
                 <select onChange={this.onChangeField.bind(this)} value={this.state.xFieldName}>
                   {options}
                 </select>
-                <button onClick={this.changeField.bind(this)}> Activate Lasers</button>
-                {this.state.xFieldName}
+                </p>
+
+                <select onChange={this.onChangeGroupMode.bind(this)} value={this.state.groupMode}>
+                  <option key="stacked" value="stacked">stacked</option>
+                  <option key="grouped" value="grouped">grouped</option>
+                </select>
+
 
 
             </div>
