@@ -24,6 +24,8 @@ import CommentImg from '../images/chat.png';
 import {Spinner} from './spin.js';
 import {someChartModel, someChartModel2} from './testData.js';
 
+import {BarChartPanel} from './BarChartPanel.jsx';
+
 LicenseManager.setLicenseKey("Evaluation_License_Not_For_Production_29_December_2019__MTU3NzU3NzYwMDAwMA==a3a7a7e770dea1c09a39018caf2c839c");
 
 export default class ReGrid extends React.Component {
@@ -770,7 +772,51 @@ export default class ReGrid extends React.Component {
     }
 
 
+    createChart(params){
 
+        if (this.props.addElementToLayout){
+            var newLayoutItemID = this.props.getNewLayoutItemID();
+
+            const data = [
+                    {"country":"AD", "food":"hot dog", "value": 105},
+                    {"country":"AD", "food":"burger", "value": 147},
+                    {"country":"AD", "food":"sandwich", "value": 36},
+
+                    {"country":"AE", "food":"hot dog", "value": 500},
+                    {"country":"AE", "food":"burger", "value": 34},
+                    {"country":"AE", "food":"sandwich", "value": 154},
+
+                    {"country":"AF", "food":"hot dog", "value": 10},
+                    {"country":"AF", "food":"burger", "value": 57},
+                    {"country":"AF", "food":"sandwich", "value": 199}
+                    ];
+
+            var data2 = [];
+
+
+            const chartRender = ()=>{
+
+                return (<BarChartPanel data={data}/>);
+
+            }
+            const formParams = {additionalSheetParams:{sht_id: this.state.sheet_id, req_id:params.node.data.id, dop: params.node.data.dop}};
+            var render =  <div><ToolbarView
+                                                layoutItemID={newLayoutItemID}
+                                                addElementToLayout={this.props.addElementToLayout}
+                                                onToolbarCloseClick={this.props.onToolbarCloseClick}
+                                                getNewLayoutItemID={this.props.getNewLayoutItemID}
+                                                contentRender={chartRender}
+                                                />
+
+
+                           </div>;
+
+            this.props.addElementToLayout(render, null, "chart", formParams);
+
+           // document.querySelector("#content_"+newLayoutItemID).appendChild(<BarChartPanel />);
+        }
+
+    }
 
     getContextMenuItems(params) {
 
@@ -779,7 +825,12 @@ export default class ReGrid extends React.Component {
             "separator",
             "copyWithHeadersCopy",
             "export",
-            "chartRange"
+            "chartRange",
+
+            {
+                name: 'Тестирование',
+                action: this.createChart.bind(this, params)
+              }
 
         ];
         return result;

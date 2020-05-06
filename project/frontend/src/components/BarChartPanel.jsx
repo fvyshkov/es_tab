@@ -49,7 +49,7 @@ export class BarChartPanel extends Component {
         var preparedData = [];
         var keys = [];
         var fields = [];
-        myData.forEach(element=>{
+        this.props.data.forEach(element=>{
             var currentPreparedIndex = preparedData.findIndex(el=> {
                 return el[xFieldName] == element[xFieldName];
             });
@@ -111,7 +111,7 @@ export class BarChartPanel extends Component {
         console.log("indexBy", this.state.xFieldName);
 
         return (
-            <div style={{height:500, width: 800}} key={this.state.key}>
+            <div className="chart-wrapper">
 
                 <MyResponsiveBar
                     data={this.state.preparedData}
