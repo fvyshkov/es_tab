@@ -6,6 +6,26 @@ import CheckBox from 'devextreme-react/check-box';
 import List from 'devextreme-react/list';
 import { RadioGroup, SelectBox } from 'devextreme-react';
 import { Switch } from 'devextreme-react/switch';
+import Img_nivo from '../images/colors/Nivo.png';
+import Img_accent from '../images/colors/Accent.png';
+import Img_category10 from '../images/colors/category10.png';
+import Img_dark2 from '../images/colors/Dark2.png';
+import Img_pastel1 from '../images/colors/Pastel1.png';
+import Img_set1 from '../images/colors/Set1.png';
+import Img_set2 from '../images/colors/Set2.png';
+
+
+const colorsMap={
+    "nivo" : Img_nivo,
+    "accent" : Img_accent,
+    "category10" : Img_category10,
+    "dark2" : Img_dark2,
+    "pastel1" : Img_pastel1,
+    "set1" : Img_set1,
+    "set2" : Img_set2
+}
+
+const colors = ["nivo", "accent", "category10", "dark2", "pastel1", "set1", "set2"]
 
 const myData =   [
     {"country":"AD", "food":"hot dog", "value": 105},
@@ -157,6 +177,14 @@ export class BarChartPanel extends Component {
         }
     }
 
+    colorRender(item){
+        return (<div className="test">{item}
+                    <img
+                        className="color-scheme-img"
+                        src={colorsMap[item]} />
+                </div>);
+    }
+
     render() {
 
         var options = this.state.categories.map(field=>{
@@ -214,9 +242,14 @@ export class BarChartPanel extends Component {
                     onValueChanged={this.onChangeLayout.bind(this)}
                 />
 
-                <SelectBox items={["nivo","accent", "dark2"]}
+                <SelectBox items={colors}
                 value={this.state.colorScheme}
-                onValueChanged={this.onColorChanged.bind(this)} />
+                onValueChanged={this.onColorChanged.bind(this)}
+                itemRender={this.colorRender}
+
+                 fieldRender={this.colorRender}
+
+                 />
 
 
 

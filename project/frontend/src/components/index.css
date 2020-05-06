@@ -178,7 +178,10 @@ background-color: #d9ff96;
     width: 16px;
     */
 }
-
+.color-scheme-img{
+    height: 20px;
+    margin-left: 100px;
+}
 .cell-clear-button{
     height: 16px;
     width: 16px;
