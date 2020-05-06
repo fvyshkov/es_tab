@@ -772,7 +772,7 @@ export default class ReGrid extends React.Component {
     }
 
 
-    createChart(params){
+    createCustomChart(params){
 
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
@@ -792,11 +792,41 @@ export default class ReGrid extends React.Component {
                     ];
 
             var data2 = [];
+            /*
+                    1) обработка клетки
+                    11) если клетка не типа N, пропускаем
+                    12) для числовых клеток создаем объект row= {}
+                    13) пробежимся по всем нечисловым клеткам НОДЫ и row[field_name]=field value
+                    14) row['измерение'] = значение в клетке
+                    15) добавляем row в выходные данные
 
+            */
+            this.gridApi.forEachNode(node=>{
+                node.data.column_data.forEach(cell=>{
+                    if (cell.atr_type=="N" && cell.name && cell.sql_value){
+                        var row = {};
+
+                        node.data.column_data.forEach(column=>{
+                            if (column.atr_type!="N" && column.name && column.sql_value){
+                                row[column.name] = column.sql_value;
+                            }
+                        });
+
+                        row['measure'] = cell.name;
+                        row['value'] = cell.sql_value;
+                        console.log("row", row);
+                        data2.push(row);
+                    }
+                });
+
+
+            });
+
+            //return;
 
             const chartRender = ()=>{
 
-                return (<BarChartPanel data={data}/>);
+                return (<BarChartPanel data={data2}/>);
 
             }
             const formParams = {additionalSheetParams:{sht_id: this.state.sheet_id, req_id:params.node.data.id, dop: params.node.data.dop}};
@@ -829,7 +859,7 @@ export default class ReGrid extends React.Component {
 
             {
                 name: 'Тестирование',
-                action: this.createChart.bind(this, params)
+                action: this.createCustomChart.bind(this, params)
               }
 
         ];

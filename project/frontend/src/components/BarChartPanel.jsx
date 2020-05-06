@@ -2,7 +2,9 @@ import React, { Component } from "react";
 import DropdownHOC from "./DropdownHOC.jsx";
 import { sendRequest } from './App.js';
 import {MyResponsiveBar} from './MyResponsiveBar.jsx';
-
+import CheckBox from 'devextreme-react/check-box';
+import List from 'devextreme-react/list';
+import { RadioGroup } from 'devextreme-react';
 
 const myData =   [
     {"country":"AD", "food":"hot dog", "value": 105},
@@ -24,9 +26,10 @@ export class BarChartPanel extends Component {
         this.state = {
                        xFieldName:"country",
                        preparedData:[],
-                       keys:[],
-                       fields:[],
-                       groupMode:"stacked"
+                       measures:[],
+                       categories:[],
+                       groupMode:"grouped",
+                       selectedMeasures:[]
                      };
 
         this.componentDidMount = this.componentDidMount.bind(this);
@@ -47,8 +50,26 @@ export class BarChartPanel extends Component {
     prepareData(xFieldName){
 
         var preparedData = [];
-        var keys = [];
-        var fields = [];
+        var measures = [];
+        var categories = [];
+
+        this.props.data.forEach(element=>{
+            if (!measures.find(el=>{return el==element['measure']})){
+                measures.push(element['measure']);
+            }
+
+            for (var key in element){
+                if (key!="value" && key!= "measure"){
+                    if (!categories.find(el=>{return el==key})){
+                        categories.push(key);
+                    }
+                }
+            }
+        });
+
+        console.log("measures=", measures);
+        console.log("categories=", categories);
+
         this.props.data.forEach(element=>{
             var currentPreparedIndex = preparedData.findIndex(el=> {
                 return el[xFieldName] == element[xFieldName];
@@ -60,54 +81,65 @@ export class BarChartPanel extends Component {
                 preparedData.push(newElement);
                 currentPreparedIndex = preparedData.length-1;
             }
-            for (var key in element){
-                if (key!=xFieldName && key!="value"){
-                    preparedData[currentPreparedIndex][element[key]] = element["value"];
-                    if (!keys.find(el=>{return el==element[key]})){
-                        keys.push(element[key]);
-                    }
+
+            console.log("element", element);
+            if (!isNaN(element['value'])){
+                if (preparedData[currentPreparedIndex][element['measure']]){
+                    preparedData[currentPreparedIndex][element['measure']] += parseFloat(element['value']);
+                }else{
+                    preparedData[currentPreparedIndex][element['measure']] = parseFloat(element['value']);
                 }
-
-                if (!fields.find(el=>{return el==key}) && key!="value"){
-                        fields.push(key);
-                }
-
-
             }
+            console.log("preparedData[currentPreparedIndex]", preparedData[currentPreparedIndex]);
+
+            /*measures.forEach(measure=>{
+
+            });*/
         });
+
+
         this.setState({
                 preparedData: preparedData,
-                keys:keys,
-                fields: fields,
+                measures:measures,
+                categories: categories,
                 xFieldName: xFieldName});
 
 
 
     }
 
-    onChangeField(){
-
-
-        this.prepareData(event.target.value);
-
-
+    onChangeCategory(e){
+        this.prepareData(e.value);
     }
 
-    onChangeGroupMode(){
-        this.setState({groupMode: event.target.value});
+    onChangeGroupMode(e){
+        this.setState({
+            groupMode: e.value
+        });
+
+        //this.setState({groupMode: event.target.value});
+    }
+
+    onSelectedMeasuresChange(args){
+        console.log(args);
+        if(args.name === 'selectedItems') {
+            this.setState({
+                selectedMeasures: args.value
+            });
+        }
     }
 
     render() {
 
-        var options = this.state.fields.map(field=>{
+        var options = this.state.categories.map(field=>{
             return (<option key={field} value={field}>{field}</option>);
         });
 
-        //console.log("opt", this.state.fields);
+        //console.log("opt", this.state.categories);
 
 
         console.log("data", this.state.preparedData);
-        console.log("keys", this.state.keys);
+        console.log("measures", this.state.measures);
         console.log("indexBy", this.state.xFieldName);
 
         return (
@@ -115,12 +147,24 @@ export class BarChartPanel extends Component {
 
                 <MyResponsiveBar
                     data={this.state.preparedData}
-                    keys={this.state.keys}
+                    keys={this.state.selectedMeasures}
                     indexBy={this.state.xFieldName}
                     groupMode={this.state.groupMode}
                 />
                 <p>
-                <select onChange={this.onChangeField.bind(this)} value={this.state.xFieldName}>
+                <RadioGroup
+                    items={this.state.categories}
+                    value={this.state.xFieldName}
+                    onValueChanged={this.onChangeCategory.bind(this)}
+                 />
+
+                 <RadioGroup
+                    items={["grouped", "stacked"]}
+                    value={this.state.groupMode}
+                    onValueChanged={this.onChangeGroupMode.bind(this)}
+                 />
+
+                <select onChange={this.onChangeCategory.bind(this)} value={this.state.xFieldName}>
                   {options}
                 </select>
                 </p>
@@ -130,6 +174,15 @@ export class BarChartPanel extends Component {
                   <option key="grouped" value="grouped">grouped</option>
                 </select>
 
+                <List
+                    items={this.state.measures}
+                    height={200}
+                    allowItemDeleting={false}
+                    showSelectionControls={true}
+                    selectionMode="multiple"
+                    selectedItems={this.state.selectedMeasures}
+                    onOptionChanged={this.onSelectedMeasuresChange.bind(this)}>
+                  </List>
 
 
             </div>
