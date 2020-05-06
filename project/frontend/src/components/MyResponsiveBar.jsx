@@ -13,7 +13,7 @@ export const MyResponsiveBar = (props) => (
         indexBy={props.indexBy}
         margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
         padding={0.3}
-        colors={{ scheme: 'nivo' }}
+        colors={props.colors}
         groupMode={props.groupMode}
         layout={props.layout}
         enableLabel={props.enableLabel}

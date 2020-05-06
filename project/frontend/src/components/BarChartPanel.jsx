@@ -4,7 +4,7 @@ import { sendRequest } from './App.js';
 import {MyResponsiveBar} from './MyResponsiveBar.jsx';
 import CheckBox from 'devextreme-react/check-box';
 import List from 'devextreme-react/list';
-import { RadioGroup } from 'devextreme-react';
+import { RadioGroup, SelectBox } from 'devextreme-react';
 import { Switch } from 'devextreme-react/switch';
 
 const myData =   [
@@ -32,7 +32,8 @@ export class BarChartPanel extends Component {
                        groupMode:"grouped",
                        layout: "vertical",
                        selectedMeasures:[],
-                       enableLabel: true
+                       enableLabel: true,
+                       colorScheme: "nivo"
                      };
 
         this.componentDidMount = this.componentDidMount.bind(this);
@@ -143,6 +144,10 @@ export class BarChartPanel extends Component {
         this.setState({enableLabel: e.value});
     }
 
+    onColorChanged(e){
+        this.setState({colorScheme: e.value});
+    }
+
     onSelectedMeasuresChange(args){
         console.log(args);
         if(args.name === 'selectedItems') {
@@ -174,6 +179,7 @@ export class BarChartPanel extends Component {
                     groupMode={this.state.groupMode}
                     layout={this.state.layout}
                     enableLabel={this.state.enableLabel}
+                    colors={{scheme:this.state.colorScheme}}
                 />
 
                 <RadioGroup
@@ -208,7 +214,12 @@ export class BarChartPanel extends Component {
                     onValueChanged={this.onChangeLayout.bind(this)}
                 />
 
-                <div className="dx-field-label"></div>
+                <SelectBox items={["nivo","accent", "dark2"]}
+                value={this.state.colorScheme}
+                onValueChanged={this.onColorChanged.bind(this)} />
+
+
+
                 Подписи значений <Switch
                     value={this.state.enableLabel}
                      onValueChanged={this.onChangeEnableLabel.bind(this)}
