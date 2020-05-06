@@ -24,7 +24,7 @@ export class BarChartPanel extends Component {
     constructor(props) {
         super(props);
         this.state = {
-                       xFieldName:"country",
+                       selectedCategory:"",
                        preparedData:[],
                        measures:[],
                        categories:[],
@@ -45,9 +45,27 @@ export class BarChartPanel extends Component {
 
     componentDidMount(){
         this.prepareData();
+
+        var measuresClone = this.state.measures.slice();
+        console.log("this.state.categories[0]", this.state.categories, measuresClone);
+
+        if (this.state.categories.length>0){
+
+            console.log("this.state.categories[0]", this.state.categories[0], measuresClone);
+
+
+            this.setState({
+                selectedCategory: this.state.categories[0],
+                selectedMeasures: this.state.selectedMeasures.slice()
+            });
+
+
+        }
+
+
     }
 
-    prepareData(xFieldName){
+    prepareData(selectedCategory){
 
         var preparedData = [];
         var measures = [];
@@ -70,14 +88,15 @@ export class BarChartPanel extends Component {
         console.log("measures=", measures);
         console.log("categories=", categories);
 
+
         this.props.data.forEach(element=>{
             var currentPreparedIndex = preparedData.findIndex(el=> {
-                return el[xFieldName] == element[xFieldName];
+                return el[selectedCategory] == element[selectedCategory];
             });
 
             if (currentPreparedIndex==-1){
                 var newElement = {};
-                newElement[xFieldName] = element[xFieldName];
+                newElement[selectedCategory] = element[selectedCategory];
                 preparedData.push(newElement);
                 currentPreparedIndex = preparedData.length-1;
             }
@@ -90,22 +109,18 @@ export class BarChartPanel extends Component {
                     preparedData[currentPreparedIndex][element['measure']] = parseFloat(element['value']);
                 }
             }
-            console.log("preparedData[currentPreparedIndex]", preparedData[currentPreparedIndex]);
-
-            /*measures.forEach(measure=>{
-
-            });*/
         });
 
 
         this.setState({
                 preparedData: preparedData,
-                measures:measures,
+                measures:measures.slice(),//measures,
                 categories: categories,
-                xFieldName: xFieldName});
+                selectedCategory: selectedCategory});
 
 
-
+        console.log("0 categories, measures", categories, measures);
+        console.log("1 categories, measures", this.state.categories, this.state.measures);
     }
 
     onChangeCategory(e){
@@ -140,7 +155,7 @@ export class BarChartPanel extends Component {
 
         console.log("data", this.state.preparedData);
         console.log("measures", this.state.measures);
-        console.log("indexBy", this.state.xFieldName);
+        console.log("indexBy", this.state.selectedCategory);
 
         return (
             <div className="chart-wrapper">
@@ -148,31 +163,18 @@ export class BarChartPanel extends Component {
                 <MyResponsiveBar
                     data={this.state.preparedData}
                     keys={this.state.selectedMeasures}
-                    indexBy={this.state.xFieldName}
+                    indexBy={this.state.selectedCategory}
                     groupMode={this.state.groupMode}
                 />
-                <p>
+
                 <RadioGroup
                     items={this.state.categories}
-                    value={this.state.xFieldName}
+                    value={this.state.selectedCategory}
                     onValueChanged={this.onChangeCategory.bind(this)}
                  />
 
-                 <RadioGroup
-                    items={["grouped", "stacked"]}
-                    value={this.state.groupMode}
-                    onValueChanged={this.onChangeGroupMode.bind(this)}
-                 />
 
-                <select onChange={this.onChangeCategory.bind(this)} value={this.state.xFieldName}>
-                  {options}
-                </select>
-                </p>
 
-                <select onChange={this.onChangeGroupMode.bind(this)} value={this.state.groupMode}>
-                  <option key="stacked" value="stacked">stacked</option>
-                  <option key="grouped" value="grouped">grouped</option>
-                </select>
 
                 <List
                     items={this.state.measures}
@@ -182,8 +184,14 @@ export class BarChartPanel extends Component {
                     selectionMode="multiple"
                     selectedItems={this.state.selectedMeasures}
                     onOptionChanged={this.onSelectedMeasuresChange.bind(this)}>
-                  </List>
+                </List>
 
+                <RadioGroup
+                    layout={"horizontal"}
+                    items={["grouped", "stacked"]}
+                    value={this.state.groupMode}
+                    onValueChanged={this.onChangeGroupMode.bind(this)}
+                />
 
             </div>
         );

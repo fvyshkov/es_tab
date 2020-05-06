@@ -58,7 +58,7 @@ export const MyResponsiveBar = (props) => (
             tickSize: 5,
             tickPadding: 5,
             tickRotation: 0,
-            legend: props.indexBy,
+            legend: "",
             legendPosition: 'middle',
             legendOffset: 32
         }}
