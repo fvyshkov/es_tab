@@ -5,6 +5,7 @@ import {MyResponsiveBar} from './MyResponsiveBar.jsx';
 import CheckBox from 'devextreme-react/check-box';
 import List from 'devextreme-react/list';
 import { RadioGroup } from 'devextreme-react';
+import { Switch } from 'devextreme-react/switch';
 
 const myData =   [
     {"country":"AD", "food":"hot dog", "value": 105},
@@ -29,7 +30,9 @@ export class BarChartPanel extends Component {
                        measures:[],
                        categories:[],
                        groupMode:"grouped",
-                       selectedMeasures:[]
+                       layout: "vertical",
+                       selectedMeasures:[],
+                       enableLabel: true
                      };
 
         this.componentDidMount = this.componentDidMount.bind(this);
@@ -128,11 +131,16 @@ export class BarChartPanel extends Component {
     }
 
     onChangeGroupMode(e){
-        this.setState({
-            groupMode: e.value
-        });
+        this.setState({groupMode: e.value});
+    }
 
-        //this.setState({groupMode: event.target.value});
+    onChangeLayout(e){
+        console.log("eee=", e.value);
+        this.setState({layout: e.value});
+    }
+
+    onChangeEnableLabel(e){
+        this.setState({enableLabel: e.value});
     }
 
     onSelectedMeasuresChange(args){
@@ -150,12 +158,11 @@ export class BarChartPanel extends Component {
             return (<option key={field} value={field}>{field}</option>);
         });
 
-        //console.log("opt", this.state.categories);
-
-
         console.log("data", this.state.preparedData);
         console.log("measures", this.state.measures);
         console.log("indexBy", this.state.selectedCategory);
+        console.log("layout", this.state.layout);
+        //layout={this.state.layout}
 
         return (
             <div className="chart-wrapper">
@@ -165,6 +172,8 @@ export class BarChartPanel extends Component {
                     keys={this.state.selectedMeasures}
                     indexBy={this.state.selectedCategory}
                     groupMode={this.state.groupMode}
+                    layout={this.state.layout}
+                    enableLabel={this.state.enableLabel}
                 />
 
                 <RadioGroup
@@ -178,7 +187,7 @@ export class BarChartPanel extends Component {
 
                 <List
                     items={this.state.measures}
-                    height={200}
+                    height={120}
                     allowItemDeleting={false}
                     showSelectionControls={true}
                     selectionMode="multiple"
@@ -188,10 +197,22 @@ export class BarChartPanel extends Component {
 
                 <RadioGroup
                     layout={"horizontal"}
-                    items={["grouped", "stacked"]}
+                    items={["grouped","stacked"]}
                     value={this.state.groupMode}
                     onValueChanged={this.onChangeGroupMode.bind(this)}
                 />
+
+                <RadioGroup
+                    layout={"horizontal"}
+                    items={["horizontal", "vertical"]}
+                    onValueChanged={this.onChangeLayout.bind(this)}
+                />
+
+                <div className="dx-field-label"></div>
+                Подписи значений <Switch
+                    value={this.state.enableLabel}
+                     onValueChanged={this.onChangeEnableLabel.bind(this)}
+                     />
 
             </div>
         );

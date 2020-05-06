@@ -15,7 +15,8 @@ export const MyResponsiveBar = (props) => (
         padding={0.3}
         colors={{ scheme: 'nivo' }}
         groupMode={props.groupMode}
-
+        layout={props.layout}
+        enableLabel={props.enableLabel}
         defs={[
             {
                 id: 'dots',
