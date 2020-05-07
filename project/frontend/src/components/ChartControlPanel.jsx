@@ -33,7 +33,7 @@ export class ChartControlPanel extends Component {
     constructor(props) {
         super(props);
         this.state = {
-
+                        tabSelectedIndex: 0
                      };
 
 
@@ -50,10 +50,14 @@ export class ChartControlPanel extends Component {
     }
 
     render() {
+        console.log("this.state.tabSelectedIndex="+this.props.tabSelectedIndex);
         return(
         <div className="chart-control-panel-wrapper">
         <TabPanel
           items={["Данные", "Форматирование"]}
+          loop={true}
+          selectedIndex={this.props.tabSelectedIndex}
+          onOptionChanged={this.props.tabSelectedIndexChanged}
           itemComponent={(item)=>{
             if (item.index==0){
                 return (

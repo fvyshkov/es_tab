@@ -24,7 +24,8 @@ export class BarChartPanel extends Component {
                        selectedMeasures:[],
                        enableLabel: true,
                        colorScheme: "nivo",
-                       isControlOpened: true
+                       isControlOpened: true,
+                       tabSelectedIndex: 0
                      };
 
         this.componentDidMount = this.componentDidMount.bind(this);
@@ -215,6 +216,22 @@ export class BarChartPanel extends Component {
                         colorsOnValueChanged={this.onColorChanged.bind(this)}
                         enableLabel={this.state.enableLabel}
                         enableLabelOnValueChanged={this.onChangeEnableLabel.bind(this)}
+
+
+                        tabSelectedIndex={this.state.tabSelectedIndex}
+                        tabSelectedIndexChanged={
+                            (args)=>{
+                                        if(args.name == 'selectedIndex') {
+                                            console.log("selectedIndex="+args.value);
+                                            if (args.value!=this.state.tabSelectedIndex){
+                                                this.setState({tabSelectedIndex: args.value});
+                                            }
+                                        }
+                                    }
+                        }
+
+
+
                     />);
                     }}
           closeOnOutsideClick={this.onOutsideClick}
