@@ -75,14 +75,16 @@ export const MyResponsiveBar = (props) => (
         labelSkipWidth={12}
         labelSkipHeight={12}
         labelTextColor={{ from: 'color', modifiers: [ [ 'darker', 1.6 ] ] }}
-        legends={[
+        legends={
+            props.legendEnabled ?
+            [
             {
                 dataFrom: 'keys',
-                anchor: 'bottom-right',
+                anchor: props.legendPosition,
                 direction: props.legendDirection,
                 justify: false,
-                translateX: 120,
-                translateY: 0,
+                translateX: props.legendXOffset,
+                translateY: props.legendYOffset,
                 itemsSpacing: 2,
                 itemWidth: 100,
                 itemHeight: 20,
@@ -98,7 +100,7 @@ export const MyResponsiveBar = (props) => (
                     }
                 ]
             }
-        ]}
+        ]:[]}
         animate={true}
         motionStiffness={90}
         motionDamping={15}

@@ -37,7 +37,11 @@ export class BarChartPanel extends Component {
                        colorScheme: "nivo",
                        isControlOpened: true,
                        tabSelectedIndex: 0,
-                       legendDirectionSelected: legendDirection[0]
+                       legendDirectionSelected: legendDirection[0],
+                       legendXOffset:0,
+                       legendYOffset:0,
+                       legendEnabled:true,
+                       legendPosition:"top"
                      };
 
         this.componentDidMount = this.componentDidMount.bind(this);
@@ -258,6 +262,31 @@ export class BarChartPanel extends Component {
                                     }
                         }
 
+                        legendXOffset={this.state.legendXOffset}
+                        legendXOffsetOnChanged={
+                             (args)=>{this.setState({legendXOffset: args.value});}
+                        }
+
+                        legendPosition={this.state.legendPosition}
+                        legendPositionOnChanged={
+                             (args)=>{this.setState({legendPosition: args.value});}
+                        }
+
+                        legendYOffset={this.state.legendYOffset}
+                        legendYOffsetOnChanged={
+                                    (args)=>{this.setState({legendYOffset: args.value});}
+                        }
+
+                        legendEnabled={this.state.legendEnabled}
+                        legendEnabledOnChanged={
+                        (args)=>{
+                                    console.log("legendEnabledOnChanged args", args);
+                                            this.setState({legendEnabled: args.value});
+
+
+                                }
+                        }
+
 
                     />);
                     }}
@@ -274,8 +303,12 @@ export class BarChartPanel extends Component {
                     groupMode={this.state.groupMode}
                     layout={this.state.layout}
                     enableLabel={this.state.enableLabel}
+                    legendEnabled={this.state.legendEnabled}
                     colors={{scheme:this.state.colorScheme}}
                     legendDirection={this.state.legendDirectionSelected && this.state.legendDirectionSelected.length>0 && this.state.legendDirectionSelected[0].id}
+                    legendXOffset={this.state.legendXOffset}
+                    legendYOffset={this.state.legendYOffset}
+                    legendPosition={this.state.legendPosition}
                 />
           </div>
         </Drawer>
