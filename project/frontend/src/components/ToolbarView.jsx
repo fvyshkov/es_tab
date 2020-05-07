@@ -27,6 +27,7 @@ export default class ToolbarView extends Component {
             <React.Fragment>
 
                 <Toolbar>
+                    {this.props.additionalToolbarItems}
                     <Item location={'after'}
                     widget={'dxButton'}
                     options={{

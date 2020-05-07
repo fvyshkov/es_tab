@@ -7,6 +7,7 @@ import { AllModules } from  "@ag-grid-enterprise/all-modules";
 //import "ag-grid-community";
 //import "ag-grid-enterprise";
 
+import Toolbar, { Item } from 'devextreme-react/toolbar';
 
 import TreeReferEditor from "./TreeReferEditor.jsx";
 import NumericEditor from "./NumericEditor.jsx";
@@ -825,9 +826,7 @@ export default class ReGrid extends React.Component {
             //return;
 
             const chartRender = ()=>{
-
-                return (<BarChartPanel data={data2}/>);
-
+                return (<BarChartPanel data={data2} />);
             }
             const formParams = {additionalSheetParams:{sht_id: this.state.sheet_id, req_id:params.node.data.id, dop: params.node.data.dop}};
             var render =  <div><ToolbarView
@@ -836,6 +835,14 @@ export default class ReGrid extends React.Component {
                                                 onToolbarCloseClick={this.props.onToolbarCloseClick}
                                                 getNewLayoutItemID={this.props.getNewLayoutItemID}
                                                 contentRender={chartRender}
+                                                additionalToolbarItems={
+                                                    <Item location={'after'}
+                                                    widget={'dxButton'}
+                                                    options={{
+                                                                icon: 'menu',
+                                                                onClick: (e) => {this.onToolbarCloseClick();}
+                                                            }} />
+                                                }
                                                 />
 
 

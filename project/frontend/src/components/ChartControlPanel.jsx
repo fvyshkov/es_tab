@@ -2,14 +2,10 @@ import React, { Component } from "react";
 import DropdownHOC from "./DropdownHOC.jsx";
 import { sendRequest } from './App.js';
 import {MyResponsiveBar} from './MyResponsiveBar.jsx';
-import {ChartControlPanel} from './ChartControlPanel.jsx';
-import { Drawer, RadioGroup, Toolbar, SelectBox } from 'devextreme-react';
 import CheckBox from 'devextreme-react/check-box';
-import { Button } from 'devextreme-react/button';
 import List from 'devextreme-react/list';
+import { RadioGroup, SelectBox } from 'devextreme-react';
 import { Switch } from 'devextreme-react/switch';
-
-
 import Img_nivo from '../images/colors/Nivo.png';
 import Img_accent from '../images/colors/Accent.png';
 import Img_category10 from '../images/colors/category10.png';
@@ -45,7 +41,7 @@ const myData =   [
     {"country":"AF", "food":"sandwich", "value": 199}
     ];
 
-export class BarChartPanel extends Component {
+export class ChartControlPanel extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -57,15 +53,12 @@ export class BarChartPanel extends Component {
                        layout: "vertical",
                        selectedMeasures:[],
                        enableLabel: true,
-                       colorScheme: "nivo",
-                       isControlOpened: true
+                       colorScheme: "nivo"
                      };
 
         this.componentDidMount = this.componentDidMount.bind(this);
         this.prepareData = this.prepareData.bind(this);
         this.changeField = this.changeField.bind(this);
-
-        this.testCount = 0;
     }
 
 
@@ -75,7 +68,7 @@ export class BarChartPanel extends Component {
     }
 
     componentDidMount(){
-        this.prepareData();
+        //this.prepareData();
 
         var measuresClone = this.state.measures.slice();
         console.log("this.state.categories[0]", this.state.categories, measuresClone);
@@ -101,6 +94,8 @@ export class BarChartPanel extends Component {
         var preparedData = [];
         var measures = [];
         var categories = [];
+        //console.log("this.props", this.props);
+        //return;
 
         this.props.data.forEach(element=>{
             if (!measures.find(el=>{return el==element['measure']})){
@@ -155,7 +150,7 @@ export class BarChartPanel extends Component {
     }
 
     onChangeCategory(e){
-        this.prepareData(e.value);
+        //this.prepareData(e.value);
     }
 
     onChangeGroupMode(e){
@@ -176,12 +171,11 @@ export class BarChartPanel extends Component {
     }
 
     onSelectedMeasuresChange(args){
-
-
-
-
-        if(args.name === 'selectedItems' && JSON.stringify(args.value)!=JSON.stringify(this.state.selectedMeasures)) {
-            this.setState({selectedMeasures: args.value});
+        console.log(args);
+        if(args.name === 'selectedItems') {
+            this.setState({
+                selectedMeasures: args.value
+            });
         }
     }
 
@@ -206,56 +200,52 @@ export class BarChartPanel extends Component {
         //layout={this.state.layout}
 
         return (
+            <div className="chart-control-panel-wrapper">
+
+                <RadioGroup
+                    items={this.props.categoryItems}
+                    value={this.props.categoryValue}
+                    onValueChanged={this.props.categoryOnValueChanged}
+                 />
+                <List
+                    items={this.props.measureItems}
+                    height={120}
+                    allowItemDeleting={false}
+                    showSelectionControls={true}
+                    selectionMode="multiple"
+                    selectedItems={this.props.measureSelectedItems}
+                    onOptionChanged={this.props.measureOnOptionChanged}
+                    />
+                <RadioGroup
+                    layout={"horizontal"}
+                    items={["grouped","stacked"]}
+                    value={this.props.groupGroupMode}
+                    onValueChanged={this.props.groupOnChangeGroupMode}
 
 
-            <div className="chart-wrapper">
-
-            <Drawer
-          opened={this.state.isControlOpened}
-          openedStateMode={'shrink'}
-          position={'right'}
-          revealMode={'slide'}
-          component={()=> {
-                    return (<ChartControlPanel
-                        data={this.props.data}
-                        categoryOnValueChanged={this.onChangeCategory.bind(this)}
-                        categoryItems={this.state.categories}
-                        categoryValue={this.state.selectedCategory}
-
-                        measureItems={this.state.measures}
-                        measureSelectedItems={this.state.selectedMeasures}
-                        measureOnOptionChanged={this.onSelectedMeasuresChange.bind(this)}
-                        groupGroupMode={this.state.groupMode}
-
-                        groupOnChangeGroupMode={this.onChangeGroupMode.bind(this)}
-                        layoutOnChangeLayout={this.onChangeLayout.bind(this)}
-                        layout={this.state.layout}
-                        colors={colors}
-                        colorScheme={this.state.colorScheme}
-                        colorsOnValueChanged={this.onColorChanged.bind(this)}
-                        enableLabel={this.state.enableLabel}
-                        enableLabelOnValueChanged={this.onChangeEnableLabel.bind(this)}
-                    />);
-                    }}
-          closeOnOutsideClick={this.onOutsideClick}
-          data={this.props.data}
-          >
-          <div id="content" className="chart-wrapper">
-
-
-                <MyResponsiveBar
-                    data={this.state.preparedData}
-                    keys={this.state.selectedMeasures}
-                    indexBy={this.state.selectedCategory}
-                    groupMode={this.state.groupMode}
-                    layout={this.state.layout}
-                    enableLabel={this.state.enableLabel}
-                    colors={{scheme:this.state.colorScheme}}
                 />
-          </div>
-        </Drawer>
+
+                <RadioGroup
+                    layout={"horizontal"}
+                    items={["horizontal", "vertical"]}
+                    value={this.props.layout}
+                    onValueChanged={this.props.layoutOnChangeLayout}
+                />
+
+                <SelectBox items={this.props.colors}
+                value={this.props.colorScheme}
+                onValueChanged={this.props.colorsOnValueChanged}
+                itemRender={this.colorRender}
+                 fieldRender={this.colorRender}
+
+                 />
 
 
+
+                Подписи значений <Switch
+                     value={this.props.enableLabel}
+                     onValueChanged={this.props.enableLabelOnValueChanged}
+                     />
 
             </div>
         );

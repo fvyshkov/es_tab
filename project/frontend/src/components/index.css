@@ -180,7 +180,7 @@ background-color: #d9ff96;
 }
 .color-scheme-img{
     height: 10px;
-    margin-left: 100px;
+    margin-left: 30px;
 }
 .cell-clear-button{
     height: 16px;
@@ -199,7 +199,12 @@ background-color: #d9ff96;
 
 .chart-wrapper{
 height:100%;
-width: 100%;
+width: 100% - 250px;
+}
+
+.chart-control-panel-wrapper{
+height:100%;
+width: 250px;
 }
 
 .cell-wrapper-center{
