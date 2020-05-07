@@ -13,7 +13,7 @@ import Img_dark2 from '../images/colors/Dark2.png';
 import Img_pastel1 from '../images/colors/Pastel1.png';
 import Img_set1 from '../images/colors/Set1.png';
 import Img_set2 from '../images/colors/Set2.png';
-
+import TabPanel from 'devextreme-react/tab-panel';
 
 const colorsMap={
     "nivo" : Img_nivo,
@@ -39,6 +39,8 @@ export class ChartControlPanel extends Component {
 
     }
 
+
+
     colorRender(item){
         return (<div className="test">
                     <img
@@ -48,6 +50,75 @@ export class ChartControlPanel extends Component {
     }
 
     render() {
+        return(
+        <div className="chart-control-panel-wrapper">
+        <TabPanel
+          items={["Данные", "Форматирование"]}
+          itemComponent={(item)=>{
+            if (item.index==0){
+                return (
+                    <div>
+
+                    <RadioGroup
+                        items={this.props.categoryItems}
+                        value={this.props.categoryValue}
+                        onValueChanged={this.props.categoryOnValueChanged}
+                     />
+                    <List
+                        items={this.props.measureItems}
+                        height={120}
+                        allowItemDeleting={false}
+                        showSelectionControls={true}
+                        selectionMode="multiple"
+                        selectedItems={this.props.measureSelectedItems}
+                        onOptionChanged={this.props.measureOnOptionChanged}
+                        />
+
+                        </div>
+                );
+            }else{
+                return (
+                    <div>
+                        <RadioGroup
+                            layout={"horizontal"}
+                            items={["grouped","stacked"]}
+                            value={this.props.groupGroupMode}
+                            onValueChanged={this.props.groupOnChangeGroupMode}
+
+
+                        />
+
+                        <RadioGroup
+                            layout={"horizontal"}
+                            items={["horizontal", "vertical"]}
+                            value={this.props.layout}
+                            onValueChanged={this.props.layoutOnChangeLayout}
+                        />
+
+                        <SelectBox items={colors}
+                        value={this.props.colorScheme}
+                        onValueChanged={this.props.colorsOnValueChanged}
+                        itemRender={this.colorRender}
+                         fieldRender={this.colorRender}
+
+                         />
+
+
+
+                        Подписи значений <Switch
+                             value={this.props.enableLabel}
+                             onValueChanged={this.props.enableLabelOnValueChanged}
+                             />
+
+                             </div>
+                );
+            }
+          }}
+
+        />
+
+        </div>);
+
 
         return (
             <div className="chart-control-panel-wrapper">
