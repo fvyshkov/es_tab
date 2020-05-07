@@ -17,6 +17,7 @@ export const MyResponsiveBar = (props) => (
         groupMode={props.groupMode}
         layout={props.layout}
         enableLabel={props.enableLabel}
+        labelFormat={".2f"}
         defs={[
             {
                 id: 'dots',

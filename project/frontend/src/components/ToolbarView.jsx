@@ -39,7 +39,7 @@ export default class ToolbarView extends Component {
 
 
                 <div id={'content_'+this.props.layoutItemID} class="ag-theme-balham ToolbarViewContent">
-                    <this.props.contentRender />
+                    {this.props.contentRender && <this.props.contentRender />}
                 </div>
 
             </React.Fragment>
