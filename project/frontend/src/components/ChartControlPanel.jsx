@@ -61,7 +61,7 @@ export class ChartControlPanel extends Component {
           itemComponent={(item)=>{
             if (item.index==0){
                 return (
-                    <div>
+                    <div className="chart-control-panel-item">
 
                     <RadioGroup
                         items={this.props.categoryItems}
@@ -82,7 +82,7 @@ export class ChartControlPanel extends Component {
                 );
             }else{
                 return (
-                    <div>
+                    <div className="chart-control-panel-item">
                         <RadioGroup
                             layout={"horizontal"}
                             items={["grouped","stacked"]}
@@ -99,6 +99,8 @@ export class ChartControlPanel extends Component {
                             onValueChanged={this.props.layoutOnChangeLayout}
                         />
 
+                        <p></p>
+
                         <SelectBox items={colors}
                         value={this.props.colorScheme}
                         onValueChanged={this.props.colorsOnValueChanged}
@@ -108,7 +110,7 @@ export class ChartControlPanel extends Component {
                          />
 
 
-
+                        <p></p>
                         Подписи значений <Switch
                              value={this.props.enableLabel}
                              onValueChanged={this.props.enableLabelOnValueChanged}
