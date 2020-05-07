@@ -10,40 +10,6 @@ import List from 'devextreme-react/list';
 import { Switch } from 'devextreme-react/switch';
 import { Item } from 'devextreme-react/toolbar';
 
-import Img_nivo from '../images/colors/Nivo.png';
-import Img_accent from '../images/colors/Accent.png';
-import Img_category10 from '../images/colors/category10.png';
-import Img_dark2 from '../images/colors/Dark2.png';
-import Img_pastel1 from '../images/colors/Pastel1.png';
-import Img_set1 from '../images/colors/Set1.png';
-import Img_set2 from '../images/colors/Set2.png';
-
-
-const colorsMap={
-    "nivo" : Img_nivo,
-    "accent" : Img_accent,
-    "category10" : Img_category10,
-    "dark2" : Img_dark2,
-    "pastel1" : Img_pastel1,
-    "set1" : Img_set1,
-    "set2" : Img_set2
-}
-
-const colors = ["nivo", "accent", "category10", "dark2", "pastel1", "set1", "set2"]
-
-const myData =   [
-    {"country":"AD", "food":"hot dog", "value": 105},
-    {"country":"AD", "food":"burger", "value": 147},
-    {"country":"AD", "food":"sandwich", "value": 36},
-
-    {"country":"AE", "food":"hot dog", "value": 140},
-    {"country":"AE", "food":"burger", "value": 34},
-    {"country":"AE", "food":"sandwich", "value": 154},
-
-    {"country":"AF", "food":"hot dog", "value": 10},
-    {"country":"AF", "food":"burger", "value": 57},
-    {"country":"AF", "food":"sandwich", "value": 199}
-    ];
 
 export class BarChartPanel extends Component {
     constructor(props) {
@@ -185,13 +151,6 @@ export class BarChartPanel extends Component {
         }
     }
 
-    colorRender(item){
-        return (<div className="test">{item}
-                    <img
-                        className="color-scheme-img"
-                        src={colorsMap[item]} />
-                </div>);
-    }
 
     render() {
 
@@ -252,7 +211,6 @@ export class BarChartPanel extends Component {
                         groupOnChangeGroupMode={this.onChangeGroupMode.bind(this)}
                         layoutOnChangeLayout={this.onChangeLayout.bind(this)}
                         layout={this.state.layout}
-                        colors={colors}
                         colorScheme={this.state.colorScheme}
                         colorsOnValueChanged={this.onColorChanged.bind(this)}
                         enableLabel={this.state.enableLabel}
