@@ -11,7 +11,7 @@ export const MyResponsiveBar = (props) => (
         keys={props.keys}
         //keys={[ 'country' ]}
         indexBy={props.indexBy}
-        margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
+        margin={{ top: 50, right: 150, bottom: 50, left: 60 }}
         padding={0.3}
         colors={props.colors}
         groupMode={props.groupMode}

@@ -37,11 +37,11 @@ export class BarChartPanel extends Component {
                        colorScheme: "nivo",
                        isControlOpened: true,
                        tabSelectedIndex: 0,
-                       legendDirectionSelected: legendDirection[0],
-                       legendXOffset:0,
+                       legendDirectionSelected: legendDirection[1],
+                       legendXOffset:77,//чтобы легенда по умолчанию имела шанс поместиться
                        legendYOffset:0,
                        legendEnabled:true,
-                       legendPosition:"top"
+                       legendPosition:"right"
                      };
 
         this.componentDidMount = this.componentDidMount.bind(this);
