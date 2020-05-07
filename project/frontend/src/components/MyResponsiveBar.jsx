@@ -79,7 +79,7 @@ export const MyResponsiveBar = (props) => (
             {
                 dataFrom: 'keys',
                 anchor: 'bottom-right',
-                direction: 'column',
+                direction: props.legendDirection,
                 justify: false,
                 translateX: 120,
                 translateY: 0,

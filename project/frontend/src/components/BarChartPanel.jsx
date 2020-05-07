@@ -10,6 +10,17 @@ import List from 'devextreme-react/list';
 import { Switch } from 'devextreme-react/switch';
 import { Item } from 'devextreme-react/toolbar';
 
+const legendDirection = [
+                                  {
+                                    id: "row",
+                                    text: 'Строка',
+                                    content:""
+                                  },
+                                  {
+                                    id: "column",
+                                    text: 'Столбец',
+                                    content: 'Comment tab content'
+                                  }                                ]
 
 export class BarChartPanel extends Component {
     constructor(props) {
@@ -25,7 +36,8 @@ export class BarChartPanel extends Component {
                        enableLabel: true,
                        colorScheme: "nivo",
                        isControlOpened: true,
-                       tabSelectedIndex: 0
+                       tabSelectedIndex: 0,
+                       legendDirectionSelected: legendDirection[0]
                      };
 
         this.componentDidMount = this.componentDidMount.bind(this);
@@ -162,8 +174,9 @@ export class BarChartPanel extends Component {
         console.log("data", this.state.preparedData);
         console.log("measures", this.state.measures);
         console.log("indexBy", this.state.selectedCategory);
-        console.log("layout", this.state.layout);
+        console.log("legendDirectionSelected", this.state.legendDirectionSelected);
         //layout={this.state.layout}
+
 
         return (
 
@@ -230,6 +243,20 @@ export class BarChartPanel extends Component {
                                     }
                         }
 
+                        legendDirection={legendDirection}
+                        legendDirectionSelected={this.state.legendDirectionSelected}
+                        legendDirectionOnChange={
+                            (args)=>{
+                                        if(args.name == 'selectedItems' && JSON.stringify(args.value)!=JSON.stringify(this.state.legendDirectionSelected)) {
+                                            this.setState({legendDirectionSelected: args.value});
+                                            /*
+                                            if (args.value.id!=this.state.legendDirection){
+                                                this.setState({legendDirection: args.value.id});
+                                            }
+                                            */
+                                        }
+                                    }
+                        }
 
 
                     />);
@@ -248,6 +275,7 @@ export class BarChartPanel extends Component {
                     layout={this.state.layout}
                     enableLabel={this.state.enableLabel}
                     colors={{scheme:this.state.colorScheme}}
+                    legendDirection={this.state.legendDirectionSelected && this.state.legendDirectionSelected.length>0 && this.state.legendDirectionSelected[0].id}
                 />
           </div>
         </Drawer>

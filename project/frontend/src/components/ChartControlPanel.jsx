@@ -14,6 +14,7 @@ import Img_pastel1 from '../images/colors/Pastel1.png';
 import Img_set1 from '../images/colors/Set1.png';
 import Img_set2 from '../images/colors/Set2.png';
 import TabPanel from 'devextreme-react/tab-panel';
+import Tabs from 'devextreme-react/tabs';
 
 const colorsMap={
     "nivo" : Img_nivo,
@@ -116,6 +117,11 @@ export class ChartControlPanel extends Component {
                              onValueChanged={this.props.enableLabelOnValueChanged}
                              />
 
+                <Tabs
+                        items={this.props.legendDirection}
+                        selectedItemKeys={this.props.legendDirectionSelected}
+                        onOptionChanged={this.props.legendDirectionOnChange}
+                      />
                              </div>
                 );
             }
@@ -169,7 +175,12 @@ export class ChartControlPanel extends Component {
 
 
 
-                Подписи значений <Switch
+
+
+
+
+
+                      Подписи значений <Switch
                      value={this.props.enableLabel}
                      onValueChanged={this.props.enableLabelOnValueChanged}
                      />
