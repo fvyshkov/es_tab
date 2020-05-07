@@ -8,7 +8,7 @@ import CheckBox from 'devextreme-react/check-box';
 import { Button } from 'devextreme-react/button';
 import List from 'devextreme-react/list';
 import { Switch } from 'devextreme-react/switch';
-
+import { Item } from 'devextreme-react/toolbar';
 
 import Img_nivo from '../images/colors/Nivo.png';
 import Img_accent from '../images/colors/Accent.png';
@@ -207,8 +207,30 @@ export class BarChartPanel extends Component {
 
         return (
 
+            <React.Fragment>
 
-            <div className="chart-wrapper">
+                <Toolbar>
+                    {this.props.additionalToolbarItems}
+                    <Item location={'after'}
+                    widget={'dxButton'}
+                    options={{
+                                icon: 'menu',
+                                onClick: (e) => {this.setState({isControlOpened: !this.state.isControlOpened});}
+                            }} />
+                    <Item location={'after'}
+                    widget={'dxButton'}
+                    options={{
+                                icon: 'close',
+                                onClick: (e) => {
+                                                this.props.onToolbarCloseClick(this.props.layoutItemID);
+                                                }
+                            }} />
+                </Toolbar>
+
+
+                <div id={'content_'+this.props.layoutItemID} class="ag-theme-balham ToolbarViewContent">
+
+                     <div className="chart-wrapper">
 
             <Drawer
           opened={this.state.isControlOpened}
@@ -258,6 +280,14 @@ export class BarChartPanel extends Component {
 
 
             </div>
+
+                </div>
+
+
+
+
+
+            </React.Fragment>
         );
   }
 }

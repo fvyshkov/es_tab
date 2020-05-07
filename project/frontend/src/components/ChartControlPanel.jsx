@@ -180,7 +180,7 @@ export class ChartControlPanel extends Component {
     }
 
     colorRender(item){
-        return (<div className="test">{item}
+        return (<div className="test">
                     <img
                         className="color-scheme-img"
                         src={colorsMap[item]} />

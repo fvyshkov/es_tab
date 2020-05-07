@@ -205,6 +205,8 @@ width: 100% - 250px;
 .chart-control-panel-wrapper{
 height:100%;
 width: 250px;
+border-style:solid;
+border-width:thin;
 }
 
 .cell-wrapper-center{

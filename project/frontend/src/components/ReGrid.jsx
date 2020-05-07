@@ -778,21 +778,7 @@ export default class ReGrid extends React.Component {
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
 
-            const data = [
-                    {"country":"AD", "food":"hot dog", "value": 105},
-                    {"country":"AD", "food":"burger", "value": 147},
-                    {"country":"AD", "food":"sandwich", "value": 36},
-
-                    {"country":"AE", "food":"hot dog", "value": 500},
-                    {"country":"AE", "food":"burger", "value": 34},
-                    {"country":"AE", "food":"sandwich", "value": 154},
-
-                    {"country":"AF", "food":"hot dog", "value": 10},
-                    {"country":"AF", "food":"burger", "value": 57},
-                    {"country":"AF", "food":"sandwich", "value": 199}
-                    ];
-
-            var data2 = [];
+           var data = [];
             /*
                     1) обработка клетки
                     11) если клетка не типа N, пропускаем
@@ -806,7 +792,6 @@ export default class ReGrid extends React.Component {
                 node.data.column_data.forEach(cell=>{
                     if (cell.atr_type=="N" && cell.name && cell.sql_value){
                         var row = {};
-
                         node.data.column_data.forEach(column=>{
                             if (column.atr_type!="N" && column.name && column.sql_value){
                                 row[column.name] = column.sql_value;
@@ -815,42 +800,23 @@ export default class ReGrid extends React.Component {
 
                         row['measure'] = cell.name;
                         row['value'] = cell.sql_value;
-                        console.log("row", row);
-                        data2.push(row);
+                        data.push(row);
                     }
                 });
 
 
             });
 
-            //return;
+            var render=<BarChartPanel
+                            data={data}
+                            layoutItemID={newLayoutItemID}
+                            addElementToLayout={this.props.addElementToLayout}
+                            onToolbarCloseClick={this.props.onToolbarCloseClick}
+                            getNewLayoutItemID={this.props.getNewLayoutItemID}
+                        />;
 
-            const chartRender = ()=>{
-                return (<BarChartPanel data={data2} />);
-            }
             const formParams = {additionalSheetParams:{sht_id: this.state.sheet_id, req_id:params.node.data.id, dop: params.node.data.dop}};
-            var render =  <div><ToolbarView
-                                                layoutItemID={newLayoutItemID}
-                                                addElementToLayout={this.props.addElementToLayout}
-                                                onToolbarCloseClick={this.props.onToolbarCloseClick}
-                                                getNewLayoutItemID={this.props.getNewLayoutItemID}
-                                                contentRender={chartRender}
-                                                additionalToolbarItems={
-                                                    <Item location={'after'}
-                                                    widget={'dxButton'}
-                                                    options={{
-                                                                icon: 'menu',
-                                                                onClick: (e) => {this.onToolbarCloseClick();}
-                                                            }} />
-                                                }
-                                                />
-
-
-                           </div>;
-
             this.props.addElementToLayout(render, null, "chart", formParams);
-
-           // document.querySelector("#content_"+newLayoutItemID).appendChild(<BarChartPanel />);
         }
 
     }
