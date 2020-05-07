@@ -70,7 +70,7 @@ export class BarChartPanel extends Component {
 
             this.setState({
                 selectedCategory: this.state.categories[0],
-                selectedMeasures: this.state.selectedMeasures.slice()
+                selectedMeasures: this.state.measures.slice()
             });
 
 
@@ -125,12 +125,16 @@ export class BarChartPanel extends Component {
             }
         });
 
+        this.state.preparedData = preparedData.slice();
+        this.state.measures = measures.slice();
+        this.state.categories = categories.slice();
+        this.state.selectedCategory = selectedCategory;
 
         this.setState({
                 preparedData: preparedData,
                 measures:measures.slice(),//measures,
                 categories: categories,
-                selectedCategory: selectedCategory});
+                selectedCategory: this.state.selectedCategory});
 
 
         console.log("0 categories, measures", categories, measures);
