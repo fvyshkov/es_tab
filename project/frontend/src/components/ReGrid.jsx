@@ -812,10 +812,10 @@ export default class ReGrid extends React.Component {
             var data = [];
             this.gridApi.forEachNode(node=>{
                 node.data.column_data.forEach(cell=>{
-                    if (this.nodeInRanges(node, ranges) && cell.atr_type=="N" && cell.name && cell.sql_value){
+                    if (this.nodeInRanges(node, ranges) && (cell.atr_type  == "N" || cell.atr_type  == "I") && cell.name && cell.sql_value){
                         var row = {};
                         node.data.column_data.forEach(column=>{
-                            if (column.atr_type!="N" && column.name && column.sql_value){
+                            if (column.atr_type != "N" && column.atr_type !=  "I" && column.name && column.sql_value){
                                 row[column.name] = column.sql_value;
                             }
                         });
