@@ -772,25 +772,47 @@ export default class ReGrid extends React.Component {
         }
     }
 
+    cellInRanges(node, cell, ranges){
+        var colFound = false;
+        var rowFound = false;
+
+        ranges.forEach(range=>{
+
+            if (node.rowIndex>=range.startRow.rowIndex && node.rowIndex<=range.endRow.rowIndex){
+                rowFound = true;
+            }
+
+            range.columns.forEach(column=>{
+                if (column.colId ==cell.key){
+                    colFound = true;
+                }
+            });
+        });
+
+        return colFound && rowFound;
+
+
+    }
+
+    nodeInRanges(node, ranges){
+        var isFound = false;
+        ranges.forEach(range=>{
+            if (node.rowIndex>=range.startRow.rowIndex && node.rowIndex<=range.endRow.rowIndex){
+                isFound = true;
+            }
+        });
+        return isFound;
+    }
 
     createCustomChart(params){
-
+        var ranges = this.gridApi.getCellRanges();
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
 
-           var data = [];
-            /*
-                    1) обработка клетки
-                    11) если клетка не типа N, пропускаем
-                    12) для числовых клеток создаем объект row= {}
-                    13) пробежимся по всем нечисловым клеткам НОДЫ и row[field_name]=field value
-                    14) row['измерение'] = значение в клетке
-                    15) добавляем row в выходные данные
-
-            */
+            var data = [];
             this.gridApi.forEachNode(node=>{
                 node.data.column_data.forEach(cell=>{
-                    if (cell.atr_type=="N" && cell.name && cell.sql_value){
+                    if (this.nodeInRanges(node, ranges) && cell.atr_type=="N" && cell.name && cell.sql_value){
                         var row = {};
                         node.data.column_data.forEach(column=>{
                             if (column.atr_type!="N" && column.name && column.sql_value){
@@ -813,6 +835,7 @@ export default class ReGrid extends React.Component {
                             addElementToLayout={this.props.addElementToLayout}
                             onToolbarCloseClick={this.props.onToolbarCloseClick}
                             getNewLayoutItemID={this.props.getNewLayoutItemID}
+                            ranges={ranges}
                         />;
 
             const formParams = {additionalSheetParams:{sht_id: this.state.sheet_id, req_id:params.node.data.id, dop: params.node.data.dop}};

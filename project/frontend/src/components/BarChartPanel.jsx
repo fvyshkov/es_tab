@@ -135,10 +135,6 @@ export class BarChartPanel extends Component {
                 measures:measures.slice(),//measures,
                 categories: categories,
                 selectedCategory: this.state.selectedCategory});
-
-
-        console.log("0 categories, measures", categories, measures);
-        console.log("1 categories, measures", this.state.categories, this.state.measures);
     }
 
     onChangeCategory(e){
