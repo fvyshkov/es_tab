@@ -37,7 +37,7 @@ export class BarChartPanel extends Component {
                        colorScheme: "nivo",
                        isControlOpened: true,
                        tabSelectedIndex: 0,
-                       legendDirectionSelected: legendDirection[1],
+                       legendDirectionSelected: [legendDirection[1]],
                        legendXOffset:77,//чтобы легенда по умолчанию имела шанс поместиться
                        legendYOffset:0,
                        legendEnabled:true,
@@ -251,6 +251,7 @@ export class BarChartPanel extends Component {
                         legendDirectionSelected={this.state.legendDirectionSelected}
                         legendDirectionOnChange={
                             (args)=>{
+
                                         if(args.name == 'selectedItems' && JSON.stringify(args.value)!=JSON.stringify(this.state.legendDirectionSelected)) {
                                             this.setState({legendDirectionSelected: args.value});
                                             /*

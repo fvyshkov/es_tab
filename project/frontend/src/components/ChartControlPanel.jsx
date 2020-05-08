@@ -16,6 +16,7 @@ import Img_set2 from '../images/colors/Set2.png';
 import TabPanel from 'devextreme-react/tab-panel';
 import Tabs from 'devextreme-react/tabs';
 import { Slider } from 'devextreme-react/slider';
+import ScrollView from 'devextreme-react/scroll-view';
 
 const colorsMap={
     "nivo" : Img_nivo,
@@ -52,7 +53,9 @@ export class ChartControlPanel extends Component {
     }
 
     render() {
-        console.log("this.state.tabSelectedIndex="+this.props.tabSelectedIndex);
+        console.log("this.state.legendDirectionSelected="+this.props.legendDirectionSelected);
+
+
         return(
         <div className="chart-control-panel-wrapper">
         <TabPanel
@@ -83,8 +86,14 @@ export class ChartControlPanel extends Component {
                         </div>
                 );
             }else{
+                //
                 return (
-                    <div className="chart-control-panel-item">
+
+                <ScrollView id="scrollview"
+                      showScrollbar={"always"}
+                      >
+                        <div className="chart-control-panel-item">
+
                         <RadioGroup
                             layout={"horizontal"}
                             items={["grouped","stacked"]}
@@ -167,7 +176,11 @@ export class ChartControlPanel extends Component {
                         selectedItemKeys={this.props.legendDirectionSelected}
                         onOptionChanged={this.props.legendDirectionOnChange}
                       />
-                             </div>
+
+
+                    </div>
+                </ScrollView>
+
                 );
             }
           }}
