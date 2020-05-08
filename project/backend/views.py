@@ -1610,6 +1610,12 @@ def process_node(p_sht_id, p_key, node, group_keys, sheet_info, cursor):
                                 select f.styles, 
                                         c_pkgescalc.fNormalizeKey( c_pkgescalc.fRemoveIndFlt(p.sht_id, p.skey||','||x.key)) cell_skey,
                                         c_pkgescalc.fGetAnlDscr(p.skey) flt_dscr,
+                                        (
+                                            select longname 
+                                            from c_es_ent_item 
+                                            where id= substr(x.key,instr(x.key,'>')+1) 
+                                        ) name,
+                                        'N' as atr_type,
                                         case when x.commentfl=1 
                                         then (
                                               select c.prim
@@ -1651,7 +1657,8 @@ def process_node(p_sht_id, p_key, node, group_keys, sheet_info, cursor):
                       'border.color': 'black',
                       'brush.color': sheet_info.get('color_restrict_hex'),
                       'font.color': 'black',
-                      'sql_value': node['name']
+                      'sql_value': node['name'],
+                      'name': "Показатель"
                       })
     node['column_data'] = cell_list
 

@@ -69,10 +69,8 @@ export class BarChartPanel extends Component {
 
 
             this.setState({
-                selectedCategory: this.state.categories[0],
                 selectedMeasures: this.state.measures.slice()
             });
-
 
         }
 
@@ -101,16 +99,16 @@ export class BarChartPanel extends Component {
 
         console.log("measures=", measures);
         console.log("categories=", categories);
-
+        var selectedCategoryInner = selectedCategory? selectedCategory: categories[0]
 
         this.props.data.forEach(element=>{
             var currentPreparedIndex = preparedData.findIndex(el=> {
-                return el[selectedCategory] == element[selectedCategory];
+                return el[selectedCategoryInner] == element[selectedCategoryInner];
             });
 
             if (currentPreparedIndex==-1){
                 var newElement = {};
-                newElement[selectedCategory] = element[selectedCategory];
+                newElement[selectedCategoryInner] = element[selectedCategoryInner];
                 preparedData.push(newElement);
                 currentPreparedIndex = preparedData.length-1;
             }
@@ -128,7 +126,7 @@ export class BarChartPanel extends Component {
         this.state.preparedData = preparedData.slice();
         this.state.measures = measures.slice();
         this.state.categories = categories.slice();
-        this.state.selectedCategory = selectedCategory;
+        this.state.selectedCategory = selectedCategoryInner;
 
         this.setState({
                 preparedData: preparedData,

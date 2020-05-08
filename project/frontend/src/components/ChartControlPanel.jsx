@@ -91,7 +91,7 @@ export class ChartControlPanel extends Component {
                 return (
 
                 <ScrollView id="scrollview"
-                      showScrollbar={"always"}
+                      showScrollbar={"onScroll"}
                       >
                         <div className="chart-control-panel-item">
 
