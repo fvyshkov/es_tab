@@ -63,6 +63,7 @@ export class ChartControlPanel extends Component {
           loop={true}
           selectedIndex={this.props.tabSelectedIndex}
           onOptionChanged={this.props.tabSelectedIndexChanged}
+          height="100%"
           itemComponent={(item)=>{
             if (item.index==0){
                 return (
