@@ -41,6 +41,9 @@ export default class AMChart extends Component {
         /* Create value axis */
         var valueAxis = this.chart.yAxes.push(new am4charts.ValueAxis());
 
+
+
+
         /* Create series */
         this.props.keys.forEach((dataKey, keyIndex)=>{
             console.log("dataKey", dataKey);
@@ -59,6 +62,21 @@ export default class AMChart extends Component {
             series.stroke = this.props.getColor(keyIndex);
             series.tooltip.label.textAlign = "middle";
 
+            this.chart.cursor = new am4charts.XYCursor();
+        this.chart.events.on("hit", function(){
+            if (this.props.seriesSetup){
+                        this.props.seriesSetup(series.dataFields.valueY);
+                    }
+          //console.log("hit cursor", series.dataFields.valueY);
+        },this);
+/*
+            series.events.on("hit", function(ev) {
+                    console.log("clicked on ", ev.target.dataFields.valueY);
+                    if (this.props.seriesSetup){
+                        this.props.seriesSetup(ev.target.dataFields.valueY);
+                    }
+                }, this);*/
+
             if (series instanceof am4charts.ColumnSeries){
                 series.columns.template.tooltipText = "[#fff font-size: 15px]{name} - {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
                 series.columns.template.propertyFields.fillOpacity = "fillOpacity";
@@ -67,6 +85,28 @@ export default class AMChart extends Component {
 
                 series.columns.template.propertyFields.strokeWidth = "strokeWidth";
                 series.columns.template.propertyFields.strokeDasharray = "columnDash";
+                /*
+                series.columns.template.events.on("hit", function(ev) {
+                    console.log("clicked on ", ev.target);
+                }, this);
+                */
+            }else if (series instanceof am4charts.LineSeries){
+                var bullet = series.bullets.push(new am4charts.Bullet());
+                bullet.fill = am4core.color("#fdd400"); // tooltips grab fill from parent by default
+                bullet.tooltipText = "[#fff font-size: 15px]{name} - {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
+
+                bullet.seriesName = dataKey;
+
+                bullet.events.on("hit", function(ev) {
+                    console.log("clicked on bullet ", ev.target);
+                    if (this.props.seriesSetup){
+                        this.props.seriesSetup(ev.target.properties.seriesName);
+                    }
+                }, this);
+                var circle = bullet.createChild(am4core.Circle);
+                circle.radius = 4;
+                circle.fill = am4core.color("#fff");
+                circle.strokeWidth = 3;
             }
 
         });

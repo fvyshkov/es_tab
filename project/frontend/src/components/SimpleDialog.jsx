@@ -110,10 +110,12 @@ export default class SimpleDialog extends React.Component {
     componentDidMount(){
 
         this.state.formData = {};
+        if (this.props.dialogParams){
+            this.props.dialogParams.forEach(param=>{
+                this.state.formData[param.dataField] = param.value;
+            });
+        }
 
-        this.props.dialogParams.forEach(param=>{
-            this.state.formData[param.dataField] = param.value;
-        });
 
         if (this.props.width){
             this.setState({width: this.props.width});
@@ -172,7 +174,7 @@ export default class SimpleDialog extends React.Component {
     } = this.state;
 
 
-    var itemList = this.props.dialogParams.map((param)=>{
+    var itemList = this.props.dialogParams? this.props.dialogParams.map((param)=>{
         if (param.visible){
             return (<Item
                 key={param.dataField}
@@ -183,7 +185,7 @@ export default class SimpleDialog extends React.Component {
                 editorOptions={{refCode:param.refCode, keyvalues: param.keyvalues }}
             />);
         }
-    });
+    }):[];
 
     var referComp = this.state.referVisible ?
             <Refer

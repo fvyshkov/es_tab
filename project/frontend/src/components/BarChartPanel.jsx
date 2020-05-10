@@ -10,6 +10,7 @@ import { Drawer, RadioGroup, Toolbar, SelectBox } from 'devextreme-react';
 import CheckBox from 'devextreme-react/check-box';
 import { Button } from 'devextreme-react/button';
 import List from 'devextreme-react/list';
+import SimpleDialog from './SimpleDialog.jsx';
 import { Switch } from 'devextreme-react/switch';
 import { Item } from 'devextreme-react/toolbar';
 import * as d3 from 'd3';
@@ -61,12 +62,16 @@ export class BarChartPanel extends Component {
                        legendXOffset:77,//чтобы легенда по умолчанию имела шанс поместиться
                        legendYOffset:0,
                        legendEnabled:true,
-                       legendPosition:"right"
+                       legendPosition:"right",
+                       chartSeriesSetupPanel: false,
+                       seriesName:"",
+                       seriesData:[]
                      };
 
         this.componentDidMount = this.componentDidMount.bind(this);
         this.prepareData = this.prepareData.bind(this);
         this.changeField = this.changeField.bind(this);
+        this.seriesSetup = this.seriesSetup.bind(this);
 
         this.testCount = 0;
     }
@@ -148,6 +153,7 @@ export class BarChartPanel extends Component {
         this.state.categories = categories.slice();
         this.state.selectedCategory = selectedCategoryInner;
 
+
         this.setState({
                 preparedData: preparedData,
                 measures:measures.slice(),//measures,
@@ -186,6 +192,36 @@ export class BarChartPanel extends Component {
         }
     }
 
+    seriesSetup(seriesName){
+        console.log("seriesSetup1=", seriesName);
+        this.seriesData = [
+                         {
+                            dataField:"SERIES_NAME",
+                            label:"Наименование серии",
+                            value: seriesName,
+                            visible: true},
+
+                        {
+                            dataField:"TYPE",
+                            label:"Тип диаграммы",
+                            value: "Bar",
+                            visible: true},
+                        {
+                            dataField:"ADD_AXIS",
+                            label:"Вспомогательная ось",
+                            value: "0",
+                            editorType: "dxCheckBox",
+
+                            visible: true},
+
+                        ];
+
+        this.setState({seriesData : this.state.seriesData});
+
+
+        this.setState({chartSeriesSetupPanelVisible: true});
+    }
+
 
     render() {
 
@@ -198,18 +234,27 @@ export class BarChartPanel extends Component {
             return (<option key={field} value={field}>{field}</option>);
         });
 
-        console.log("data", this.state.preparedData);
-        console.log("measures", this.state.measures);
-        console.log("indexBy", this.state.selectedCategory);
-        console.log("legendDirectionSelected", this.state.legendDirectionSelected);
-        //layout={this.state.layout}
+        console.log("this.seriesData", this.seriesData);
 
         const ChartComponent = ChartComponents[this.props.chartComponentIndex? this.props.chartComponentIndex:0];
 
         var contentElement = document.querySelector("#chart_content_"+this.props.layoutItemID);
 
+        var seriesSetupDialog =this.state.chartSeriesSetupPanelVisible ? <SimpleDialog
+                    dialogParams={this.seriesData}
+                    popupVisible={true}
+                    title={"Серия данных"}
+                    onDialogClose={()=>{this.setState({chartSeriesSetupPanelVisible:false});}}
+                    onDialogConfirm={(params)=>{
+                        console.log("save series params", params);
+                        this.setState({chartSeriesSetupPanelVisible:false});
+                    }}
+                    width={400}
+                    height={300}
+                />:null;
         return (
             <React.Fragment>
+                {seriesSetupDialog}
 
                 <Toolbar>
                     {this.props.additionalToolbarItems}
@@ -230,7 +275,7 @@ export class BarChartPanel extends Component {
                 </Toolbar>
 
 
-                <div id={'content_'+this.props.layoutItemID} class="ag-theme-balham ToolbarViewContent">
+                <div id={'content_'+this.props.layoutItemID} class="ag-theme-balham ToolbarViewContent NonDraggableAreaClassName">
 
                      <div className="chart-wrapper">
 
@@ -336,6 +381,7 @@ export class BarChartPanel extends Component {
                     legendYOffset={this.state.legendYOffset}
                     legendPosition={this.state.legendPosition}
                     getColor={colorFuncton}
+                    seriesSetup={this.seriesSetup.bind(this)}
                     parentWidth={contentElement? contentElement.offsetWidth:0}
                     parentHeight={contentElement?contentElement.offsetHeight:0}
                 />

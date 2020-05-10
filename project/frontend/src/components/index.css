@@ -257,6 +257,11 @@ height:220px;
     white-space: nowrap;
 }
 
+.chart-series-setup{
+    height:200px;
+    width:400px;
+}
+
 .custom-tooltip p:first-of-type {
     font-weight: bold;
 }
