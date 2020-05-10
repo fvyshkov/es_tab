@@ -28,7 +28,7 @@ const colorsMap={
     "set2" : Img_set2
 }
 
-const colors = ["nivo", "accent", "category10", "dark2", "pastel1", "set1", "set2"]
+const colors = [ "accent", "category10", "dark2", "pastel1", "set1", "set2", "nivo"]
 
 
 
@@ -76,7 +76,7 @@ export class ChartControlPanel extends Component {
                      />
                     <List
                         items={this.props.measureItems}
-                        height={120}
+                        height={300}
                         allowItemDeleting={false}
                         showSelectionControls={true}
                         selectionMode="multiple"

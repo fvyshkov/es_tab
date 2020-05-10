@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import DropdownHOC from "./DropdownHOC.jsx";
 import { sendRequest } from './App.js';
 import {MyResponsiveBar} from './MyResponsiveBar.jsx';
+import {MyBar} from './MyBar.jsx';
+import DXBar from './DXBar.jsx';
 import {ChartControlPanel} from './ChartControlPanel.jsx';
 import { Drawer, RadioGroup, Toolbar, SelectBox } from 'devextreme-react';
 import CheckBox from 'devextreme-react/check-box';
@@ -10,6 +12,11 @@ import List from 'devextreme-react/list';
 import { Switch } from 'devextreme-react/switch';
 import { Item } from 'devextreme-react/toolbar';
 
+const ChartComponents=[
+MyResponsiveBar,
+MyBar,
+DXBar
+]
 const legendDirection = [
                                   {
                                     id: "row",
@@ -34,7 +41,7 @@ export class BarChartPanel extends Component {
                        layout: "vertical",
                        selectedMeasures:[],
                        enableLabel: true,
-                       colorScheme: "nivo",
+                       colorScheme: "accent",
                        isControlOpened: true,
                        tabSelectedIndex: 0,
                        legendDirectionSelected: [legendDirection[1]],
@@ -179,9 +186,11 @@ export class BarChartPanel extends Component {
         console.log("legendDirectionSelected", this.state.legendDirectionSelected);
         //layout={this.state.layout}
 
+        const ChartComponent = ChartComponents[this.props.chartComponentIndex? this.props.chartComponentIndex:0];
+
+        var contentElement = document.querySelector("#chart_content_"+this.props.layoutItemID);
 
         return (
-
             <React.Fragment>
 
                 <Toolbar>
@@ -292,11 +301,11 @@ export class BarChartPanel extends Component {
           closeOnOutsideClick={this.onOutsideClick}
           data={this.props.data}
           >
-          <div id="content" className="chart-wrapper">
-
-
-                <MyResponsiveBar
+          <div id={"chart_content_"+this.props.layoutItemID} className="chart-wrapper">
+                <ChartComponent
+                    id="chart777"
                     data={this.state.preparedData}
+                    layoutItemID={this.props.layoutItemID}
                     keys={this.state.selectedMeasures}
                     indexBy={this.state.selectedCategory}
                     groupMode={this.state.groupMode}
@@ -308,6 +317,9 @@ export class BarChartPanel extends Component {
                     legendXOffset={this.state.legendXOffset}
                     legendYOffset={this.state.legendYOffset}
                     legendPosition={this.state.legendPosition}
+
+                    parentWidth={contentElement? contentElement.offsetWidth:0}
+                    parentHeight={contentElement?contentElement.offsetHeight:0}
                 />
           </div>
         </Drawer>

@@ -795,6 +795,7 @@ export default class ReGrid extends React.Component {
     }
 
     nodeInRanges(node, ranges){
+        return true;//временно, для удобства отладки - собираем данные по всему листу, а не выделенной части
         var isFound = false;
         ranges.forEach(range=>{
             if (node.rowIndex>=range.startRow.rowIndex && node.rowIndex<=range.endRow.rowIndex){
@@ -804,7 +805,7 @@ export default class ReGrid extends React.Component {
         return isFound;
     }
 
-    createCustomChart(params){
+    createCustomChart(params, chartComponentIndex){
         var ranges = this.gridApi.getCellRanges();
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
@@ -837,6 +838,7 @@ export default class ReGrid extends React.Component {
                             onToolbarCloseClick={this.props.onToolbarCloseClick}
                             getNewLayoutItemID={this.props.getNewLayoutItemID}
                             ranges={ranges}
+                            chartComponentIndex={chartComponentIndex}
                         />;
 
             const formParams = {additionalSheetParams:{sht_id: this.state.sheet_id, req_id:params.node.data.id, dop: params.node.data.dop}};
@@ -848,16 +850,24 @@ export default class ReGrid extends React.Component {
     getContextMenuItems(params) {
 
         var result = [
+            {
+                name: 'Recharts',
+                action: this.createCustomChart.bind(this, params, 1)
+              },
+            {
+                name: 'Nivo',
+                action: this.createCustomChart.bind(this, params, 0)
+              },
+
+            {
+                name: 'DX',
+                action: this.createCustomChart.bind(this, params, 2)
+              },
             ...this.props.getContextMenuItems(params),
             "separator",
             "copyWithHeadersCopy",
             "export",
-            "chartRange",
-
-            {
-                name: 'Тестирование',
-                action: this.createCustomChart.bind(this, params)
-              }
+            "chartRange"
 
         ];
         return result;
