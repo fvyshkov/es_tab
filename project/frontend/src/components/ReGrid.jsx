@@ -854,6 +854,10 @@ export default class ReGrid extends React.Component {
                 name: 'Recharts',
                 action: this.createCustomChart.bind(this, params, 1)
               },
+               {
+                name: 'AMCharts',
+                action: this.createCustomChart.bind(this, params, 3)
+              },
             {
                 name: 'Nivo',
                 action: this.createCustomChart.bind(this, params, 0)

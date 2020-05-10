@@ -4,6 +4,7 @@ import { sendRequest } from './App.js';
 import {MyResponsiveBar} from './MyResponsiveBar.jsx';
 import {MyBar} from './MyBar.jsx';
 import DXBar from './DXBar.jsx';
+import AMChart from './AMChart.jsx';
 import {ChartControlPanel} from './ChartControlPanel.jsx';
 import { Drawer, RadioGroup, Toolbar, SelectBox } from 'devextreme-react';
 import CheckBox from 'devextreme-react/check-box';
@@ -11,11 +12,23 @@ import { Button } from 'devextreme-react/button';
 import List from 'devextreme-react/list';
 import { Switch } from 'devextreme-react/switch';
 import { Item } from 'devextreme-react/toolbar';
+import * as d3 from 'd3';
+
+const colorMaps = {
+ "accent" :d3.schemeAccent,
+ "category10":d3.schemeCategory10,
+ "dark2":d3.schemeDark2,
+ "pastel1":d3.schemePastel1,
+ "set1":d3.schemeSet1,
+ "set2":d3.schemeSet2
+}
+
 
 const ChartComponents=[
 MyResponsiveBar,
 MyBar,
-DXBar
+DXBar,
+AMChart
 ]
 const legendDirection = [
                                   {
@@ -41,7 +54,7 @@ export class BarChartPanel extends Component {
                        layout: "vertical",
                        selectedMeasures:[],
                        enableLabel: true,
-                       colorScheme: "accent",
+                       colorScheme: "set1",
                        isControlOpened: true,
                        tabSelectedIndex: 0,
                        legendDirectionSelected: [legendDirection[1]],
@@ -175,6 +188,11 @@ export class BarChartPanel extends Component {
 
 
     render() {
+
+        var colorFuncton = d3.scaleOrdinal(this.state.colorScheme in colorMaps ?
+                                        colorMaps[this.state.colorScheme]
+                                        :
+                                        colorMaps["accent"]);
 
         var options = this.state.categories.map(field=>{
             return (<option key={field} value={field}>{field}</option>);
@@ -317,7 +335,7 @@ export class BarChartPanel extends Component {
                     legendXOffset={this.state.legendXOffset}
                     legendYOffset={this.state.legendYOffset}
                     legendPosition={this.state.legendPosition}
-
+                    getColor={colorFuncton}
                     parentWidth={contentElement? contentElement.offsetWidth:0}
                     parentHeight={contentElement?contentElement.offsetHeight:0}
                 />

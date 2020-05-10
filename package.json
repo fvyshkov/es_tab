@@ -23,6 +23,7 @@
     "@ag-grid-community/react": "^23.0.3",
     "@ag-grid-enterprise/all-modules": "^23.0.2",
     "@ag-grid-enterprise/core": "^23.0.2",
+    "@amcharts/amcharts4": "^4.9.19",
     "@babel/core": "^7.9.0",
     "@babel/preset-env": "^7.9.5",
     "@babel/preset-react": "^7.9.4",

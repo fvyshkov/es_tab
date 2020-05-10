@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react';
 import {
-  BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
+  BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  ComposedChart, Line, Area,  Scatter
+
 } from 'recharts';
 import * as d3 from 'd3';
 
@@ -39,34 +41,56 @@ const colorMaps = {
 
 export class MyBar extends PureComponent {
 
-  render() {
+    render() {
 
-    console.log("this.props.colors", this.props.colors);
-    var colorFuncton = d3.scaleOrdinal(this.props.colors.scheme in colorMaps ?colorMaps[this.props.colors.scheme]:colorMaps["accent"]);
+        console.log("this.props.colors", this.props.data);
+        var colorFuncton = d3.scaleOrdinal(this.props.colors.scheme in colorMaps ?colorMaps[this.props.colors.scheme]:colorMaps["accent"]);
 
-    var bars=this.props.keys.map((key, index)=>{
-        return (<Bar dataKey={key} fill={colorFuncton(index)} />);
-    });
-    /*
+        var bars=this.props.keys.map((key, index)=>{
+            var yAxisId = false ? "right":"left";
+
+            if (index==1){
+                return (<Bar dataKey={key} yAxisId={yAxisId} fill={colorFuncton(index)} />);
+            }else if (index==2){
+                return (<Area
+                            type="monotone"
+                            dataKey={key}
+                            yAxisId={yAxisId}
+                            fill={colorFuncton(index)}
+                            stroke={colorFuncton(index)}
+                          />);
+            }else{
+                return (<Line
+                            type="monotone"
+                            dataKey={key}
+                            yAxisId={yAxisId}
+                            stroke={colorFuncton(index)}
+                          />);
+            }
+
+        });
+
+        return (
+                <ResponsiveContainer>
+                    <ComposedChart
+                    data={this.props.data}
+                    margin={{
+                      top: 5, right: 30, left: 20, bottom: 5,
+                    }}
+                    >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey={this.props.indexBy} />
+                        <YAxis />
+
+                         <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
+                        <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
 
 
-    */
-    return (
-    <ResponsiveContainer>
-      <BarChart
-        data={this.props.data}
-        margin={{
-          top: 5, right: 30, left: 20, bottom: 5,
-        }}
-      >
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey={this.props.indexBy} />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        {bars}
-      </BarChart>
-      </ResponsiveContainer>
-    );
-  }
+                        <Tooltip />
+                        <Legend />
+                        {bars}
+                    </ComposedChart>
+                </ResponsiveContainer>
+        );
+    }
 }
