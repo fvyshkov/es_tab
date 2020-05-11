@@ -213,7 +213,7 @@ export class BarChartPanel extends Component {
                         {
                             dataField:"ADD_AXIS",
                             label:"Вспомогательная ось",
-                            value: seriesName in this.state.measuresProperties ? this.state.measuresProperties[seriesName].additionalAxis: false,
+                            value: seriesName in this.state.measuresProperties && this.state.measuresProperties[seriesName].additionalAxis=="1"? true: false,
                             editorType: "dxCheckBox",
 
                             visible: true},

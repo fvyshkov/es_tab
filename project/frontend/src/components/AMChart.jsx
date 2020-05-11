@@ -91,7 +91,7 @@ export default class AMChart extends Component {
             if (seriesType=="Line"){
                 series.fillOpacity = 0;
             }else{
-                series.fillOpacity = 1;
+                series.fillOpacity = .8;
             }
             series.stroke = this.props.getColor(keyIndex);
             series.tooltip.label.textAlign = "middle";
