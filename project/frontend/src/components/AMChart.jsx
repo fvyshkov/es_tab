@@ -62,21 +62,6 @@ export default class AMChart extends Component {
             series.stroke = this.props.getColor(keyIndex);
             series.tooltip.label.textAlign = "middle";
 
-            this.chart.cursor = new am4charts.XYCursor();
-        this.chart.events.on("hit", function(){
-            if (this.props.seriesSetup){
-                        this.props.seriesSetup(series.dataFields.valueY);
-                    }
-          //console.log("hit cursor", series.dataFields.valueY);
-        },this);
-/*
-            series.events.on("hit", function(ev) {
-                    console.log("clicked on ", ev.target.dataFields.valueY);
-                    if (this.props.seriesSetup){
-                        this.props.seriesSetup(ev.target.dataFields.valueY);
-                    }
-                }, this);*/
-
             if (series instanceof am4charts.ColumnSeries){
                 series.columns.template.tooltipText = "[#fff font-size: 15px]{name} - {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
                 series.columns.template.propertyFields.fillOpacity = "fillOpacity";
@@ -85,28 +70,36 @@ export default class AMChart extends Component {
 
                 series.columns.template.propertyFields.strokeWidth = "strokeWidth";
                 series.columns.template.propertyFields.strokeDasharray = "columnDash";
-                /*
+                series.columns.template.propertyFields.dataKey = dataKey;
+
                 series.columns.template.events.on("hit", function(ev) {
-                    console.log("clicked on ", ev.target);
+                    if (this.props.seriesSetup){
+                        console.log("column hit", ev.target);
+                        this.props.seriesSetup(ev.target.propertyFields.dataKey);
+                    }
                 }, this);
-                */
+
             }else if (series instanceof am4charts.LineSeries){
                 var bullet = series.bullets.push(new am4charts.Bullet());
                 bullet.fill = am4core.color("#fdd400"); // tooltips grab fill from parent by default
                 bullet.tooltipText = "[#fff font-size: 15px]{name} - {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
 
                 bullet.seriesName = dataKey;
-
-                bullet.events.on("hit", function(ev) {
-                    console.log("clicked on bullet ", ev.target);
-                    if (this.props.seriesSetup){
-                        this.props.seriesSetup(ev.target.properties.seriesName);
-                    }
-                }, this);
                 var circle = bullet.createChild(am4core.Circle);
                 circle.radius = 4;
                 circle.fill = am4core.color("#fff");
                 circle.strokeWidth = 3;
+                series.segments.template.propertyFields.dataKey = dataKey;
+
+                series.segments.template.interactionsEnabled = true;
+                series.segments.template.events.on("hit", ev => {
+                                                            var item = ev.target.dataItem.component.tooltipDataItem.dataContext;
+                                                            console.log("line clicked on: " ,  ev.target.propertyFields.dataKey);
+                                                            if (this.props.seriesSetup){
+                                                                this.props.seriesSetup(ev.target.propertyFields.dataKey);
+                                                            }
+                                                        },this);
+
             }
 
         });
