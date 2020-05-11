@@ -65,7 +65,8 @@ export class BarChartPanel extends Component {
                        legendPosition:"right",
                        chartSeriesSetupPanel: false,
                        seriesName:"",
-                       seriesData:[]
+                       seriesData:[],
+                       measuresProperties:{}
                      };
 
         this.componentDidMount = this.componentDidMount.bind(this);
@@ -194,6 +195,7 @@ export class BarChartPanel extends Component {
 
     seriesSetup(seriesName){
         console.log("seriesSetup1=", seriesName);
+        const seriesType = ["Bar", "Line", "Area"] ;
         this.seriesData = [
                          {
                             dataField:"SERIES_NAME",
@@ -204,12 +206,14 @@ export class BarChartPanel extends Component {
                         {
                             dataField:"TYPE",
                             label:"Тип диаграммы",
-                            value: "Bar",
+                            editorType: "dxSelectBox",
+                            editorOptions: { items: seriesType},
+                            value: seriesName in this.state.measuresProperties ? this.state.measuresProperties[seriesName].seriesType: "Bar",
                             visible: true},
                         {
                             dataField:"ADD_AXIS",
                             label:"Вспомогательная ось",
-                            value: "0",
+                            value: seriesName in this.state.measuresProperties ? this.state.measuresProperties[seriesName].additionalAxis: false,
                             editorType: "dxCheckBox",
 
                             visible: true},
@@ -247,6 +251,9 @@ export class BarChartPanel extends Component {
                     onDialogClose={()=>{this.setState({chartSeriesSetupPanelVisible:false});}}
                     onDialogConfirm={(params)=>{
                         console.log("save series params", params);
+
+                        this.state.measuresProperties[params.SERIES_NAME.value] = {seriesType:params.TYPE.value, additionalAxis:params.ADD_AXIS.value};
+                        this.setState({measuresProperties: this.state.measuresProperties});
                         this.setState({chartSeriesSetupPanelVisible:false});
                     }}
                     width={400}
@@ -324,11 +331,6 @@ export class BarChartPanel extends Component {
 
                                         if(args.name == 'selectedItems' && JSON.stringify(args.value)!=JSON.stringify(this.state.legendDirectionSelected)) {
                                             this.setState({legendDirectionSelected: args.value});
-                                            /*
-                                            if (args.value.id!=this.state.legendDirection){
-                                                this.setState({legendDirection: args.value.id});
-                                            }
-                                            */
                                         }
                                     }
                         }
@@ -351,10 +353,7 @@ export class BarChartPanel extends Component {
                         legendEnabled={this.state.legendEnabled}
                         legendEnabledOnChanged={
                         (args)=>{
-                                    console.log("legendEnabledOnChanged args", args);
-                                            this.setState({legendEnabled: args.value});
-
-
+                                    this.setState({legendEnabled: args.value});
                                 }
                         }
 
@@ -384,6 +383,7 @@ export class BarChartPanel extends Component {
                     seriesSetup={this.seriesSetup.bind(this)}
                     parentWidth={contentElement? contentElement.offsetWidth:0}
                     parentHeight={contentElement?contentElement.offsetHeight:0}
+                    measuresProperties={this.state.measuresProperties}
                 />
           </div>
         </Drawer>

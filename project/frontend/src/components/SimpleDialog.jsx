@@ -176,13 +176,14 @@ export default class SimpleDialog extends React.Component {
 
     var itemList = this.props.dialogParams? this.props.dialogParams.map((param)=>{
         if (param.visible){
+
             return (<Item
                 key={param.dataField}
                 dataField={param.dataField}
                 label={{ text:param.label}}
                 editorType={param.editorType}
                 render={param.refCode ? this.renderRef : null}
-                editorOptions={{refCode:param.refCode, keyvalues: param.keyvalues }}
+                editorOptions={{refCode:param.refCode, keyvalues: param.keyvalues, ...param.editorOptions }}
             />);
         }
     }):[];

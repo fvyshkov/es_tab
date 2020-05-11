@@ -35,30 +35,64 @@ export default class AMChart extends Component {
         //.slice();
         /* Create axes */
         var categoryAxis = this.chart.xAxes.push(new am4charts.CategoryAxis());
-        categoryAxis.dataFields.category = this.props.indexBy;//"Арендодатель";
+        categoryAxis.dataFields.category = this.props.indexBy;
         categoryAxis.renderer.minGridDistance = 30;
 
         /* Create value axis */
         var valueAxis = this.chart.yAxes.push(new am4charts.ValueAxis());
 
+        var additionalAxisExists = this.props.keys.find(dataKey=>{
+             return (dataKey in this.props.measuresProperties && this.props.measuresProperties[dataKey].additionalAxis==1);
+        })
+        ? true: false;
 
+        if (additionalAxisExists){
+            var valueAxis2 = this.chart.yAxes.push(new am4charts.ValueAxis());
+            valueAxis2.renderer.opposite = true;
+            valueAxis2.syncWithAxis = valueAxis;
+            valueAxis2.tooltip.disabled = true;
+        }
 
 
         /* Create series */
         this.props.keys.forEach((dataKey, keyIndex)=>{
             console.log("dataKey", dataKey);
-            if (keyIndex!=0){
+            var seriesType = "Bar";
+            var additionalAxis = false;
+            console.log("this.props.measuresProperties", dataKey, this.props.measuresProperties);
+
+            if (dataKey in this.props.measuresProperties){
+                seriesType = this.props.measuresProperties[dataKey].seriesType;
+                additionalAxis = this.props.measuresProperties[dataKey].additionalAxis==1;
+
+            }
+
+
+
+            if (seriesType=="Bar"){
                 var series = this.chart.series.push(new am4charts.ColumnSeries());
             }else{
                 var series = this.chart.series.push(new am4charts.LineSeries());
 
             }
+
+            if (additionalAxis){
+                series.yAxis = valueAxis2;
+            }else{
+                series.yAxis = valueAxis;
+            }
+
             series.name = dataKey;
             series.dataFields.valueY = dataKey;
             series.dataFields.categoryX = this.props.indexBy;
 
+
             series.fill = this.props.getColor(keyIndex);
-            series.fillOpacity = 1;
+            if (seriesType=="Line"){
+                series.fillOpacity = 0;
+            }else{
+                series.fillOpacity = 1;
+            }
             series.stroke = this.props.getColor(keyIndex);
             series.tooltip.label.textAlign = "middle";
 
