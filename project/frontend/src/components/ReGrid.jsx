@@ -830,7 +830,7 @@ export default class ReGrid extends React.Component {
                 }
 
             });
-
+            console.log("regrid", data);
             var render=<BarChartPanel
                             data={data}
                             layoutItemID={newLayoutItemID}

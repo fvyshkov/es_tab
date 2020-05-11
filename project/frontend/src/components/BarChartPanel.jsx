@@ -24,6 +24,7 @@ const colorMaps = {
  "set2":d3.schemeSet2
 }
 
+const COLUMN_CATEGORY_NAME = "Столбец";
 
 const ChartComponents=[
 MyResponsiveBar,
@@ -66,7 +67,8 @@ export class BarChartPanel extends Component {
                        chartSeriesSetupPanel: false,
                        seriesName:"",
                        seriesData:[],
-                       measuresProperties:{}
+                       measuresProperties:{},
+                       transposeData: false
                      };
 
         this.componentDidMount = this.componentDidMount.bind(this);
@@ -110,9 +112,6 @@ export class BarChartPanel extends Component {
         var categories = [];
 
         this.props.data.forEach(element=>{
-            if (!measures.find(el=>{return el==element['measure']})){
-                measures.push(element['measure']);
-            }
 
             for (var key in element){
                 if (key!="value" && key!= "measure"){
@@ -125,26 +124,68 @@ export class BarChartPanel extends Component {
 
         console.log("measures=", measures);
         console.log("categories=", categories);
-        var selectedCategoryInner = selectedCategory? selectedCategory: categories[0]
+        var selectedCategoryInner = selectedCategory? selectedCategory: categories[0];
+
 
         this.props.data.forEach(element=>{
-            var currentPreparedIndex = preparedData.findIndex(el=> {
-                return el[selectedCategoryInner] == element[selectedCategoryInner];
-            });
+            if (!this.state.transposeData){
+                if (!measures.find(el=>{return el==element['measure']})){
+                    measures.push(element['measure']);
+                }
+            }else{
+                if (!measures.find(el=>{return el==element[selectedCategoryInner]})){
+                    measures.push(element[selectedCategoryInner]);
+                }
 
-            if (currentPreparedIndex==-1){
-                var newElement = {};
-                newElement[selectedCategoryInner] = element[selectedCategoryInner];
-                preparedData.push(newElement);
-                currentPreparedIndex = preparedData.length-1;
             }
 
-            console.log("element", element);
-            if (!isNaN(element['value'])){
-                if (preparedData[currentPreparedIndex][element['measure']]){
-                    preparedData[currentPreparedIndex][element['measure']] += parseFloat(element['value']);
-                }else{
-                    preparedData[currentPreparedIndex][element['measure']] = parseFloat(element['value']);
+        });
+
+        //var selectedCategoryForData = this.state.transposeData ? COLUMN_CATEGORY_NAME : selectedCategoryInner;
+
+
+        this.props.data.forEach(element=>{
+
+            if (!this.state.transposeData){
+                var currentPreparedIndex = preparedData.findIndex(el=> {
+                    return el[selectedCategoryInner] == element[selectedCategoryInner];
+                });
+
+                if (currentPreparedIndex==-1){
+                    var newElement = {};
+                    newElement[selectedCategoryInner] = element[selectedCategoryInner];
+                    preparedData.push(newElement);
+                    currentPreparedIndex = preparedData.length-1;
+                }
+
+
+                if (!isNaN(element['value'])){
+                    if (preparedData[currentPreparedIndex][element['measure']]){
+                        preparedData[currentPreparedIndex][element['measure']] += parseFloat(element['value']);
+                    }else{
+                        preparedData[currentPreparedIndex][element['measure']] = parseFloat(element['value']);
+                    }
+                }
+            }else{
+
+                var currentPreparedIndex = preparedData.findIndex(el=> {
+                    return el[COLUMN_CATEGORY_NAME] == element['measure'];
+                });
+
+                if (currentPreparedIndex==-1){
+                    var newElement = {};
+                    newElement[COLUMN_CATEGORY_NAME] = element['measure'];
+                    preparedData.push(newElement);
+                    currentPreparedIndex = preparedData.length-1;
+                }
+
+
+                if (!isNaN(element['value'])){
+                    if (preparedData[currentPreparedIndex][element[selectedCategoryInner]]){
+                        preparedData[currentPreparedIndex][element[selectedCategoryInner]] += parseFloat(element['value']);
+                    }else{
+                        preparedData[currentPreparedIndex][element[selectedCategoryInner]] = parseFloat(element['value']);
+                    }
                 }
             }
         });
@@ -227,6 +268,11 @@ export class BarChartPanel extends Component {
     }
 
 
+    transposeDataOnChange(args){
+        this.setState({transposeData: args.value});
+        this.prepareData(this.state.selectedCategory);
+    }
+
     render() {
 
         var colorFuncton = d3.scaleOrdinal(this.state.colorScheme in colorMaps ?
@@ -238,7 +284,7 @@ export class BarChartPanel extends Component {
             return (<option key={field} value={field}>{field}</option>);
         });
 
-        console.log("this.seriesData", this.seriesData);
+        console.log("this.preparedData", this.state.preparedData);
 
         const ChartComponent = ChartComponents[this.props.chartComponentIndex? this.props.chartComponentIndex:0];
 
@@ -311,7 +357,8 @@ export class BarChartPanel extends Component {
                         enableLabel={this.state.enableLabel}
                         enableLabelOnValueChanged={this.onChangeEnableLabel.bind(this)}
 
-
+                        transposeData={this.state.transposeData}
+                        transposeDataOnChange={this.transposeDataOnChange.bind(this)}
                         tabSelectedIndex={this.state.tabSelectedIndex}
                         tabSelectedIndexChanged={
                             (args)=>{
@@ -369,7 +416,7 @@ export class BarChartPanel extends Component {
                     data={this.state.preparedData}
                     layoutItemID={this.props.layoutItemID}
                     keys={this.state.selectedMeasures}
-                    indexBy={this.state.selectedCategory}
+                    indexBy={this.state.transposeData ? COLUMN_CATEGORY_NAME: this.state.selectedCategory}
                     groupMode={this.state.groupMode}
                     layout={this.state.layout}
                     enableLabel={this.state.enableLabel}

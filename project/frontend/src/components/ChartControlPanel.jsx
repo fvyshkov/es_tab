@@ -69,6 +69,12 @@ export class ChartControlPanel extends Component {
                 return (
                     <div className="chart-control-panel-item">
 
+                    Транспонировать <Switch
+                             value={this.props.transposeData}
+                             onValueChanged={this.props.transposeDataOnChange}
+                             />
+                         <p></p>
+
                     <RadioGroup
                         items={this.props.categoryItems}
                         value={this.props.categoryValue}
@@ -94,6 +100,7 @@ export class ChartControlPanel extends Component {
                       showScrollbar={"onScroll"}
                       >
                         <div className="chart-control-panel-item">
+
 
                         <RadioGroup
                             layout={"horizontal"}
