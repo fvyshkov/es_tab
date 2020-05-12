@@ -170,6 +170,10 @@ export default class AMChart extends Component {
 
             }
 
+            if (seriesType=="Dots"){
+                series.strokeOpacity = 0;
+            }
+
             if (additionalAxis){
                 series.yAxis = valueAxis2;
             }else{
@@ -182,12 +186,12 @@ export default class AMChart extends Component {
 
 
             series.fill = this.props.getColor(keyIndex);
-            if (seriesType=="Line"){
+            if (seriesType=="Line" || seriesType == "Dots"){
                 series.fillOpacity = 0;
             }else{
                 series.fillOpacity = .8;
             }
-            series.stroke = this.props.getColor(keyIndex);
+            //series.stroke = this.props.getColor(keyIndex);
             series.tooltip.label.textAlign = "middle";
 
             if (series instanceof am4charts.ColumnSeries){
@@ -207,11 +211,20 @@ export default class AMChart extends Component {
                 }, this);
 
             }else if (series instanceof am4charts.LineSeries){
+
                 var bullet = series.bullets.push(new am4charts.Bullet());
                 bullet.fill = am4core.color("#fdd400"); // tooltips grab fill from parent by default
                 bullet.tooltipText = "[#fff font-size: 15px]{name} - {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
 
                 bullet.seriesName = dataKey;
+
+                bullet.propertyFields.dataKey = dataKey;
+                bullet.events.on("hit", function(event){
+                    if (this.props.seriesSetup){
+                        this.props.seriesSetup(event.target.propertyFields.dataKey);
+                    }
+                }, this);
+
                 var circle = bullet.createChild(am4core.Circle);
                 circle.radius = 4;
                 circle.fill = am4core.color("#fff");
@@ -220,7 +233,6 @@ export default class AMChart extends Component {
 
                 series.segments.template.interactionsEnabled = true;
                 series.segments.template.events.on("hit", ev => {
-                                                            var item = ev.target.dataItem.component.tooltipDataItem.dataContext;
                                                             if (this.props.seriesSetup){
                                                                 this.props.seriesSetup(ev.target.propertyFields.dataKey);
                                                             }
@@ -229,25 +241,7 @@ export default class AMChart extends Component {
             }
 
         });
-        /*
-        var lineSeries = chart.series.push(new am4charts.LineSeries());
-        lineSeries.name = "Expenses";
-        lineSeries.dataFields.valueY = "expenses";
-        lineSeries.dataFields.categoryX = "year";
 
-        lineSeries.stroke = am4core.color("#fdd400");
-        lineSeries.strokeWidth = 3;
-        lineSeries.propertyFields.strokeDasharray = "lineDash";
-        lineSeries.tooltip.label.textAlign = "middle";
-
-        var bullet = lineSeries.bullets.push(new am4charts.Bullet());
-        bullet.fill = am4core.color("#fdd400"); // tooltips grab fill from parent by default
-        bullet.tooltipText = "[#fff font-size: 15px]{name} in {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
-        var circle = bullet.createChild(am4core.Circle);
-        circle.radius = 4;
-        circle.fill = am4core.color("#fff");
-        circle.strokeWidth = 3;
-        */
         this.chart.data = this.props.data;;
 
     }

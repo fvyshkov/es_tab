@@ -239,7 +239,7 @@ export class BarChartPanel extends Component {
 
     seriesSetup(seriesName){
         console.log("seriesSetup1=", seriesName);
-        const seriesType = ["Bar", "Line", "Area"] ;
+        const seriesType = ["Bar", "Line", "Area", "Dots"] ;
         this.seriesData = [
                          {
                             dataField:"seriesName",
