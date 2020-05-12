@@ -25,7 +25,7 @@ import CommentImg from '../images/chat.png';
 import {Spinner} from './spin.js';
 import {someChartModel, someChartModel2} from './testData.js';
 
-import {BarChartPanel} from './BarChartPanel.jsx';
+import {BarChartPanel, chartTypes} from './BarChartPanel.jsx';
 
 LicenseManager.setLicenseKey("Evaluation_License_Not_For_Production_29_December_2019__MTU3NzU3NzYwMDAwMA==a3a7a7e770dea1c09a39018caf2c839c");
 
@@ -805,7 +805,7 @@ export default class ReGrid extends React.Component {
         return isFound;
     }
 
-    createCustomChart(params, chartComponentIndex){
+    createCustomChart(params, chartComponentIndex, chartParams=null){
         var ranges = this.gridApi.getCellRanges();
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
@@ -839,6 +839,7 @@ export default class ReGrid extends React.Component {
                             getNewLayoutItemID={this.props.getNewLayoutItemID}
                             ranges={ranges}
                             chartComponentIndex={chartComponentIndex}
+                            chartParams={chartParams}
                         />;
 
             const formParams = {additionalSheetParams:{sht_id: this.state.sheet_id, req_id:params.node.data.id, dop: params.node.data.dop}};
@@ -854,10 +855,16 @@ export default class ReGrid extends React.Component {
                 name: 'Recharts',
                 action: this.createCustomChart.bind(this, params, 1)
               },
-               {
+              {
                 name: 'AMCharts',
-                action: this.createCustomChart.bind(this, params, 3)
-              },
+                subMenu: chartTypes.map(type=>{
+                             return {
+                                name: 'AMCharts '+type.name,
+                                action: this.createCustomChart.bind(this, params, 3, {chartType:type.code}),
+                                icon: '<img width="20"  height="20" src="'+type.img+'"/>'
+                              }
+                        })
+             },
             {
                 name: 'Nivo',
                 action: this.createCustomChart.bind(this, params, 0)

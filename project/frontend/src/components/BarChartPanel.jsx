@@ -15,6 +15,20 @@ import { Switch } from 'devextreme-react/switch';
 import { Item } from 'devextreme-react/toolbar';
 import * as d3 from 'd3';
 
+import Img_pie from '../images/chart_types/pie.png';
+import Img_line from '../images/chart_types/line.png';
+import Img_dots from '../images/chart_types/dots.png';
+import Img_area from '../images/chart_types/area.png';
+import Img_bar from '../images/chart_types/bar.png';
+
+export const chartTypes =[
+{code:"Pie", name:"Круговая", img: Img_pie},
+{code:"Bar", name:"Столбцы", img: Img_bar},
+{code:"Line", name:"Линейная", img: Img_line},
+{code:"Area", name:"Область", img: Img_area},
+{code:"Dots", name:"Точки", img: Img_dots}
+];
+
 const colorMaps = {
  "accent" :d3.schemeAccent,
  "category10":d3.schemeCategory10,
@@ -64,14 +78,15 @@ export class BarChartPanel extends Component {
                        legendYOffset:0,
                        legendEnabled:true,
                        legendPosition:"right",
-                       chartSeriesSetupPanel: false,
+                       chartSeriesSetupPanelVisible: false,
                        seriesName:"",
                        seriesData:[],
                        measuresProperties:{},
                        transposeData: false,
                        scrollbarX: true,
                        scrollbarY: true,
-                       seriesTypeSelected:"Bar"
+                       seriesTypeSelected:"Bar",
+                       chartType:props.chartType
 
                      };
 
@@ -486,6 +501,7 @@ export class BarChartPanel extends Component {
                     measuresProperties={this.state.measuresProperties}
                     scrollbarX={this.state.scrollbarX}
                     scrollbarY={this.state.scrollbarY}
+                    chartParams={this.props.chartParams}
                 />
           </div>
         </Drawer>

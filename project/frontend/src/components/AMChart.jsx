@@ -108,11 +108,57 @@ export default class AMChart extends Component {
         return trend;
     };
 
+    createPieChart(){
+        this.chart = am4core.create("chartdiv", am4charts.PieChart);
+
+            // Add data
+            this.chart.data = [{
+              "country": "Lithuania",
+              "litres": 501.9
+            }, {
+              "country": "Czech Republic",
+              "litres": 301.9
+            }, {
+              "country": "Ireland",
+              "litres": 201.1
+            }, {
+              "country": "Germany",
+              "litres": 165.8
+            }, {
+              "country": "Australia",
+              "litres": 139.9
+            }, {
+              "country": "Austria",
+              "litres": 128.3
+            }, {
+              "country": "UK",
+              "litres": 99
+            }, {
+              "country": "Belgium",
+              "litres": 60
+            }, {
+              "country": "The Netherlands",
+              "litres": 50
+            }];
+
+            this.chart.data = this.props.data;
+            // Add and configure Series
+            var pieSeries = this.chart.series.push(new am4charts.PieSeries());
+            if (this.props.keys.length>0){
+                pieSeries.dataFields.value = this.props.keys[0];
+            }
+            pieSeries.dataFields.category = this.props.indexBy;
+    }
+
+
     createChart() {
+        if (this.props.chartParams && this.props.chartParams.chartType=="Pie"){
+            this.createPieChart();
+            return;
+        }
         this.chart = am4core.create("chartdiv", am4charts.XYChart);
 
-        //.slice();
-        /* Create axes */
+
         var categoryAxis = this.chart.xAxes.push(new am4charts.CategoryAxis());
         categoryAxis.dataFields.category = this.props.indexBy;
         categoryAxis.renderer.minGridDistance = 30;
@@ -146,7 +192,7 @@ export default class AMChart extends Component {
 
         /* Create series */
         this.props.keys.forEach((dataKey, keyIndex)=>{
-            var seriesType = "Bar";
+            var seriesType = this.props.chartParams.chartType;
             var additionalAxis = false;
             var showLinearTrend = false;
             var smoothLine = 0;
