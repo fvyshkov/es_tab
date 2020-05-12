@@ -255,6 +255,14 @@ export class BarChartPanel extends Component {
                             value: seriesName in this.state.measuresProperties ? this.state.measuresProperties[seriesName].seriesType: "Bar",
                             visible: true},
                         {
+                            dataField:"smoothLine",
+                            label:"Сглаживание",
+                            editorType: "dxSlider",
+                            editorOptions: { min:0, max:1, step:.1},
+                            value: seriesName in this.state.measuresProperties ? this.state.measuresProperties[seriesName].smoothLine:0,
+                            visible: true
+                         },
+                        {
                             dataField:"additionalAxis",
                             label:"Вспомогательная ось",
                             value: seriesName in this.state.measuresProperties && this.state.measuresProperties[seriesName].additionalAxis=="1"? true: false,
@@ -316,10 +324,11 @@ export class BarChartPanel extends Component {
                             }
                         }
                         this.setState({measuresProperties: this.state.measuresProperties});
+                        console.log("this.state.measuresProperties", this.state.measuresProperties);
                         this.setState({chartSeriesSetupPanelVisible:false});
                     }}
                     width={400}
-                    height={300}
+                    height={400}
                 />:null;
         return (
             <React.Fragment>
