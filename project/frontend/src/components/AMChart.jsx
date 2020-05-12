@@ -86,8 +86,12 @@ export default class AMChart extends Component {
         trend.dataFields.valueY = trendDescription.valueY;
         trend.dataFields.categoryX = trendDescription.categoryX;
         trend.strokeWidth = 4;
-        trend.stroke = am4core.color("#c00");
-        trend.fill = am4core.color("#c00");
+        if (trendDescription.strokeColor){
+            trend.stroke = am4core.color(trendDescription.strokeColor);
+        }else{
+            trend.stroke = am4core.color("#c00");
+        }
+        //trend.fill = am4core.color("#c00");
         trend.data = trendDescription.data;
         //trend.tooltipText = "Тренд по "+trendDescription.valueY;
 
@@ -155,6 +159,7 @@ export default class AMChart extends Component {
             if (showLinearTrend){
                 const trendDescription = this.getTrendDescripton(this.props.data, this.props.indexBy, dataKey);
                 console.log("trendDescription", trendDescription);
+                trendDescription['strokeColor'] = this.props.getColor(keyIndex);
                 this.createTrendLine(trendDescription);
             }
 
