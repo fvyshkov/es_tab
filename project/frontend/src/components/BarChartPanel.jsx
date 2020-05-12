@@ -70,7 +70,8 @@ export class BarChartPanel extends Component {
                        measuresProperties:{},
                        transposeData: false,
                        scrollbarX: true,
-                       scrollbarY: true
+                       scrollbarY: true,
+                       seriesTypeSelected:"Bar"
 
                      };
 
@@ -245,37 +246,64 @@ export class BarChartPanel extends Component {
                             dataField:"seriesName",
                             label:"Наименование серии",
                             value: seriesName,
-                            visible: true},
-
-                        {
-                            dataField:"seriesType",
-                            label:"Тип диаграммы",
-                            editorType: "dxSelectBox",
-                            editorOptions: { items: seriesType},
-                            value: seriesName in this.state.measuresProperties ? this.state.measuresProperties[seriesName].seriesType: "Bar",
-                            visible: true},
-                        {
-                            dataField:"smoothLine",
-                            label:"Сглаживание",
-                            editorType: "dxSlider",
-                            editorOptions: { min:0, max:1, step:.1},
-                            value: seriesName in this.state.measuresProperties ? this.state.measuresProperties[seriesName].smoothLine:0,
                             visible: true
                          },
+
                         {
                             dataField:"additionalAxis",
                             label:"Вспомогательная ось",
                             value: seriesName in this.state.measuresProperties && this.state.measuresProperties[seriesName].additionalAxis=="1"? true: false,
                             editorType: "dxCheckBox",
 
-                            visible: true},
+                            visible: true
+                        },
                         {
                             dataField:"showLinearTrend",
                             label:" Линейный тренд",
                             value: seriesName in this.state.measuresProperties && this.state.measuresProperties[seriesName].showLinearTrend=="1"? true: false,
                             editorType: "dxCheckBox",
 
-                            visible: true},
+                            visible: true
+                        },
+
+                        {
+                            dataField:"seriesType",
+                            label:"Тип диаграммы",
+                            editorType: "dxSelectBox",
+                            editorOptions: {
+                                items: seriesType,
+                                onValueChanged: (e) => {
+                                    console.log("seriesType onValueChanged", e.component.option('value'));
+
+                                    this.setState({
+                                        seriesTypeSelected: e.component.option('value')
+                                    });
+                                    this.seriesSetup();
+                                }
+                            },
+                            value: seriesName in this.state.measuresProperties ? this.state.measuresProperties[seriesName].seriesType: "Bar",
+                            visible: true
+                        },
+                        {
+                            dataField:"smoothLine",
+                            label:"Сглаживание",
+                            editorType: "dxSlider",
+                            editorOptions: { min:0, max:1, step:.1},
+                            value: seriesName in this.state.measuresProperties ? this.state.measuresProperties[seriesName].smoothLine:0,
+                            visible: this.state.seriesTypeSelected =="Line"
+                         },
+
+                         {
+                            dataField:"fillOpacity",
+                            label:" Прозрачность заливки",
+                            editorType: "dxSlider",
+                            editorOptions: { min:0, max:1, step:.1},
+                            value: seriesName in this.state.measuresProperties ? this.state.measuresProperties[seriesName].fillOpacity:.8,
+                            visible: this.state.seriesTypeSelected == "Bar" || this.state.seriesTypeSelected == "Area"
+                         },
+
+
+
 
                         ];
 

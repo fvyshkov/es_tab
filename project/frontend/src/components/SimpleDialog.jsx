@@ -175,7 +175,7 @@ export default class SimpleDialog extends React.Component {
 
 
     var itemList = this.props.dialogParams? this.props.dialogParams.map((param)=>{
-        if (param.visible){
+        //if (param.visible){
 
             return (<Item
                 key={param.dataField}
@@ -184,8 +184,9 @@ export default class SimpleDialog extends React.Component {
                 editorType={param.editorType}
                 render={param.refCode ? this.renderRef : null}
                 editorOptions={{refCode:param.refCode, keyvalues: param.keyvalues, ...param.editorOptions }}
+                visible={param.visible}
             />);
-        }
+        //}
     }):[];
 
     var referComp = this.state.referVisible ?

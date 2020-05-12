@@ -150,11 +150,13 @@ export default class AMChart extends Component {
             var additionalAxis = false;
             var showLinearTrend = false;
             var smoothLine = 0;
+            var fillOpacity = .8;
             if (dataKey in this.props.measuresProperties){
                 seriesType = this.props.measuresProperties[dataKey].seriesType;
                 additionalAxis = this.props.measuresProperties[dataKey].additionalAxis==1;
                 showLinearTrend = this.props.measuresProperties[dataKey].showLinearTrend==1;
                 smoothLine = this.props.measuresProperties[dataKey].smoothLine;
+                fillOpacity = this.props.measuresProperties[dataKey].fillOpacity;
             }
 
             if (showLinearTrend){
@@ -191,7 +193,7 @@ export default class AMChart extends Component {
                 series.fillOpacity = 0;
                 series.tensionX = 1-smoothLine;
             }else{
-                series.fillOpacity = .8;
+                series.fillOpacity = fillOpacity;
             }
             //series.stroke = this.props.getColor(keyIndex);
             series.tooltip.label.textAlign = "middle";
