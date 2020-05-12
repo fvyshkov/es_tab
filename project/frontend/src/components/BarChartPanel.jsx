@@ -242,28 +242,28 @@ export class BarChartPanel extends Component {
         const seriesType = ["Bar", "Line", "Area"] ;
         this.seriesData = [
                          {
-                            dataField:"SERIES_NAME",
+                            dataField:"seriesName",
                             label:"Наименование серии",
                             value: seriesName,
                             visible: true},
 
                         {
-                            dataField:"TYPE",
+                            dataField:"seriesType",
                             label:"Тип диаграммы",
                             editorType: "dxSelectBox",
                             editorOptions: { items: seriesType},
                             value: seriesName in this.state.measuresProperties ? this.state.measuresProperties[seriesName].seriesType: "Bar",
                             visible: true},
                         {
-                            dataField:"ADD_AXIS",
+                            dataField:"additionalAxis",
                             label:"Вспомогательная ось",
                             value: seriesName in this.state.measuresProperties && this.state.measuresProperties[seriesName].additionalAxis=="1"? true: false,
                             editorType: "dxCheckBox",
 
                             visible: true},
                         {
-                            dataField:"LINEAR_TREND",
-                            label:"Показывать линейный тренд",
+                            dataField:"showLinearTrend",
+                            label:" Линейный тренд",
                             value: seriesName in this.state.measuresProperties && this.state.measuresProperties[seriesName].showLinearTrend=="1"? true: false,
                             editorType: "dxCheckBox",
 
@@ -306,13 +306,15 @@ export class BarChartPanel extends Component {
                     title={"Серия данных"}
                     onDialogClose={()=>{this.setState({chartSeriesSetupPanelVisible:false});}}
                     onDialogConfirm={(params)=>{
-                        console.log("save series params", params);
 
-                        this.state.measuresProperties[params.SERIES_NAME.value] =
-                            {seriesType:params.TYPE.value,
-                            additionalAxis:params.ADD_AXIS.value,
-                            showLinearTrend: params.LINEAR_TREND.value
-                            };
+                        for(var param in params){
+                            if (param != "seriesName"){
+                                if (!this.state.measuresProperties[params.seriesName.value]){
+                                    this.state.measuresProperties[params.seriesName.value] = {};
+                                }
+                                this.state.measuresProperties[params.seriesName.value][param] = params[param].value;
+                            }
+                        }
                         this.setState({measuresProperties: this.state.measuresProperties});
                         this.setState({chartSeriesSetupPanelVisible:false});
                     }}
