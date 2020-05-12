@@ -189,12 +189,19 @@ export default class AMChart extends Component {
 
 
             series.fill = this.props.getColor(keyIndex);
-            if (seriesType=="Line" || seriesType == "Dots"){
+
+            if (seriesType=="Line"){
                 series.fillOpacity = 0;
                 series.tensionX = 1-smoothLine;
-            }else{
+            }else if (seriesType == "Dots"){
+                series.fillOpacity = 0;
+            }else if (seriesType =="Area"){
+                series.fillOpacity = fillOpacity;
+                series.tensionX = 1-smoothLine;
+            }else if (seriesType =="Bar"){
                 series.fillOpacity = fillOpacity;
             }
+
             //series.stroke = this.props.getColor(keyIndex);
             series.tooltip.label.textAlign = "middle";
 

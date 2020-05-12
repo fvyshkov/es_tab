@@ -290,12 +290,12 @@ export class BarChartPanel extends Component {
                             editorType: "dxSlider",
                             editorOptions: { min:0, max:1, step:.1},
                             value: seriesName in this.state.measuresProperties ? this.state.measuresProperties[seriesName].smoothLine:0,
-                            visible: this.state.seriesTypeSelected =="Line"
+                            visible: this.state.seriesTypeSelected =="Line" || this.state.seriesTypeSelected == "Area"
                          },
 
                          {
                             dataField:"fillOpacity",
-                            label:" Прозрачность заливки",
+                            label:"Плотность заливки",
                             editorType: "dxSlider",
                             editorOptions: { min:0, max:1, step:.1},
                             value: seriesName in this.state.measuresProperties ? this.state.measuresProperties[seriesName].fillOpacity:.8,
