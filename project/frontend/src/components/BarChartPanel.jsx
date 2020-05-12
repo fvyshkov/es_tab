@@ -68,7 +68,10 @@ export class BarChartPanel extends Component {
                        seriesName:"",
                        seriesData:[],
                        measuresProperties:{},
-                       transposeData: false
+                       transposeData: false,
+                       scrollbarX: true,
+                       scrollbarY: true
+
                      };
 
         this.componentDidMount = this.componentDidMount.bind(this);
@@ -258,6 +261,13 @@ export class BarChartPanel extends Component {
                             editorType: "dxCheckBox",
 
                             visible: true},
+                        {
+                            dataField:"LINEAR_TREND",
+                            label:"Показывать линейный тренд",
+                            value: seriesName in this.state.measuresProperties && this.state.measuresProperties[seriesName].showLinearTrend=="1"? true: false,
+                            editorType: "dxCheckBox",
+
+                            visible: true},
 
                         ];
 
@@ -298,7 +308,11 @@ export class BarChartPanel extends Component {
                     onDialogConfirm={(params)=>{
                         console.log("save series params", params);
 
-                        this.state.measuresProperties[params.SERIES_NAME.value] = {seriesType:params.TYPE.value, additionalAxis:params.ADD_AXIS.value};
+                        this.state.measuresProperties[params.SERIES_NAME.value] =
+                            {seriesType:params.TYPE.value,
+                            additionalAxis:params.ADD_AXIS.value,
+                            showLinearTrend: params.LINEAR_TREND.value
+                            };
                         this.setState({measuresProperties: this.state.measuresProperties});
                         this.setState({chartSeriesSetupPanelVisible:false});
                     }}
@@ -431,6 +445,8 @@ export class BarChartPanel extends Component {
                     parentWidth={contentElement? contentElement.offsetWidth:0}
                     parentHeight={contentElement?contentElement.offsetHeight:0}
                     measuresProperties={this.state.measuresProperties}
+                    scrollbarX={this.state.scrollbarX}
+                    scrollbarY={this.state.scrollbarY}
                 />
           </div>
         </Drawer>

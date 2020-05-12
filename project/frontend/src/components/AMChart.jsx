@@ -15,10 +15,10 @@ export default class AMChart extends Component {
         this.state = {
                     key:0
                 };
-        console.log("AMChart this.props", props);
         this.componentDidUpdate = this.componentDidUpdate.bind(this);
         this.componentDidMount = this.componentDidMount.bind(this);
         this.createChart = this.createChart.bind(this);
+        this.createTrendLine = this.createTrendLine.bind(this);
 
         this.chart = null;
     }
@@ -28,8 +28,83 @@ export default class AMChart extends Component {
         this.createChart();
     }
 
+    getTrendValues(data){
+        //на входе нужен массив значений [100, 200, 100 ...]
+        console.log("getTrendValues data", data);
+        if (data.length==0){
+            return 0;
+        }
+
+        var xySum = 0;
+        var ySum = 0;
+        var xSum = 0;
+        var xxSum = 0;
+        var n = data.length;
+
+        data.forEach((y, index)=>{
+            var x = index+1;
+            xySum += x*y;
+            xSum += x;
+            ySum += y;
+            xxSum += x*x;
+        });
+
+        var b = (n*xySum-xSum*ySum)/(n*xxSum-xSum*xSum);
+        var a = (ySum- b*xSum)/n;
+
+        var startY = a+b;
+        var endY = a+b*n;
+
+        return {startY: startY, endY: endY};
+    }
+
+    getTrendDescripton(data, categoryX, valueY){
+
+        var resultData = [];
+
+        var trendValues = this.getTrendValues(data.map(row=>{
+            return row[valueY];
+        }));
+
+        const startPoint = {};
+        console.log("--data", data);
+        startPoint[categoryX] = data[0][categoryX];
+        startPoint[valueY] = trendValues.startY;// data[0][valueY];
+        resultData.push(startPoint);
+
+        const endPoint = {};
+        endPoint[categoryX] = data[data.length-1][categoryX];
+        endPoint[valueY] = trendValues.endY;//data[data.length-1][valueY];
+        resultData.push(endPoint);
+
+        return {data:resultData, categoryX: categoryX, valueY: valueY};
+    }
+
+    createTrendLine(trendDescription) {
+        var trend = this.chart.series.push(new am4charts.LineSeries());
+
+        trend.dataFields.valueY = trendDescription.valueY;
+        trend.dataFields.categoryX = trendDescription.categoryX;
+        trend.strokeWidth = 4;
+        trend.stroke = am4core.color("#c00");
+        trend.fill = am4core.color("#c00");
+        trend.data = trendDescription.data;
+        //trend.tooltipText = "Тренд по "+trendDescription.valueY;
+
+        var bullet = trend.bullets.push(new am4charts.CircleBullet());
+        //bullet.tooltipText = "{categoryX}\n[bold font-size: 17px]значение: {valueY}[/]";
+        bullet.tooltipText = "Тренд по "+trendDescription.valueY+" : {valueY}[/]";
+        bullet.strokeWidth = 4;
+        bullet.stroke = am4core.color("#66ccff")
+        bullet.circle.fill = trend.stroke;
+
+        var hoverState = bullet.states.create("hover");
+        hoverState.properties.scale = 1.7;
+
+        return trend;
+    };
+
     createChart() {
-        console.log("AMChart this.props", this.props);
         this.chart = am4core.create("chartdiv", am4charts.XYChart);
 
         //.slice();
@@ -53,21 +128,35 @@ export default class AMChart extends Component {
             valueAxis2.tooltip.disabled = true;
         }
 
+        if (this.props.scrollbarX){
+            this.chart.scrollbarX = new am4core.Scrollbar();
+        }
+
+        if (this.props.scrollbarY){
+            this.chart.scrollbarY = new am4core.Scrollbar();
+        }
+
+
+
+        //}
 
         /* Create series */
         this.props.keys.forEach((dataKey, keyIndex)=>{
-            console.log("dataKey", dataKey);
             var seriesType = "Bar";
             var additionalAxis = false;
-            console.log("this.props.measuresProperties", dataKey, this.props.measuresProperties);
+            var showLinearTrend = false;
 
             if (dataKey in this.props.measuresProperties){
                 seriesType = this.props.measuresProperties[dataKey].seriesType;
                 additionalAxis = this.props.measuresProperties[dataKey].additionalAxis==1;
-
+                showLinearTrend = this.props.measuresProperties[dataKey].showLinearTrend==1;
             }
 
-
+            if (showLinearTrend){
+                const trendDescription = this.getTrendDescripton(this.props.data, this.props.indexBy, dataKey);
+                console.log("trendDescription", trendDescription);
+                this.createTrendLine(trendDescription);
+            }
 
             if (seriesType=="Bar"){
                 var series = this.chart.series.push(new am4charts.ColumnSeries());
@@ -108,7 +197,6 @@ export default class AMChart extends Component {
 
                 series.columns.template.events.on("hit", function(ev) {
                     if (this.props.seriesSetup){
-                        console.log("column hit", ev.target);
                         this.props.seriesSetup(ev.target.propertyFields.dataKey);
                     }
                 }, this);
@@ -128,7 +216,6 @@ export default class AMChart extends Component {
                 series.segments.template.interactionsEnabled = true;
                 series.segments.template.events.on("hit", ev => {
                                                             var item = ev.target.dataItem.component.tooltipDataItem.dataContext;
-                                                            console.log("line clicked on: " ,  ev.target.propertyFields.dataKey);
                                                             if (this.props.seriesSetup){
                                                                 this.props.seriesSetup(ev.target.propertyFields.dataKey);
                                                             }
@@ -161,7 +248,6 @@ export default class AMChart extends Component {
     }
 
   componentDidUpdate(oldProps) {
-    console.log("update MChart this.props", this.props);
     this.createChart();
     return;
     var data2 = this.props.data.map((row, index)=>{
@@ -173,7 +259,6 @@ export default class AMChart extends Component {
     });
 
 
-    console.log("componentDidUpdate data2", data2);
     if (JSON.stringify(data2)!=JSON.stringify(this.chart.data)){
         this.chart.data = data2;
         this.setState({key:this.state.key+1});
@@ -188,7 +273,6 @@ export default class AMChart extends Component {
   }
 
   render() {
-    console.log("render charts.data", this.props);
 
     return (
       <div id="chartdiv" key={this.state.key} style={{ width: "100%", height: "100%" }}></div>
