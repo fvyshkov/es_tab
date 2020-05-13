@@ -7,17 +7,23 @@ export class ChartFormFields extends Component {
         super(props);
         this.state = {
                         formData:{
-                            seriesName: this.props.seriesName,
-                            seriesType: this.props.chartParams.chartType
+                            seriesName: props.seriesName,
+                            ...props.chartParams
+                            /*
+                            chartType: this.props.chartParams.chartType,
+                            smoothLine: this.props.chartParams.smoothLine
+                            */
                             },
                         key:0
                      };
-
+        //for (this.props.cha)
     }
 
+
     render() {
-        const seriesTypeList = ["Bar", "Line", "Area", "Dots", "Pie"] ;
+        const chartTypeList = ["Bar", "Line", "Area", "Dots", "Pie"] ;
         console.log(" form render ", this.props.chartParams.chartType);
+
         var itemList = this.formParams? this.formParams.map((param)=>{
                 console.log("itemDatafield", param.dataField);
                 return (<Item
@@ -51,15 +57,15 @@ export class ChartFormFields extends Component {
                             visible={this.props.seriesName? true:false}
                           />
                            <Item
-                            dataField="seriesType"
+                            dataField="chartType"
                             label={{text:"Тип диаграммы"}}
                             editorType= "dxSelectBox"
                             visible={true}
                             editorOptions={ {
-                                items: seriesTypeList,
+                                items: chartTypeList,
                                 onValueChanged: (e) => {
                                     this.setState({
-                                        seriesType: e.component.option('value'),
+                                        chartType: e.component.option('value'),
                                     });
                                 }
                             }
@@ -70,9 +76,8 @@ export class ChartFormFields extends Component {
                             dataField="smoothLine"
                             label={{text:"Сглаживание"}}
                             editorType= "dxSlider"
-                            editorOptions={ { min:0, max:1, step:.1}}
-                            value={ this.state.smoothLine }
-                            visible={ ["Line", "Area"].includes(this.state.formData.seriesType)}
+                            editorOptions={ { min:0, max:.5, step:.05}}
+                            visible={ ["Line", "Area"].includes(this.state.formData.chartType)}
 
                           />
 
@@ -81,8 +86,7 @@ export class ChartFormFields extends Component {
                             label={{text:"Плотность заливки"}}
                             editorType= "dxSlider"
                             editorOptions={ { min:0, max:1, step:.1}}
-                            value={ this.state.fillOpacity}
-                            visible={ ["Bar", "Area", "Pie"].includes(this.state.formData.seriesType)}
+                            visible={ ["Bar", "Area", "Pie"].includes(this.state.formData.chartType)}
 
                           />
 
@@ -90,8 +94,7 @@ export class ChartFormFields extends Component {
                             dataField="showLinearTrend"
                             label={{text:"Линейный тренд"}}
                             editorType= "dxCheckBox"
-                            value={ this.state.showLinearTrend }
-                            visible={ this.state.formData.seriesType!="Pie" }
+                            visible={ this.state.formData.chartType!="Pie" }
 
                           />
 
@@ -100,7 +103,7 @@ export class ChartFormFields extends Component {
                             label={{text:"Вспомогательная ось"}}
                             editorType= "dxCheckBox"
                             value={ this.state.additionalAxis }
-                            visible={ this.state.formData.seriesType!="Pie" }
+                            visible={ this.state.formData.chartType!="Pie" }
 
                           />
 

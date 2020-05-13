@@ -184,13 +184,17 @@ export default class AMChart extends Component {
         while(this.chart.series.values.length>0){
             this.chart.series.removeIndex(0).dispose();
         }
+
+
+
         /* Add series*/
         this.props.keys.forEach((dataKey, keyIndex)=>{
             var seriesType = this.props.chartParams.chartType;
-            var additionalAxis = false;
-            var showLinearTrend = false;
-            var smoothLine = 0;
-            var fillOpacity = .8;
+            var additionalAxis = this.props.chartParams.additionalAxis;
+            var showLinearTrend = this.props.chartParams.showLinearTrend;
+            var smoothLine = this.props.chartParams.smoothLine;
+            var fillOpacity = this.props.chartParams.fillOpacity;
+
             if (dataKey in this.props.measuresProperties){
                 seriesType = this.props.measuresProperties[dataKey].seriesType;
                 additionalAxis = this.props.measuresProperties[dataKey].additionalAxis==1;

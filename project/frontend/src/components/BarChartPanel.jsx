@@ -58,6 +58,17 @@ const legendDirection = [
                                     content: 'Comment tab content'
                                   }                                ]
 
+
+const defaultChartParms = {
+    smoothLine:0,
+    chartType:"Bar",
+    fillOpacity: .8,
+    showLinearTrend: false,
+    additionalAxis: false,
+    strokeDasharray: false,
+    stacked: false,
+}
+
 export class BarChartPanel extends Component {
     constructor(props) {
         super(props);
@@ -95,9 +106,20 @@ export class BarChartPanel extends Component {
         this.changeField = this.changeField.bind(this);
         this.seriesSetup = this.seriesSetup.bind(this);
 
+
+        this.setDefaultChartParams();
+
         this.testCount = 0;
     }
 
+    setDefaultChartParams(){
+        for (var key in defaultChartParms){
+            if (!this.state.chartParams[key]){
+                this.state.chartParams[key] = defaultChartParms[key];
+            }
+        }
+        this.setState({smoothLine: this.state.chartParams});
+    }
 
     changeField(){
 
@@ -229,8 +251,12 @@ export class BarChartPanel extends Component {
     onChangeChartParams(params){
         console.log("BarCHartPanel onChangeChartParams=params=", params);
         console.log("BarCHartPanel this.state.chartParams", this.state.chartParams);
-        if (params.dataField=="seriesType" && params.value != this.state.chartParams.chartType){
-            this.state.chartParams['chartType'] = params.value;
+
+
+        if (Object.keys(this.state.chartParams).includes(params.dataField) &&
+                params.value != this.state.chartParams[params.dataField])
+        {
+           this.state.chartParams[params.dataField] = params.value;
             this.setState({chartParams: this.state.chartParams});
         }
     }
