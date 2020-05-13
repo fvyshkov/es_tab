@@ -194,6 +194,8 @@ export default class AMChart extends Component {
             var showLinearTrend = this.props.chartParams.showLinearTrend;
             var smoothLine = this.props.chartParams.smoothLine;
             var fillOpacity = this.props.chartParams.fillOpacity;
+            var stacked = this.props.chartParams.stacked;
+
 
             if (dataKey in this.props.measuresProperties){
                 seriesType = this.props.measuresProperties[dataKey].seriesType;
@@ -201,6 +203,7 @@ export default class AMChart extends Component {
                 showLinearTrend = this.props.measuresProperties[dataKey].showLinearTrend==1;
                 smoothLine = this.props.measuresProperties[dataKey].smoothLine;
                 fillOpacity = this.props.measuresProperties[dataKey].fillOpacity;
+                stacked = this.props.measuresProperties[dataKey].stacked;
             }
 
             if (showLinearTrend){
@@ -236,7 +239,7 @@ export default class AMChart extends Component {
                 series.yAxis = this.chart.yAxes.values[0];// valueAxis;
             }
 
-            series.stacked = this.props.groupMode=="stacked";
+            series.stacked = stacked;
 
             if (seriesType=="Line"){
                 series.fillOpacity = 0;

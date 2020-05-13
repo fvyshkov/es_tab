@@ -107,6 +107,15 @@ export class ChartFormFields extends Component {
 
                           />
 
+                          <Item
+                            dataField="stacked"
+                            label={{text:"С накоплением"}}
+                            editorType= "dxCheckBox"
+                            value={ this.state.stacked }
+                            visible={ this.state.formData.chartType!="Pie" }
+
+                          />
+
 
 
                         </Form>
