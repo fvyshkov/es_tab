@@ -91,12 +91,9 @@ export default class AMChart extends Component {
         }else{
             trend.stroke = am4core.color("#c00");
         }
-        //trend.fill = am4core.color("#c00");
         trend.data = trendDescription.data;
-        //trend.tooltipText = "Тренд по "+trendDescription.valueY;
 
         var bullet = trend.bullets.push(new am4charts.CircleBullet());
-        //bullet.tooltipText = "{categoryX}\n[bold font-size: 17px]значение: {valueY}[/]";
         bullet.tooltipText = "Тренд по "+trendDescription.valueY+" : {valueY}[/]";
         bullet.strokeWidth = 4;
         bullet.stroke = am4core.color("#66ccff")
@@ -127,7 +124,7 @@ export default class AMChart extends Component {
 
 
             pieSeries.labels.template.text = "{category}: {value.value}";
-            pieSeries.slices.template.tooltipText = "{category}, " + dataKey + ": {value.value}";
+            pieSeries.slices.template.tooltipText = "{category}, " + dataKey + ": {value.value}[/]";
 
             pieSeries.slices.template.stroke = am4core.color("#fff");
             pieSeries.slices.template.strokeWidth = 2;
@@ -150,7 +147,8 @@ export default class AMChart extends Component {
 
         if (!this.chart){
             this.chart = am4core.create("chartdiv", am4charts.XYChart);
-
+            this.chart.cursor = new am4charts.XYCursor();
+            this.chart.cursor.maxTooltipDistance = 1;
 
             var categoryAxis = this.chart.xAxes.push(new am4charts.CategoryAxis());
             categoryAxis.renderer.minGridDistance = 30;
@@ -227,7 +225,7 @@ export default class AMChart extends Component {
                 series.yAxis = this.chart.yAxes.values[0];// valueAxis;
             }
 
-
+            series.stacked = this.props.groupMode=="stacked";
 
             if (seriesType=="Line"){
                 series.fillOpacity = 0;
@@ -242,10 +240,10 @@ export default class AMChart extends Component {
                 series.fillOpacity = fillOpacity;
             }
 
-
+            series.tooltipText = "[#fff font-size: 15px]{name} - {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
 
             if (series instanceof am4charts.ColumnSeries){
-                series.columns.template.tooltipText = "[#fff font-size: 15px]{name} - {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
+
                 series.columns.template.propertyFields.fillOpacity = "fillOpacity";
                 series.columns.template.propertyFields.stroke = "stroke";
 
@@ -264,7 +262,6 @@ export default class AMChart extends Component {
 
                 var bullet = series.bullets.push(new am4charts.Bullet());
                 bullet.fill = am4core.color("#fdd400"); // tooltips grab fill from parent by default
-                bullet.tooltipText = "[#fff font-size: 15px]{name} - {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
 
                 bullet.seriesName = dataKey;
 
