@@ -183,14 +183,13 @@ export default class AMChart extends Component {
 
         }
         this.chart.xAxes.values[0].dataFields.category = this.props.indexBy;
-
+        this.chart.data = this.props.data;
 
         /* Delete series */
-
         while(this.chart.series.values.length>0){
             this.chart.series.removeIndex(0).dispose();
         }
-
+        /* Add series*/
         this.props.keys.forEach((dataKey, keyIndex)=>{
             var seriesType = this.props.chartParams.chartType;
             var additionalAxis = false;
@@ -302,7 +301,7 @@ export default class AMChart extends Component {
 
         });
 
-        this.chart.data = this.props.data;;
+
 
     }
 
