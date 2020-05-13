@@ -20,6 +20,10 @@ import Img_line from '../images/chart_types/line.png';
 import Img_dots from '../images/chart_types/dots.png';
 import Img_area from '../images/chart_types/area.png';
 import Img_bar from '../images/chart_types/bar.png';
+import { Popup } from 'devextreme-react/popup';
+import {ChartFormFields} from './ChartFormFields.jsx';
+
+
 
 export const chartTypes =[
 {code:"Pie", name:"Круговая", img: Img_pie},
@@ -291,6 +295,7 @@ export class BarChartPanel extends Component {
     seriesSetup(seriesName){
         console.log("seriesSetup1=", seriesName);
         const seriesType = ["Bar", "Line", "Area", "Dots"] ;
+        this.seriesName = seriesName;
         this.seriesData = [
                          {
                             dataField:"seriesName",
@@ -364,6 +369,9 @@ export class BarChartPanel extends Component {
         this.setState({chartSeriesSetupPanelVisible: true});
     }
 
+    onChangeSeriesParams(params){
+        console.log("onChangeSeriesParams", params);
+    }
 
     transposeDataOnChange(args){
         this.setState({transposeData: args.value});
@@ -409,9 +417,66 @@ export class BarChartPanel extends Component {
                     width={400}
                     height={400}
                 />:null;
+
+
+        var seriesParamsDialog = this.state.chartSeriesSetupPanelVisible ?
+
+             <Popup
+                  visible={true}
+                  onHiding={()=>{this.setState({chartSeriesSetupPanelVisible:false});}}
+                  dragEnabled={false}
+                  closeOnOutsideClick={true}
+                  showTitle={true}
+                  title={"Серия данных"}
+                  resizeEnabled={true}
+                  width={400}
+                  height={520}
+                  toolbarItems={
+                  [
+                                {
+                                    widget: "dxButton",
+                                    location: "after",
+
+                                    toolbar: "bottom",
+
+
+                                    options: {
+                                        text: "OK",
+                                        onClick: (params)=> {
+                                                            console.log("save series params", params);
+
+                                                       }
+                                    }
+                                },
+                                {
+                                    widget: "dxButton",
+                                    location: "after",
+
+                                    toolbar: "bottom",
+
+
+                                    options: {
+                                        text: "Отмена",
+                                        onClick: ()=> this.setState({chartSeriesSetupPanelVisible:false})
+                                    }
+                                }
+                            ]
+                  }
+                 >
+                 <ChartFormFields
+                        seriesName={this.seriesName}
+                        onFieldDataChanged={(params)=>{
+                            //this.onChangeSeriesParams(params).bind(this);
+                            console.log("onFieldDataChanged", params);
+                        }}
+                        chartParams={this.seriesData}
+                    />
+                 </Popup> :null;
+
+
         return (
             <React.Fragment>
-                {seriesSetupDialog}
+                {seriesParamsDialog}
 
                 <Toolbar>
                     {this.props.additionalToolbarItems}
