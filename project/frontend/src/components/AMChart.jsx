@@ -185,7 +185,7 @@ export default class AMChart extends Component {
         this.chart.xAxes.values[0].dataFields.category = this.props.indexBy;
 
 
-        /* Create series */
+        /* Delete series */
 
         while(this.chart.series.values.length>0){
             this.chart.series.removeIndex(0).dispose();
@@ -207,7 +207,6 @@ export default class AMChart extends Component {
 
             if (showLinearTrend){
                 const trendDescription = this.getTrendDescripton(this.props.data, this.props.indexBy, dataKey);
-                console.log("trendDescription", trendDescription);
                 trendDescription['strokeColor'] = this.props.getColor(keyIndex);
                 this.createTrendLine(trendDescription);
             }
@@ -216,12 +215,15 @@ export default class AMChart extends Component {
                 var series = this.chart.series.push(new am4charts.ColumnSeries());
             }else{
                 var series = this.chart.series.push(new am4charts.LineSeries());
-
             }
 
-            if (seriesType=="Dots"){
-                series.strokeOpacity = 0;
-            }
+            series.name = dataKey;
+            series.dataFields.valueY = dataKey;
+            series.dataFields.categoryX = this.props.indexBy;
+            series.fill = this.props.getColor(keyIndex);
+            series.stroke = this.props.getColor(keyIndex);
+            series.tooltip.label.textAlign = "middle";
+
 
             if (additionalAxis){
                 series.yAxis = this.chart.yAxes.values[1];// valueAxis2;
@@ -229,18 +231,14 @@ export default class AMChart extends Component {
                 series.yAxis = this.chart.yAxes.values[0];// valueAxis;
             }
 
-            series.name = dataKey;
-            series.dataFields.valueY = dataKey;
-            series.dataFields.categoryX = this.props.indexBy;
 
-
-            series.fill = this.props.getColor(keyIndex);
 
             if (seriesType=="Line"){
                 series.fillOpacity = 0;
                 series.tensionX = 1-smoothLine;
             }else if (seriesType == "Dots"){
                 series.fillOpacity = 0;
+                series.strokeOpacity = 0;
             }else if (seriesType =="Area"){
                 series.fillOpacity = fillOpacity;
                 series.tensionX = 1-smoothLine;
@@ -248,8 +246,7 @@ export default class AMChart extends Component {
                 series.fillOpacity = fillOpacity;
             }
 
-            //series.stroke = this.props.getColor(keyIndex);
-            series.tooltip.label.textAlign = "middle";
+
 
             if (series instanceof am4charts.ColumnSeries){
                 series.columns.template.tooltipText = "[#fff font-size: 15px]{name} - {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
