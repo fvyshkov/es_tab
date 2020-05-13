@@ -264,22 +264,6 @@ export class BarChartPanel extends Component {
                             visible: true
                          },
 
-                        {
-                            dataField:"additionalAxis",
-                            label:"Вспомогательная ось",
-                            value: seriesName in this.state.measuresProperties && this.state.measuresProperties[seriesName].additionalAxis=="1"? true: false,
-                            editorType: "dxCheckBox",
-
-                            visible: true
-                        },
-                        {
-                            dataField:"showLinearTrend",
-                            label:" Линейный тренд",
-                            value: seriesName in this.state.measuresProperties && this.state.measuresProperties[seriesName].showLinearTrend=="1"? true: false,
-                            editorType: "dxCheckBox",
-
-                            visible: true
-                        },
 
                         {
                             dataField:"seriesType",
@@ -299,13 +283,14 @@ export class BarChartPanel extends Component {
                             value: seriesName in this.state.measuresProperties ? this.state.measuresProperties[seriesName].seriesType: "Bar",
                             visible: true
                         },
+
                         {
                             dataField:"smoothLine",
                             label:"Сглаживание",
                             editorType: "dxSlider",
                             editorOptions: { min:0, max:1, step:.1},
                             value: seriesName in this.state.measuresProperties ? this.state.measuresProperties[seriesName].smoothLine:0,
-                            visible: this.state.seriesTypeSelected =="Line" || this.state.seriesTypeSelected == "Area"
+                            visible: ["Line", "Area"].includes(this.state.seriesTypeSelected)
                          },
 
                          {
@@ -314,9 +299,25 @@ export class BarChartPanel extends Component {
                             editorType: "dxSlider",
                             editorOptions: { min:0, max:1, step:.1},
                             value: seriesName in this.state.measuresProperties ? this.state.measuresProperties[seriesName].fillOpacity:.8,
-                            visible: this.state.seriesTypeSelected == "Bar" || this.state.seriesTypeSelected == "Area"
+                            visible: ["Bar", "Area"].includes(this.state.seriesTypeSelected)
                          },
 
+                        {
+                            dataField:"additionalAxis",
+                            label:"Вспомогательная ось",
+                            value: seriesName in this.state.measuresProperties && this.state.measuresProperties[seriesName].additionalAxis=="1"? true: false,
+                            editorType: "dxCheckBox",
+
+                            visible: this.state.seriesTypeSelected!="Pie"
+                        },
+                        {
+                            dataField:"showLinearTrend",
+                            label:" Линейный тренд",
+                            value: seriesName in this.state.measuresProperties && this.state.measuresProperties[seriesName].showLinearTrend=="1"? true: false,
+                            editorType: "dxCheckBox",
+
+                            visible: this.state.seriesTypeSelected!="Pie"
+                        },
 
 
 
