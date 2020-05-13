@@ -99,6 +99,12 @@ export default class AMChart extends Component {
         bullet.stroke = am4core.color("#66ccff")
         bullet.circle.fill = trend.stroke;
 
+        if (trendDescription.additionalAxis){
+            trend.yAxis = this.chart.yAxes.values[1];// valueAxis2;
+        }else{
+            trend.yAxis = this.chart.yAxes.values[0];// valueAxis;
+        }
+
         var hoverState = bullet.states.create("hover");
         hoverState.properties.scale = 1.7;
 
@@ -196,6 +202,7 @@ export default class AMChart extends Component {
             if (showLinearTrend){
                 const trendDescription = this.getTrendDescripton(this.props.data, this.props.indexBy, dataKey);
                 trendDescription['strokeColor'] = this.props.getColor(keyIndex);
+                trendDescription['additionalAxis'] = additionalAxis;
                 this.createTrendLine(trendDescription);
             }
             /*
