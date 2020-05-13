@@ -210,6 +210,12 @@ export default class AMChart extends Component {
                 trendDescription['strokeColor'] = this.props.getColor(keyIndex);
                 this.createTrendLine(trendDescription);
             }
+            /*
+            ищем , может быть такая серия уже существует и ее не нужно создавать?
+            var seriesIndex = this.chart.series.values.findIndex(series=>{
+                    return (series.dataFields.valueY == dataKey);
+            });
+            */
 
             if (seriesType=="Bar"){
                 var series = this.chart.series.push(new am4charts.ColumnSeries());
