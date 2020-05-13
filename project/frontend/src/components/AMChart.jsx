@@ -110,44 +110,35 @@ export default class AMChart extends Component {
 
     createPieChart(){
         this.chart = am4core.create("chartdiv", am4charts.PieChart);
+        this.chart.data = this.props.data;
+        // Add and configure Series
+        this.props.keys.forEach((dataKey, keyIndex)=>{
 
-            // Add data
-            this.chart.data = [{
-              "country": "Lithuania",
-              "litres": 501.9
-            }, {
-              "country": "Czech Republic",
-              "litres": 301.9
-            }, {
-              "country": "Ireland",
-              "litres": 201.1
-            }, {
-              "country": "Germany",
-              "litres": 165.8
-            }, {
-              "country": "Australia",
-              "litres": 139.9
-            }, {
-              "country": "Austria",
-              "litres": 128.3
-            }, {
-              "country": "UK",
-              "litres": 99
-            }, {
-              "country": "Belgium",
-              "litres": 60
-            }, {
-              "country": "The Netherlands",
-              "litres": 50
-            }];
+        //trendDescription['strokeColor'] = this.props.getColor(keyIndex);
 
-            this.chart.data = this.props.data;
-            // Add and configure Series
             var pieSeries = this.chart.series.push(new am4charts.PieSeries());
-            if (this.props.keys.length>0){
-                pieSeries.dataFields.value = this.props.keys[0];
-            }
+            pieSeries.dataFields.value = dataKey;
             pieSeries.dataFields.category = this.props.indexBy;
+
+            pieSeries.colors.list = [1,2,3,4,5,6,7,8].map(index=>{
+                console.log("this.props.getColor(index)", this.props.getColor(index));
+                return  am4core.color(this.props.getColor(index));
+            });
+
+
+            pieSeries.labels.template.text = "{category}: {value.value}";
+            pieSeries.slices.template.tooltipText = "{category}, " + dataKey + ": {value.value}";
+
+            pieSeries.slices.template.stroke = am4core.color("#fff");
+            pieSeries.slices.template.strokeWidth = 2;
+            //pieSeries.slices.template.fill = this.props.getColor(keyIndex);
+
+            if (keyIndex<this.props.keys.length-1){
+                pieSeries.labels.template.disabled = true;
+            }
+
+
+        });
     }
 
 
