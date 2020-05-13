@@ -17,6 +17,7 @@ import TabPanel from 'devextreme-react/tab-panel';
 import Tabs from 'devextreme-react/tabs';
 import { Slider } from 'devextreme-react/slider';
 import ScrollView from 'devextreme-react/scroll-view';
+import {ChartFormFields} from './ChartFormFields.jsx';
 
 const colorsMap={
     "nivo" : Img_nivo,
@@ -93,6 +94,19 @@ export class ChartControlPanel extends Component {
                         </div>
                 );
             }else{
+                console.log("this.props.chartParams", this.props.chartParams);
+                return (
+
+                    <ChartFormFields
+                        onFieldDataChanged={(params)=>{
+                            console.log('ChartFormFields', params);
+                            this.props.onChangeChartParams(params);
+
+                        }}
+                        chartParams={this.props.chartParams}
+                    />
+
+                );
                 //
                 return (
 

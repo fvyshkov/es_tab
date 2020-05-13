@@ -86,8 +86,8 @@ export class BarChartPanel extends Component {
                        scrollbarX: true,
                        scrollbarY: true,
                        seriesTypeSelected:"Bar",
-                       chartType:props.chartType
-
+                       chartType:props.chartType,
+                       chartParams: props.chartParams
                      };
 
         this.componentDidMount = this.componentDidMount.bind(this);
@@ -224,6 +224,11 @@ export class BarChartPanel extends Component {
 
     onChangeCategory(e){
         this.prepareData(e.value);
+    }
+
+    onChangeChartParams(params){
+        console.log("BarCHartPanel onChangeChartParams=params=", params);
+        console.log("BarCHartPanel this.state.chartParams", this.state.chartParams);
     }
 
     onChangeGroupMode(e){
@@ -473,7 +478,8 @@ export class BarChartPanel extends Component {
                                 }
                         }
 
-
+                        chartParams={this.state.chartParams}
+                        onChangeChartParams={this.onChangeChartParams.bind(this)}
                     />);
                     }}
           closeOnOutsideClick={this.onOutsideClick}
@@ -502,7 +508,7 @@ export class BarChartPanel extends Component {
                     measuresProperties={this.state.measuresProperties}
                     scrollbarX={this.state.scrollbarX}
                     scrollbarY={this.state.scrollbarY}
-                    chartParams={this.props.chartParams}
+                    chartParams={this.state.chartParams}
                 />
           </div>
         </Drawer>
