@@ -6,7 +6,6 @@ export class ChartFormFields extends Component {
     constructor(props) {
         super(props);
         this.state = {
-                        seriesType: this.props.seriesType,
                         formData:{
                             seriesName: this.props.seriesName,
                             seriesType: this.props.chartParams.chartType
@@ -16,10 +15,9 @@ export class ChartFormFields extends Component {
 
     }
 
-
     render() {
         const seriesTypeList = ["Bar", "Line", "Area", "Dots", "Pie"] ;
-        console.log("render form ", this.props.seriesName);
+        console.log(" form render ", this.props.chartParams.chartType);
         var itemList = this.formParams? this.formParams.map((param)=>{
                 console.log("itemDatafield", param.dataField);
                 return (<Item
@@ -50,14 +48,12 @@ export class ChartFormFields extends Component {
                            <Item
                             dataField="seriesName"
                             label={{text:"Наименование серии"}}
-                            value= {this.props.seriesName}
                             visible={this.props.seriesName? true:false}
                           />
                            <Item
                             dataField="seriesType"
                             label={{text:"Тип диаграммы"}}
                             editorType= "dxSelectBox"
-                            value= {this.state.seriesType}
                             visible={true}
                             editorOptions={ {
                                 items: seriesTypeList,
@@ -76,7 +72,7 @@ export class ChartFormFields extends Component {
                             editorType= "dxSlider"
                             editorOptions={ { min:0, max:1, step:.1}}
                             value={ this.state.smoothLine }
-                            visible={ ["Line", "Area"].includes(this.state.seriesType)}
+                            visible={ ["Line", "Area"].includes(this.state.formData.seriesType)}
 
                           />
 
@@ -86,7 +82,7 @@ export class ChartFormFields extends Component {
                             editorType= "dxSlider"
                             editorOptions={ { min:0, max:1, step:.1}}
                             value={ this.state.fillOpacity}
-                            visible={ ["Bar", "Area", "Pie"].includes(this.state.seriesType)}
+                            visible={ ["Bar", "Area", "Pie"].includes(this.state.formData.seriesType)}
 
                           />
 
@@ -95,7 +91,7 @@ export class ChartFormFields extends Component {
                             label={{text:"Линейный тренд"}}
                             editorType= "dxCheckBox"
                             value={ this.state.showLinearTrend }
-                            visible={ this.state.seriesType!="Pie" }
+                            visible={ this.state.formData.seriesType!="Pie" }
 
                           />
 
@@ -104,7 +100,7 @@ export class ChartFormFields extends Component {
                             label={{text:"Вспомогательная ось"}}
                             editorType= "dxCheckBox"
                             value={ this.state.additionalAxis }
-                            visible={ this.state.seriesType!="Pie" }
+                            visible={ this.state.formData.seriesType!="Pie" }
 
                           />
 

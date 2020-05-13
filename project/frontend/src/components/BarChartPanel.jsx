@@ -229,6 +229,10 @@ export class BarChartPanel extends Component {
     onChangeChartParams(params){
         console.log("BarCHartPanel onChangeChartParams=params=", params);
         console.log("BarCHartPanel this.state.chartParams", this.state.chartParams);
+        if (params.dataField=="seriesType" && params.value != this.state.chartParams.chartType){
+            this.state.chartParams['chartType'] = params.value;
+            this.setState({chartParams: this.state.chartParams});
+        }
     }
 
     onChangeGroupMode(e){
