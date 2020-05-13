@@ -163,20 +163,14 @@ export default class AMChart extends Component {
         categoryAxis.dataFields.category = this.props.indexBy;
         categoryAxis.renderer.minGridDistance = 30;
 
+
         /* Create value axis */
         var valueAxis = this.chart.yAxes.push(new am4charts.ValueAxis());
 
-        var additionalAxisExists = this.props.keys.find(dataKey=>{
-             return (dataKey in this.props.measuresProperties && this.props.measuresProperties[dataKey].additionalAxis==1);
-        })
-        ? true: false;
-
-        if (additionalAxisExists){
-            var valueAxis2 = this.chart.yAxes.push(new am4charts.ValueAxis());
-            valueAxis2.renderer.opposite = true;
-            valueAxis2.syncWithAxis = valueAxis;
-            valueAxis2.tooltip.disabled = true;
-        }
+        var valueAxis2 = this.chart.yAxes.push(new am4charts.ValueAxis());
+        valueAxis2.renderer.opposite = true;
+        valueAxis2.syncWithAxis = valueAxis;
+        valueAxis2.tooltip.disabled = true;
 
         if (this.props.scrollbarX){
             this.chart.scrollbarX = new am4core.Scrollbar();
