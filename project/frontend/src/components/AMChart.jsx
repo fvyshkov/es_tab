@@ -156,35 +156,41 @@ export default class AMChart extends Component {
             this.createPieChart();
             return;
         }
-        this.chart = am4core.create("chartdiv", am4charts.XYChart);
+
+        if (!this.chart){
+            this.chart = am4core.create("chartdiv", am4charts.XYChart);
 
 
-        var categoryAxis = this.chart.xAxes.push(new am4charts.CategoryAxis());
-        categoryAxis.dataFields.category = this.props.indexBy;
-        categoryAxis.renderer.minGridDistance = 30;
+            var categoryAxis = this.chart.xAxes.push(new am4charts.CategoryAxis());
+            categoryAxis.renderer.minGridDistance = 30;
 
 
-        /* Create value axis */
-        var valueAxis = this.chart.yAxes.push(new am4charts.ValueAxis());
+            /* Create value axis */
+            var valueAxis = this.chart.yAxes.push(new am4charts.ValueAxis());
 
-        var valueAxis2 = this.chart.yAxes.push(new am4charts.ValueAxis());
-        valueAxis2.renderer.opposite = true;
-        valueAxis2.syncWithAxis = valueAxis;
-        valueAxis2.tooltip.disabled = true;
+            var valueAxis2 = this.chart.yAxes.push(new am4charts.ValueAxis());
+            valueAxis2.renderer.opposite = true;
+            valueAxis2.syncWithAxis = valueAxis;
+            valueAxis2.tooltip.disabled = true;
 
-        if (this.props.scrollbarX){
-            this.chart.scrollbarX = new am4core.Scrollbar();
+            if (this.props.scrollbarX){
+                this.chart.scrollbarX = new am4core.Scrollbar();
+            }
+
+            if (this.props.scrollbarY){
+                this.chart.scrollbarY = new am4core.Scrollbar();
+            }
+
         }
+        this.chart.xAxes.values[0].dataFields.category = this.props.indexBy;
 
-        if (this.props.scrollbarY){
-            this.chart.scrollbarY = new am4core.Scrollbar();
-        }
-
-
-
-        //}
 
         /* Create series */
+
+        while(this.chart.series.values.length>0){
+            this.chart.series.removeIndex(0).dispose();
+        }
+
         this.props.keys.forEach((dataKey, keyIndex)=>{
             var seriesType = this.props.chartParams.chartType;
             var additionalAxis = false;
@@ -218,9 +224,9 @@ export default class AMChart extends Component {
             }
 
             if (additionalAxis){
-                series.yAxis = valueAxis2;
+                series.yAxis = this.chart.yAxes.values[1];// valueAxis2;
             }else{
-                series.yAxis = valueAxis;
+                series.yAxis = this.chart.yAxes.values[0];// valueAxis;
             }
 
             series.name = dataKey;
