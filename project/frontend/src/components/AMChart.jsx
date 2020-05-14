@@ -151,7 +151,9 @@ export default class AMChart extends Component {
             return;
         }
 
-        if (!this.chart){
+        var isChartXYExists = this.chart && this.chart.prototype &&
+                                    this.chart.prototype.isPrototypeOf(am4charts.XYChart);
+        if (!isChartXYExists){
             this.chart = am4core.create("chartdiv", am4charts.XYChart);
             this.chart.cursor = new am4charts.XYCursor();
             this.chart.cursor.maxTooltipDistance = 1;
