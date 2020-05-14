@@ -514,6 +514,7 @@ export class BarChartPanel extends Component {
           <div id={"chart_content_"+this.props.layoutItemID} className="chart-wrapper">
                 <ChartComponent
                     id="chart777"
+                    chartId={this.props.chartId}
                     data={this.state.preparedData}
                     layoutItemID={this.props.layoutItemID}
                     keys={this.state.selectedMeasures}

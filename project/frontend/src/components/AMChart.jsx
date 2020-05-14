@@ -115,7 +115,7 @@ export default class AMChart extends Component {
     };
 
     createPieChart(){
-        this.chart = am4core.create("chartdiv", am4charts.PieChart);
+        this.chart = am4core.create("chartdiv_"+this.props.chartId, am4charts.PieChart);
         this.chart.data = this.props.data;
         // Add and configure Series
         this.props.keys.forEach((dataKey, keyIndex)=>{
@@ -158,7 +158,7 @@ export default class AMChart extends Component {
         var isChartXYExists = this.chart && this.chart.prototype &&
                                     this.chart.prototype.isPrototypeOf(am4charts.XYChart);
         if (!isChartXYExists){
-            this.chart = am4core.create("chartdiv", am4charts.XYChart);
+            this.chart = am4core.create("chartdiv_"+this.props.chartId, am4charts.XYChart);
             this.chart.cursor = new am4charts.XYCursor();
             this.chart.cursor.maxTooltipDistance = 1;
 
@@ -383,7 +383,7 @@ export default class AMChart extends Component {
   render() {
 
     return (
-      <div id="chartdiv" key={this.state.key} style={{ width: "100%", height: "100%" }}></div>
+      <div id={"chartdiv_"+this.props.chartId} key={this.state.key} style={{ width: "100%", height: "100%" }}></div>
     );
   }
 }

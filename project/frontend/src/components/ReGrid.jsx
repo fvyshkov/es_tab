@@ -847,6 +847,7 @@ export default class ReGrid extends React.Component {
 
             var data = this.prepareDataForChart();
             var render=<BarChartPanel
+                            chartId={newLayoutItemID}
                             data={data}
                             refreshChartData={click => this.sendRefreshChartData = click}
                             layoutItemID={newLayoutItemID}
