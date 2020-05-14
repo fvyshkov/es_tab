@@ -189,8 +189,28 @@ export default class AMChart extends Component {
             }
 
         }
+
+        var AxesForCategory = this.props.chartParams.invertedAxis ? this.chart.yAxes : this.chart.xAxes;
         AxesForCategory.values[0].dataFields.category = this.props.indexBy;
+
+        var AxesForValue = this.props.chartParams.invertedAxis ? this.chart.xAxes : this.chart.yAxes;
+
+        if (this.props.chartParams.showPercent){
+            for (var i=0;i<2;i++){
+                AxesForValue.values[i].calculateTotals = true;
+                AxesForValue.values[i].min = 0;
+                AxesForValue.values[i].max = 100;
+                AxesForValue.values[i].strictMinMax = true;
+            }
+
+        }
+
+
         this.chart.data = this.props.data;
+
+
+
+
 
         /* Delete series */
         while(this.chart.series.values.length>0){
@@ -241,10 +261,16 @@ export default class AMChart extends Component {
             if (this.props.chartParams.invertedAxis){
                 series.xAxis = this.chart.xAxes.values[additionalAxis? 1 : 0];
                 series.dataFields.valueX = dataKey;
+                if(this.props.chartParams.showPercent){
+                    series.dataFields.valueXShow = "totalPercent";
+                }
                 series.dataFields.categoryY = this.props.indexBy;
             }else{
                 series.yAxis = this.chart.yAxes.values[additionalAxis? 1 : 0];
                 series.dataFields.valueY = dataKey;
+                if(this.props.chartParams.showPercent){
+                    series.dataFields.valueYShow = "totalPercent";
+                }
                 series.dataFields.categoryX = this.props.indexBy;
             }
 

@@ -157,16 +157,25 @@ export class ChartFormFields extends Component {
 
                           />
 
+                         <Item
+                            dataField="showPercent"
+                            label={{text:" Номинированные значения"}}
+                            editorType= "dxCheckBox"
+                            value={ this.state.showPercent }
+                            visible={ this.state.formData.chartType!="Pie" }
 
+                          />
 
                           <Item
                             dataField="invertedAxis"
                             label={{text:"Значения по горизонтали"}}
                             editorType= "dxCheckBox"
-                            value={ this.state.stacked }
+                            value={ this.state.invertedAxis }
                             visible={ this.state.formData.chartType!="Pie" }
 
                           />
+
+
 
                             <Template name='myItemTemplate' render={selectBoxItemRender} />
 
