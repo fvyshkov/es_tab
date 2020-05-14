@@ -520,6 +520,8 @@ export default class ReGrid extends React.Component {
             this.props.onCellValueChanged(params);
         }
 
+        this.sendRefreshChartData(this.prepareDataForChart());
+
     }
 
     sendExpandNode(nodeId){
@@ -535,6 +537,9 @@ export default class ReGrid extends React.Component {
         if (this.props.onCellFocused){
             this.props.onCellFocused(params);
         }
+    }
+
+    sendRefreshChartData(){
     }
 
 
@@ -805,34 +810,45 @@ export default class ReGrid extends React.Component {
         return isFound;
     }
 
+    prepareDataForChart(){
+        if (!this.gridApi){
+            return [];
+        }
+
+        var ranges = this.gridApi.getCellRanges();
+        var data = [];
+        this.gridApi.forEachNode(node=>{
+            if (node.data.column_data){
+                node.data.column_data.forEach(cell=>{
+                    if (this.nodeInRanges(node, ranges) && (cell.atr_type  == "N" || cell.atr_type  == "I") && cell.name && cell.sql_value){
+                        var row = {};
+                        node.data.column_data.forEach(column=>{
+                            if (column.atr_type != "N" && column.atr_type !=  "I" && column.name && column.sql_value){
+                                row[column.name] = column.sql_value;
+                            }
+                        });
+
+                        row['measure'] = cell.name;
+                        row['value'] = cell.sql_value;
+                        data.push(row);
+                    }
+                });
+            }
+
+        });
+
+        return data;
+    }
+
     createCustomChart(params, chartComponentIndex, chartParams=null){
         var ranges = this.gridApi.getCellRanges();
         if (this.props.addElementToLayout){
             var newLayoutItemID = this.props.getNewLayoutItemID();
 
-            var data = [];
-            this.gridApi.forEachNode(node=>{
-                if (node.data.column_data){
-                    node.data.column_data.forEach(cell=>{
-                        if (this.nodeInRanges(node, ranges) && (cell.atr_type  == "N" || cell.atr_type  == "I") && cell.name && cell.sql_value){
-                            var row = {};
-                            node.data.column_data.forEach(column=>{
-                                if (column.atr_type != "N" && column.atr_type !=  "I" && column.name && column.sql_value){
-                                    row[column.name] = column.sql_value;
-                                }
-                            });
-
-                            row['measure'] = cell.name;
-                            row['value'] = cell.sql_value;
-                            data.push(row);
-                        }
-                    });
-                }
-
-            });
-            console.log("regrid", data);
+            var data = this.prepareDataForChart();
             var render=<BarChartPanel
                             data={data}
+                            refreshChartData={click => this.sendRefreshChartData = click}
                             layoutItemID={newLayoutItemID}
                             addElementToLayout={this.props.addElementToLayout}
                             onToolbarCloseClick={this.props.onToolbarCloseClick}

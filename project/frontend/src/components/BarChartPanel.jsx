@@ -158,7 +158,16 @@ export class BarChartPanel extends Component {
 
         }
 
+        if (this.props.refreshChartData){
+            this.props.refreshChartData(this.refreshChartData);
+        }
 
+    }
+
+    refreshChartData(data){
+        console.log("refreshChartData", data);
+
+        this.prepareData(this.state.selectedCategory);
     }
 
     prepareData(selectedCategory){
