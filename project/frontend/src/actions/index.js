@@ -9,6 +9,10 @@ import {
         SHEET_STATE_LOADED} from "../constants/action-types";
 
 
+export function updateGrid(params) {
+    return { type: "UPDATE_GRID", params: params};
+}
+
 export function addArticle(payload) {
   return { type: ADD_ARTICLE, payload };
 }

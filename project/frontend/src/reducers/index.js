@@ -11,6 +11,8 @@ import {
 
 const initialState = {
   articles: [{title:'1'}],
+  gridData: [],
+  counter:0,
   tabViewData: new Map(),
   expandedNodes: new Map(),
   loadingGuids: [],
@@ -21,6 +23,15 @@ const initialState = {
 function rootReducer(state = initialState, action) {
 
     console.log('action.type', action.type);
+
+    if (action.type === "UPDATE_GRID") {
+        console.log("UPDATE_GRID", action, action.payload);
+        return Object.assign({}, state, {
+            gridData: action.params,
+            counter: state.counter+1
+        });
+    }
+
 
     if (action.type === ADD_ARTICLE) {
         return Object.assign({}, state, {

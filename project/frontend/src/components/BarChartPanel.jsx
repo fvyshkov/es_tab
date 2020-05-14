@@ -22,7 +22,7 @@ import Img_area from '../images/chart_types/area.png';
 import Img_bar from '../images/chart_types/bar.png';
 import { Popup } from 'devextreme-react/popup';
 import {ChartFormFields} from './ChartFormFields.jsx';
-
+import { connect } from "react-redux";
 
 
 export const chartTypes =[
@@ -275,8 +275,6 @@ export class BarChartPanel extends Component {
     }
 
     onChangeChartParams(params){
-        console.log("BarCHartPanel onChangeChartParams=params=", params);
-        console.log("BarCHartPanel this.state.chartParams", this.state.chartParams);
 
 
         if (Object.keys(this.state.chartParams).includes(params.dataField) &&
@@ -428,7 +426,7 @@ export class BarChartPanel extends Component {
                 </Toolbar>
 
 
-                <div id={'content_'+this.props.layoutItemID} class="ag-theme-balham ToolbarViewContent NonDraggableAreaClassName">
+                <div id={'content_'+this.props.layoutItemID} className="ag-theme-balham ToolbarViewContent NonDraggableAreaClassName">
 
                      <div className="chart-wrapper">
 
@@ -554,3 +552,35 @@ export class BarChartPanel extends Component {
         );
   }
 }
+
+
+
+/*
+
+function mapStateToProps(state) {
+    console.log("BarChartPanel mapStateToProps")
+    return {
+
+    };
+}
+
+*/
+
+const mapStateToProps = state => {
+    console.log("BAR mapStateToProps", state);
+    return {
+      data: gridData
+  };
+    /*
+  const { byIds, allIds } = state.todos || {};
+  const todos =
+    allIds && allIds.length
+      ? allIds.map(id => (byIds ? { ...byIds[id], id } : null))
+      : null;
+  return { todos };
+  */
+};
+
+
+
+export default connect(mapStateToProps)(BarChartPanel);

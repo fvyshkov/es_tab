@@ -26,10 +26,13 @@ import {Spinner} from './spin.js';
 import {someChartModel, someChartModel2} from './testData.js';
 
 import {BarChartPanel, chartTypes} from './BarChartPanel.jsx';
+import { connect } from "react-redux";
+import { updateGrid } from "../actions";
 
-LicenseManager.setLicenseKey("Evaluation_License_Not_For_Production_29_December_2019__MTU3NzU3NzYwMDAwMA==a3a7a7e770dea1c09a39018caf2c839c");
 
-export default class ReGrid extends React.Component {
+//LicenseManager.setLicenseKey("Evaluation_License_Not_For_Production_29_December_2019__MTU3NzU3NzYwMDAwMA==a3a7a7e770dea1c09a39018caf2c839c");
+
+export class ReGrid extends React.Component {
     constructor(props) {
         super(props);
 
@@ -607,6 +610,7 @@ export default class ReGrid extends React.Component {
 
     onRowDataUpdated(){
         this.sendRefreshChartData(this.prepareDataForChart());
+        this.props.updateGrid(this.prepareDataForChart());
     }
 
     render() {
@@ -1113,4 +1117,10 @@ function suppressCtrlArrow(params){
     return suppress;
 
 }
+
+
+export default connect(
+  null,
+  { updateGrid }
+)(ReGrid);
 

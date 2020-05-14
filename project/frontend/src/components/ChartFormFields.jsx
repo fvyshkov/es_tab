@@ -136,7 +136,7 @@ export class ChartFormFields extends Component {
 
                           <Item
                             dataField="strokeDasharray"
-                            label={{text:"Стиль линии"}}
+                            label={{text:"Пунктир"}}
                             editorType= "dxSelectBox"
                             editorOptions={ {
                                 items: strokeDasharrayList
