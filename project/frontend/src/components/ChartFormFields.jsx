@@ -3,6 +3,7 @@ import Form, { Item } from 'devextreme-react/form';
 import {chartTypes, strokeDasharrayList} from './BarChartPanel.jsx';
 import { Template } from 'devextreme-react/core/template';
 import { TextBox } from 'devextreme-react';
+import ScrollView from 'devextreme-react/scroll-view';
 
 const selectBoxItemRender = function(data) {
          return (
@@ -78,7 +79,9 @@ export class ChartFormFields extends Component {
 
         return (
             <React.Fragment>
-
+                <ScrollView id="scrollview"
+                      showScrollbar={"onScroll"}
+                      >
                     <div className="widget-container">
                         <Form
                             key={this.state.key}
@@ -197,6 +200,8 @@ export class ChartFormFields extends Component {
 
                         </Form>
                 </div>
+
+                </ScrollView>
             </React.Fragment>
         );
     }
