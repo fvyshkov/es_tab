@@ -7,18 +7,23 @@ export class ChartFormFields extends Component {
         super(props);
         this.state = {
                         formData:{
-                            seriesName: props.seriesName,
                             ...props.chartParams
-                            /*
-                            chartType: this.props.chartParams.chartType,
-                            smoothLine: this.props.chartParams.smoothLine
-                            */
                             },
                         key:0
                      };
-        //for (this.props.cha)
     }
 
+    componentDidMount(){
+        if (this.props.sendDataRequest){
+            this.props.sendDataRequest(this.sendData.bind(this));
+        }
+    }
+
+    sendData(){
+        if (this.props.sendData){
+            this.props.sendData(this.state.formData);
+        }
+    }
 
     render() {
         const chartTypeList = ["Bar", "Line", "Area", "Dots", "Pie"] ;
@@ -54,7 +59,7 @@ export class ChartFormFields extends Component {
                            <Item
                             dataField="seriesName"
                             label={{text:"Наименование серии"}}
-                            visible={this.props.seriesName? true:false}
+                            visible={this.props.chartParams.seriesName? true:false}
                           />
                            <Item
                             dataField="chartType"

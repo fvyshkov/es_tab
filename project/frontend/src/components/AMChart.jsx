@@ -185,7 +185,7 @@ export default class AMChart extends Component {
             this.chart.series.removeIndex(0).dispose();
         }
 
-
+        console.log("chart  measuresProperties ", this.props.measuresProperties);
 
         /* Add series*/
         this.props.keys.forEach((dataKey, keyIndex)=>{
@@ -198,9 +198,10 @@ export default class AMChart extends Component {
 
 
             if (dataKey in this.props.measuresProperties){
-                seriesType = this.props.measuresProperties[dataKey].seriesType;
-                additionalAxis = this.props.measuresProperties[dataKey].additionalAxis==1;
-                showLinearTrend = this.props.measuresProperties[dataKey].showLinearTrend==1;
+                console.log("chart series "+dataKey, this.props.measuresProperties[dataKey]);
+                seriesType = this.props.measuresProperties[dataKey].chartType;
+                additionalAxis = this.props.measuresProperties[dataKey].additionalAxis;
+                showLinearTrend = this.props.measuresProperties[dataKey].showLinearTrend;
                 smoothLine = this.props.measuresProperties[dataKey].smoothLine;
                 fillOpacity = this.props.measuresProperties[dataKey].fillOpacity;
                 stacked = this.props.measuresProperties[dataKey].stacked;
@@ -212,12 +213,6 @@ export default class AMChart extends Component {
                 trendDescription['additionalAxis'] = additionalAxis;
                 this.createTrendLine(trendDescription);
             }
-            /*
-            ищем , может быть такая серия уже существует и ее не нужно создавать?
-            var seriesIndex = this.chart.series.values.findIndex(series=>{
-                    return (series.dataFields.valueY == dataKey);
-            });
-            */
 
             if (seriesType=="Bar"){
                 var series = this.chart.series.push(new am4charts.ColumnSeries());
@@ -234,9 +229,9 @@ export default class AMChart extends Component {
 
 
             if (additionalAxis){
-                series.yAxis = this.chart.yAxes.values[1];// valueAxis2;
+                series.yAxis = this.chart.yAxes.values[1];
             }else{
-                series.yAxis = this.chart.yAxes.values[0];// valueAxis;
+                series.yAxis = this.chart.yAxes.values[0];
             }
 
             series.stacked = stacked;
@@ -248,6 +243,7 @@ export default class AMChart extends Component {
                 series.fillOpacity = 0;
                 series.strokeOpacity = 0;
             }else if (seriesType =="Area"){
+                console.log("Areea!= fillOpacity", fillOpacity);
                 series.fillOpacity = fillOpacity;
                 series.tensionX = 1-smoothLine;
             }else if (seriesType =="Bar"){

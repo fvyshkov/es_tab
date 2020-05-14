@@ -294,8 +294,27 @@ export class BarChartPanel extends Component {
 
     seriesSetup(seriesName){
         console.log("seriesSetup1=", seriesName);
-        const seriesType = ["Bar", "Line", "Area", "Dots"] ;
+        /*
+        if (this.state.chartParams.chartType=="Pie"){
+            const seriesType = ["Pie"];
+        }else{
+            const seriesType = ["Bar", "Line", "Area", "Dots"];
+        }
+
         this.seriesName = seriesName;
+        */
+
+        if (seriesName in this.state.measuresProperties){
+            this.seriesData = this.state.measuresProperties[seriesName];
+        } else{
+            this.seriesData = this.state.chartParams;
+        }
+
+        this.seriesData.seriesName = seriesName;
+
+        this.setState({chartSeriesSetupPanelVisible: true});
+
+        return;
         this.seriesData = [
                          {
                             dataField:"seriesName",
@@ -378,6 +397,21 @@ export class BarChartPanel extends Component {
         this.prepareData(this.state.selectedCategory);
     }
 
+    saveSeriesParamsData(params){
+        console.log("getSeriesParamsData", params);
+
+
+        for(var param in params){
+            if (param != "seriesName"){
+                if (!this.state.measuresProperties[params.seriesName]){
+                    this.state.measuresProperties[params.seriesName] = {};
+                }
+                this.state.measuresProperties[params.seriesName][param] = params[param];
+            }
+        }
+        this.setState({measuresProperties: this.state.measuresProperties});
+    }
+
     render() {
 
         var colorFuncton = d3.scaleOrdinal(this.state.colorScheme in colorMaps ?
@@ -436,25 +470,19 @@ export class BarChartPanel extends Component {
                                 {
                                     widget: "dxButton",
                                     location: "after",
-
                                     toolbar: "bottom",
-
-
                                     options: {
                                         text: "OK",
                                         onClick: (params)=> {
-                                                            console.log("save series params", params);
-
+                                                            this.sendSeriesParamsDataRequest();
+                                                            this.setState({chartSeriesSetupPanelVisible:false});
                                                        }
                                     }
                                 },
                                 {
                                     widget: "dxButton",
                                     location: "after",
-
                                     toolbar: "bottom",
-
-
                                     options: {
                                         text: "Отмена",
                                         onClick: ()=> this.setState({chartSeriesSetupPanelVisible:false})
@@ -465,8 +493,9 @@ export class BarChartPanel extends Component {
                  >
                  <ChartFormFields
                         seriesName={this.seriesName}
+                        sendData={this.saveSeriesParamsData.bind(this)}
+                        sendDataRequest={click => this.sendSeriesParamsDataRequest = click}
                         onFieldDataChanged={(params)=>{
-                            //this.onChangeSeriesParams(params).bind(this);
                             console.log("onFieldDataChanged", params);
                         }}
                         chartParams={this.seriesData}
