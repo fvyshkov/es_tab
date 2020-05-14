@@ -519,9 +519,6 @@ export default class ReGrid extends React.Component {
         if (this.props.onCellValueChanged) {
             this.props.onCellValueChanged(params);
         }
-
-        this.sendRefreshChartData(this.prepareDataForChart());
-
     }
 
     sendExpandNode(nodeId){
@@ -608,8 +605,11 @@ export default class ReGrid extends React.Component {
     }
 
 
+    onRowDataUpdated(){
+        this.sendRefreshChartData(this.prepareDataForChart());
+    }
 
-  render() {
+    render() {
 
         if (this.gridApi && this.props.loading){
             this.gridApi.showLoadingOverlay();
@@ -640,7 +640,7 @@ export default class ReGrid extends React.Component {
                             frameworkComponents={this.state.frameworkComponents}
                             onModelUpdated={this.onModelUpdated}
                             onRowDataChanged={this.onRowDataChanged}
-                            onRowDataUpdated={this.onRowDataUpdated}
+                            onRowDataUpdated={this.onRowDataUpdated.bind(this)}
                             processChartOptions={this.processChartOptions.bind(this)}
                             onFirstDataRendered={this.onFirstDataRendered.bind(this)}
                             enableRangeSelection={true}
