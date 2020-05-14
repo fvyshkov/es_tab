@@ -129,10 +129,12 @@ export default class AMChart extends Component {
             });
 
 
+
             pieSeries.labels.template.text = "{category}: {value.value}";
             pieSeries.slices.template.tooltipText = "{category}, " + dataKey + ": {value.value}[/]";
 
             pieSeries.slices.template.stroke = am4core.color("#fff");
+            pieSeries.slices.template.fillOpacity = this.props.chartParams.fillOpacity;
             pieSeries.slices.template.strokeWidth = 2;
             //pieSeries.slices.template.fill = this.props.getColor(keyIndex);
 
@@ -146,6 +148,7 @@ export default class AMChart extends Component {
 
 
     createChart() {
+
         if (this.props.chartParams && this.props.chartParams.chartType=="Pie"){
             this.createPieChart();
             return;

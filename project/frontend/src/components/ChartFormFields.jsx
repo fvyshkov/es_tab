@@ -48,11 +48,8 @@ export class ChartFormFields extends Component {
     }
 
     render() {
-        const chartTypeList = ["Bar", "Line", "Area", "Dots", "Pie"] ;
-        console.log(" form render ", this.props.chartParams.chartType);
 
         var itemList = this.formParams? this.formParams.map((param)=>{
-                console.log("itemDatafield", param.dataField);
                 return (<Item
                     key={param.dataField}
                     dataField={param.dataField}
@@ -63,6 +60,21 @@ export class ChartFormFields extends Component {
                     visible={param.visible}
                 />);
         }):[];
+
+        var chartTypesFiltered = chartTypes;
+
+        if (this.props.chartParams.seriesName){
+            if (this.props.chartParams.chartType=="Pie"){
+                chartTypesFiltered = chartTypesFiltered.filter((chartTypeItem)=>{
+                    return chartTypeItem.code=="Pie"
+                });
+            }else{
+                chartTypesFiltered = chartTypesFiltered.filter((chartTypeItem)=>{
+                    return chartTypeItem.code!="Pie"
+                });
+
+            }
+        }
 
         return (
             <React.Fragment>
@@ -88,7 +100,7 @@ export class ChartFormFields extends Component {
                             editorType= "dxSelectBox"
                             visible={true}
                             editorOptions={ {
-                                items: chartTypes,
+                                items: chartTypesFiltered,
                                 itemTemplate: "myItemTemplate" ,
                                 fieldTemplate: "myItemTemplate" ,
                                 valueExpr:"code",
