@@ -88,7 +88,6 @@ export class BarChartPanel extends Component {
     constructor(props) {
         super(props);
         this.state = {
-                       data:props.data,
                        selectedCategory:"",
                        preparedData:[],
                        measures:[],
@@ -143,6 +142,12 @@ export class BarChartPanel extends Component {
 
     }
 
+    componentDidUpdate(oldProps){
+        if (JSON.stringify(oldProps.data)!=JSON.stringify(this.props.data)){
+            this.prepareData(this.state.selectedCategory);
+        }
+    }
+
     componentDidMount(){
         this.prepareData();
 
@@ -168,8 +173,8 @@ export class BarChartPanel extends Component {
 
     refreshChartData(data){
         //console.log("refreshChartData", data);
-        this.setState({data:data});
-        this.prepareData(this.state.selectedCategory);
+        //this.setState({data:data});
+        //this.prepareData(this.state.selectedCategory);
     }
 
     prepareData(selectedCategory){
@@ -178,7 +183,7 @@ export class BarChartPanel extends Component {
         var measures = [];
         var categories = [];
 
-        this.state.data.forEach(element=>{
+        this.props.data.forEach(element=>{
 
             for (var key in element){
                 if (key!="value" && key!= "measure"){
@@ -194,7 +199,7 @@ export class BarChartPanel extends Component {
         var selectedCategoryInner = selectedCategory? selectedCategory: categories[0];
 
 
-        this.state.data.forEach(element=>{
+        this.props.data.forEach(element=>{
             if (!this.state.transposeData){
                 if (!measures.find(el=>{return el==element['measure']})){
                     measures.push(element['measure']);
@@ -211,7 +216,7 @@ export class BarChartPanel extends Component {
         //var selectedCategoryForData = this.state.transposeData ? COLUMN_CATEGORY_NAME : selectedCategoryInner;
 
 
-        this.state.data.forEach(element=>{
+        this.props.data.forEach(element=>{
 
             if (!this.state.transposeData){
                 var currentPreparedIndex = preparedData.findIndex(el=> {
@@ -437,7 +442,7 @@ export class BarChartPanel extends Component {
           revealMode={'slide'}
           component={()=> {
                     return (<ChartControlPanel
-                        data={this.state.data}
+                        data={this.props.data}
                         categoryOnValueChanged={this.onChangeCategory.bind(this)}
                         categoryItems={this.state.categories}
                         categoryValue={this.state.selectedCategory}
@@ -507,7 +512,7 @@ export class BarChartPanel extends Component {
                     />);
                     }}
           closeOnOutsideClick={this.onOutsideClick}
-          data={this.state.data}
+          data={this.props.data}
           >
           <div id={"chart_content_"+this.props.layoutItemID} className="chart-wrapper">
                 <ChartComponent
@@ -569,7 +574,7 @@ function mapStateToProps(state) {
 const mapStateToProps = state => {
     console.log("BAR mapStateToProps", state);
     return {
-      data: gridData
+      data: state.gridData
   };
     /*
   const { byIds, allIds } = state.todos || {};
@@ -581,6 +586,6 @@ const mapStateToProps = state => {
   */
 };
 
-
-
 export default connect(mapStateToProps)(BarChartPanel);
+
+

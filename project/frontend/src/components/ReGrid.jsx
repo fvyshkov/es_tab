@@ -25,7 +25,8 @@ import CommentImg from '../images/chat.png';
 import {Spinner} from './spin.js';
 import {someChartModel, someChartModel2} from './testData.js';
 
-import {BarChartPanel, chartTypes} from './BarChartPanel.jsx';
+import BarChartPanel from './BarChartPanel.jsx';
+import {chartTypes} from './BarChartPanel.jsx';
 import { connect } from "react-redux";
 import { updateGrid } from "../actions";
 
