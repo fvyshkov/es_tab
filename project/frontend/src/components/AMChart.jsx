@@ -83,8 +83,6 @@ export default class AMChart extends Component {
     createTrendLine(trendDescription) {
         var trend = this.chart.series.push(new am4charts.LineSeries());
 
-        trend.dataFields.valueY = trendDescription.valueY;
-        trend.dataFields.categoryX = trendDescription.categoryX;
         trend.strokeWidth = 4;
         if (trendDescription.strokeColor){
             trend.stroke = am4core.color(trendDescription.strokeColor);
@@ -99,10 +97,15 @@ export default class AMChart extends Component {
         bullet.stroke = am4core.color("#66ccff")
         bullet.circle.fill = trend.stroke;
 
-        if (trendDescription.additionalAxis){
-            trend.yAxis = this.chart.yAxes.values[1];// valueAxis2;
+
+        if (this.props.chartParams.invertedAxis){
+            trend.xAxis = this.chart.xAxes.values[trendDescription.additionalAxis? 1 : 0];
+            trend.dataFields.valueX = trendDescription.valueY;
+            trend.dataFields.categoryY = trendDescription.categoryX;
         }else{
-            trend.yAxis = this.chart.yAxes.values[0];// valueAxis;
+            trend.yAxis = this.chart.yAxes.values[trendDescription.additionalAxis? 1 : 0];
+            trend.dataFields.valueY = trendDescription.valueY;
+            trend.dataFields.categoryX = trendDescription.categoryX;
         }
 
         var hoverState = bullet.states.create("hover");
@@ -116,8 +119,6 @@ export default class AMChart extends Component {
         this.chart.data = this.props.data;
         // Add and configure Series
         this.props.keys.forEach((dataKey, keyIndex)=>{
-
-        //trendDescription['strokeColor'] = this.props.getColor(keyIndex);
 
             var pieSeries = this.chart.series.push(new am4charts.PieSeries());
             pieSeries.dataFields.value = dataKey;
@@ -161,14 +162,20 @@ export default class AMChart extends Component {
             this.chart.cursor = new am4charts.XYCursor();
             this.chart.cursor.maxTooltipDistance = 1;
 
-            var categoryAxis = this.chart.xAxes.push(new am4charts.CategoryAxis());
+            if (this.props.chartParams.invertedAxis){
+                var AxesForCategory = this.chart.yAxes;
+                var AxesForValue = this.chart.xAxes;
+            }else{
+                var AxesForCategory = this.chart.xAxes;
+                var AxesForValue = this.chart.yAxes;
+            }
+
+            var categoryAxis = AxesForCategory.push(new am4charts.CategoryAxis());
             categoryAxis.renderer.minGridDistance = 30;
 
-
             /* Create value axis */
-            var valueAxis = this.chart.yAxes.push(new am4charts.ValueAxis());
-
-            var valueAxis2 = this.chart.yAxes.push(new am4charts.ValueAxis());
+            var valueAxis = AxesForValue.push(new am4charts.ValueAxis());
+            var valueAxis2 = AxesForValue.push(new am4charts.ValueAxis());
             valueAxis2.renderer.opposite = true;
             valueAxis2.syncWithAxis = valueAxis;
             valueAxis2.tooltip.disabled = true;
@@ -182,7 +189,7 @@ export default class AMChart extends Component {
             }
 
         }
-        this.chart.xAxes.values[0].dataFields.category = this.props.indexBy;
+        AxesForCategory.values[0].dataFields.category = this.props.indexBy;
         this.chart.data = this.props.data;
 
         /* Delete series */
@@ -226,24 +233,30 @@ export default class AMChart extends Component {
             }
 
             series.name = dataKey;
-            series.dataFields.valueY = dataKey;
-            series.dataFields.categoryX = this.props.indexBy;
             series.fill = this.props.getColor(keyIndex);
             series.stroke = this.props.getColor(keyIndex);
             series.tooltip.label.textAlign = "middle";
 
 
-            if (additionalAxis){
-                series.yAxis = this.chart.yAxes.values[1];
+            if (this.props.chartParams.invertedAxis){
+                series.xAxis = this.chart.xAxes.values[additionalAxis? 1 : 0];
+                series.dataFields.valueX = dataKey;
+                series.dataFields.categoryY = this.props.indexBy;
             }else{
-                series.yAxis = this.chart.yAxes.values[0];
+                series.yAxis = this.chart.yAxes.values[additionalAxis? 1 : 0];
+                series.dataFields.valueY = dataKey;
+                series.dataFields.categoryX = this.props.indexBy;
             }
 
             series.stacked = stacked;
 
             if (seriesType=="Line"){
                 series.fillOpacity = 0;
-                series.tensionX = 1-smoothLine;
+                if (this.props.chartParams.invertedAxis){
+                    series.tensionY = 1-smoothLine;
+                }else{
+                    series.tensionX = 1-smoothLine;
+                }
             }else if (seriesType == "Dots"){
                 series.fillOpacity = 0;
                 series.strokeOpacity = 0;
@@ -276,7 +289,7 @@ export default class AMChart extends Component {
             }else if (series instanceof am4charts.LineSeries){
 
                 var bullet = series.bullets.push(new am4charts.Bullet());
-                bullet.fill = am4core.color("#fdd400"); // tooltips grab fill from parent by default
+                bullet.fill = am4core.color("#fdd400");
 
                 bullet.seriesName = dataKey;
 

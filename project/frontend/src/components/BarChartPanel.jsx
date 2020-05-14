@@ -71,6 +71,7 @@ const defaultChartParms = {
     additionalAxis: false,
     strokeDasharray: false,
     stacked: false,
+    invertedAxis: false,
 }
 
 export class BarChartPanel extends Component {
