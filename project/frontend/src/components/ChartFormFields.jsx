@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Form, { Item } from 'devextreme-react/form';
-import {chartTypes} from './BarChartPanel.jsx';
+import {chartTypes, strokeDasharrayList} from './BarChartPanel.jsx';
 import { Template } from 'devextreme-react/core/template';
 import { TextBox } from 'devextreme-react';
 
@@ -122,6 +122,26 @@ export class ChartFormFields extends Component {
 
                           />
 
+                          <Item
+                            dataField="strokeWidth"
+                            label={{text:"Толщина линии"}}
+                            editorType= "dxSlider"
+                            editorOptions={ { min:1, max:10, step:1}}
+                            visible={ ["Line", "Area", "Bar"].includes(this.state.formData.chartType)}
+
+                          />
+
+                          <Item
+                            dataField="strokeDasharray"
+                            label={{text:"Стиль линии"}}
+                            editorType= "dxSelectBox"
+                            editorOptions={ {
+                                items: strokeDasharrayList
+                            }
+                            }
+                            visible={ ["Line", "Area"].includes(this.state.formData.chartType)}
+                          />
+
                             <Item
                             dataField="fillOpacity"
                             label={{text:"Плотность заливки"}}
@@ -143,7 +163,6 @@ export class ChartFormFields extends Component {
                             dataField="additionalAxis"
                             label={{text:"Вспомогательная ось"}}
                             editorType= "dxCheckBox"
-                            value={ this.state.additionalAxis }
                             visible={ this.state.formData.chartType!="Pie" }
 
                           />
@@ -152,7 +171,6 @@ export class ChartFormFields extends Component {
                             dataField="stacked"
                             label={{text:"С накоплением"}}
                             editorType= "dxCheckBox"
-                            value={ this.state.stacked }
                             visible={ this.state.formData.chartType!="Pie" }
 
                           />
@@ -161,7 +179,6 @@ export class ChartFormFields extends Component {
                             dataField="showPercent"
                             label={{text:" Номинированные значения"}}
                             editorType= "dxCheckBox"
-                            value={ this.state.showPercent }
                             visible={ this.state.formData.chartType!="Pie" }
 
                           />
@@ -170,7 +187,6 @@ export class ChartFormFields extends Component {
                             dataField="invertedAxis"
                             label={{text:"Значения по горизонтали"}}
                             editorType= "dxCheckBox"
-                            value={ this.state.invertedAxis }
                             visible={ this.state.formData.chartType!="Pie" }
 
                           />

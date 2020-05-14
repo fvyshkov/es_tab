@@ -73,7 +73,16 @@ const defaultChartParms = {
     stacked: false,
     invertedAxis: false,
     showPercent: false,
+    strokeWidth: 1,
+    strokeDasharray:""
 }
+
+export const strokeDasharrayList=[
+    "",
+    "2,4",
+    "8,4",
+    "8,4,2,4",
+];
 
 export class BarChartPanel extends Component {
     constructor(props) {

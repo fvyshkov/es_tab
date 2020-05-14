@@ -227,6 +227,8 @@ export default class AMChart extends Component {
             var smoothLine = this.props.chartParams.smoothLine;
             var fillOpacity = this.props.chartParams.fillOpacity;
             var stacked = this.props.chartParams.stacked;
+            var strokeWidth = this.props.chartParams.strokeWidth;
+            var strokeDasharray = this.props.chartParams.strokeDasharray;
 
 
             if (dataKey in this.props.measuresProperties){
@@ -237,6 +239,8 @@ export default class AMChart extends Component {
                 smoothLine = this.props.measuresProperties[dataKey].smoothLine;
                 fillOpacity = this.props.measuresProperties[dataKey].fillOpacity;
                 stacked = this.props.measuresProperties[dataKey].stacked;
+                strokeWidth = this.props.measuresProperties[dataKey].strokeWidth;
+                strokeDasharray = this.props.measuresProperties[dataKey].strokeDasharray;
             }
 
             if (showLinearTrend){
@@ -287,12 +291,16 @@ export default class AMChart extends Component {
                 series.fillOpacity = 0;
                 series.strokeOpacity = 0;
             }else if (seriesType =="Area"){
-                console.log("Areea!= fillOpacity", fillOpacity);
                 series.fillOpacity = fillOpacity;
                 series.tensionX = 1-smoothLine;
+
             }else if (seriesType =="Bar"){
                 series.fillOpacity = fillOpacity;
+
             }
+
+            series.strokeWidth = strokeWidth;
+            series.strokeDasharray = strokeDasharray;
 
             series.tooltipText = "[#fff font-size: 15px]{name} - {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
 
