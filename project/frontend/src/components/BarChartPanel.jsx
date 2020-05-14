@@ -360,13 +360,13 @@ export class BarChartPanel extends Component {
              <Popup
                   visible={true}
                   onHiding={()=>{this.setState({chartSeriesSetupPanelVisible:false});}}
-                  dragEnabled={false}
+                  dragEnabled={true}
                   closeOnOutsideClick={true}
                   showTitle={true}
                   title={"Серия данных"}
                   resizeEnabled={true}
                   width={400}
-                  height={520}
+                  height={700}
                   toolbarItems={
                   [
                                 {
