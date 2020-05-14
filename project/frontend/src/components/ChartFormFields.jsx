@@ -1,6 +1,21 @@
 import React, { Component } from 'react';
 import Form, { Item } from 'devextreme-react/form';
+import {chartTypes} from './BarChartPanel.jsx';
+import { Template } from 'devextreme-react/core/template';
+import { TextBox } from 'devextreme-react';
 
+const selectBoxItemRender = function(data) {
+         return (
+
+                <div className="custom-item">
+                  <img width="30" height="30" src={data && data.img} />
+                  <TextBox className="product-name"
+                    defaultValue={data && data.name}
+                    readOnly={true} />
+                </div>
+
+         );
+    }
 
 export class ChartFormFields extends Component {
     constructor(props) {
@@ -13,6 +28,8 @@ export class ChartFormFields extends Component {
                      };
     }
 
+
+
     componentDidMount(){
         if (this.props.sendDataRequest){
             this.props.sendDataRequest(this.sendData.bind(this));
@@ -23,6 +40,11 @@ export class ChartFormFields extends Component {
         if (this.props.sendData){
             this.props.sendData(this.state.formData);
         }
+    }
+
+    chartTypeRender(item){
+        console.log("chartTypeRender", item);
+        return (<h1>{item? item.name: null}</h1>);
     }
 
     render() {
@@ -45,7 +67,6 @@ export class ChartFormFields extends Component {
         return (
             <React.Fragment>
 
-
                     <div className="widget-container">
                         <Form
                             key={this.state.key}
@@ -67,7 +88,10 @@ export class ChartFormFields extends Component {
                             editorType= "dxSelectBox"
                             visible={true}
                             editorOptions={ {
-                                items: chartTypeList,
+                                items: chartTypes,
+                                itemTemplate: "myItemTemplate" ,
+                                fieldTemplate: "myItemTemplate" ,
+                                valueExpr:"code",
                                 onValueChanged: (e) => {
                                     this.setState({
                                         chartType: e.component.option('value'),
@@ -121,11 +145,13 @@ export class ChartFormFields extends Component {
 
                           />
 
-
+                            <Template name='myItemTemplate' render={selectBoxItemRender} />
 
                         </Form>
                 </div>
             </React.Fragment>
         );
     }
+
+
 }
