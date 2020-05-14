@@ -293,98 +293,12 @@ export class BarChartPanel extends Component {
     }
 
     seriesSetup(seriesName){
-        console.log("seriesSetup1=", seriesName);
-        /*
-        if (this.state.chartParams.chartType=="Pie"){
-            const seriesType = ["Pie"];
-        }else{
-            const seriesType = ["Bar", "Line", "Area", "Dots"];
-        }
-
-        this.seriesName = seriesName;
-        */
-
         if (seriesName in this.state.measuresProperties){
             this.seriesData = this.state.measuresProperties[seriesName];
         } else{
             this.seriesData = this.state.chartParams;
         }
-
         this.seriesData.seriesName = seriesName;
-
-        this.setState({chartSeriesSetupPanelVisible: true});
-
-        return;
-        this.seriesData = [
-                         {
-                            dataField:"seriesName",
-                            label:"Наименование серии",
-                            value: seriesName,
-                            visible: true
-                         },
-
-
-                        {
-                            dataField:"seriesType",
-                            label:"Тип диаграммы",
-                            editorType: "dxSelectBox",
-                            editorOptions: {
-                                items: seriesType,
-                                onValueChanged: (e) => {
-                                    console.log("seriesType onValueChanged", e.component.option('value'));
-
-                                    this.setState({
-                                        seriesTypeSelected: e.component.option('value')
-                                    });
-                                    this.seriesSetup();
-                                }
-                            },
-                            value: seriesName in this.state.measuresProperties ? this.state.measuresProperties[seriesName].seriesType: "Bar",
-                            visible: true
-                        },
-
-                        {
-                            dataField:"smoothLine",
-                            label:"Сглаживание",
-                            editorType: "dxSlider",
-                            editorOptions: { min:0, max:1, step:.1},
-                            value: seriesName in this.state.measuresProperties ? this.state.measuresProperties[seriesName].smoothLine:0,
-                            visible: ["Line", "Area"].includes(this.state.seriesTypeSelected)
-                         },
-
-                         {
-                            dataField:"fillOpacity",
-                            label:"Плотность заливки",
-                            editorType: "dxSlider",
-                            editorOptions: { min:0, max:1, step:.1},
-                            value: seriesName in this.state.measuresProperties ? this.state.measuresProperties[seriesName].fillOpacity:.8,
-                            visible: ["Bar", "Area"].includes(this.state.seriesTypeSelected)
-                         },
-
-                        {
-                            dataField:"additionalAxis",
-                            label:"Вспомогательная ось",
-                            value: seriesName in this.state.measuresProperties && this.state.measuresProperties[seriesName].additionalAxis=="1"? true: false,
-                            editorType: "dxCheckBox",
-
-                            visible: this.state.seriesTypeSelected!="Pie"
-                        },
-                        {
-                            dataField:"showLinearTrend",
-                            label:" Линейный тренд",
-                            value: seriesName in this.state.measuresProperties && this.state.measuresProperties[seriesName].showLinearTrend=="1"? true: false,
-                            editorType: "dxCheckBox",
-
-                            visible: this.state.seriesTypeSelected!="Pie"
-                        },
-
-
-
-                        ];
-
-        this.setState({seriesData : this.state.seriesData});
-
-
         this.setState({chartSeriesSetupPanelVisible: true});
     }
 
@@ -398,17 +312,7 @@ export class BarChartPanel extends Component {
     }
 
     saveSeriesParamsData(params){
-        console.log("getSeriesParamsData", params);
-
-
-        for(var param in params){
-            if (param != "seriesName"){
-                if (!this.state.measuresProperties[params.seriesName]){
-                    this.state.measuresProperties[params.seriesName] = {};
-                }
-                this.state.measuresProperties[params.seriesName][param] = params[param];
-            }
-        }
+        this.state.measuresProperties[params.seriesName] = params;
         this.setState({measuresProperties: this.state.measuresProperties});
     }
 
@@ -428,30 +332,6 @@ export class BarChartPanel extends Component {
         const ChartComponent = ChartComponents[this.props.chartComponentIndex? this.props.chartComponentIndex:0];
 
         var contentElement = document.querySelector("#chart_content_"+this.props.layoutItemID);
-
-        var seriesSetupDialog =this.state.chartSeriesSetupPanelVisible ? <SimpleDialog
-                    dialogParams={this.seriesData}
-                    popupVisible={true}
-                    title={"Серия данных"}
-                    onDialogClose={()=>{this.setState({chartSeriesSetupPanelVisible:false});}}
-                    onDialogConfirm={(params)=>{
-
-                        for(var param in params){
-                            if (param != "seriesName"){
-                                if (!this.state.measuresProperties[params.seriesName.value]){
-                                    this.state.measuresProperties[params.seriesName.value] = {};
-                                }
-                                this.state.measuresProperties[params.seriesName.value][param] = params[param].value;
-                            }
-                        }
-                        this.setState({measuresProperties: this.state.measuresProperties});
-                        console.log("this.state.measuresProperties", this.state.measuresProperties);
-                        this.setState({chartSeriesSetupPanelVisible:false});
-                    }}
-                    width={400}
-                    height={400}
-                />:null;
-
 
         var seriesParamsDialog = this.state.chartSeriesSetupPanelVisible ?
 
