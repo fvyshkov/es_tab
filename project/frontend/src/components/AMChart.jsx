@@ -429,31 +429,7 @@ export default class AMChart extends Component {
 
         }
 
-        ///////
-        if (this.props.chartParams.race){
-            var label = this.chart.plotContainer.createChild(am4core.Label);
-            label.x = am4core.percent(97);
-            label.y = am4core.percent(95);
-            label.horizontalCenter = "right";
-            label.verticalCenter = "middle";
-            label.dx = -15;
-            label.fontSize = 50;
 
-            var playButton = this.chart.plotContainer.createChild(am4core.PlayButton);
-            playButton.x = am4core.percent(97);
-            playButton.y = am4core.percent(95);
-            playButton.dy = -2;
-            playButton.verticalCenter = "middle";
-            playButton.events.on("toggled", function(event) {
-              if (event.target.isActive) {
-                play();
-              }
-              else {
-                stop();
-              }
-            });
-        }
-        ///////
 
         var AxesForCategory = this.props.chartParams.invertedAxis ? this.chart.yAxes : this.chart.xAxes;
         AxesForCategory.values[0].dataFields.category = this.props.indexBy;
@@ -617,6 +593,151 @@ export default class AMChart extends Component {
         });
 
 
+        ///////RACE BEGIN
+        if (this.props.chartParams.race){
+
+            this.chart.numberFormatter.bigNumberPrefixes = [
+                  { "number": 1e+3, "suffix": "K" },
+                  { "number": 1e+6, "suffix": "M" },
+                  { "number": 1e+9, "suffix": "B" }
+                ];
+
+            var stepDuration = 4000;
+            var chart = this.chart;
+
+            this.chart.series.values.forEach(series=>{
+                series.interpolationDuration = stepDuration;
+                series.interpolationEasing = am4core.ease.linear;
+
+                var labelBullet = series.bullets.push(new am4charts.LabelBullet())
+
+                if (this.props.chartParams.invertedAxis){
+                    labelBullet.label.text = "{valueX.workingValue.formatNumber('#.0as')}";//"{values.valueX.workingValue.formatNumber('#.0as')}";
+                    labelBullet.label.horizontalCenter = "right";
+                    labelBullet.label.textAlign = "end";
+                }else{
+                    labelBullet.label.text = "{valueY.workingValue.formatNumber('#.0as')}";//"{values.valueX.workingValue.formatNumber('#.0as')}";
+                    labelBullet.label.horizontalCenter = "middle";
+                    labelBullet.label.verticalCenter = "top";
+                }
+
+                labelBullet.label.dx = -10;
+            });
+
+            var label = this.chart.plotContainer.createChild(am4core.Label);
+            label.x = am4core.percent(97);
+            label.y = am4core.percent(95);
+            label.horizontalCenter = "right";
+            label.verticalCenter = "middle";
+            label.dx = -15;
+            label.fontSize = 50;
+
+            var playButton = this.chart.plotContainer.createChild(am4core.PlayButton);
+            playButton.x = am4core.percent(97);
+            playButton.y = am4core.percent(95);
+            playButton.dy = -2;
+            playButton.verticalCenter = "middle";
+
+            playButton.events.on("toggled", function(event) {
+              if (event.target.isActive) {
+                play(this);
+              }
+              else {
+                stop();
+              }
+            }, this);
+
+            var beginCategory= this.props.data[0][this.props.indexBy];
+            var raceCurrentCategory = beginCategory;
+            label.text = raceCurrentCategory;
+            /////setup first data
+            var newData = this.props.data.filter(row=>{
+                    return row[this.props.indexBy]==raceCurrentCategory;
+              });
+              this.chart.data = newData;
+              /////
+
+            var interval;
+
+            function play(component) {
+              interval = setInterval(function(){
+                nextCategory(component);
+              }, stepDuration)
+              nextCategory(component);
+            }
+
+            function stop() {
+              if (interval) {
+                clearInterval(interval);
+              }
+            }
+
+            function nextCategory(component) {
+                var indexOfCurrent = component.props.data.findIndex(row=>{
+                    return row[component.props.indexBy] == raceCurrentCategory;
+                });
+                if (indexOfCurrent==component.props.data.length-1){
+                    var indexOfNext = 0;
+                }else{
+                    var indexOfNext = indexOfCurrent+1;
+                }
+                raceCurrentCategory = component.props.data[indexOfNext][component.props.indexBy];
+                    /*
+                component.props.data[this.props.indexBy]
+              raceCurrentCategory = (parseInt(raceCurrentCategory)+1).toString()
+
+              if (raceCurrentCategory=="9" ) {
+                raceCurrentCategory  = beginCategory;
+              }
+              */
+              var categoryAxis = AxesForCategory.values[0];
+              var valueAxis =  AxesForValue.values[0];
+
+              var newData = component.props.data.filter(row=>{
+                    return row[component.props.indexBy]==raceCurrentCategory;
+              });
+
+              //component.chart.data = newData;
+
+                component.props.keys.forEach((key,index)=>{
+                    component.chart.data[0][key] = newData[0][key];
+
+                });
+                component.chart.invalidateRawData();
+
+              console.log("RACE", component.chart.data);
+              var itemsWithNonZero = 0;
+
+                /*
+              for (var i = 0; i < chart.data.length; i++) {
+                chart.data[i].MAU = newData[i].MAU;
+                if (chart.data[i].MAU > 0) {
+                  itemsWithNonZero++;
+                }
+              }*/
+
+              component.chart.series.values.forEach(series=>{
+                    if (raceCurrentCategory == beginCategory) {
+                        series.interpolationDuration = stepDuration / 4;
+                        valueAxis.rangeChangeDuration = stepDuration / 4;
+                    }
+                    else {
+                        series.interpolationDuration = stepDuration;
+                        valueAxis.rangeChangeDuration = stepDuration;
+                    }
+              });
+
+               /**/
+              component.chart.invalidateRawData();
+              label.text = raceCurrentCategory;
+
+              categoryAxis.zoom({ start: 0, end: itemsWithNonZero / categoryAxis.dataItems.length });
+
+            }
+
+
+        }
+        ///////RACE END
 
     }
 
