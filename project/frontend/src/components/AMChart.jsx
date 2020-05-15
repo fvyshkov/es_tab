@@ -397,9 +397,10 @@ export default class AMChart extends Component {
         var isChartXYExists = this.chart && this.chart.prototype &&
                                     this.chart.prototype.isPrototypeOf(am4charts.XYChart);
         if (!isChartXYExists){
+
             this.chart = am4core.create("chartdiv_"+this.props.chartId, am4charts.XYChart);
-            this.chart.cursor = new am4charts.XYCursor();
-            this.chart.cursor.maxTooltipDistance = 1;
+
+
 
             if (this.props.chartParams.invertedAxis){
                 var AxesForCategory = this.chart.yAxes;
@@ -419,6 +420,14 @@ export default class AMChart extends Component {
             valueAxis2.syncWithAxis = valueAxis;
             valueAxis2.tooltip.disabled = true;
 
+
+
+        }
+
+        if (!this.props.chartParams.race){
+            this.chart.cursor = new am4charts.XYCursor();
+            this.chart.cursor.maxTooltipDistance = 1;
+
             if (this.props.scrollbarX){
                 this.chart.scrollbarX = new am4core.Scrollbar();
             }
@@ -426,9 +435,7 @@ export default class AMChart extends Component {
             if (this.props.scrollbarY){
                 this.chart.scrollbarY = new am4core.Scrollbar();
             }
-
         }
-
 
 
         var AxesForCategory = this.props.chartParams.invertedAxis ? this.chart.yAxes : this.chart.xAxes;
@@ -604,33 +611,75 @@ export default class AMChart extends Component {
 
             var stepDuration = 4000;
             var chart = this.chart;
+            var label = this.chart.plotContainer.createChild(am4core.Label);
+            var categoryAxis = AxesForCategory.values[0];
+            var valueAxis =  AxesForValue.values[0];
+
+                categoryAxis.renderer.grid.template.location = 0;
+                //categoryAxis.dataFields.category = "network";
+                categoryAxis.renderer.minGridDistance = 1;
+                categoryAxis.renderer.inversed = true;
+                categoryAxis.renderer.grid.template.disabled = true;
+
+            valueAxis.min = 0;
+            valueAxis.rangeChangeEasing = am4core.ease.linear;
+            valueAxis.rangeChangeDuration = stepDuration;
+            valueAxis.extraMax = 0.1;
+
+
+            if (this.props.chartParams.invertedAxis){
+                label.x = am4core.percent(97);
+                label.y = am4core.percent(95);
+                label.dx = -15;
+                label.fontSize = 20;
+                label.horizontalCenter = "right";
+                label.verticalCenter = "middle";
+
+
+            }else{
+                label.x = am4core.percent(3);
+                label.y = am4core.percent(5);
+                label.dx = -15;
+                label.fontSize = 20;
+                label.horizontalCenter = "left";
+                label.verticalCenter = "middle";
+            }
+
 
             this.chart.series.values.forEach(series=>{
                 series.interpolationDuration = stepDuration;
                 series.interpolationEasing = am4core.ease.linear;
 
+
+
+
                 var labelBullet = series.bullets.push(new am4charts.LabelBullet())
+
+                const cornerRadius = 5;
 
                 if (this.props.chartParams.invertedAxis){
                     labelBullet.label.text = "{valueX.workingValue.formatNumber('#.0as')}";//"{values.valueX.workingValue.formatNumber('#.0as')}";
                     labelBullet.label.horizontalCenter = "right";
                     labelBullet.label.textAlign = "end";
+
+                    series.columns.template.column.cornerRadiusBottomRight = cornerRadius;
+                    series.columns.template.column.cornerRadiusTopRight = cornerRadius;
+
+
                 }else{
                     labelBullet.label.text = "{valueY.workingValue.formatNumber('#.0as')}";//"{values.valueX.workingValue.formatNumber('#.0as')}";
                     labelBullet.label.horizontalCenter = "middle";
                     labelBullet.label.verticalCenter = "top";
+
+                    series.columns.template.column.cornerRadiusTopLeft = cornerRadius;
+                    series.columns.template.column.cornerRadiusTopRight = cornerRadius;
+
                 }
 
                 labelBullet.label.dx = -10;
             });
 
-            var label = this.chart.plotContainer.createChild(am4core.Label);
-            label.x = am4core.percent(97);
-            label.y = am4core.percent(95);
-            label.horizontalCenter = "right";
-            label.verticalCenter = "middle";
-            label.dx = -15;
-            label.fontSize = 50;
+
 
             var playButton = this.chart.plotContainer.createChild(am4core.PlayButton);
             playButton.x = am4core.percent(97);
@@ -647,7 +696,7 @@ export default class AMChart extends Component {
               }
             }, this);
 
-            var beginCategory= this.props.data[0][this.props.indexBy];
+            var beginCategory= this.props.data.length ? this.props.data[0][this.props.indexBy] :null;
             var raceCurrentCategory = beginCategory;
             label.text = raceCurrentCategory;
             /////setup first data
@@ -690,8 +739,6 @@ export default class AMChart extends Component {
                 raceCurrentCategory  = beginCategory;
               }
               */
-              var categoryAxis = AxesForCategory.values[0];
-              var valueAxis =  AxesForValue.values[0];
 
               var newData = component.props.data.filter(row=>{
                     return row[component.props.indexBy]==raceCurrentCategory;
@@ -725,6 +772,8 @@ export default class AMChart extends Component {
                         series.interpolationDuration = stepDuration;
                         valueAxis.rangeChangeDuration = stepDuration;
                     }
+
+                   categoryAxis.sortBySeries = series;
               });
 
                /**/
@@ -734,6 +783,10 @@ export default class AMChart extends Component {
               categoryAxis.zoom({ start: 0, end: itemsWithNonZero / categoryAxis.dataItems.length });
 
             }
+
+            this.chart.series.values.forEach(series=>{
+                   categoryAxis.sortBySeries = series;
+            });
 
 
         }
