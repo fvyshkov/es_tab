@@ -429,6 +429,32 @@ export default class AMChart extends Component {
 
         }
 
+        ///////
+        if (this.props.chartParams.race){
+            var label = this.chart.plotContainer.createChild(am4core.Label);
+            label.x = am4core.percent(97);
+            label.y = am4core.percent(95);
+            label.horizontalCenter = "right";
+            label.verticalCenter = "middle";
+            label.dx = -15;
+            label.fontSize = 50;
+
+            var playButton = this.chart.plotContainer.createChild(am4core.PlayButton);
+            playButton.x = am4core.percent(97);
+            playButton.y = am4core.percent(95);
+            playButton.dy = -2;
+            playButton.verticalCenter = "middle";
+            playButton.events.on("toggled", function(event) {
+              if (event.target.isActive) {
+                play();
+              }
+              else {
+                stop();
+              }
+            });
+        }
+        ///////
+
         var AxesForCategory = this.props.chartParams.invertedAxis ? this.chart.yAxes : this.chart.xAxes;
         AxesForCategory.values[0].dataFields.category = this.props.indexBy;
 

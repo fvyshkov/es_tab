@@ -75,7 +75,8 @@ const defaultChartParms = {
     showPercent: false,
     strokeWidth: 1,
     strokeDasharray:"",
-    doubleChart: false
+    doubleChart: false,
+    race:false,
 }
 
 export const strokeDasharrayList=[
@@ -322,7 +323,7 @@ export class BarChartPanel extends Component {
         if (seriesName in this.state.measuresProperties){
             this.seriesData = this.state.measuresProperties[seriesName];
         } else{
-            this.seriesData = this.state.chartParams;
+            this.seriesData = Object.assign({}, this.state.chartParams);
         }
         this.seriesData.seriesName = seriesName;
         this.setState({chartSeriesSetupPanelVisible: true});

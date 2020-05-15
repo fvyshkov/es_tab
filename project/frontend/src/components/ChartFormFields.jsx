@@ -186,6 +186,14 @@ export class ChartFormFields extends Component {
 
                           />
 
+                          <Item
+                            dataField="race"
+                            label={{text:"Динамическая"}}
+                            editorType= "dxCheckBox"
+                            visible={ this.state.formData.chartType=="Bar" && !this.state.formData.seriesName}
+
+                          />
+
                          <Item
                             dataField="showPercent"
                             label={{text:" Номинированные значения"}}
