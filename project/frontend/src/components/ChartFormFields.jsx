@@ -179,6 +179,14 @@ export class ChartFormFields extends Component {
                           />
 
                          <Item
+                            dataField="doubleChart"
+                            label={{text:"Двойная диаграмма"}}
+                            editorType= "dxCheckBox"
+                            visible={ this.state.formData.chartType=="Pie" }
+
+                          />
+
+                         <Item
                             dataField="showPercent"
                             label={{text:" Номинированные значения"}}
                             editorType= "dxCheckBox"

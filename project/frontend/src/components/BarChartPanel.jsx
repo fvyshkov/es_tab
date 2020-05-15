@@ -74,7 +74,8 @@ const defaultChartParms = {
     invertedAxis: false,
     showPercent: false,
     strokeWidth: 1,
-    strokeDasharray:""
+    strokeDasharray:"",
+    doubleChart: false
 }
 
 export const strokeDasharrayList=[
@@ -113,7 +114,7 @@ export class BarChartPanel extends Component {
                        scrollbarY: true,
                        seriesTypeSelected:"Bar",
                        chartType:props.chartType,
-                       chartParams: props.chartParams
+                       chartParams: props.chartParams ? props.chartParams : {}
                      };
 
         this.componentDidMount = this.componentDidMount.bind(this);
