@@ -384,6 +384,10 @@ export default class AMChart extends Component {
 
 
     createChart() {
+        if (this.interval){
+            clearInterval(this.interval);
+        }
+
 
         if (this.props.chartParams && this.props.chartParams.chartType=="Pie"){
             if (this.props.chartParams.doubleChart){
@@ -718,7 +722,7 @@ export default class AMChart extends Component {
                 play(this);
               }
               else {
-                stop();
+                stop(this);
               }
             }, this);
 
@@ -737,28 +741,21 @@ export default class AMChart extends Component {
                 return newRow;
             }):null;
 
-            //console.log("newData")
-            /*
-            var newData = this.props.data.filter(row=>{
-                    return row[this.props.indexBy]==raceCurrentCategory;
-              });
-                */
-              console.log("start newData", newData);
+             console.log("start newData", newData);
               this.chart.data = newData;
-              /////
 
-            var interval;
+            //var interval;
 
             function play(component) {
-              interval = setInterval(function(){
+              component.interval = setInterval(function(){
                 nextCategory(component);
               }, stepDuration)
               nextCategory(component);
             }
 
-            function stop() {
-              if (interval) {
-                clearInterval(interval);
+            function stop(component) {
+              if (component.interval) {
+                clearInterval(component.interval);
               }
             }
 
@@ -852,6 +849,10 @@ export default class AMChart extends Component {
     if (this.chart) {
       this.chart.dispose();
     }
+    if (this.interval){
+            clearInterval(this.interval);
+        }
+
   }
 
   render() {
