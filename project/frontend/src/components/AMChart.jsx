@@ -468,7 +468,13 @@ export default class AMChart extends Component {
         console.log("chart  measuresProperties ", this.props.measuresProperties);
 
         /* Add series*/
-        this.props.keys.forEach((dataKey, keyIndex)=>{
+
+        if (!this.props.chartParams.race){
+            var seriesList = this.props.keys.slice();
+        }else{
+            var seriesList = ["value"];
+        }
+        seriesList.forEach((dataKey, keyIndex)=>{
             var seriesType = this.props.chartParams.chartType;
             var additionalAxis = this.props.chartParams.additionalAxis;
             var showLinearTrend = this.props.chartParams.showLinearTrend;
@@ -568,6 +574,8 @@ export default class AMChart extends Component {
                     }
                 }, this);
 
+
+
             }else if (series instanceof am4charts.LineSeries){
 
                 var bullet = series.bullets.push(new am4charts.Bullet());
@@ -603,7 +611,23 @@ export default class AMChart extends Component {
         ///////RACE BEGIN
         if (this.props.chartParams.race){
 
-            this.chart.numberFormatter.bigNumberPrefixes = [
+            this.setupRace();
+
+
+        }
+        ///////RACE END
+
+    }
+
+
+
+    setupRace(){
+        var AxesForCategory = this.props.chartParams.invertedAxis ? this.chart.yAxes : this.chart.xAxes;
+        AxesForCategory.values[0].dataFields.category = this.props.indexBy;
+
+        var AxesForValue = this.props.chartParams.invertedAxis ? this.chart.xAxes : this.chart.yAxes;
+
+        this.chart.numberFormatter.bigNumberPrefixes = [
                   { "number": 1e+3, "suffix": "K" },
                   { "number": 1e+6, "suffix": "M" },
                   { "number": 1e+9, "suffix": "B" }
@@ -650,7 +674,9 @@ export default class AMChart extends Component {
                 series.interpolationDuration = stepDuration;
                 series.interpolationEasing = am4core.ease.linear;
 
-
+                series.columns.template.adapter.add("fill", function(fill, target){
+                      return chart.colors.getIndex(target.dataItem.index*2);
+                    });
 
 
                 var labelBullet = series.bullets.push(new am4charts.LabelBullet())
@@ -697,12 +723,27 @@ export default class AMChart extends Component {
             }, this);
 
             var beginCategory= this.props.data.length ? this.props.data[0][this.props.indexBy] :null;
-            var raceCurrentCategory = beginCategory;
+
+            //var raceCurrentCategory = beginCategory;
+            var raceCurrentCategory = this.props.keys.length ? this.props.keys[0]: null;
             label.text = raceCurrentCategory;
             /////setup first data
+
+
+            var newData = this.props.data.length ? this.props.data.map(row=>{
+                var newRow = {};
+                newRow[this.props.indexBy] = row[this.props.indexBy];
+                newRow["value"] = row[raceCurrentCategory];
+                return newRow;
+            }):null;
+
+            //console.log("newData")
+            /*
             var newData = this.props.data.filter(row=>{
                     return row[this.props.indexBy]==raceCurrentCategory;
               });
+                */
+              console.log("start newData", newData);
               this.chart.data = newData;
               /////
 
@@ -722,35 +763,34 @@ export default class AMChart extends Component {
             }
 
             function nextCategory(component) {
-                var indexOfCurrent = component.props.data.findIndex(row=>{
-                    return row[component.props.indexBy] == raceCurrentCategory;
+                var indexOfCurrent = component.props.keys.findIndex(row=>{
+                    return row == raceCurrentCategory;
                 });
-                if (indexOfCurrent==component.props.data.length-1){
+                if (indexOfCurrent==component.props.keys.length-1){
                     var indexOfNext = 0;
                 }else{
                     var indexOfNext = indexOfCurrent+1;
                 }
-                raceCurrentCategory = component.props.data[indexOfNext][component.props.indexBy];
-                    /*
-                component.props.data[this.props.indexBy]
-              raceCurrentCategory = (parseInt(raceCurrentCategory)+1).toString()
+                raceCurrentCategory = component.props.keys[indexOfNext];
 
-              if (raceCurrentCategory=="9" ) {
-                raceCurrentCategory  = beginCategory;
-              }
-              */
 
-              var newData = component.props.data.filter(row=>{
-                    return row[component.props.indexBy]==raceCurrentCategory;
-              });
+                var newData = component.props.data.length ? component.props.data.map(row=>{
+                    var newRow = {};
+                    newRow[component.props.indexBy] = row[component.props.indexBy];
+                    newRow["value"] = row[raceCurrentCategory];
+                    return newRow;
+                }):null;
 
-              //component.chart.data = newData;
 
-                component.props.keys.forEach((key,index)=>{
-                    component.chart.data[0][key] = newData[0][key];
+                    newData.forEach(row=>{
+                        var chartDataIndex = component.chart.data.findIndex(chartRow=>{
+                            return chartRow[component.props.indexBy] == row[component.props.indexBy];
+                        });
+                        component.chart.data[chartDataIndex]["value"]=row["value"];
+                    });
 
-                });
-                component.chart.invalidateRawData();
+                    component.chart.invalidateRawData();
+
 
               console.log("RACE", component.chart.data);
               var itemsWithNonZero = 0;
@@ -776,22 +816,17 @@ export default class AMChart extends Component {
                    categoryAxis.sortBySeries = series;
               });
 
-               /**/
-              component.chart.invalidateRawData();
+
               label.text = raceCurrentCategory;
 
-              categoryAxis.zoom({ start: 0, end: itemsWithNonZero / categoryAxis.dataItems.length });
+              //categoryAxis.zoom({ start: 0, end: itemsWithNonZero / categoryAxis.dataItems.length });
 
             }
-
+/*
             this.chart.series.values.forEach(series=>{
                    categoryAxis.sortBySeries = series;
             });
-
-
-        }
-        ///////RACE END
-
+*/
     }
 
   componentDidUpdate(oldProps) {
