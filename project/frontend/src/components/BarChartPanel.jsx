@@ -76,7 +76,7 @@ const defaultChartParms = {
     strokeWidth: 1,
     strokeDasharray:"",
     doubleChart: false,
-    race:true,
+    race:false,
 }
 
 export const strokeDasharrayList=[
