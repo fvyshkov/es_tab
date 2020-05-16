@@ -631,6 +631,7 @@ export default class AMChart extends Component {
 
 
     setupRace(){
+        this.chart.zoomOutButton.disabled = true;
         var AxesForCategory = this.props.chartParams.invertedAxis ? this.chart.yAxes : this.chart.xAxes;
         AxesForCategory.values[0].dataFields.category = this.props.indexBy;
 
