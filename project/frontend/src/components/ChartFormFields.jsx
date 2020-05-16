@@ -135,6 +135,24 @@ export class ChartFormFields extends Component {
                           />
 
                           <Item
+                            dataField="minGridDistance"
+                            label={{text:"Интервал грида"}}
+                            editorType= "dxSlider"
+                            editorOptions={ { min:5, max:200, step:5}}
+                            visible={ this.state.formData.chartType != "Pie" && !this.state.formData.seriesName}
+
+                          />
+
+                          <Item
+                            dataField="labelRotation"
+                            label={{text:"Поворот подписей"}}
+                            editorType= "dxSlider"
+                            editorOptions={ { min:0, max:360, step:5}}
+                            visible={ this.state.formData.chartType != "Pie" && !this.state.formData.seriesName}
+
+                          />
+
+                          <Item
                             dataField="strokeDasharray"
                             label={{text:"Пунктир"}}
                             editorType= "dxSelectBox"
@@ -209,6 +227,8 @@ export class ChartFormFields extends Component {
                             visible={ this.state.formData.chartType!="Pie" }
 
                           />
+
+
 
 
 

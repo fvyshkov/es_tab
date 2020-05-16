@@ -77,6 +77,8 @@ const defaultChartParms = {
     strokeDasharray:"",
     doubleChart: false,
     race:false,
+    minGridDistance: 30,
+    labelRotation: 0
 }
 
 export const strokeDasharrayList=[

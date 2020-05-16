@@ -415,7 +415,8 @@ export default class AMChart extends Component {
             }
 
             var categoryAxis = AxesForCategory.push(new am4charts.CategoryAxis());
-            categoryAxis.renderer.minGridDistance = 30;
+            categoryAxis.renderer.minGridDistance = this.props.chartParams.minGridDistance;
+
 
             /* Create value axis */
             var valueAxis = AxesForValue.push(new am4charts.ValueAxis());
@@ -444,6 +445,10 @@ export default class AMChart extends Component {
 
         var AxesForCategory = this.props.chartParams.invertedAxis ? this.chart.yAxes : this.chart.xAxes;
         AxesForCategory.values[0].dataFields.category = this.props.indexBy;
+
+        AxesForCategory.values[0].renderer.minGridDistance = this.props.chartParams.minGridDistance;
+        AxesForCategory.values[0].renderer.labels.template.rotation = this.props.chartParams.labelRotation;
+
 
         var AxesForValue = this.props.chartParams.invertedAxis ? this.chart.xAxes : this.chart.yAxes;
 
