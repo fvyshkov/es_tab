@@ -15,6 +15,7 @@ import TableViewConf from './TableViewConf.jsx';
 import TableViewHistory from './TableViewHistory.jsx';
 import TableViewSchedule from './TableViewSchedule.jsx';
 import ReTableView from './ReTableView.jsx';
+import BarChartPanel from './BarChartPanel.jsx';
 
 import {processTree} from './esUtils.js';
 import SimpleDialog from './SimpleDialog.jsx';
@@ -35,7 +36,8 @@ const layoutComponents = {
     TableViewConf: TableViewConf,
     TableViewHistory: TableViewHistory,
     TableViewSchedule: TableViewSchedule,
-    ReTableView: ReTableView
+    ReTableView: ReTableView,
+    BarChartPanel: BarChartPanel
 };
 
 export default class LayoutWithToolbar extends Component {
@@ -157,7 +159,6 @@ export default class LayoutWithToolbar extends Component {
         });
 
         this.savedLayout = this.layoutForSave;
-
         this.addLayoutParams = [
             {dataField:"LONGNAME", label:"Наименование", value: "Рабочий стол",  visible: true}
         ];
@@ -245,6 +246,8 @@ export default class LayoutWithToolbar extends Component {
                                     expandedGroupIds={layoutItem.expandedGroupIds}
                                     columnFilterModel={layoutItem.columnFilterModel}
                                     columnState={layoutItem.columnState}
+                                    chartComponentIndex={3}
+                                    chartPanelState={layoutItem.chartPanelState}
                                     {...layoutItem.formParams}
                                  />,
                                 layoutItem.layout,

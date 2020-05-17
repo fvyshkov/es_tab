@@ -117,7 +117,8 @@ export class BarChartPanel extends Component {
                        scrollbarY: true,
                        seriesTypeSelected:"Bar",
                        chartType:props.chartType,
-                       chartParams: props.chartParams ? props.chartParams : {}
+                       chartParams: props.chartParams ? props.chartParams : {},
+                       stateLoadedFromLayout: false
                      };
 
         this.componentDidMount = this.componentDidMount.bind(this);
@@ -149,6 +150,22 @@ export class BarChartPanel extends Component {
     componentDidUpdate(oldProps){
         if (JSON.stringify(oldProps.data)!=JSON.stringify(this.props.data)){
             this.prepareData(this.state.selectedCategory);
+        }
+
+        if (this.props.chartPanelState &&
+                oldProps.data.length==0 &&
+                this.props.data.length>0 &&
+                !this.state.stateLoadedFromLayout
+                ){
+            this.setState({stateLoadedFromLayout: true, ...this.props.chartPanelState});
+        }
+
+        if (this.props.onLayoutContentChange){
+            this.props.onLayoutContentChange({
+                                                type: 'chartUpdated',
+                                                itemId: this.props.layoutItemID,
+                                                changeParams: {chartPanelState: this.state}
+                                             });
         }
     }
 
@@ -470,7 +487,6 @@ export class BarChartPanel extends Component {
                         tabSelectedIndexChanged={
                             (args)=>{
                                         if(args.name == 'selectedIndex') {
-                                            console.log("selectedIndex="+args.value);
                                             if (args.value!=this.state.tabSelectedIndex){
                                                 this.setState({tabSelectedIndex: args.value});
                                             }

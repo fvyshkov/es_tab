@@ -865,7 +865,7 @@ export class ReGrid extends React.Component {
                         />;
 
             const formParams = {additionalSheetParams:{sht_id: this.state.sheet_id, req_id:params.node.data.id, dop: params.node.data.dop}};
-            this.props.addElementToLayout(render, null, "chart", formParams);
+            this.props.addElementToLayout(render, null, "BarChartPanel", formParams);
         }
 
     }
