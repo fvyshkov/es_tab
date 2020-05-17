@@ -126,8 +126,6 @@ export class BarChartPanel extends Component {
         this.prepareData = this.prepareData.bind(this);
         this.changeField = this.changeField.bind(this);
         this.seriesSetup = this.seriesSetup.bind(this);
-        this.refreshChartData = this.refreshChartData.bind(this);
-
 
         this.setDefaultChartParams();
 
@@ -290,6 +288,9 @@ export class BarChartPanel extends Component {
                 measures:measures.slice(),//measures,
                 categories: categories,
                 selectedCategory: this.state.selectedCategory});
+
+        this.sendStateToLayout();
+
     }
 
     onChangeCategory(e){

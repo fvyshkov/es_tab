@@ -859,6 +859,7 @@ export class ReGrid extends React.Component {
                             addElementToLayout={this.props.addElementToLayout}
                             onToolbarCloseClick={this.props.onToolbarCloseClick}
                             getNewLayoutItemID={this.props.getNewLayoutItemID}
+                            onLayoutContentChange={this.props.onLayoutContentChange}
                             ranges={ranges}
                             chartComponentIndex={chartComponentIndex}
                             chartParams={{chartTitle:this.props.chartTitle, ...chartParams}}

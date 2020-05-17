@@ -159,6 +159,9 @@ export default class LayoutWithToolbar extends Component {
         });
 
         this.savedLayout = this.layoutForSave;
+
+        console.log("savePatternLayout this.layoutForSave", this.layoutForSave);
+
         this.addLayoutParams = [
             {dataField:"LONGNAME", label:"Наименование", value: "Рабочий стол",  visible: true}
         ];

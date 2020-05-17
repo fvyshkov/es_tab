@@ -706,6 +706,7 @@ export default class ReTableView extends Component {
                                 layoutItemID={this.props.layoutItemID}
                                 sendLayoutBeforeSave={this.props.sendLayoutBeforeSave}
                                 chartTitle={this.props.chartTitle}
+                                onLayoutContentChange={this.props.onLayoutContentChange}
                                 />
 
 
