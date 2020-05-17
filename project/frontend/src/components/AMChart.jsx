@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import * as am4core from "@amcharts/amcharts4/core";
 import * as am4charts from "@amcharts/amcharts4/charts";
 import am4themes_animated from "@amcharts/amcharts4/themes/animated";
+import * as am4plugins_annotation from "@amcharts/amcharts4/plugins/annotation";
 
 am4core.useTheme(am4themes_animated);
 
@@ -116,6 +117,9 @@ export default class AMChart extends Component {
 
     createPieChart(){
         this.chart = am4core.create("chartdiv_"+this.props.chartId, am4charts.PieChart);
+
+        var annotation = this.chart.plugins.push(new am4plugins_annotation.Annotation());
+
         this.chart.data = this.props.data;
         // Add and configure Series
         this.props.keys.forEach((dataKey, keyIndex)=>{
@@ -428,6 +432,8 @@ export default class AMChart extends Component {
 
 
         }
+
+        var annotation = this.chart.plugins.push(new am4plugins_annotation.Annotation());
 
         if (!this.props.chartParams.race){
             this.chart.cursor = new am4charts.XYCursor();
