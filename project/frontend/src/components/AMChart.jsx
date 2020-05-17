@@ -419,6 +419,7 @@ export default class AMChart extends Component {
             titleLabel.fontSize = 20;
             titleLabel.horizontalCenter = "middle";
             titleLabel.verticalCenter = "middle";
+            titleLabel.tagName = "titleLabel";
             titleLabel.text = this.props.chartParams.title;
 
             if (this.props.chartParams.invertedAxis){
@@ -443,6 +444,13 @@ export default class AMChart extends Component {
 
 
         }
+
+        this.chart.plotContainer.children.values.forEach((child, index)=>{
+            if (child.tagName=="titleLabel"){
+                child.text = this.props.chartParams ? this.props.chartParams.chartTitle: "";
+            }
+        });
+
 
         var annotation = this.chart.plugins.push(new am4plugins_annotation.Annotation());
 

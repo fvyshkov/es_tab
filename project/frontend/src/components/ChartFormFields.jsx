@@ -117,6 +117,15 @@ export class ChartFormFields extends Component {
                           />
 
                         <Item
+                            dataField="chartTitle"
+                            label={{text:"Заголовок"}}
+                            visible={!this.state.formData.seriesName}
+                            editorOptions={{
+                            valueChangeEvent: "focusout",
+                           }}
+                          />
+
+                        <Item
                             dataField="smoothLine"
                             label={{text:"Сглаживание"}}
                             editorType= "dxSlider"
