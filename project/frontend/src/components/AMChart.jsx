@@ -857,23 +857,9 @@ export default class AMChart extends Component {
 */
     }
 
-  componentDidUpdate(oldProps) {
-    this.createChart();
-    return;
-    var data2 = this.props.data.map((row, index)=>{
-        return {
-            date:row[this.props.indexBy],
-            name:"name_"+index,
-            value:row[this.props.keys[0]]
-            };
-    });
-
-
-    if (JSON.stringify(data2)!=JSON.stringify(this.chart.data)){
-        this.chart.data = data2;
-        this.setState({key:this.state.key+1});
+    componentDidUpdate(oldProps) {
+        this.createChart();
     }
-  }
 
 
   componentWillUnmount() {

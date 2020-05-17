@@ -161,6 +161,11 @@ export class BarChartPanel extends Component {
             this.setState({stateLoadedFromLayout: true, ...this.props.chartPanelState});
         }
 
+        this.sendStateToLayout();
+
+    }
+
+    sendStateToLayout(){
         if (this.props.onLayoutContentChange){
             this.props.onLayoutContentChange({
                                                 type: 'chartUpdated',
@@ -187,17 +192,9 @@ export class BarChartPanel extends Component {
 
         }
 
-        if (this.props.refreshChartData){
-            this.props.refreshChartData(this.refreshChartData);
-        }
-
     }
 
-    refreshChartData(data){
-        //console.log("refreshChartData", data);
-        //this.setState({data:data});
-        //this.prepareData(this.state.selectedCategory);
-    }
+
 
     prepareData(selectedCategory){
 
@@ -216,8 +213,6 @@ export class BarChartPanel extends Component {
             }
         });
 
-        console.log("measures=", measures);
-        console.log("categories=", categories);
         var selectedCategoryInner = selectedCategory? selectedCategory: categories[0];
 
 
