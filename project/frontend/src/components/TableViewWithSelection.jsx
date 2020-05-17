@@ -1252,6 +1252,7 @@ export default class TableViewWithSelection extends Component {
                     saveViewState={this.saveViewState.bind(this)}
                     onCellValueChanged={this.onCellValueChanged.bind(this)}
                     getDataRequestString={this.getDataRequestString.bind(this)}
+                    chartTitle={this.state.sheet.label}
                     getRowNodeId={(data)=>{
                                             if (data){
                                                 return data.node_key;

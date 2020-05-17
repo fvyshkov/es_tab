@@ -406,9 +406,20 @@ export default class AMChart extends Component {
                                     this.chart.prototype.isPrototypeOf(am4charts.XYChart);
         if (!isChartXYExists){
 
+
+
+
             this.chart = am4core.create("chartdiv_"+this.props.chartId, am4charts.XYChart);
 
 
+            var titleLabel = this.chart.plotContainer.createChild(am4core.Label);
+            titleLabel.x = am4core.percent(50);
+            titleLabel.y = am4core.percent(0);
+            titleLabel.dy = -35;
+            titleLabel.fontSize = 20;
+            titleLabel.horizontalCenter = "middle";
+            titleLabel.verticalCenter = "middle";
+            titleLabel.text = this.props.chartParams.title;
 
             if (this.props.chartParams.invertedAxis){
                 var AxesForCategory = this.chart.yAxes;

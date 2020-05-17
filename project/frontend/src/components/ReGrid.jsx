@@ -861,7 +861,7 @@ export class ReGrid extends React.Component {
                             getNewLayoutItemID={this.props.getNewLayoutItemID}
                             ranges={ranges}
                             chartComponentIndex={chartComponentIndex}
-                            chartParams={chartParams}
+                            chartParams={{title:this.props.chartTitle,... chartParams}}
                         />;
 
             const formParams = {additionalSheetParams:{sht_id: this.state.sheet_id, req_id:params.node.data.id, dop: params.node.data.dop}};
