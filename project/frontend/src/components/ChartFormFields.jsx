@@ -168,6 +168,14 @@ export class ChartFormFields extends Component {
 
                           />
 
+                           <Item
+                            dataField="fillColor"
+                            label={{text:"Цвет"}}
+                            visible={this.state.formData.seriesName? true:false}
+                            editorType= "dxColorBox"
+
+                          />
+
                           <Item
                             dataField="strokeWidth"
                             label={{text:"Толщина линии"}}

@@ -137,7 +137,6 @@ export default class AMChart extends Component {
             pieSeries.dataFields.category = this.props.indexBy;
 
             pieSeries.colors.list = [1,2,3,4,5,6,7,8].map(index=>{
-                console.log("this.props.getColor(index)", this.props.getColor(index));
                 return  am4core.color(this.props.getColor(index));
             });
 
@@ -533,7 +532,7 @@ export default class AMChart extends Component {
             var stacked = this.props.chartParams.stacked;
             var strokeWidth = this.props.chartParams.strokeWidth;
             var strokeDasharray = this.props.chartParams.strokeDasharray;
-
+            var fillColor = null;
 
             if (dataKey in this.props.measuresProperties){
                 console.log("chart series "+dataKey, this.props.measuresProperties[dataKey]);
@@ -542,6 +541,7 @@ export default class AMChart extends Component {
                 showLinearTrend = this.props.measuresProperties[dataKey].showLinearTrend;
                 smoothLine = this.props.measuresProperties[dataKey].smoothLine;
                 fillOpacity = this.props.measuresProperties[dataKey].fillOpacity;
+                fillColor = this.props.measuresProperties[dataKey].fillColor;
                 stacked = this.props.measuresProperties[dataKey].stacked;
                 strokeWidth = this.props.measuresProperties[dataKey].strokeWidth;
                 strokeDasharray = this.props.measuresProperties[dataKey].strokeDasharray;
@@ -561,8 +561,13 @@ export default class AMChart extends Component {
             }
 
             series.name = dataKey;
-            series.fill = this.props.getColor(keyIndex);
-            series.stroke = this.props.getColor(keyIndex);
+            if (fillColor){
+                series.fill = fillColor;
+            }else{
+                series.fill = this.props.getColor(keyIndex);
+            }
+
+            series.stroke = series.fill;
             series.tooltip.label.textAlign = "middle";
 
 

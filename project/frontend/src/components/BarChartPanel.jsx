@@ -387,6 +387,14 @@ export class BarChartPanel extends Component {
         } else{
             this.seriesData = Object.assign({}, this.state.chartParams);
         }
+        if (!this.seriesData.fillColor){
+            var colorFuncton = this.getColorFunction();
+            var colorIndex = this.state.measures.indexOf(seriesName);
+            for (var i=0;i<=colorIndex; i++){
+                this.seriesData.fillColor = colorFuncton(i);
+            }
+
+        }
         this.seriesData.seriesName = seriesName;
         this.setState({chartSeriesSetupPanelVisible: true});
     }
@@ -405,13 +413,16 @@ export class BarChartPanel extends Component {
         this.setState({measuresProperties: this.state.measuresProperties});
     }
 
-    render() {
-
-        var colorFuncton = d3.scaleOrdinal(this.state.colorScheme in colorMaps ?
+    getColorFunction(){
+        return d3.scaleOrdinal(this.state.colorScheme in colorMaps ?
                                         colorMaps[this.state.colorScheme]
                                         :
                                         colorMaps["accent"]);
+    }
 
+    render() {
+
+        var colorFuncton = this.getColorFunction();
         var options = this.state.categories.map(field=>{
             return (<option key={field} value={field}>{field}</option>);
         });
