@@ -81,12 +81,13 @@ export class ChartControlPanel extends Component {
                         value={this.props.categoryValue}
                         onValueChanged={this.props.categoryOnValueChanged}
                      />
+                     <p></p>
                     <List
                         items={this.props.measureItems}
                         height={300}
                         allowItemDeleting={false}
                         showSelectionControls={true}
-                        selectionMode="multiple"
+                        selectionMode={'all'}
                         selectedItems={this.props.measureSelectedItems}
                         onOptionChanged={this.props.measureOnOptionChanged}
                         />
@@ -94,12 +95,9 @@ export class ChartControlPanel extends Component {
                         </div>
                 );
             }else{
-                console.log("this.props.chartParams", this.props.chartParams);
                 return (
-
                     <ChartFormFields
                         onFieldDataChanged={(params)=>{
-                            console.log('ChartFormFields', params);
                             this.props.onChangeChartParams(params);
 
                         }}
@@ -107,103 +105,7 @@ export class ChartControlPanel extends Component {
                     />
 
                 );
-                //
-                return (
 
-                <ScrollView id="scrollview"
-                      showScrollbar={"onScroll"}
-                      >
-                        <div className="chart-control-panel-item">
-
-
-                        <RadioGroup
-                            layout={"horizontal"}
-                            items={["grouped","stacked"]}
-                            value={this.props.groupGroupMode}
-                            onValueChanged={this.props.groupOnChangeGroupMode}
-
-
-                        />
-
-                        <RadioGroup
-                            layout={"horizontal"}
-                            items={["horizontal", "vertical"]}
-                            value={this.props.layout}
-                            onValueChanged={this.props.layoutOnChangeLayout}
-                        />
-
-                        <p></p>
-
-                        <SelectBox items={colors}
-                        value={this.props.colorScheme}
-                        onValueChanged={this.props.colorsOnValueChanged}
-                        itemRender={this.colorRender}
-                         fieldRender={this.colorRender}
-
-                         />
-
-
-                        <p></p>
-                        Подписи значений <Switch
-                             value={this.props.enableLabel}
-                             onValueChanged={this.props.enableLabelOnValueChanged}
-                             />
-
-                             <p></p>
-                        Легенда <Switch
-                             value={this.props.legendEnabled}
-                             onValueChanged={this.props.legendEnabledOnChanged}
-                             />
-                            <p></p>Положение
-                               <SelectBox
-                                items={["top-left",
-                                        "top",
-                                        "top-right",
-                                        "left",
-                                        "center",
-                                        "right",
-                                        "bottom-left",
-                                        "bottom",
-                                        "bottom-right"
-
-                                        ]}
-                                value={this.props.legendPosition}
-                                onValueChanged={this.props.legendPositionOnChanged}
-                                 />
-
-                             <p></p>Смещение по X
-                              <Slider
-                                min={-200}
-                                max={200}
-                                value={this.props.legendXOffset}
-                                onValueChanged={this.props.legendXOffsetOnChanged}
-                                step={1}
-                                tooltip={{ enabled: true }}
-                                 />
-
-                              <p></p>Смещение по Y
-                              <Slider
-                                min={-200}
-                                max={200}
-                                value={this.props.legendYOffset}
-                                onValueChanged={this.props.legendYOffsetOnChanged}
-                                step={1}
-                                tooltip={{ enabled: true }}
-                                 />
-
-                <p></p>
-                Ориентация
-                <Tabs
-                        items={this.props.legendDirection}
-                        selectedItemKeys={this.props.legendDirectionSelected}
-                        onOptionChanged={this.props.legendDirectionOnChange}
-                      />
-
-
-                    </div>
-                </ScrollView>
-
-                );
             }
           }}
 
