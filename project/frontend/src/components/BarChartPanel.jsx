@@ -633,12 +633,19 @@ function mapStateToProps(state) {
 
 */
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, ownProps) => {
 
-    console.log("BAR mapStateToProps", state);
-    return {
-      data: state.gridData
-  };
+    console.log("BAR mapStateToProps", state, ownProps.parentLayoutItemID);
+
+    if (state.gridData[ownProps.parentLayoutItemID]){
+        return {
+            data: state.gridData[ownProps.parentLayoutItemID]
+        };
+    }else{
+        return {
+            data: []
+        };
+    }
 
 };
 

@@ -232,7 +232,6 @@ export default class LayoutWithToolbar extends Component {
                 if (layoutItem.elementType == "TableViewWithSelection"){
                     refer = React.createRef();
                 }
-
                 this.addElementToLayout(
                                 <Component
                                     ref={refer}

@@ -608,7 +608,7 @@ export class ReGrid extends React.Component {
 
 
     onRowDataUpdated(){
-        this.props.updateGrid(this.prepareDataForChart());
+        this.props.updateGrid({layoutItemID:this.props.layoutItemID, data: this.prepareDataForChart()});
     }
 
     render() {
@@ -871,6 +871,7 @@ export class ReGrid extends React.Component {
                             chartId={newLayoutItemID}
                             data={data}
                             layoutItemID={newLayoutItemID}
+                            parentLayoutItemID={this.props.layoutItemID}
                             addElementToLayout={this.props.addElementToLayout}
                             onToolbarCloseClick={this.props.onToolbarCloseClick}
                             getNewLayoutItemID={this.props.getNewLayoutItemID}
@@ -880,7 +881,7 @@ export class ReGrid extends React.Component {
                             chartParams={{chartTitle:this.props.chartTitle, ...chartParams}}
                         />;
 
-            const formParams = {additionalSheetParams:{sht_id: this.state.sheet_id, req_id:params.node.data.id, dop: params.node.data.dop}};
+            const formParams = {additionalSheetParams:{sht_id: this.state.sheet_id, req_id:params.node.data.id, dop: params.node.data.dop}, parentLayoutItemID: this.props.layoutItemID};
             this.props.addElementToLayout(render, null, "BarChartPanel", formParams);
         }
 

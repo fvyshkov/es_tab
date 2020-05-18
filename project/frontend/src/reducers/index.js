@@ -25,10 +25,11 @@ function rootReducer(state = initialState, action) {
     console.log('action.type', action.type);
 
     if (action.type === "UPDATE_GRID") {
-        console.log("UPDATE_GRID", action, action.payload);
+        var gridData = state.gridData;
+        gridData[action.params.layoutItemID] = action.params.data;
         return Object.assign({}, state, {
-            gridData: action.params,
-            counter: state.counter+1
+            gridData: gridData,
+            layoutItemID: action.params.layoutItemID
         });
     }
 
