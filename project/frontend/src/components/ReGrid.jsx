@@ -540,8 +540,6 @@ export class ReGrid extends React.Component {
         }
     }
 
-    sendRefreshChartData(){
-    }
 
 
     сreateCharts(charts){
@@ -610,7 +608,6 @@ export class ReGrid extends React.Component {
 
 
     onRowDataUpdated(){
-        this.sendRefreshChartData(this.prepareDataForChart());
         this.props.updateGrid(this.prepareDataForChart());
     }
 
@@ -815,6 +812,25 @@ export class ReGrid extends React.Component {
         return isFound;
     }
 
+    rangeCellForChart(){
+        var ranges = this.gridApi.getCellRanges();
+
+        return ranges.map(range=>{
+            return {
+                    startRow : range.startRow.rowIndex,
+                    endRow : range.endRow.rowIndex,
+                    columns : range.columns.map(column=>{
+                                console.log("col=", column);
+                                return {
+                                    name:column.userProvidedColDef.headerName,
+                                    isCategory: !["N","I"].includes(column.userProvidedColDef.atr_type)
+                                };
+                            })
+            };
+        });
+        return ranges;
+    }
+
     prepareDataForChart(){
         if (!this.gridApi){
             return [];
@@ -825,7 +841,7 @@ export class ReGrid extends React.Component {
         this.gridApi.forEachNode(node=>{
             if (node.data.column_data){
                 node.data.column_data.forEach(cell=>{
-                    if (this.nodeInRanges(node, ranges) && (cell.atr_type  == "N" || cell.atr_type  == "I") && cell.name && cell.sql_value){
+                    if ( (cell.atr_type  == "N" || cell.atr_type  == "I") && cell.name && cell.sql_value){
                         var row = {};
                         node.data.column_data.forEach(column=>{
                             if (column.atr_type != "N" && column.atr_type !=  "I" && column.name && column.sql_value){
@@ -854,13 +870,12 @@ export class ReGrid extends React.Component {
             var render=<BarChartPanel
                             chartId={newLayoutItemID}
                             data={data}
-                            refreshChartData={click => this.sendRefreshChartData = click}
                             layoutItemID={newLayoutItemID}
                             addElementToLayout={this.props.addElementToLayout}
                             onToolbarCloseClick={this.props.onToolbarCloseClick}
                             getNewLayoutItemID={this.props.getNewLayoutItemID}
                             onLayoutContentChange={this.props.onLayoutContentChange}
-                            ranges={ranges}
+                            ranges={this.rangeCellForChart()}
                             chartComponentIndex={chartComponentIndex}
                             chartParams={{chartTitle:this.props.chartTitle, ...chartParams}}
                         />;
