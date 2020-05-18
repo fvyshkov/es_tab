@@ -119,7 +119,8 @@ export class BarChartPanel extends Component {
                        seriesTypeSelected:"Bar",
                        chartType:props.chartType,
                        chartParams: props.chartParams ? props.chartParams : {},
-                       stateLoadedFromLayout: false
+                       stateLoadedFromLayout: false,
+                       ranges: props.ranges
                      };
 
         this.componentDidMount = this.componentDidMount.bind(this);
@@ -193,6 +194,7 @@ export class BarChartPanel extends Component {
     }
 
     filterDataByRanges(data, ranges){
+
         if (!ranges){
             return [];
         }
@@ -244,7 +246,7 @@ export class BarChartPanel extends Component {
         var measures = [];
         var categories = [];
 
-        var data = this.filterDataByRanges(this.props.data, this.props.ranges);
+        var data = this.filterDataByRanges(this.props.data, this.state.ranges);
 
         data.forEach(element=>{
 
@@ -632,18 +634,12 @@ function mapStateToProps(state) {
 */
 
 const mapStateToProps = state => {
+
     console.log("BAR mapStateToProps", state);
     return {
       data: state.gridData
   };
-    /*
-  const { byIds, allIds } = state.todos || {};
-  const todos =
-    allIds && allIds.length
-      ? allIds.map(id => (byIds ? { ...byIds[id], id } : null))
-      : null;
-  return { todos };
-  */
+
 };
 
 export default connect(mapStateToProps)(BarChartPanel);
