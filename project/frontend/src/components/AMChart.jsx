@@ -118,6 +118,14 @@ export default class AMChart extends Component {
     createPieChart(){
         this.chart = am4core.create("chartdiv_"+this.props.chartId, am4charts.PieChart);
 
+        if (this.props.chartParams.showLegend){
+            this.chart.legend = new am4charts.Legend();
+            this.chart.legend.position = this.props.chartParams.showLegend;
+        }else{
+            this.chart.legend = null;
+        }
+
+
         var annotation = this.chart.plugins.push(new am4plugins_annotation.Annotation());
 
         this.chart.data = this.props.data;
@@ -411,6 +419,7 @@ export default class AMChart extends Component {
 
             this.chart = am4core.create("chartdiv_"+this.props.chartId, am4charts.XYChart);
 
+            this.chart.legend = new am4charts.Legend();
 
             var titleLabel = this.chart.plotContainer.createChild(am4core.Label);
             titleLabel.x = am4core.percent(50);
@@ -443,6 +452,13 @@ export default class AMChart extends Component {
 
 
 
+        }
+
+        if (this.props.chartParams.showLegend){
+            this.chart.legend = new am4charts.Legend();
+            this.chart.legend.position = this.props.chartParams.showLegend;
+        }else{
+            this.chart.legend = null;
         }
 
         this.chart.plotContainer.children.values.forEach((child, index)=>{

@@ -5,7 +5,21 @@ import { Template } from 'devextreme-react/core/template';
 import { TextBox } from 'devextreme-react';
 import ScrollView from 'devextreme-react/scroll-view';
 
+
 const selectBoxItemRender = function(data) {
+         return (
+
+                <div className="custom-item">
+                  <img width="30" height="30" src={data && data.img} />
+                  <TextBox className="product-name"
+                    defaultValue={data && data.name}
+                    readOnly={true} />
+                </div>
+
+         );
+    }
+
+const legendItemRender = function(data) {
          return (
 
                 <div className="custom-item">
@@ -125,6 +139,26 @@ export class ChartFormFields extends Component {
                            }}
                           />
 
+
+
+                          <Item
+                            dataField="showLegend"
+                            label={{text:"Легенда"}}
+                            editorType= "dxSelectBox"
+                            visible={true}
+                            editorOptions={ {
+                                items: [{name:"Нет", id:""},
+                                        {name:"Слева", id:"left"},
+                                        {name:"Справа", id:"right"},
+                                        {name:"Вверху", id:"top"},
+                                        {name:"Внизу", id:"bottom"},
+                                        ],
+                                valueExpr:"id",
+                                displayExpr:"name",
+                            }
+                            }
+                          />
+
                         <Item
                             dataField="smoothLine"
                             label={{text:"Сглаживание"}}
@@ -242,6 +276,7 @@ export class ChartFormFields extends Component {
 
 
                             <Template name='myItemTemplate' render={selectBoxItemRender} />
+                            <Template name='myLegendTemplate' render={legendItemRender} />
 
                         </Form>
                 </div>
