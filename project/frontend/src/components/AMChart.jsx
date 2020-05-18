@@ -419,7 +419,7 @@ export default class AMChart extends Component {
 
             this.chart = am4core.create("chartdiv_"+this.props.chartId, am4charts.XYChart);
 
-            this.chart.legend = new am4charts.Legend();
+            this.chart.exporting.menu = new am4core.ExportMenu();
 
             var titleLabel = this.chart.plotContainer.createChild(am4core.Label);
             titleLabel.x = am4core.percent(50);
