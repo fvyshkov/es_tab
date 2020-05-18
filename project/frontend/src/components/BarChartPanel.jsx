@@ -192,7 +192,51 @@ export class BarChartPanel extends Component {
 
     }
 
+    filterDataByRanges(data, ranges){
+        if (!ranges){
+            return [];
+        }
 
+        var resultData = [];
+
+        function columnNameInRanges(columnName, ranges){
+            return ranges.find(range=>{
+
+                var col = range.columns.find(column=>{
+                    return column.name == columnName;
+                });
+                return col ? true:false;
+            })? true:false;
+        }
+
+        data.forEach(dataRow=>{
+
+            var rangeContainedRow = ranges.find(range=>{
+                    return dataRow.rowIndex >= range.startRow && dataRow.rowIndex <= range.endRow
+                });
+
+
+
+            if (rangeContainedRow){
+
+                if (columnNameInRanges(dataRow.measure, ranges)){
+                    var resultRow = {rowIndex:dataRow.rowIndex, value: dataRow.value};
+                    for(var fieldName in dataRow){
+                        if (columnNameInRanges(fieldName, ranges)){
+                            resultRow[fieldName] = dataRow[fieldName];
+                        }
+                    }
+                    resultData.push(dataRow);
+                }
+            }
+
+
+
+        });
+
+        return resultData;
+
+    }
 
     prepareData(selectedCategory){
 
@@ -200,10 +244,12 @@ export class BarChartPanel extends Component {
         var measures = [];
         var categories = [];
 
-        this.props.data.forEach(element=>{
+        var data = this.filterDataByRanges(this.props.data, this.props.ranges);
+
+        data.forEach(element=>{
 
             for (var key in element){
-                if (key!="value" && key!= "measure"){
+                if (key!="value" && key!= "measure" && key !="rowIndex"){
                     if (!categories.find(el=>{return el==key})){
                         categories.push(key);
                     }
@@ -214,7 +260,7 @@ export class BarChartPanel extends Component {
         var selectedCategoryInner = selectedCategory? selectedCategory: categories[0];
 
 
-        this.props.data.forEach(element=>{
+        data.forEach(element=>{
             if (!this.state.transposeData){
                 if (!measures.find(el=>{return el==element['measure']})){
                     measures.push(element['measure']);
@@ -228,10 +274,7 @@ export class BarChartPanel extends Component {
 
         });
 
-        //var selectedCategoryForData = this.state.transposeData ? COLUMN_CATEGORY_NAME : selectedCategoryInner;
-
-
-        this.props.data.forEach(element=>{
+        data.forEach(element=>{
 
             if (!this.state.transposeData){
                 var currentPreparedIndex = preparedData.findIndex(el=> {
@@ -528,8 +571,8 @@ export class BarChartPanel extends Component {
                         onChangeChartParams={this.onChangeChartParams.bind(this)}
                     />);
                     }}
-          closeOnOutsideClick={this.onOutsideClick}
-          data={this.props.data}
+                    closeOnOutsideClick={this.onOutsideClick}
+
           >
           <div id={"chart_content_"+this.props.layoutItemID} className="chart-wrapper">
                 <ChartComponent

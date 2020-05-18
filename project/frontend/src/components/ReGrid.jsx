@@ -848,7 +848,7 @@ export class ReGrid extends React.Component {
                                 row[column.name] = column.sql_value;
                             }
                         });
-
+                        row['rowIndex'] = node.rowIndex;
                         row['measure'] = cell.name;
                         row['value'] = cell.sql_value;
                         data.push(row);
